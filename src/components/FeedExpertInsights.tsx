@@ -43,7 +43,7 @@ export function FeedExpertInsights({
               area_specialization
             )
           `)
-          .eq("comparison_id", comparisonId)
+          .eq("comparison_id", comparisonId.toString())
           .order("created_at", { ascending: false })
           .limit(isCompact ? 3 : 10);
 

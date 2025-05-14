@@ -38,7 +38,7 @@ export function FeedExpertVoting({
       const { error } = await supabase
         .from("votes")
         .insert({
-          comparison_id: comparisonId,
+          comparison_id: comparisonId.toString(),
           expert_user_id: user.id,
           voted_for: selectedProperty,
           comment: comment.trim() || null,
