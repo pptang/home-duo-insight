@@ -14,7 +14,7 @@ import NotFound from "./pages/NotFound";
 import { useState } from "react";
 
 function App() {
-  // Create a new QueryClient for each render
+  // Create a new QueryClient for each render to fix the React hook usage issue
   const [queryClient] = useState(() => new QueryClient());
 
   return (

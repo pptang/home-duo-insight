@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -13,9 +13,14 @@ import {
   Building,
   Home
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { FeedExpertVoting } from "@/components/FeedExpertVoting";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface ComparisonPost {
-  id: number;
+  id: number | string;
   title: string;
   propertyA: string;
   propertyB: string;
@@ -32,6 +37,7 @@ interface ComparisonPost {
   imageB?: string;
   userName: string;
   userAvatar?: string;
+  expertVoted?: boolean;
 }
 
 const SAMPLE_COMPARISONS: ComparisonPost[] = [
@@ -86,9 +92,48 @@ const SAMPLE_COMPARISONS: ComparisonPost[] = [
 ];
 
 const Feed = () => {
+  const { isExpert, user } = useAuth();
   const [comparisons, setComparisons] = useState<ComparisonPost[]>(SAMPLE_COMPARISONS);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [votedComparisons, setVotedComparisons] = useState<Record<string | number, boolean>>({});
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    if (isExpert && user) {
+      // Check which comparisons the expert has already voted on
+      const checkExpertVotes = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("votes")
+            .select("comparison_id")
+            .eq("expert_user_id", user.id);
+
+          if (error) {
+            console.error("Error fetching expert votes:", error);
+            return;
+          }
+
+          if (data) {
+            const votedIds = data.reduce<Record<string | number, boolean>>(
+              (acc, vote) => ({ ...acc, [vote.comparison_id]: true }), 
+              {}
+            );
+            setVotedComparisons(votedIds);
+          }
+        } catch (error) {
+          console.error("Unexpected error checking votes:", error);
+        }
+      };
+
+      checkExpertVotes();
+    }
+  }, [isExpert, user, refreshTrigger]);
+
+  const handleVoteSubmitted = (comparisonId: number | string) => {
+    setVotedComparisons(prev => ({ ...prev, [comparisonId]: true }));
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -227,6 +272,24 @@ const Feed = () => {
                       <h4 className="font-medium text-gray-900">AI Recommendation</h4>
                       <p className="mt-1 text-gray-600">{comparison.recommendation}</p>
                     </div>
+
+                    {/* Expert Voting Section */}
+                    {isExpert && (
+                      <div className="border-t border-gray-100 pt-4 mb-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            Expert Voting
+                          </Badge>
+                        </div>
+                        <FeedExpertVoting 
+                          comparisonId={comparison.id}
+                          propertyAName={comparison.propertyA}
+                          propertyBName={comparison.propertyB}
+                          hasVoted={!!votedComparisons[comparison.id]}
+                          onVoteSubmitted={() => handleVoteSubmitted(comparison.id)}
+                        />
+                      </div>
+                    )}
 
                     <div className="flex flex-wrap items-center justify-between">
                       <div className="flex flex-wrap items-center gap-4">
