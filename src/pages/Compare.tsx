@@ -47,9 +47,16 @@ interface AIRecommendation {
   final_recommendation: string;
 }
 
+// Improved URL validation schema
 const urlSchema = z.object({
-  property_url_a: z.string().url("Must be a valid URL").min(1, "Property A URL is required"),
-  property_url_b: z.string().url("Must be a valid URL").min(1, "Property B URL is required"),
+  property_url_a: z.string()
+    .url("Must be a valid URL")
+    .min(5, "Property A URL is too short")
+    .refine(url => url.startsWith('http'), "URL must start with http:// or https://"),
+  property_url_b: z.string()
+    .url("Must be a valid URL")
+    .min(5, "Property B URL is too short")
+    .refine(url => url.startsWith('http'), "URL must start with http:// or https://"),
 });
 
 const personalizationSchema = z.object({
@@ -64,6 +71,7 @@ type PersonalizationValues = z.infer<typeof personalizationSchema>;
 
 const Compare = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<string | null>(null);
   const [isGeneratingRecommendation, setIsGeneratingRecommendation] = useState(false);
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
   const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
@@ -91,6 +99,9 @@ const Compare = () => {
   const handleAnalyzeProperties = async (values: FormValues) => {
     setIsLoading(true);
     try {
+      // Show loading stages for better user feedback
+      setLoadingStage("Fetching property webpages...");
+      
       // Call the Supabase Edge Function
       const { data, error } = await supabase.functions.invoke("analyze-properties", {
         body: {
@@ -134,6 +145,7 @@ const Compare = () => {
       });
     } finally {
       setIsLoading(false);
+      setLoadingStage(null);
     }
   };
 
@@ -226,6 +238,7 @@ const Compare = () => {
                                   placeholder="https://example.com/property/123"
                                   {...field}
                                   className="bg-white"
+                                  disabled={isLoading}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -243,6 +256,7 @@ const Compare = () => {
                                   placeholder="https://example.com/property/456"
                                   {...field}
                                   className="bg-white"
+                                  disabled={isLoading}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -260,7 +274,7 @@ const Compare = () => {
                               <>
                                 <span className="opacity-0">Analyze Properties</span>
                                 <span className="absolute inset-0 flex items-center justify-center">
-                                  Analyzing properties with AI... please wait
+                                  {loadingStage || "Analyzing properties..."}
                                 </span>
                               </>
                             ) : (

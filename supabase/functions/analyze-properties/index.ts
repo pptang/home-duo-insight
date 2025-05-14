@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -92,9 +93,37 @@ serve(async (req) => {
       });
     }
 
-    // Call Gemini API to extract property data
-    // const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
-    const geminiApiKey = "AIzaSyBoHmQriyZFrD4ENGaF_SIuh_asv-1Pk2Q";
+    // 1. First call the parse-properties function to get the HTML content
+    console.log("Calling parse-properties function");
+    const parseResponse = await supabaseClient.functions.invoke("parse-properties", {
+      body: { property_url_a, property_url_b },
+    });
+
+    if (parseResponse.error) {
+      console.error("Parse function error:", parseResponse.error);
+      return new Response(
+        JSON.stringify({ error: "Error parsing property URLs: " + parseResponse.error.message }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const { html_property_a, html_property_b } = parseResponse.data;
+    
+    if (!html_property_a || !html_property_b) {
+      return new Response(
+        JSON.stringify({ error: "Failed to retrieve HTML content from one or both URLs" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // 2. Call Gemini API to extract property data from HTML
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
       return new Response(
         JSON.stringify({ error: "Gemini API key not configured" }),
@@ -105,13 +134,26 @@ serve(async (req) => {
       );
     }
 
-    // Prepare prompt for Gemini
-    const prompt = `Please visit these property URLs and extract property data for DuoHome Advisor: 
-Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Image URLs, Notes. 
-Return clean structured JSON.
+    // Prepare prompt for Gemini - use HTML content
+    // Truncate HTML if too long to avoid token limit issues
+    const maxHtmlLength = 20000; // Adjust based on Gemini's token limit
+    const truncatedHtmlA = html_property_a.length > maxHtmlLength ? 
+      html_property_a.substring(0, maxHtmlLength) + "... [HTML truncated]" : 
+      html_property_a;
+    const truncatedHtmlB = html_property_b.length > maxHtmlLength ? 
+      html_property_b.substring(0, maxHtmlLength) + "... [HTML truncated]" : 
+      html_property_b;
 
-Property A URL: ${property_url_a}
-Property B URL: ${property_url_b}
+    const prompt = `You are DuoHome Advisor AI. Here are two raw real estate listing pages.
+Extract structured property data for each property:
+Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Image URLs, Notes.
+Return results as structured JSON for DuoHome Advisor.
+
+FOR PROPERTY A:
+${truncatedHtmlA}
+
+FOR PROPERTY B:
+${truncatedHtmlB}
 
 Please return the data in this exact format (do not include any explanation, just the JSON):
 {
@@ -138,6 +180,7 @@ Please return the data in this exact format (do not include any explanation, jus
 }`;
 
     // Make request to Gemini API
+    console.log("Calling Gemini API to extract data");
     const geminiResponse = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-latest:generateContent",
       {
@@ -175,24 +218,22 @@ Please return the data in this exact format (do not include any explanation, jus
     }
 
     const geminiData = await geminiResponse.json();
-    console.log("Gemini response:", JSON.stringify(geminiData));
+    console.log("Gemini response received");
 
     try {
       // Extract the JSON from Gemini's response
       const responseText =
         geminiData.candidates[0]?.content?.parts?.[0]?.text || "";
-      console.log("Response text:", responseText);
 
       // Extract the JSON part from the response
       const jsonMatch =
         responseText.match(/```json\n([\s\S]*?)\n```/) ||
         responseText.match(/({[\s\S]*})/);
       const jsonString = jsonMatch ? jsonMatch[1] : responseText;
-      console.log("Extracted JSON string:", jsonString);
 
       // Parse the extracted JSON
       const extractedData = JSON.parse(jsonString);
-      console.log("Parsed data:", extractedData);
+      console.log("Successfully parsed property data");
 
       // Insert property data into Supabase
       const propertyA = extractedData.property_a;
