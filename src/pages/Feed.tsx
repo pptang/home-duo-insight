@@ -282,7 +282,7 @@ const Feed = () => {
                           </Badge>
                         </div>
                         <FeedExpertVoting 
-                          comparisonId={comparison.id}
+                          comparisonId={String(comparison.id)}
                           propertyAName={comparison.propertyA}
                           propertyBName={comparison.propertyB}
                           hasVoted={!!votedComparisons[comparison.id]}
