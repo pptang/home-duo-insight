@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -15,6 +14,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { ExpertSection } from "@/components/ExpertSection";
 
 interface PropertyData {
   property_name: string;
@@ -67,6 +68,7 @@ const Compare = () => {
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
   const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
   const [showPersonalizationDialog, setShowPersonalizationDialog] = useState(false);
+  const { user } = useAuth();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(urlSchema),
@@ -504,6 +506,17 @@ const Compare = () => {
                   </div>
                 )}
 
+                {/* Expert Section */}
+                {comparisonResult && (
+                  <div className="mt-8">
+                    <ExpertSection 
+                      comparisonId={comparisonResult.comparison_id}
+                      propertyAName={comparisonResult.property_a.property_name || "Property A"}
+                      propertyBName={comparisonResult.property_b.property_name || "Property B"}
+                    />
+                  </div>
+                )}
+
                 <div className="mt-8 text-center">
                   <Button 
                     variant="outline" 
@@ -657,4 +670,3 @@ const Compare = () => {
 };
 
 export default Compare;
-

@@ -48,6 +48,39 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          area_specialization: string | null
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string
+        }
+        Insert: {
+          area_specialization?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Update: {
+          area_specialization?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address: string | null
@@ -87,6 +120,48 @@ export type Database = {
         }
         Relationships: []
       }
+      votes: {
+        Row: {
+          comment: string | null
+          comparison_id: string
+          created_at: string
+          expert_user_id: string
+          id: string
+          voted_for: string
+        }
+        Insert: {
+          comment?: string | null
+          comparison_id: string
+          created_at?: string
+          expert_user_id: string
+          id?: string
+          voted_for: string
+        }
+        Update: {
+          comment?: string | null
+          comparison_id?: string
+          created_at?: string
+          expert_user_id?: string
+          id?: string
+          voted_for?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_comparison_id_fkey"
+            columns: ["comparison_id"]
+            isOneToOne: false
+            referencedRelation: "comparisons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_expert_user_id_fkey"
+            columns: ["expert_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -95,7 +170,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "user" | "expert" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -210,6 +285,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["user", "expert", "admin"],
+    },
   },
 } as const
