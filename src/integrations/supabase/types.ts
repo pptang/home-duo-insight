@@ -9,7 +9,84 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      comparisons: {
+        Row: {
+          created_at: string | null
+          id: string
+          property_a_id: string
+          property_b_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          property_a_id: string
+          property_b_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          property_a_id?: string
+          property_b_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comparisons_property_a_id_fkey"
+            columns: ["property_a_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comparisons_property_b_id_fkey"
+            columns: ["property_b_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      properties: {
+        Row: {
+          address: string | null
+          commute_minutes: number | null
+          created_at: string | null
+          floor_plan: string | null
+          id: string
+          image_urls: string[] | null
+          notes: string | null
+          price_yen: number | null
+          property_name: string | null
+          property_type: string | null
+        }
+        Insert: {
+          address?: string | null
+          commute_minutes?: number | null
+          created_at?: string | null
+          floor_plan?: string | null
+          id?: string
+          image_urls?: string[] | null
+          notes?: string | null
+          price_yen?: number | null
+          property_name?: string | null
+          property_type?: string | null
+        }
+        Update: {
+          address?: string | null
+          commute_minutes?: number | null
+          created_at?: string | null
+          floor_plan?: string | null
+          id?: string
+          image_urls?: string[] | null
+          notes?: string | null
+          price_yen?: number | null
+          property_name?: string | null
+          property_type?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
