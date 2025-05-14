@@ -4,28 +4,30 @@
 
 ### Phase 1: MVP Core Experience
 
-- [ ] Set up project repo and environment (Vite + React + Supabase)
-- [ ] Build static Homepage with value proposition and sample comparison preview
+- [x] Set up project repo and environment (Vite + React + Supabase)
+- [x] Build static Homepage with value proposition and sample comparison preview
 - [ ] Implement manual property input form (Comparison Page)
 - [ ] Integrate user profile form (pets, WFH, commute, etc.)
-- [ ] Connect Gemini 2.5 Pro (or equivalent) to generate AI recommendation
-- [ ] Display AI summary, pros/cons, and basic visual summary
+- [x] Connect Gemini 2.5 Pro (or equivalent) to generate AI recommendation
+- [x] Display AI summary, pros/cons, and basic visual summary
 - [ ] Launch email/password auth and Google OAuth (optional)
-- [ ] Basic Supabase schema: Users, Properties, Comparisons
+- [x] Basic Supabase schema: Users, Properties, Comparisons
+- [ ] Store the result of comparison
+- [ ] Build comparison detail page
 
 ### Phase 2: Enrichment and Validation
 
-- [ ] Add URL input with site validation (Suumo, at home)
-- [ ] Build scraping/parsing logic with fallback
-- [ ] Show "Analyzing..." loading state during data fetch
-- [ ] Create side-by-side comparison layout with tables/images/maps
+- [x] Add URL input with site validation (Suumo, at home)
+- [x] Build scraping/parsing logic with fallback
+- [x] Show "Analyzing..." loading state during data fetch
+- [x] Create side-by-side comparison layout with tables/images/maps
 - [ ] Build Consolidated Decision View (publicly shareable)
 
 ### Phase 3: Expert System and Profiles
 
 - [ ] Create expert invite system with tokenized access
 - [ ] Build expert dashboard to view/respond to comparisons
-- [ ] Enable voting and short-form commentary per expert
+- [x] Enable voting and short-form commentary per expert
 - [ ] Display expert info alongside votes (name, photo, area specialty)
 - [ ] Build expert profile pages (public-facing)
 - [ ] Add "Contact Expert" via in-app message or mailto link
@@ -33,7 +35,7 @@
 ### Phase 4: Community & Feed
 
 - [ ] Build public Comparison Feed with sort/filter options
-- [ ] Enable thumbs-up/star voting on comparisons
+- [x] Enable thumbs-up/star voting on comparisons
 - [ ] Add community commenting system
 - [ ] Add filters (property type, popularity, recency)
 - [ ] Ensure login required for voting, posting, and commenting
