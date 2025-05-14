@@ -10,7 +10,7 @@ interface FeedExpertVotingProps {
   comparisonId: string;
   propertyAName: string;
   propertyBName: string;
-  hasVoted?: boolean; // Added this prop
+  hasVoted?: boolean;
   onVoteSubmitted: () => void;
 }
 
@@ -18,7 +18,7 @@ export const FeedExpertVoting = ({
   comparisonId,
   propertyAName, 
   propertyBName,
-  hasVoted = false, // Default to false
+  hasVoted = false,
   onVoteSubmitted
 }: FeedExpertVotingProps) => {
   const [voteOption, setVoteOption] = useState<'A' | 'B' | null>(null);
