@@ -2,141 +2,126 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/use-auth";
+import { toast } from "@/hooks/use-toast";
 
 interface FeedExpertVotingProps {
-  comparisonId: number | string;
+  comparisonId: string;
   propertyAName: string;
   propertyBName: string;
-  hasVoted: boolean;
   onVoteSubmitted: () => void;
-  isCompact?: boolean;
 }
 
-export function FeedExpertVoting({
+export const FeedExpertVoting = ({ 
   comparisonId,
-  propertyAName,
-  propertyBName,
-  hasVoted,
-  onVoteSubmitted,
-  isCompact = true
-}: FeedExpertVotingProps) {
-  const { user, isExpert } = useAuth();
-  const [selectedProperty, setSelectedProperty] = useState<"A" | "B" | null>(null);
-  const [comment, setComment] = useState("");
+  propertyAName, 
+  propertyBName, 
+  onVoteSubmitted
+}: FeedExpertVotingProps) => {
+  const [voteOption, setVoteOption] = useState<'A' | 'B' | null>(null);
+  const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showComment, setShowComment] = useState(!isCompact);
+  const { user } = useAuth();
 
   const handleVoteSubmit = async () => {
-    if (!user || !isExpert || !selectedProperty) return;
+    if (!user?.id || !voteOption || !comparisonId) return;
     
     setIsSubmitting(true);
     
     try {
-      const { error } = await supabase
-        .from("votes")
-        .insert({
-          comparison_id: comparisonId.toString(),
-          expert_user_id: user.id,
-          voted_for: selectedProperty,
-          comment: comment.trim() || null,
-        });
+      // Make sure comparisonId is a string
+      const comparison_id = String(comparisonId);
       
+      const { error } = await supabase.from('votes').insert({
+        comparison_id,
+        expert_user_id: user.id,
+        voted_for: voteOption,
+        comment: comment.trim() || null
+      });
+
       if (error) {
         console.error("Error submitting vote:", error);
         toast({
           variant: "destructive",
           title: "Vote failed",
-          description: "Could not submit your vote. Please try again.",
+          description: "Could not submit your vote. Please try again."
         });
         return;
       }
-      
+
       toast({
         title: "Vote submitted",
-        description: `You voted for Property ${selectedProperty}`,
+        description: "Your expert vote has been recorded."
       });
       
+      setVoteOption(null);
+      setComment('');
       onVoteSubmitted();
-      setSelectedProperty(null);
-      setComment("");
-      setShowComment(false);
+      
     } catch (error) {
-      console.error("Unexpected error submitting vote:", error);
+      console.error("Error submitting vote:", error);
       toast({
         variant: "destructive",
         title: "Vote failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: "Could not submit your vote. Please try again."
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (!isExpert) return null;
-  
-  if (hasVoted) {
-    return isCompact ? null : (
-      <div className="bg-gray-50 border-green-100 border rounded-md p-3 my-2 text-sm flex items-center gap-2">
-        <span className="text-green-500">✓</span> You've already voted on this comparison
-      </div>
-    );
-  }
-  
   return (
-    <div className="space-y-3 mt-2">
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          size="sm"
-          variant={selectedProperty === "A" ? "default" : "outline"}
-          className={selectedProperty === "A" ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]" : ""}
-          onClick={() => setSelectedProperty("A")}
-        >
-          {propertyAName}
-        </Button>
-        <Button
-          size="sm"
-          variant={selectedProperty === "B" ? "default" : "outline"}
-          className={selectedProperty === "B" ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]" : ""}
-          onClick={() => setSelectedProperty("B")}
-        >
-          {propertyBName}
-        </Button>
-      </div>
-      
-      {isCompact && selectedProperty && !showComment && (
+    <div className="bg-white rounded-lg border p-4 space-y-4">
+      <h3 className="font-semibold text-lg">Expert Vote</h3>
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button 
-          size="sm" 
-          variant="ghost" 
-          onClick={() => setShowComment(true)} 
-          className="text-xs w-full"
-        >
-          + Add comment (optional)
-        </Button>
-      )}
-      
-      {(showComment || !isCompact) && (
-        <Textarea
-          placeholder="Add optional comment (max 280 chars)..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value.slice(0, 280))}
-          className="resize-none text-sm"
-          rows={2}
-        />
-      )}
-      
-      <div className="flex justify-end">
-        <Button
+          variant={voteOption === 'A' ? 'default' : 'outline'} 
+          className={voteOption === 'A' ? 'bg-[#6A7FDB]' : ''}
+          onClick={() => setVoteOption('A')}
           size="sm"
-          onClick={handleVoteSubmit}
-          disabled={!selectedProperty || isSubmitting}
-          className="bg-[#6A7FDB] hover:bg-[#5A6DCB]"
         >
-          {isSubmitting ? "Submitting..." : "Submit Vote"}
+          Vote for {propertyAName || 'Property A'}
+        </Button>
+        <Button 
+          variant={voteOption === 'B' ? 'default' : 'outline'}
+          className={voteOption === 'B' ? 'bg-[#6A7FDB]' : ''}
+          onClick={() => setVoteOption('B')}
+          size="sm"
+        >
+          Vote for {propertyBName || 'Property B'}
         </Button>
       </div>
+      
+      {voteOption && (
+        <div className="space-y-3">
+          <div>
+            <label htmlFor="comment" className="block text-sm font-medium text-gray-700 mb-1">
+              Optional comment (max 280 characters)
+            </label>
+            <Textarea 
+              id="comment"
+              placeholder="Share your expert insight..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value.slice(0, 280))}
+              className="w-full"
+              maxLength={280}
+              rows={3}
+            />
+            <div className="text-xs text-right text-gray-500 mt-1">
+              {comment.length}/280
+            </div>
+          </div>
+          
+          <Button 
+            onClick={handleVoteSubmit}
+            disabled={isSubmitting}
+            className="w-full sm:w-auto"
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit Vote'}
+          </Button>
+        </div>
+      )}
     </div>
   );
-}
+};

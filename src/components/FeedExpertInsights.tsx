@@ -1,135 +1,129 @@
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ThumbsUp } from "lucide-react";
 
-type Vote = Database["public"]["Tables"]["votes"]["Row"] & {
-  profiles: {
+type Vote = Database['public']['Tables']['votes']['Row'] & {
+  expert: {
     full_name: string | null;
     avatar_url: string | null;
     area_specialization: string | null;
-  };
+  }
 };
 
 interface FeedExpertInsightsProps {
-  comparisonId: string | number;
+  comparisonId: string;
   propertyAName: string;
   propertyBName: string;
-  isCompact?: boolean;
 }
 
-export function FeedExpertInsights({
-  comparisonId,
-  propertyAName,
-  propertyBName,
-  isCompact = true
-}: FeedExpertInsightsProps) {
+export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName }: FeedExpertInsightsProps) => {
   const [votes, setVotes] = useState<Vote[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchExpertVotes = async () => {
-      setLoading(true);
+    const fetchVotes = async () => {
+      if (!comparisonId) return;
+      
+      setIsLoading(true);
+      
       try {
+        // Make sure comparisonId is a string
+        const comparison_id = String(comparisonId);
+        
         const { data, error } = await supabase
-          .from("votes")
+          .from('votes')
           .select(`
             *,
-            profiles:expert_user_id (
-              full_name,
-              avatar_url,
+            expert:profiles(
+              full_name, 
+              avatar_url, 
               area_specialization
             )
           `)
-          .eq("comparison_id", comparisonId.toString())
-          .order("created_at", { ascending: false })
-          .limit(isCompact ? 3 : 10);
-
+          .eq('comparison_id', comparison_id)
+          .order('created_at', { ascending: false });
+          
         if (error) {
-          console.error("Error fetching expert votes:", error);
+          console.error("Error fetching votes:", error);
           return;
         }
-
+        
         setVotes(data as Vote[]);
       } catch (error) {
-        console.error("Unexpected error fetching votes:", error);
+        console.error("Error fetching votes:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-
-    fetchExpertVotes();
-  }, [comparisonId, isCompact]);
-
-  if (loading) {
-    return (
-      <div className="text-sm text-gray-500 py-2">
-        Loading expert insights...
-      </div>
-    );
+    
+    fetchVotes();
+  }, [comparisonId]);
+  
+  if (isLoading) {
+    return <div className="p-4 text-center text-gray-500">Loading expert insights...</div>;
   }
-
+  
   if (votes.length === 0) {
     return (
-      <div className="text-sm text-gray-500 py-2">
-        No expert insights yet
+      <div className="bg-white rounded-lg border p-4 text-center text-gray-500">
+        No expert votes yet
       </div>
     );
   }
-
-  // Count votes for each property
-  const propertyAVotes = votes.filter(vote => vote.voted_for === "A").length;
-  const propertyBVotes = votes.filter(vote => vote.voted_for === "B").length;
-  const totalVotes = votes.length;
-
+  
   return (
-    <div className="space-y-2">
-      {!isCompact && (
-        <div className="font-medium text-sm">Expert Insights ({votes.length})</div>
-      )}
-      
-      <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-        <span>{propertyAName}: {propertyAVotes}</span>
-        <span>{propertyBName}: {propertyBVotes}</span>
+    <div className="bg-white rounded-lg border">
+      <div className="p-4 border-b">
+        <h3 className="font-semibold text-lg">Expert Insights</h3>
       </div>
-      
-      <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-        <div 
-          className="h-full bg-[#6A7FDB]"
-          style={{ width: `${totalVotes > 0 ? (propertyAVotes / totalVotes) * 100 : 0}%` }}
-        />
-      </div>
-      
-      {!isCompact && votes.length > 0 && (
-        <div className="space-y-3 mt-3">
-          {votes.map((vote) => {
-            const expertName = vote.profiles?.full_name || "Expert";
-            const initials = expertName
-              .split(" ")
-              .map(n => n[0])
-              .join("")
-              .toUpperCase();
-              
-            return (
-              <div key={vote.id} className="flex items-center gap-2 text-sm">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage src={vote.profiles?.avatar_url || ""} />
-                  <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                </Avatar>
-                <span className="font-medium">{expertName}</span>
-                <Badge className={vote.voted_for === "A" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}>
-                  {vote.voted_for}
-                </Badge>
-                {vote.comment && (
-                  <span className="text-gray-600 text-xs italic ml-2">"{vote.comment}"</span>
+      <div className="divide-y">
+        {votes.map((vote) => (
+          <div key={vote.id} className="p-4">
+            <div className="flex items-start gap-3">
+              <Avatar className="h-10 w-10">
+                {vote.expert.avatar_url ? (
+                  <img 
+                    src={vote.expert.avatar_url} 
+                    alt={vote.expert.full_name || "Expert"} 
+                  />
+                ) : (
+                  <AvatarFallback>
+                    {(vote.expert.full_name?.charAt(0) || "E").toUpperCase()}
+                  </AvatarFallback>
                 )}
+              </Avatar>
+              
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-medium">{vote.expert.full_name || "Expert"}</h4>
+                    {vote.expert.area_specialization && (
+                      <p className="text-xs text-gray-500">{vote.expert.area_specialization}</p>
+                    )}
+                  </div>
+                  <div className="bg-[#F7F7F8] text-sm py-1 px-2 rounded-full flex items-center gap-1">
+                    <ThumbsUp className="h-3.5 w-3.5" />
+                    <span>
+                      {vote.voted_for === 'A' ? propertyAName || 'Property A' : propertyBName || 'Property B'}
+                    </span>
+                  </div>
+                </div>
+                
+                {vote.comment && (
+                  <p className="mt-2 text-sm text-gray-700">{vote.comment}</p>
+                )}
+                
+                <div className="mt-1 text-xs text-gray-400">
+                  {new Date(vote.created_at).toLocaleDateString()}
+                </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
-}
+};
