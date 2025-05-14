@@ -3,17 +3,52 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowDown, CheckCircle, ImageIcon, ThumbsDown, ThumbsUp, Upload, XCircle } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  ArrowDown,
+  CheckCircle,
+  ImageIcon,
+  ThumbsDown,
+  ThumbsUp,
+  Upload,
+  XCircle,
+} from "lucide-react";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { ExpertSection } from "@/components/ExpertSection";
 
@@ -49,14 +84,22 @@ interface AIRecommendation {
 
 // Improved URL validation schema
 const urlSchema = z.object({
-  property_url_a: z.string()
+  property_url_a: z
+    .string()
     .url("Must be a valid URL")
     .min(5, "Property A URL is too short")
-    .refine(url => url.startsWith('http'), "URL must start with http:// or https://"),
-  property_url_b: z.string()
+    .refine(
+      (url) => url.startsWith("http"),
+      "URL must start with http:// or https://"
+    ),
+  property_url_b: z
+    .string()
     .url("Must be a valid URL")
     .min(5, "Property B URL is too short")
-    .refine(url => url.startsWith('http'), "URL must start with http:// or https://"),
+    .refine(
+      (url) => url.startsWith("http"),
+      "URL must start with http:// or https://"
+    ),
 });
 
 const personalizationSchema = z.object({
@@ -72,11 +115,16 @@ type PersonalizationValues = z.infer<typeof personalizationSchema>;
 const Compare = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState<string | null>(null);
-  const [isGeneratingRecommendation, setIsGeneratingRecommendation] = useState(false);
-  const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
-  const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
-  const [showPersonalizationDialog, setShowPersonalizationDialog] = useState(false);
+  const [isGeneratingRecommendation, setIsGeneratingRecommendation] =
+    useState(false);
+  const [comparisonResult, setComparisonResult] =
+    useState<ComparisonResult | null>(null);
+  const [aiRecommendation, setAiRecommendation] =
+    useState<AIRecommendation | null>(null);
+  const [showPersonalizationDialog, setShowPersonalizationDialog] =
+    useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(urlSchema),
@@ -101,21 +149,25 @@ const Compare = () => {
     try {
       // Show loading stages for better user feedback
       setLoadingStage("Fetching property webpages...");
-      
+
       // Call the Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke("analyze-properties", {
-        body: {
-          property_url_a: values.property_url_a,
-          property_url_b: values.property_url_b,
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "analyze-properties",
+        {
+          body: {
+            property_url_a: values.property_url_a,
+            property_url_b: values.property_url_b,
+          },
+        }
+      );
 
       if (error) {
         console.error("Edge function error:", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Could not extract data. Please check the URLs or try another.",
+          description:
+            "Could not extract data. Please check the URLs or try another.",
         });
         return;
       }
@@ -157,19 +209,22 @@ const Compare = () => {
 
   const handleGetRecommendation = async (values: PersonalizationValues) => {
     if (!comparisonResult) return;
-    
+
     setIsGeneratingRecommendation(true);
     setShowPersonalizationDialog(false);
-    
+
     try {
-      const { data, error } = await supabase.functions.invoke("generate-recommendation", {
-        body: {
-          comparison_id: comparisonResult.comparison_id,
-          property_a: comparisonResult.property_a,
-          property_b: comparisonResult.property_b,
-          user_profile: values
-        },
-      });
+      const { data, error } = await supabase.functions.invoke(
+        "generate-recommendation",
+        {
+          body: {
+            comparison_id: comparisonResult.comparison_id,
+            property_a: comparisonResult.property_a,
+            property_b: comparisonResult.property_b,
+            user_profile: values,
+          },
+        }
+      );
 
       if (error) {
         console.error("Recommendation error:", error);
@@ -192,7 +247,8 @@ const Compare = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "We couldn't generate your recommendation. Please try again.",
+        description:
+          "We couldn't generate your recommendation. Please try again.",
       });
     } finally {
       setIsGeneratingRecommendation(false);
@@ -201,10 +257,10 @@ const Compare = () => {
 
   // Function to format price in Japanese Yen
   const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('ja-JP', { 
-      style: 'currency', 
-      currency: 'JPY',
-      maximumFractionDigits: 0 
+    return new Intl.NumberFormat("ja-JP", {
+      style: "currency",
+      currency: "JPY",
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -215,24 +271,34 @@ const Compare = () => {
       <main className="flex-grow bg-[#F7F7F8] py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900">Compare Two Properties</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Compare Two Properties
+            </h1>
             <p className="mt-2 text-gray-600">
-              Paste the URLs of two properties you're considering to see a side-by-side comparison.
+              Paste the URLs of two properties you're considering to see a
+              side-by-side comparison.
             </p>
 
             {!comparisonResult ? (
               <div className="mt-8">
                 <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-                  <h2 className="text-xl font-semibold mb-4">Property URL Input</h2>
+                  <h2 className="text-xl font-semibold mb-4">
+                    Property URL Input
+                  </h2>
                   <div className="space-y-6">
                     <Form {...form}>
-                      <form onSubmit={form.handleSubmit(handleAnalyzeProperties)} className="space-y-6">
+                      <form
+                        onSubmit={form.handleSubmit(handleAnalyzeProperties)}
+                        className="space-y-6"
+                      >
                         <FormField
                           control={form.control}
                           name="property_url_a"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-medium">Property A URL</FormLabel>
+                              <FormLabel className="font-medium">
+                                Property A URL
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="https://example.com/property/123"
@@ -250,7 +316,9 @@ const Compare = () => {
                           name="property_url_b"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="font-medium">Property B URL</FormLabel>
+                              <FormLabel className="font-medium">
+                                Property B URL
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="https://example.com/property/456"
@@ -264,7 +332,7 @@ const Compare = () => {
                           )}
                         />
                         <div className="mt-8 text-center">
-                          <Button 
+                          <Button
                             size="lg"
                             type="submit"
                             disabled={isLoading || !form.formState.isValid}
@@ -272,7 +340,9 @@ const Compare = () => {
                           >
                             {isLoading ? (
                               <>
-                                <span className="opacity-0">Analyze Properties</span>
+                                <span className="opacity-0">
+                                  Analyze Properties
+                                </span>
                                 <span className="absolute inset-0 flex items-center justify-center">
                                   {loadingStage || "Analyzing properties..."}
                                 </span>
@@ -295,13 +365,15 @@ const Compare = () => {
                     {/* Property A */}
                     <div className="p-6">
                       <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                        {comparisonResult.property_a.image_urls && comparisonResult.property_a.image_urls.length > 0 ? (
+                        {comparisonResult.property_a.image_urls &&
+                        comparisonResult.property_a.image_urls.length > 0 ? (
                           <img
                             src={comparisonResult.property_a.image_urls[0]}
                             alt={comparisonResult.property_a.property_name}
                             className="w-full h-full object-cover rounded-lg"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/placeholder.svg';
+                              (e.target as HTMLImageElement).src =
+                                "/placeholder.svg";
                             }}
                           />
                         ) : (
@@ -310,29 +382,44 @@ const Compare = () => {
                           </div>
                         )}
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900">{comparisonResult.property_a.property_name}</h3>
-                      <p className="text-[#6A7FDB] font-medium">{formatPrice(comparisonResult.property_a.price_yen)}</p>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {comparisonResult.property_a.property_name}
+                      </h3>
+                      <p className="text-[#6A7FDB] font-medium">
+                        {formatPrice(comparisonResult.property_a.price_yen)}
+                      </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
-                          <span className="font-medium">{comparisonResult.property_a.address}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_a.address}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Floor Plan:</span>
-                          <span className="font-medium">{comparisonResult.property_a.floor_plan}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_a.floor_plan}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
-                          <span className="font-medium">{comparisonResult.property_a.commute_minutes} minutes</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_a.commute_minutes}{" "}
+                            minutes
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Property Type:</span>
-                          <span className="font-medium">{comparisonResult.property_a.property_type}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_a.property_type}
+                          </span>
                         </div>
                         {comparisonResult.property_a.notes && (
                           <div className="mt-2">
                             <span className="text-gray-600 block">Notes:</span>
-                            <p className="mt-1 text-sm">{comparisonResult.property_a.notes}</p>
+                            <p className="mt-1 text-sm">
+                              {comparisonResult.property_a.notes}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -341,13 +428,15 @@ const Compare = () => {
                     {/* Property B */}
                     <div className="p-6">
                       <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                        {comparisonResult.property_b.image_urls && comparisonResult.property_b.image_urls.length > 0 ? (
+                        {comparisonResult.property_b.image_urls &&
+                        comparisonResult.property_b.image_urls.length > 0 ? (
                           <img
                             src={comparisonResult.property_b.image_urls[0]}
                             alt={comparisonResult.property_b.property_name}
                             className="w-full h-full object-cover rounded-lg"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/placeholder.svg';
+                              (e.target as HTMLImageElement).src =
+                                "/placeholder.svg";
                             }}
                           />
                         ) : (
@@ -356,29 +445,44 @@ const Compare = () => {
                           </div>
                         )}
                       </div>
-                      <h3 className="text-xl font-semibold text-gray-900">{comparisonResult.property_b.property_name}</h3>
-                      <p className="text-[#6A7FDB] font-medium">{formatPrice(comparisonResult.property_b.price_yen)}</p>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        {comparisonResult.property_b.property_name}
+                      </h3>
+                      <p className="text-[#6A7FDB] font-medium">
+                        {formatPrice(comparisonResult.property_b.price_yen)}
+                      </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
-                          <span className="font-medium">{comparisonResult.property_b.address}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_b.address}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Floor Plan:</span>
-                          <span className="font-medium">{comparisonResult.property_b.floor_plan}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_b.floor_plan}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
-                          <span className="font-medium">{comparisonResult.property_b.commute_minutes} minutes</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_b.commute_minutes}{" "}
+                            minutes
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Property Type:</span>
-                          <span className="font-medium">{comparisonResult.property_b.property_type}</span>
+                          <span className="font-medium">
+                            {comparisonResult.property_b.property_type}
+                          </span>
                         </div>
                         {comparisonResult.property_b.notes && (
                           <div className="mt-2">
                             <span className="text-gray-600 block">Notes:</span>
-                            <p className="mt-1 text-sm">{comparisonResult.property_b.notes}</p>
+                            <p className="mt-1 text-sm">
+                              {comparisonResult.property_b.notes}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -388,7 +492,7 @@ const Compare = () => {
 
                 {/* Get Recommendation Button */}
                 <div className="text-center mb-8">
-                  <Button 
+                  <Button
                     size="lg"
                     onClick={() => setShowPersonalizationDialog(true)}
                     disabled={isGeneratingRecommendation}
@@ -413,7 +517,9 @@ const Compare = () => {
                     {/* Summary Table */}
                     <Card>
                       <CardHeader className="bg-[#F7F7F8]">
-                        <CardTitle className="text-xl">Property Comparison Summary</CardTitle>
+                        <CardTitle className="text-xl">
+                          Property Comparison Summary
+                        </CardTitle>
                       </CardHeader>
                       <CardContent className="p-0">
                         <Table>
@@ -427,7 +533,9 @@ const Compare = () => {
                           <TableBody>
                             {aiRecommendation.summary_table.map((row, i) => (
                               <TableRow key={i}>
-                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="font-medium">
+                                  {row.field}
+                                </TableCell>
                                 <TableCell>{row.property_a}</TableCell>
                                 <TableCell>{row.property_b}</TableCell>
                               </TableRow>
@@ -442,32 +550,44 @@ const Compare = () => {
                       {/* Property A */}
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle>{comparisonResult.property_a.property_name}</CardTitle>
+                          <CardTitle>
+                            {comparisonResult.property_a.property_name}
+                          </CardTitle>
                           <CardDescription>Pros and Cons</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {/* Pros */}
                           <div>
                             <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
-                              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                              <ThumbsUp
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
                               Pros
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
-                              {aiRecommendation.property_a_pros.map((pro, i) => (
-                                <li key={i}>{pro}</li>
-                              ))}
+                              {aiRecommendation.property_a_pros.map(
+                                (pro, i) => (
+                                  <li key={i}>{pro}</li>
+                                )
+                              )}
                             </ul>
                           </div>
                           {/* Cons */}
                           <div>
                             <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
-                              <ThumbsDown className="h-4 w-4" aria-hidden="true" />
+                              <ThumbsDown
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
                               Cons
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
-                              {aiRecommendation.property_a_cons.map((con, i) => (
-                                <li key={i}>{con}</li>
-                              ))}
+                              {aiRecommendation.property_a_cons.map(
+                                (con, i) => (
+                                  <li key={i}>{con}</li>
+                                )
+                              )}
                             </ul>
                           </div>
                         </CardContent>
@@ -476,32 +596,44 @@ const Compare = () => {
                       {/* Property B */}
                       <Card>
                         <CardHeader className="pb-2">
-                          <CardTitle>{comparisonResult.property_b.property_name}</CardTitle>
+                          <CardTitle>
+                            {comparisonResult.property_b.property_name}
+                          </CardTitle>
                           <CardDescription>Pros and Cons</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {/* Pros */}
                           <div>
                             <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
-                              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                              <ThumbsUp
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
                               Pros
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
-                              {aiRecommendation.property_b_pros.map((pro, i) => (
-                                <li key={i}>{pro}</li>
-                              ))}
+                              {aiRecommendation.property_b_pros.map(
+                                (pro, i) => (
+                                  <li key={i}>{pro}</li>
+                                )
+                              )}
                             </ul>
                           </div>
                           {/* Cons */}
                           <div>
                             <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
-                              <ThumbsDown className="h-4 w-4" aria-hidden="true" />
+                              <ThumbsDown
+                                className="h-4 w-4"
+                                aria-hidden="true"
+                              />
                               Cons
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
-                              {aiRecommendation.property_b_cons.map((con, i) => (
-                                <li key={i}>{con}</li>
-                              ))}
+                              {aiRecommendation.property_b_cons.map(
+                                (con, i) => (
+                                  <li key={i}>{con}</li>
+                                )
+                              )}
                             </ul>
                           </div>
                         </CardContent>
@@ -511,10 +643,14 @@ const Compare = () => {
                     {/* Final Recommendation */}
                     <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-xl text-[#6A7FDB]">DuoHome's Recommendation</CardTitle>
+                        <CardTitle className="text-xl text-[#6A7FDB]">
+                          DuoHome's Recommendation
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="text-gray-800 whitespace-pre-line">{aiRecommendation.final_recommendation}</p>
+                        <p className="text-gray-800 whitespace-pre-line">
+                          {aiRecommendation.final_recommendation}
+                        </p>
                       </CardContent>
                     </Card>
                   </div>
@@ -523,17 +659,23 @@ const Compare = () => {
                 {/* Expert Section */}
                 {comparisonResult && (
                   <div className="mt-8">
-                    <ExpertSection 
+                    <ExpertSection
                       comparisonId={comparisonResult.comparison_id}
-                      propertyAName={comparisonResult.property_a.property_name || "Property A"}
-                      propertyBName={comparisonResult.property_b.property_name || "Property B"}
+                      propertyAName={
+                        comparisonResult.property_a.property_name ||
+                        "Property A"
+                      }
+                      propertyBName={
+                        comparisonResult.property_b.property_name ||
+                        "Property B"
+                      }
                     />
                   </div>
                 )}
 
                 <div className="mt-8 text-center">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={resetForm}
                     className="bg-white"
                   >
@@ -547,16 +689,25 @@ const Compare = () => {
       </main>
 
       {/* Personalization Dialog */}
-      <Dialog open={showPersonalizationDialog} onOpenChange={setShowPersonalizationDialog}>
+      <Dialog
+        open={showPersonalizationDialog}
+        onOpenChange={setShowPersonalizationDialog}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Tell us about your preferences</DialogTitle>
             <DialogDescription>
-              Help us personalize your property recommendation by answering a few questions.
+              Help us personalize your property recommendation by answering a
+              few questions.
             </DialogDescription>
           </DialogHeader>
           <Form {...personalizationForm}>
-            <form onSubmit={personalizationForm.handleSubmit(handleGetRecommendation)} className="space-y-6 py-4">
+            <form
+              onSubmit={personalizationForm.handleSubmit(
+                handleGetRecommendation
+              )}
+              className="space-y-6 py-4"
+            >
               <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={personalizationForm.control}
@@ -570,14 +721,22 @@ const Compare = () => {
                         <div className="flex items-center">
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-l-md ${field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            className={`px-3 py-1 rounded-l-md ${
+                              field.value
+                                ? "bg-[#6A7FDB] text-white"
+                                : "bg-gray-100"
+                            }`}
                             onClick={() => field.onChange(true)}
                           >
                             Yes
                           </button>
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-r-md ${!field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            className={`px-3 py-1 rounded-r-md ${
+                              !field.value
+                                ? "bg-[#6A7FDB] text-white"
+                                : "bg-gray-100"
+                            }`}
                             onClick={() => field.onChange(false)}
                           >
                             No
@@ -587,7 +746,7 @@ const Compare = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={personalizationForm.control}
                   name="works_from_home"
@@ -600,14 +759,22 @@ const Compare = () => {
                         <div className="flex items-center">
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-l-md ${field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            className={`px-3 py-1 rounded-l-md ${
+                              field.value
+                                ? "bg-[#6A7FDB] text-white"
+                                : "bg-gray-100"
+                            }`}
                             onClick={() => field.onChange(true)}
                           >
                             Yes
                           </button>
                           <button
                             type="button"
-                            className={`px-3 py-1 rounded-r-md ${!field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            className={`px-3 py-1 rounded-r-md ${
+                              !field.value
+                                ? "bg-[#6A7FDB] text-white"
+                                : "bg-gray-100"
+                            }`}
                             onClick={() => field.onChange(false)}
                           >
                             No
@@ -634,7 +801,9 @@ const Compare = () => {
                             max={10}
                             className="w-16 text-center"
                             {...field}
-                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value))
+                            }
                           />
                           <span className="ml-2">people</span>
                         </div>
@@ -649,7 +818,9 @@ const Compare = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel>How important is commute time? (1-5)</FormLabel>
+                        <FormLabel>
+                          How important is commute time? (1-5)
+                        </FormLabel>
                       </div>
                       <FormControl>
                         <div className="flex items-center space-x-2">
@@ -657,7 +828,11 @@ const Compare = () => {
                             <button
                               key={value}
                               type="button"
-                              className={`w-8 h-8 rounded-full ${field.value === value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                              className={`w-8 h-8 rounded-full ${
+                                field.value === value
+                                  ? "bg-[#6A7FDB] text-white"
+                                  : "bg-gray-100"
+                              }`}
                               onClick={() => field.onChange(value)}
                             >
                               {value}

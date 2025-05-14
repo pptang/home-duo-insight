@@ -1,9 +1,15 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CheckCircle } from "lucide-react";
@@ -16,33 +22,34 @@ interface ExpertVotingProps {
   onVoteSubmitted: () => void;
 }
 
-export function ExpertVoting({ 
-  comparisonId, 
-  propertyAName, 
-  propertyBName, 
+export function ExpertVoting({
+  comparisonId,
+  propertyAName,
+  propertyBName,
   hasVoted,
-  onVoteSubmitted
+  onVoteSubmitted,
 }: ExpertVotingProps) {
   const { user, isExpert } = useAuth();
-  const [selectedProperty, setSelectedProperty] = useState<"A" | "B" | null>(null);
+  const { toast } = useToast();
+  const [selectedProperty, setSelectedProperty] = useState<"A" | "B" | null>(
+    null
+  );
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleVoteSubmit = async () => {
     if (!user || !isExpert || !selectedProperty) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
-      const { error } = await supabase
-        .from("votes")
-        .insert({
-          comparison_id: comparisonId,
-          expert_user_id: user.id,
-          voted_for: selectedProperty,
-          comment: comment.trim() || null,
-        });
-      
+      const { error } = await supabase.from("votes").insert({
+        comparison_id: comparisonId,
+        expert_user_id: user.id,
+        voted_for: selectedProperty,
+        comment: comment.trim() || null,
+      });
+
       if (error) {
         console.error("Error submitting vote:", error);
         toast({
@@ -52,12 +59,12 @@ export function ExpertVoting({
         });
         return;
       }
-      
+
       toast({
         title: "Vote submitted",
         description: `You voted for Property ${selectedProperty}`,
       });
-      
+
       onVoteSubmitted();
       setSelectedProperty(null);
       setComment("");
@@ -72,9 +79,9 @@ export function ExpertVoting({
       setIsSubmitting(false);
     }
   };
-  
+
   if (!isExpert) return null;
-  
+
   if (hasVoted) {
     return (
       <Card className="bg-gray-50 border-green-100">
@@ -83,31 +90,43 @@ export function ExpertVoting({
             <CheckCircle className="h-5 w-5 text-green-500" />
             Vote Submitted
           </CardTitle>
-          <CardDescription>You have already voted on this comparison</CardDescription>
+          <CardDescription>
+            You have already voted on this comparison
+          </CardDescription>
         </CardHeader>
       </Card>
     );
   }
-  
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Expert Voting</CardTitle>
-        <CardDescription>Share your professional opinion on this property comparison</CardDescription>
+        <CardDescription>
+          Share your professional opinion on this property comparison
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="grid grid-cols-2 gap-4">
             <Button
               variant={selectedProperty === "A" ? "default" : "outline"}
-              className={selectedProperty === "A" ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]" : ""}
+              className={
+                selectedProperty === "A"
+                  ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                  : ""
+              }
               onClick={() => setSelectedProperty("A")}
             >
               Vote for {propertyAName}
             </Button>
             <Button
               variant={selectedProperty === "B" ? "default" : "outline"}
-              className={selectedProperty === "B" ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]" : ""}
+              className={
+                selectedProperty === "B"
+                  ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                  : ""
+              }
               onClick={() => setSelectedProperty("B")}
             >
               Vote for {propertyBName}

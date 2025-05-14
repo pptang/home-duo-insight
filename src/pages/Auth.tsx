@@ -3,15 +3,23 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -106,7 +114,9 @@ const Auth = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Sign In</CardTitle>
-                  <CardDescription>Enter your credentials to access your account</CardDescription>
+                  <CardDescription>
+                    Enter your credentials to access your account
+                  </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
@@ -134,8 +144,8 @@ const Auth = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
                       disabled={loading}
                     >
@@ -149,7 +159,9 @@ const Auth = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Sign Up</CardTitle>
-                  <CardDescription>Create an account to start using DuoHome Advisor</CardDescription>
+                  <CardDescription>
+                    Create an account to start using DuoHome Advisor
+                  </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
@@ -187,8 +199,8 @@ const Auth = () => {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
                       disabled={loading}
                     >
