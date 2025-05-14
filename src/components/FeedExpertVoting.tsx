@@ -10,19 +10,30 @@ interface FeedExpertVotingProps {
   comparisonId: string;
   propertyAName: string;
   propertyBName: string;
+  hasVoted?: boolean; // Added this prop
   onVoteSubmitted: () => void;
 }
 
 export const FeedExpertVoting = ({ 
   comparisonId,
   propertyAName, 
-  propertyBName, 
+  propertyBName,
+  hasVoted = false, // Default to false
   onVoteSubmitted
 }: FeedExpertVotingProps) => {
   const [voteOption, setVoteOption] = useState<'A' | 'B' | null>(null);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
+
+  // If the user has already voted, show a message instead of the voting form
+  if (hasVoted) {
+    return (
+      <div className="bg-white rounded-lg border p-4">
+        <p className="text-center text-gray-600">You've already voted on this comparison.</p>
+      </div>
+    );
+  }
 
   const handleVoteSubmit = async () => {
     if (!user?.id || !voteOption || !comparisonId) return;
