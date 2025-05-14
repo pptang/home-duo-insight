@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { AuthButtons } from "@/components/AuthButtons";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,10 +36,7 @@ const Header = () => {
           </nav>
 
           <div className="hidden md:flex items-center">
-            <Button variant="outline" className="mr-4">
-              Sign In
-            </Button>
-            <Button>Get Started</Button>
+            <AuthButtons />
           </div>
 
           {/* Mobile Navigation Button */}
@@ -86,12 +84,7 @@ const Header = () => {
               About
             </Link>
             <div className="pt-4 pb-3 border-t border-gray-100">
-              <Button variant="outline" className="w-full mb-2">
-                Sign In
-              </Button>
-              <Button className="w-full">
-                Get Started
-              </Button>
+              <AuthButtons />
             </div>
           </div>
         </div>
