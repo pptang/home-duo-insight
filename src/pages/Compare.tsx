@@ -6,11 +6,15 @@ import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowDown, ImageIcon, Upload } from "lucide-react";
+import { ArrowDown, CheckCircle, ImageIcon, ThumbsDown, ThumbsUp, Upload, XCircle } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface PropertyData {
   property_name: string;
@@ -29,22 +33,56 @@ interface ComparisonResult {
   property_b: PropertyData;
 }
 
+interface AIRecommendation {
+  property_a_pros: string[];
+  property_a_cons: string[];
+  property_b_pros: string[];
+  property_b_cons: string[];
+  summary_table: {
+    field: string;
+    property_a: string;
+    property_b: string;
+  }[];
+  final_recommendation: string;
+}
+
 const urlSchema = z.object({
   property_url_a: z.string().url("Must be a valid URL").min(1, "Property A URL is required"),
   property_url_b: z.string().url("Must be a valid URL").min(1, "Property B URL is required"),
 });
 
+const personalizationSchema = z.object({
+  has_pets: z.boolean().default(false),
+  works_from_home: z.boolean().default(false),
+  family_size: z.number().min(1).max(10).default(1),
+  commute_priority: z.number().min(1).max(5).default(3),
+});
+
 type FormValues = z.infer<typeof urlSchema>;
+type PersonalizationValues = z.infer<typeof personalizationSchema>;
 
 const Compare = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingRecommendation, setIsGeneratingRecommendation] = useState(false);
   const [comparisonResult, setComparisonResult] = useState<ComparisonResult | null>(null);
+  const [aiRecommendation, setAiRecommendation] = useState<AIRecommendation | null>(null);
+  const [showPersonalizationDialog, setShowPersonalizationDialog] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(urlSchema),
     defaultValues: {
       property_url_a: "",
       property_url_b: "",
+    },
+  });
+
+  const personalizationForm = useForm<PersonalizationValues>({
+    resolver: zodResolver(personalizationSchema),
+    defaultValues: {
+      has_pets: false,
+      works_from_home: false,
+      family_size: 1,
+      commute_priority: 3,
     },
   });
 
@@ -100,6 +138,51 @@ const Compare = () => {
   const resetForm = () => {
     form.reset();
     setComparisonResult(null);
+    setAiRecommendation(null);
+  };
+
+  const handleGetRecommendation = async (values: PersonalizationValues) => {
+    if (!comparisonResult) return;
+    
+    setIsGeneratingRecommendation(true);
+    setShowPersonalizationDialog(false);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-recommendation", {
+        body: {
+          comparison_id: comparisonResult.comparison_id,
+          property_a: comparisonResult.property_a,
+          property_b: comparisonResult.property_b,
+          user_profile: values
+        },
+      });
+
+      if (error) {
+        console.error("Recommendation error:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Could not generate recommendation. Please try again.",
+        });
+        return;
+      }
+
+      // Success - set AI recommendation
+      setAiRecommendation(data);
+      toast({
+        title: "Success",
+        description: "Recommendation generated successfully!",
+      });
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "We couldn't generate your recommendation. Please try again.",
+      });
+    } finally {
+      setIsGeneratingRecommendation(false);
+    }
   };
 
   // Function to format price in Japanese Yen
@@ -191,7 +274,7 @@ const Compare = () => {
             ) : (
               // Comparison Results
               <div className="mt-8 animate-fade-in">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                     {/* Property A */}
                     <div className="p-6">
@@ -287,6 +370,140 @@ const Compare = () => {
                   </div>
                 </div>
 
+                {/* Get Recommendation Button */}
+                <div className="text-center mb-8">
+                  <Button 
+                    size="lg"
+                    onClick={() => setShowPersonalizationDialog(true)}
+                    disabled={isGeneratingRecommendation}
+                    className="relative bg-[#6A7FDB] hover:bg-[#5A6DCB] text-white px-6 py-3 rounded-lg"
+                  >
+                    {isGeneratingRecommendation ? (
+                      <>
+                        <span className="opacity-0">Get My Recommendation</span>
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          Generating your recommendation...
+                        </span>
+                      </>
+                    ) : (
+                      <>Get My Recommendation</>
+                    )}
+                  </Button>
+                </div>
+
+                {/* AI Recommendation Result */}
+                {aiRecommendation && (
+                  <div className="animate-fade-in space-y-8">
+                    {/* Summary Table */}
+                    <Card>
+                      <CardHeader className="bg-[#F7F7F8]">
+                        <CardTitle className="text-xl">Property Comparison Summary</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Feature</TableHead>
+                              <TableHead>Property A</TableHead>
+                              <TableHead>Property B</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {aiRecommendation.summary_table.map((row, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell>{row.property_a}</TableCell>
+                                <TableCell>{row.property_b}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+
+                    {/* Pros and Cons */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Property A */}
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle>{comparisonResult.property_a.property_name}</CardTitle>
+                          <CardDescription>Pros and Cons</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {/* Pros */}
+                          <div>
+                            <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
+                              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                              Pros
+                            </h4>
+                            <ul className="space-y-1 pl-6 list-disc">
+                              {aiRecommendation.property_a_pros.map((pro, i) => (
+                                <li key={i}>{pro}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          {/* Cons */}
+                          <div>
+                            <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
+                              <ThumbsDown className="h-4 w-4" aria-hidden="true" />
+                              Cons
+                            </h4>
+                            <ul className="space-y-1 pl-6 list-disc">
+                              {aiRecommendation.property_a_cons.map((con, i) => (
+                                <li key={i}>{con}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Property B */}
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <CardTitle>{comparisonResult.property_b.property_name}</CardTitle>
+                          <CardDescription>Pros and Cons</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          {/* Pros */}
+                          <div>
+                            <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
+                              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
+                              Pros
+                            </h4>
+                            <ul className="space-y-1 pl-6 list-disc">
+                              {aiRecommendation.property_b_pros.map((pro, i) => (
+                                <li key={i}>{pro}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          {/* Cons */}
+                          <div>
+                            <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
+                              <ThumbsDown className="h-4 w-4" aria-hidden="true" />
+                              Cons
+                            </h4>
+                            <ul className="space-y-1 pl-6 list-disc">
+                              {aiRecommendation.property_b_cons.map((con, i) => (
+                                <li key={i}>{con}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Final Recommendation */}
+                    <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-xl text-[#6A7FDB]">DuoHome's Recommendation</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-800 whitespace-pre-line">{aiRecommendation.final_recommendation}</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
                 <div className="mt-8 text-center">
                   <Button 
                     variant="outline" 
@@ -302,9 +519,142 @@ const Compare = () => {
         </div>
       </main>
 
+      {/* Personalization Dialog */}
+      <Dialog open={showPersonalizationDialog} onOpenChange={setShowPersonalizationDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Tell us about your preferences</DialogTitle>
+            <DialogDescription>
+              Help us personalize your property recommendation by answering a few questions.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...personalizationForm}>
+            <form onSubmit={personalizationForm.handleSubmit(handleGetRecommendation)} className="space-y-6 py-4">
+              <div className="grid grid-cols-1 gap-4">
+                <FormField
+                  control={personalizationForm.control}
+                  name="has_pets"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Do you have pets?</FormLabel>
+                      </div>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <button
+                            type="button"
+                            className={`px-3 py-1 rounded-l-md ${field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            onClick={() => field.onChange(true)}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            type="button"
+                            className={`px-3 py-1 rounded-r-md ${!field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            onClick={() => field.onChange(false)}
+                          >
+                            No
+                          </button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={personalizationForm.control}
+                  name="works_from_home"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Do you work from home?</FormLabel>
+                      </div>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <button
+                            type="button"
+                            className={`px-3 py-1 rounded-l-md ${field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            onClick={() => field.onChange(true)}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            type="button"
+                            className={`px-3 py-1 rounded-r-md ${!field.value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                            onClick={() => field.onChange(false)}
+                          >
+                            No
+                          </button>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={personalizationForm.control}
+                  name="family_size"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>Family Size</FormLabel>
+                      </div>
+                      <FormControl>
+                        <div className="flex items-center">
+                          <Input
+                            type="number"
+                            min={1}
+                            max={10}
+                            className="w-16 text-center"
+                            {...field}
+                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                          />
+                          <span className="ml-2">people</span>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={personalizationForm.control}
+                  name="commute_priority"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel>How important is commute time? (1-5)</FormLabel>
+                      </div>
+                      <FormControl>
+                        <div className="flex items-center space-x-2">
+                          {[1, 2, 3, 4, 5].map((value) => (
+                            <button
+                              key={value}
+                              type="button"
+                              className={`w-8 h-8 rounded-full ${field.value === value ? 'bg-[#6A7FDB] text-white' : 'bg-gray-100'}`}
+                              onClick={() => field.onChange(value)}
+                            >
+                              {value}
+                            </button>
+                          ))}
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button type="submit">Generate Recommendation</Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );
 };
 
 export default Compare;
+

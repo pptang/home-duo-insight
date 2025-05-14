@@ -1,0 +1,265 @@
+
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Required for CORS
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface PropertyData {
+  property_name: string;
+  address: string;
+  price_yen: number;
+  floor_plan: string;
+  commute_minutes: number;
+  property_type: string;
+  image_urls: string[];
+  notes: string;
+}
+
+interface UserProfile {
+  has_pets: boolean;
+  works_from_home: boolean;
+  family_size: number;
+  commute_priority: number;
+}
+
+interface RequestData {
+  comparison_id: string;
+  property_a: PropertyData;
+  property_b: PropertyData;
+  user_profile: UserProfile;
+}
+
+interface AIRecommendation {
+  property_a_pros: string[];
+  property_a_cons: string[];
+  property_b_pros: string[];
+  property_b_cons: string[];
+  summary_table: {
+    field: string;
+    property_a: string;
+    property_b: string;
+  }[];
+  final_recommendation: string;
+}
+
+// In-memory rate limiting
+const rateLimiter = new Map<string, { count: number, lastReset: number }>();
+const RATE_LIMIT = 10; // requests
+const RATE_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
+
+serve(async (req) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+  
+  try {
+    // Extract and validate the session from the request
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
+    
+    // Get session for user identification (optional)
+    const {
+      data: { session },
+    } = await supabaseClient.auth.getSession();
+    
+    // Basic rate limiting by IP or user ID
+    const clientIP = req.headers.get('cf-connecting-ip') || 'anonymous';
+    const identifier = session?.user?.id || clientIP;
+    
+    // Check rate limiting
+    const now = Date.now();
+    const userRateLimit = rateLimiter.get(identifier) || { count: 0, lastReset: now };
+    
+    // Reset counter if window has passed
+    if (now - userRateLimit.lastReset > RATE_WINDOW) {
+      userRateLimit.count = 0;
+      userRateLimit.lastReset = now;
+    }
+    
+    // Check if user has exceeded rate limit
+    if (userRateLimit.count >= RATE_LIMIT) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Increment rate limit counter
+    userRateLimit.count++;
+    rateLimiter.set(identifier, userRateLimit);
+    
+    // Parse request
+    const requestData: RequestData = await req.json();
+    
+    if (!requestData.property_a || !requestData.property_b || !requestData.user_profile) {
+      return new Response(
+        JSON.stringify({ error: 'Missing property or user profile data' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check if comparison exists in DB
+    if (requestData.comparison_id) {
+      const { data: comparisonData, error: comparisonError } = await supabaseClient
+        .from('comparisons')
+        .select('id')
+        .eq('id', requestData.comparison_id)
+        .single();
+
+      if (comparisonError || !comparisonData) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid comparison ID' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
+    // Call Gemini API to generate property recommendation
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    if (!geminiApiKey) {
+      return new Response(
+        JSON.stringify({ error: 'Gemini API key not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    // Format user profile for prompt
+    const userProfileText = `
+- Has pets: ${requestData.user_profile.has_pets ? 'Yes' : 'No'}
+- Works from home: ${requestData.user_profile.works_from_home ? 'Yes' : 'No'}
+- Family size: ${requestData.user_profile.family_size} people
+- Commute priority: ${requestData.user_profile.commute_priority}/5 (higher means more important)
+`;
+
+    // Format property data for prompt
+    const propertyAText = `
+Property A: ${requestData.property_a.property_name}
+- Address: ${requestData.property_a.address}
+- Price: ¥${requestData.property_a.price_yen.toLocaleString()}
+- Floor Plan: ${requestData.property_a.floor_plan}
+- Commute Time: ${requestData.property_a.commute_minutes} minutes
+- Property Type: ${requestData.property_a.property_type}
+- Additional Notes: ${requestData.property_a.notes || 'None'}
+`;
+
+    const propertyBText = `
+Property B: ${requestData.property_b.property_name}
+- Address: ${requestData.property_b.address}
+- Price: ¥${requestData.property_b.price_yen.toLocaleString()}
+- Floor Plan: ${requestData.property_b.floor_plan}
+- Commute Time: ${requestData.property_b.commute_minutes} minutes
+- Property Type: ${requestData.property_b.property_type}
+- Additional Notes: ${requestData.property_b.notes || 'None'}
+`;
+
+    // Prepare prompt for Gemini
+    const prompt = `You are the DuoHome Advisor AI. The user is comparing 2 shortlisted homes in Japan. The user profile is:
+${userProfileText}
+
+Based on this profile and the 2 properties below, provide:
+- A detailed pros and cons list for each property (at least 3 of each)
+- A side-by-side summary table (5-7 key details most relevant for comparison)
+- Your final recommendation with reasoning in a natural, conversational tone
+
+Here are the properties:
+${propertyAText}
+${propertyBText}
+
+Return your response in the following JSON format (and only this format, with no additional explanation):
+{
+  "property_a_pros": ["pro 1", "pro 2", "pro 3"],
+  "property_a_cons": ["con 1", "con 2", "con 3"],
+  "property_b_pros": ["pro 1", "pro 2", "pro 3"],
+  "property_b_cons": ["con 1", "con 2", "con 3"],
+  "summary_table": [
+    {"field": "Price", "property_a": "¥X", "property_b": "¥Y"},
+    {"field": "Commute", "property_a": "X min", "property_b": "Y min"}
+  ],
+  "final_recommendation": "Your final recommendation with reasoning."
+}`;
+
+    // Make request to Gemini API
+    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': geminiApiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              { text: prompt }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+      }),
+    });
+    
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.json();
+      console.error('Gemini API error:', errorData);
+      return new Response(
+        JSON.stringify({ error: 'Error generating recommendation' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const geminiData = await geminiResponse.json();
+    console.log('Gemini response:', JSON.stringify(geminiData));
+    
+    try {
+      // Extract the JSON from Gemini's response
+      const responseText = geminiData.candidates[0]?.content?.parts?.[0]?.text || '';
+      console.log('Response text:', responseText);
+      
+      // Extract the JSON part from the response
+      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || responseText.match(/({[\s\S]*})/);
+      const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+      console.log('Extracted JSON string:', jsonString);
+      
+      // Parse the extracted JSON
+      const aiRecommendation: AIRecommendation = JSON.parse(jsonString);
+      console.log('Parsed recommendation data:', aiRecommendation);
+      
+      // Store the recommendation in Supabase (optional)
+      // This could be added later to save recommendations for future reference
+      
+      // Return success response with AI recommendation
+      return new Response(
+        JSON.stringify(aiRecommendation),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+      
+    } catch (error) {
+      console.error('Error processing Gemini response:', error);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Could not generate recommendation. Please try again.',
+          details: error.message
+        }),
+        { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+  } catch (error) {
+    console.error('Function error:', error);
+    return new Response(
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
