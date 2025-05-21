@@ -17,7 +17,6 @@ interface ExpertProfileProps {
 
 interface ExpertProfile {
   id: string;
-  user_id: string;
   name: string;
   email: string;
   profile_image_url: string | null;
@@ -47,7 +46,7 @@ export function ExpertProfile({
       const { data, error } = await supabase
         .from("expert_profiles")
         .select("*")
-        .eq("user_id", expertId)
+        .eq("id", expertId)
         .single();
 
       if (error) {

@@ -25,7 +25,7 @@ import Footer from "@/components/Footer";
 import ExpertAvatarGroup from "@/components/ExpertAvatarGroup";
 
 interface Expert {
-  user_id: string;
+  id: string;
   name: string;
   profile_image_url: string | null;
 }
@@ -137,9 +137,10 @@ const Feed = () => {
                 id, 
                 expert_user_id,
                 voted_for,
-                profiles!expert_user_id(
-                  avatar_url,
-                  full_name
+                expert:expert_profiles(
+                  id,
+                  name,
+                  profile_image_url
                 )
               `
               )
@@ -153,11 +154,11 @@ const Feed = () => {
 
               votesData.forEach((vote) => {
                 // Make sure expert profile data exists
-                if (vote.profiles && typeof vote.profiles === "object") {
+                if (vote.expert && typeof vote.expert === "object") {
                   uniqueExperts[vote.expert_user_id] = {
-                    user_id: vote.expert_user_id,
-                    name: vote.profiles.full_name || "Expert",
-                    profile_image_url: vote.profiles.avatar_url,
+                    id: vote.expert_user_id,
+                    name: vote.expert?.name || "Expert",
+                    profile_image_url: vote.expert?.profile_image_url || "",
                   };
                 }
               });

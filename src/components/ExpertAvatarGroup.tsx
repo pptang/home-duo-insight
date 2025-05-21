@@ -1,12 +1,16 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { User } from "lucide-react";
 
 interface Expert {
-  user_id: string;
+  id: string;
   name: string;
   profile_image_url: string | null;
 }
@@ -16,9 +20,9 @@ interface ExpertAvatarGroupProps {
   maxVisible?: number;
 }
 
-const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({ 
-  experts, 
-  maxVisible = 5 
+const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({
+  experts,
+  maxVisible = 5,
 }) => {
   if (!experts || experts.length === 0) return null;
 
@@ -29,10 +33,10 @@ const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({
     <TooltipProvider>
       <div className="flex items-center -space-x-2">
         {visibleExperts.map((expert) => (
-          <Tooltip key={expert.user_id}>
+          <Tooltip key={expert.id}>
             <TooltipTrigger asChild>
               <Link
-                to={`/experts/${expert.user_id}`}
+                to={`/experts/${expert.id}`}
                 className="transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-full"
                 aria-label={`View ${expert.name}'s profile`}
               >
@@ -55,7 +59,7 @@ const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({
             </TooltipContent>
           </Tooltip>
         ))}
-        
+
         {remainingCount > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -64,7 +68,9 @@ const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{remainingCount} more expert{remainingCount !== 1 ? 's' : ''}</p>
+              <p>
+                {remainingCount} more expert{remainingCount !== 1 ? "s" : ""}
+              </p>
             </TooltipContent>
           </Tooltip>
         )}
