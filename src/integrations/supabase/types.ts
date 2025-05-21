@@ -48,6 +48,78 @@ export type Database = {
           },
         ]
       }
+      expert_profiles: {
+        Row: {
+          average_rating: number | null
+          company_website: string | null
+          created_at: string | null
+          email: string
+          id: string
+          instagram_url: string | null
+          line_url: string | null
+          name: string
+          phone: string | null
+          profile_image_url: string | null
+          rating_count: number | null
+          user_id: string
+          x_handle: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          company_website?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          instagram_url?: string | null
+          line_url?: string | null
+          name: string
+          phone?: string | null
+          profile_image_url?: string | null
+          rating_count?: number | null
+          user_id: string
+          x_handle?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          company_website?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          instagram_url?: string | null
+          line_url?: string | null
+          name?: string
+          phone?: string | null
+          profile_image_url?: string | null
+          rating_count?: number | null
+          user_id?: string
+          x_handle?: string | null
+        }
+        Relationships: []
+      }
+      expert_ratings: {
+        Row: {
+          created_at: string | null
+          expert_user_id: string
+          id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expert_user_id: string
+          id?: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expert_user_id?: string
+          id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           area_specialization: string | null
@@ -170,6 +242,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      social_media_platform: "twitter" | "instagram" | "line" | "website"
       user_role: "user" | "expert" | "admin"
     }
     CompositeTypes: {
@@ -286,6 +359,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      social_media_platform: ["twitter", "instagram", "line", "website"],
       user_role: ["user", "expert", "admin"],
     },
   },

@@ -1,3 +1,4 @@
+
 # DuoHome Advisor - Implementation Plan
 
 ## Step-by-Step Action Plan
@@ -25,12 +26,12 @@
 
 ### Phase 3: Expert System and Profiles
 
-- [ ] Create expert invite system with tokenized access
-- [ ] Build expert dashboard to view/respond to comparisons
+- [x] Create expert invite system with tokenized access
+- [x] Build expert dashboard to view/respond to comparisons
 - [x] Enable voting and short-form commentary per expert
-- [ ] Display expert info alongside votes (name, photo, area specialty)
-- [ ] Build expert profile pages (public-facing)
-- [ ] Add "Contact Expert" via in-app message or mailto link
+- [x] Display expert info alongside votes (name, photo, area specialty)
+- [x] Build expert profile pages (public-facing)
+- [x] Add "Contact Expert" via in-app message or mailto link
 
 ### Phase 4: Community & Feed
 

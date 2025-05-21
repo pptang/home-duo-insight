@@ -1,42 +1,45 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { Toaster } from 'react-hot-toast';
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
-import Compare from "./pages/Compare";
-import Feed from "./pages/Feed";
-import About from "./pages/About";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import { useState } from "react";
+import { AuthProvider } from '@/contexts/AuthContext';
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { Index } from '@/pages/Index';
+import { Compare } from '@/pages/Compare';
+import { Feed } from '@/pages/Feed';
+import { About } from '@/pages/About';
+import { Auth } from '@/pages/Auth';
+import { NotFound } from '@/pages/NotFound';
+import AdminExpertPanel from "./pages/AdminExpertPanel";
 
 function App() {
-  // Create a new QueryClient for each render to fix the React hook usage issue
-  const [queryClient] = useState(() => new QueryClient());
+  const queryClient = new QueryClient();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <div className="min-h-screen bg-[#F7F7F8] flex flex-col">
+            <Header />
+            <main className="flex-1">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/compare" element={<Compare />} />
+                <Route path="/feed" element={<Feed />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/admin/experts" element={<AdminExpertPanel />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </main>
+            <Footer />
+          </div>
           <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/compare" element={<Compare />} />
-              <Route path="/feed" element={<Feed />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/auth" element={<Auth />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
