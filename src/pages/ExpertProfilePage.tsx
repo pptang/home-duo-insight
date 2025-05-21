@@ -142,7 +142,7 @@ const ExpertProfilePage: React.FC = () => {
 
                   <div className="pt-2">
                     <Button className="w-full" asChild>
-                      <a href={`mailto:${/* Expert email would be here, but we get it from ExpertProfile */}`}>
+                      <a href={`mailto:${/* Expert email will come from ExpertProfile */}`}>
                         Contact Expert
                       </a>
                     </Button>
