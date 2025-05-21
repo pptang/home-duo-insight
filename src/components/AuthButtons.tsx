@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function AuthButtons() {
@@ -65,6 +65,19 @@ export function AuthButtons() {
             <User className="h-4 w-4" />
             <span>{profile?.full_name || user.email}</span>
           </DropdownMenuItem>
+          
+          {isExpert && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="flex items-center gap-2">
+                <Link to={`/experts/${user.id}`}>
+                  <UserRound className="h-4 w-4" />
+                  <span>My Public Profile</span>
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
+          
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             className="text-red-600 focus:text-red-600 flex items-center gap-2"
