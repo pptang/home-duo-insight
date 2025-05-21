@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -153,7 +154,12 @@ const Feed = () => {
               const uniqueExperts: Record<string, Expert> = {};
               
               votesData.forEach(vote => {
-                if (vote.expert && vote.expert.profiles && vote.expert.profiles[0]) {
+                // Make sure expert data exists and has proper structure
+                if (vote.expert && 
+                    typeof vote.expert === 'object' && 
+                    vote.expert.profiles && 
+                    Array.isArray(vote.expert.profiles) && 
+                    vote.expert.profiles.length > 0) {
                   const expertProfile = vote.expert.profiles[0];
                   uniqueExperts[vote.expert_user_id] = {
                     user_id: vote.expert_user_id,
