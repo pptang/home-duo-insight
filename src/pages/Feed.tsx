@@ -22,6 +22,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ExpertAvatarGroup from "@/components/ExpertAvatarGroup";
+
+interface Expert {
+  user_id: string;
+  name: string;
+  profile_image_url: string | null;
+}
 
 interface Property {
   id: string;
@@ -44,6 +51,7 @@ interface ComparisonPost {
   expertVotes?: number;
   communityVotes?: number;
   comments?: number;
+  experts?: Expert[];
 }
 
 const Feed = () => {
@@ -113,21 +121,49 @@ const Feed = () => {
               expertVotes: 0, // Will be updated with aggregation later
               communityVotes: 0, // Will be updated with aggregation later
               comments: 0, // Will be updated with aggregation later
+              experts: [], // Will be populated with expert data
             };
           })
           .filter(Boolean) as ComparisonPost[];
 
-        // Fetch vote counts for each comparison
+        // Fetch vote counts and expert data for each comparison
         await Promise.all(
           transformedData.map(async (comparison) => {
-            // Get expert votes
-            const { count: expertCount, error: expertError } = await supabase
+            // Get votes with expert profiles
+            const { data: votesData, error: votesError } = await supabase
               .from("votes")
-              .select("*", { count: "exact", head: false })
+              .select(`
+                id, 
+                expert_user_id,
+                voted_for,
+                expert:expert_user_id(
+                  id,
+                  profiles:profiles(
+                    avatar_url,
+                    full_name
+                  )
+                )
+              `)
               .eq("comparison_id", comparison.id);
-
-            if (!expertError) {
-              comparison.expertVotes = expertCount || 0;
+              
+            if (!votesError && votesData) {
+              comparison.expertVotes = votesData.length;
+              
+              // Extract unique experts from votes
+              const uniqueExperts: Record<string, Expert> = {};
+              
+              votesData.forEach(vote => {
+                if (vote.expert && vote.expert.profiles && vote.expert.profiles[0]) {
+                  const expertProfile = vote.expert.profiles[0];
+                  uniqueExperts[vote.expert_user_id] = {
+                    user_id: vote.expert_user_id,
+                    name: expertProfile.full_name || "Expert",
+                    profile_image_url: expertProfile.avatar_url
+                  };
+                }
+              });
+              
+              comparison.experts = Object.values(uniqueExperts);
             }
 
             // For now, we don't have community votes and comments tables
@@ -534,13 +570,22 @@ const Feed = () => {
 
                       <div className="flex flex-wrap items-center justify-between">
                         <div className="flex flex-wrap items-center gap-4">
-                          <div className="flex items-center text-gray-600">
-                            <Building className="h-4 w-4 mr-1" />
-                            <span className="text-sm">
-                              {comparison.expertVotes} expert{" "}
-                              {comparison.expertVotes === 1 ? "vote" : "votes"}
-                            </span>
-                          </div>
+                          {/* Expert Avatar Group */}
+                          {comparison.experts && comparison.experts.length > 0 && (
+                            <div className="flex items-center">
+                              <Building className="h-4 w-4 mr-1" />
+                              <ExpertAvatarGroup experts={comparison.experts} maxVisible={5} />
+                            </div>
+                          )}
+                          {!comparison.experts || comparison.experts.length === 0 ? (
+                            <div className="flex items-center text-gray-600">
+                              <Building className="h-4 w-4 mr-1" />
+                              <span className="text-sm">
+                                {comparison.expertVotes} expert{" "}
+                                {comparison.expertVotes === 1 ? "vote" : "votes"}
+                              </span>
+                            </div>
+                          ) : null}
                           <div className="flex items-center text-gray-600">
                             <ThumbsUp className="h-4 w-4 mr-1" />
                             <span className="text-sm">
