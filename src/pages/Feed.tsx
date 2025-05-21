@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -133,42 +132,36 @@ const Feed = () => {
             // Get votes with expert profiles
             const { data: votesData, error: votesError } = await supabase
               .from("votes")
-              .select(`
+              .select(
+                `
                 id, 
                 expert_user_id,
                 voted_for,
-                expert:expert_user_id(
-                  id,
-                  profiles:profiles(
-                    avatar_url,
-                    full_name
-                  )
+                profiles!expert_user_id(
+                  avatar_url,
+                  full_name
                 )
-              `)
+              `
+              )
               .eq("comparison_id", comparison.id);
-              
+
             if (!votesError && votesData) {
               comparison.expertVotes = votesData.length;
-              
+
               // Extract unique experts from votes
               const uniqueExperts: Record<string, Expert> = {};
-              
-              votesData.forEach(vote => {
-                // Make sure expert data exists and has proper structure
-                if (vote.expert && 
-                    typeof vote.expert === 'object' && 
-                    vote.expert.profiles && 
-                    Array.isArray(vote.expert.profiles) && 
-                    vote.expert.profiles.length > 0) {
-                  const expertProfile = vote.expert.profiles[0];
+
+              votesData.forEach((vote) => {
+                // Make sure expert profile data exists
+                if (vote.profiles && typeof vote.profiles === "object") {
                   uniqueExperts[vote.expert_user_id] = {
                     user_id: vote.expert_user_id,
-                    name: expertProfile.full_name || "Expert",
-                    profile_image_url: expertProfile.avatar_url
+                    name: vote.profiles.full_name || "Expert",
+                    profile_image_url: vote.profiles.avatar_url,
                   };
                 }
               });
-              
+
               comparison.experts = Object.values(uniqueExperts);
             }
 
@@ -577,18 +570,25 @@ const Feed = () => {
                       <div className="flex flex-wrap items-center justify-between">
                         <div className="flex flex-wrap items-center gap-4">
                           {/* Expert Avatar Group */}
-                          {comparison.experts && comparison.experts.length > 0 && (
-                            <div className="flex items-center">
-                              <Building className="h-4 w-4 mr-1" />
-                              <ExpertAvatarGroup experts={comparison.experts} maxVisible={5} />
-                            </div>
-                          )}
-                          {!comparison.experts || comparison.experts.length === 0 ? (
+                          {comparison.experts &&
+                            comparison.experts.length > 0 && (
+                              <div className="flex items-center">
+                                <Building className="h-4 w-4 mr-1" />
+                                <ExpertAvatarGroup
+                                  experts={comparison.experts}
+                                  maxVisible={5}
+                                />
+                              </div>
+                            )}
+                          {!comparison.experts ||
+                          comparison.experts.length === 0 ? (
                             <div className="flex items-center text-gray-600">
                               <Building className="h-4 w-4 mr-1" />
                               <span className="text-sm">
                                 {comparison.expertVotes} expert{" "}
-                                {comparison.expertVotes === 1 ? "vote" : "votes"}
+                                {comparison.expertVotes === 1
+                                  ? "vote"
+                                  : "votes"}
                               </span>
                             </div>
                           ) : null}
