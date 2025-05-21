@@ -13,6 +13,7 @@ import About from '@/pages/About';
 import Auth from '@/pages/Auth';
 import NotFound from '@/pages/NotFound';
 import AdminExpertPanel from "./pages/AdminExpertPanel";
+import ExpertProfilePage from "./pages/ExpertProfilePage";
 
 function App() {
   const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin/experts" element={<AdminExpertPanel />} />
+                <Route path="/experts/:expertId" element={<ExpertProfilePage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
