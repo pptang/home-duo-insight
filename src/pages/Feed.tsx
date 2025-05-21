@@ -1,6 +1,5 @@
+
 import { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -25,7 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Property {
   id: string;
-  property_name: string;
+  property_name: string | null;
   price_yen: number | null;
   floor_plan: string | null;
   image_urls: string[] | null;
@@ -63,13 +62,13 @@ const Feed = () => {
       setError(null);
       
       try {
-        // Fetch comparisons with their linked properties
+        // Fetch comparisons with their linked properties - using explicit property_a_id/property_b_id
         const { data: comparisonsData, error: comparisonsError } = await supabase
           .from("comparisons")
           .select(`
             *,
-            propertyA:property_a_id(*),
-            propertyB:property_b_id(*)
+            propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
+            propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
           `)
           .order('created_at', { ascending: false });
         
@@ -85,17 +84,26 @@ const Feed = () => {
           return;
         }
 
-        // Transform the data to match our ComparisonPost interface
-        const transformedData: ComparisonPost[] = comparisonsData.map(comparison => ({
-          id: comparison.id,
-          created_at: comparison.created_at,
-          user_id: comparison.user_id,
-          propertyA: comparison.propertyA as Property,
-          propertyB: comparison.propertyB as Property,
-          expertVotes: 0, // Will be updated with aggregation later
-          communityVotes: 0, // Will be updated with aggregation later
-          comments: 0 // Will be updated with aggregation later
-        }));
+        // Check the data to ensure it properly matches our types
+        const transformedData: ComparisonPost[] = comparisonsData.map(comparison => {
+          // Ensure properties are correctly typed
+          if (!comparison.propertyA || !comparison.propertyB || 
+              typeof comparison.propertyA === 'string' || typeof comparison.propertyB === 'string') {
+            console.error("Invalid property data in comparison:", comparison);
+            return null;
+          }
+
+          return {
+            id: comparison.id,
+            created_at: comparison.created_at,
+            user_id: comparison.user_id,
+            propertyA: comparison.propertyA as Property,
+            propertyB: comparison.propertyB as Property,
+            expertVotes: 0, // Will be updated with aggregation later
+            communityVotes: 0, // Will be updated with aggregation later
+            comments: 0 // Will be updated with aggregation later
+          };
+        }).filter(Boolean) as ComparisonPost[];
 
         // Fetch vote counts for each comparison
         await Promise.all(transformedData.map(async (comparison) => {
