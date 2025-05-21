@@ -1,16 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  MessageSquare, 
-  ThumbsUp, 
+import {
+  MessageSquare,
+  ThumbsUp,
   Building,
   Home,
   Search,
   Filter,
   AlertTriangle,
-  Plus
+  Plus,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +52,9 @@ const Feed = () => {
   const [comparisons, setComparisons] = useState<ComparisonPost[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [votedComparisons, setVotedComparisons] = useState<Record<string, boolean>>({});
+  const [votedComparisons, setVotedComparisons] = useState<
+    Record<string, boolean>
+  >({});
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,18 +63,21 @@ const Feed = () => {
     const fetchComparisons = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
         // Fetch comparisons with their linked properties - using explicit property_a_id/property_b_id
-        const { data: comparisonsData, error: comparisonsError } = await supabase
-          .from("comparisons")
-          .select(`
+        const { data: comparisonsData, error: comparisonsError } =
+          await supabase
+            .from("comparisons")
+            .select(
+              `
             *,
             propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
             propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
-          `)
-          .order('created_at', { ascending: false });
-        
+          `
+            )
+            .order("created_at", { ascending: false });
+
         if (comparisonsError) {
           console.error("Error fetching comparisons:", comparisonsError);
           setError("Failed to load comparisons. Please refresh.");
@@ -87,43 +91,51 @@ const Feed = () => {
         }
 
         // Check the data to ensure it properly matches our types
-        const transformedData: ComparisonPost[] = comparisonsData.map(comparison => {
-          // Ensure properties are correctly typed
-          if (!comparison.propertyA || !comparison.propertyB || 
-              typeof comparison.propertyA === 'string' || typeof comparison.propertyB === 'string') {
-            console.error("Invalid property data in comparison:", comparison);
-            return null;
-          }
+        const transformedData: ComparisonPost[] = comparisonsData
+          .map((comparison) => {
+            // Ensure properties are correctly typed
+            if (
+              !comparison.propertyA ||
+              !comparison.propertyB ||
+              typeof comparison.propertyA === "string" ||
+              typeof comparison.propertyB === "string"
+            ) {
+              console.error("Invalid property data in comparison:", comparison);
+              return null;
+            }
 
-          return {
-            id: comparison.id,
-            created_at: comparison.created_at,
-            user_id: comparison.user_id,
-            propertyA: comparison.propertyA as Property,
-            propertyB: comparison.propertyB as Property,
-            expertVotes: 0, // Will be updated with aggregation later
-            communityVotes: 0, // Will be updated with aggregation later
-            comments: 0 // Will be updated with aggregation later
-          };
-        }).filter(Boolean) as ComparisonPost[];
+            return {
+              id: comparison.id,
+              created_at: comparison.created_at,
+              user_id: comparison.user_id,
+              propertyA: comparison.propertyA as Property,
+              propertyB: comparison.propertyB as Property,
+              expertVotes: 0, // Will be updated with aggregation later
+              communityVotes: 0, // Will be updated with aggregation later
+              comments: 0, // Will be updated with aggregation later
+            };
+          })
+          .filter(Boolean) as ComparisonPost[];
 
         // Fetch vote counts for each comparison
-        await Promise.all(transformedData.map(async (comparison) => {
-          // Get expert votes
-          const { count: expertCount, error: expertError } = await supabase
-            .from("votes")
-            .select("*", { count: "exact", head: false })
-            .eq("comparison_id", comparison.id);
-          
-          if (!expertError) {
-            comparison.expertVotes = expertCount || 0;
-          }
+        await Promise.all(
+          transformedData.map(async (comparison) => {
+            // Get expert votes
+            const { count: expertCount, error: expertError } = await supabase
+              .from("votes")
+              .select("*", { count: "exact", head: false })
+              .eq("comparison_id", comparison.id);
 
-          // For now, we don't have community votes and comments tables
-          // When implemented, similar queries would be added here
-          comparison.communityVotes = 0;
-          comparison.comments = 0;
-        }));
+            if (!expertError) {
+              comparison.expertVotes = expertCount || 0;
+            }
+
+            // For now, we don't have community votes and comments tables
+            // When implemented, similar queries would be added here
+            comparison.communityVotes = 0;
+            comparison.comments = 0;
+          })
+        );
 
         setComparisons(transformedData);
       } catch (err) {
@@ -154,7 +166,7 @@ const Feed = () => {
 
           if (data) {
             const votedIds = data.reduce<Record<string, boolean>>(
-              (acc, vote) => ({ ...acc, [vote.comparison_id]: true }), 
+              (acc, vote) => ({ ...acc, [vote.comparison_id]: true }),
               {}
             );
             setVotedComparisons(votedIds);
@@ -169,36 +181,36 @@ const Feed = () => {
   }, [isExpert, user, refreshTrigger]);
 
   const handleVoteSubmitted = (comparisonId: string) => {
-    setVotedComparisons(prev => ({ ...prev, [comparisonId]: true }));
-    setRefreshTrigger(prev => prev + 1);
+    setVotedComparisons((prev) => ({ ...prev, [comparisonId]: true }));
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   // Format yen price to show in a nice format
   const formatYenPrice = (price: number | null): string => {
     if (price === null) return "Price unavailable";
-    
+
     // If price is >= 10,000,000 yen, show in millions
     if (price >= 10000000) {
       return `¥${(price / 1000000).toFixed(1)}M`;
     }
-    
+
     // Otherwise show in thousands
     if (price >= 1000) {
       return `¥${(price / 1000).toFixed(0)}K`;
     }
-    
+
     return `¥${price.toLocaleString()}`;
   };
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-
       <main className="flex-grow bg-softgray py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-gray-900">Comparison Feed</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Comparison Feed
+              </h1>
               <Button asChild variant="outline">
                 <Link to="/compare">
                   <Plus className="mr-1 h-4 w-4" /> New Comparison
@@ -253,11 +265,17 @@ const Feed = () => {
                     <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                       <option value="">Any Price</option>
                       <option value="rental-low">Rental: Under ¥100,000</option>
-                      <option value="rental-mid">Rental: ¥100,000 - ¥200,000</option>
+                      <option value="rental-mid">
+                        Rental: ¥100,000 - ¥200,000
+                      </option>
                       <option value="rental-high">Rental: Over ¥200,000</option>
                       <option value="purchase-low">Purchase: Under ¥50M</option>
-                      <option value="purchase-mid">Purchase: ¥50M - ¥100M</option>
-                      <option value="purchase-high">Purchase: Over ¥100M</option>
+                      <option value="purchase-mid">
+                        Purchase: ¥50M - ¥100M
+                      </option>
+                      <option value="purchase-high">
+                        Purchase: Over ¥100M
+                      </option>
                     </select>
                   </div>
                   <div>
@@ -313,11 +331,11 @@ const Feed = () => {
               <div className="mt-8 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
                 <AlertTriangle className="text-red-500 mr-2" />
                 <p>{error}</p>
-                <Button 
+                <Button
                   variant="outline"
                   size="sm"
                   className="ml-auto"
-                  onClick={() => setRefreshTrigger(prev => prev + 1)}
+                  onClick={() => setRefreshTrigger((prev) => prev + 1)}
                 >
                   Retry
                 </Button>
@@ -328,9 +346,12 @@ const Feed = () => {
             {!isLoading && !error && comparisons.length === 0 && (
               <div className="mt-8 bg-white rounded-lg border p-8 text-center">
                 <div className="max-w-md mx-auto">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No comparisons yet</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No comparisons yet
+                  </h3>
                   <p className="text-gray-600 mb-4">
-                    No comparisons have been shared yet. Be the first to create one!
+                    No comparisons have been shared yet. Be the first to create
+                    one!
                   </p>
                   <Button asChild>
                     <Link to="/compare">
@@ -354,9 +375,9 @@ const Feed = () => {
                       <div className="flex items-center mb-4">
                         <div className="w-10 h-10 rounded-full bg-gray-300">
                           {comparison.userAvatar ? (
-                            <img 
-                              src={comparison.userAvatar} 
-                              alt={comparison.userName || "User"} 
+                            <img
+                              src={comparison.userAvatar}
+                              alt={comparison.userName || "User"}
                               className="w-full h-full rounded-full object-cover"
                             />
                           ) : (
@@ -370,24 +391,31 @@ const Feed = () => {
                             {comparison.userName || "Anonymous User"}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {new Date(comparison.created_at).toLocaleDateString()}
+                            {new Date(
+                              comparison.created_at
+                            ).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
 
                       <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                        {comparison.propertyA.property_name || "Property A"} vs {comparison.propertyB.property_name || "Property B"}
+                        {comparison.propertyA.property_name || "Property A"} vs{" "}
+                        {comparison.propertyB.property_name || "Property B"}
                       </h2>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="bg-softgray p-3 rounded-lg">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                            {comparison.propertyA.image_urls && comparison.propertyA.image_urls.length > 0 ? (
+                            {comparison.propertyA.image_urls &&
+                            comparison.propertyA.image_urls.length > 0 ? (
                               <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 overflow-hidden rounded-md bg-gray-100">
                                 <AspectRatio ratio={1}>
-                                  <img 
-                                    src={comparison.propertyA.image_urls[0]} 
-                                    alt={comparison.propertyA.property_name || "Property A"} 
+                                  <img
+                                    src={comparison.propertyA.image_urls[0]}
+                                    alt={
+                                      comparison.propertyA.property_name ||
+                                      "Property A"
+                                    }
                                     className="object-cover w-full h-full"
                                   />
                                 </AspectRatio>
@@ -398,14 +426,21 @@ const Feed = () => {
                               </div>
                             )}
                             <div>
-                              <h3 className="font-medium text-gray-900">{comparison.propertyA.property_name || "Property A"}</h3>
+                              <h3 className="font-medium text-gray-900">
+                                {comparison.propertyA.property_name ||
+                                  "Property A"}
+                              </h3>
                               <p className="text-primary font-medium mt-1">
-                                {comparison.propertyA.price_yen !== null 
-                                  ? formatYenPrice(comparison.propertyA.price_yen)
+                                {comparison.propertyA.price_yen !== null
+                                  ? formatYenPrice(
+                                      comparison.propertyA.price_yen
+                                    )
                                   : "Price unavailable"}
                               </p>
                               {comparison.propertyA.floor_plan && (
-                                <p className="text-sm text-gray-600">{comparison.propertyA.floor_plan}</p>
+                                <p className="text-sm text-gray-600">
+                                  {comparison.propertyA.floor_plan}
+                                </p>
                               )}
                             </div>
                           </div>
@@ -413,12 +448,16 @@ const Feed = () => {
 
                         <div className="bg-softgray p-3 rounded-lg">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                            {comparison.propertyB.image_urls && comparison.propertyB.image_urls.length > 0 ? (
+                            {comparison.propertyB.image_urls &&
+                            comparison.propertyB.image_urls.length > 0 ? (
                               <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 overflow-hidden rounded-md bg-gray-100">
                                 <AspectRatio ratio={1}>
-                                  <img 
-                                    src={comparison.propertyB.image_urls[0]} 
-                                    alt={comparison.propertyB.property_name || "Property B"} 
+                                  <img
+                                    src={comparison.propertyB.image_urls[0]}
+                                    alt={
+                                      comparison.propertyB.property_name ||
+                                      "Property B"
+                                    }
                                     className="object-cover w-full h-full"
                                   />
                                 </AspectRatio>
@@ -429,14 +468,21 @@ const Feed = () => {
                               </div>
                             )}
                             <div>
-                              <h3 className="font-medium text-gray-900">{comparison.propertyB.property_name || "Property B"}</h3>
+                              <h3 className="font-medium text-gray-900">
+                                {comparison.propertyB.property_name ||
+                                  "Property B"}
+                              </h3>
                               <p className="text-primary font-medium mt-1">
-                                {comparison.propertyB.price_yen !== null 
-                                  ? formatYenPrice(comparison.propertyB.price_yen)
+                                {comparison.propertyB.price_yen !== null
+                                  ? formatYenPrice(
+                                      comparison.propertyB.price_yen
+                                    )
                                   : "Price unavailable"}
                               </p>
                               {comparison.propertyB.floor_plan && (
-                                <p className="text-sm text-gray-600">{comparison.propertyB.floor_plan}</p>
+                                <p className="text-sm text-gray-600">
+                                  {comparison.propertyB.floor_plan}
+                                </p>
                               )}
                             </div>
                           </div>
@@ -445,10 +491,15 @@ const Feed = () => {
 
                       {comparison.ai_recommendation_text && (
                         <div className="bg-softgray p-4 rounded-lg mb-4">
-                          <h4 className="font-medium text-gray-900">AI Recommendation</h4>
+                          <h4 className="font-medium text-gray-900">
+                            AI Recommendation
+                          </h4>
                           <p className="mt-1 text-gray-600">
                             {comparison.ai_recommendation_text.length > 200
-                              ? `${comparison.ai_recommendation_text.slice(0, 200)}...`
+                              ? `${comparison.ai_recommendation_text.slice(
+                                  0,
+                                  200
+                                )}...`
                               : comparison.ai_recommendation_text}
                           </p>
                         </div>
@@ -458,16 +509,25 @@ const Feed = () => {
                       {isExpert && (
                         <div className="border-t border-gray-100 pt-4 mb-4">
                           <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            <Badge
+                              variant="outline"
+                              className="bg-blue-50 text-blue-700 border-blue-200"
+                            >
                               Expert Voting
                             </Badge>
                           </div>
-                          <FeedExpertVoting 
+                          <FeedExpertVoting
                             comparisonId={comparison.id}
-                            propertyAName={comparison.propertyA.property_name || "Property A"}
-                            propertyBName={comparison.propertyB.property_name || "Property B"}
+                            propertyAName={
+                              comparison.propertyA.property_name || "Property A"
+                            }
+                            propertyBName={
+                              comparison.propertyB.property_name || "Property B"
+                            }
                             hasVoted={!!votedComparisons[comparison.id]}
-                            onVoteSubmitted={() => handleVoteSubmitted(comparison.id)}
+                            onVoteSubmitted={() =>
+                              handleVoteSubmitted(comparison.id)
+                            }
                           />
                         </div>
                       )}
@@ -476,25 +536,40 @@ const Feed = () => {
                         <div className="flex flex-wrap items-center gap-4">
                           <div className="flex items-center text-gray-600">
                             <Building className="h-4 w-4 mr-1" />
-                            <span className="text-sm">{comparison.expertVotes} expert {comparison.expertVotes === 1 ? 'vote' : 'votes'}</span>
+                            <span className="text-sm">
+                              {comparison.expertVotes} expert{" "}
+                              {comparison.expertVotes === 1 ? "vote" : "votes"}
+                            </span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <ThumbsUp className="h-4 w-4 mr-1" />
-                            <span className="text-sm">{comparison.communityVotes} community {comparison.communityVotes === 1 ? 'vote' : 'votes'}</span>
+                            <span className="text-sm">
+                              {comparison.communityVotes} community{" "}
+                              {comparison.communityVotes === 1
+                                ? "vote"
+                                : "votes"}
+                            </span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <MessageSquare className="h-4 w-4 mr-1" />
-                            <span className="text-sm">{comparison.comments} {comparison.comments === 1 ? 'comment' : 'comments'}</span>
+                            <span className="text-sm">
+                              {comparison.comments}{" "}
+                              {comparison.comments === 1
+                                ? "comment"
+                                : "comments"}
+                            </span>
                           </div>
                         </div>
 
-                        <Button 
-                          asChild 
-                          variant="outline" 
+                        <Button
+                          asChild
+                          variant="outline"
                           size="sm"
                           className="mt-2 sm:mt-0"
                         >
-                          <Link to={`/comparisons/${comparison.id}`}>View Full Comparison</Link>
+                          <Link to={`/comparisons/${comparison.id}`}>
+                            View Full Comparison
+                          </Link>
                         </Button>
                       </div>
                     </div>

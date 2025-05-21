@@ -1,4 +1,3 @@
-
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -19,14 +18,15 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      
       <main className="flex-grow flex items-center justify-center bg-softgray">
         <div className="text-center px-4 py-16">
           <h1 className="text-6xl font-bold text-primary mb-4">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">Page Not Found</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+            Page Not Found
+          </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-            We couldn't find the page you were looking for. Perhaps you were trying to compare homes that don't exist?
+            We couldn't find the page you were looking for. Perhaps you were
+            trying to compare homes that don't exist?
           </p>
           <Button asChild size="lg">
             <Link to="/" className="flex items-center">
@@ -35,7 +35,7 @@ const NotFound = () => {
           </Button>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

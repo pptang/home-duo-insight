@@ -102,7 +102,6 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow bg-[#F7F7F8] py-12">
         <div className="container max-w-md mx-auto px-4">
           <Tabs defaultValue="signin" className="w-full">

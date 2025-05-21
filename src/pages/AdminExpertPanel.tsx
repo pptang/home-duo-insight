@@ -67,7 +67,6 @@ type ExpertFormValues = z.infer<typeof expertFormSchema>;
 
 export default function AdminExpertPanel() {
   const { isAdmin, user } = useAuth();
-  console.log({ isAdmin, user });
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
