@@ -123,6 +123,29 @@ export function ExpertProfileDetail({ expertId, onUpdate }: ExpertProfileDetailP
     if (!event.target.files || !event.target.files[0]) return;
     
     const file = event.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a valid image file (PNG, JPG, or WEBP)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Image must be smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setProfileImageFile(file);
     
     // Create a preview
@@ -145,13 +168,18 @@ export function ExpertProfileDetail({ expertId, onUpdate }: ExpertProfileDetailP
       
       if (profileImageFile) {
         const fileExt = profileImageFile.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
+        const fileName = `experts/${expert.user_id}/${Date.now()}.${fileExt}`;
         const { error: uploadError, data: uploadData } = await supabase.storage
           .from('expert-profiles')
           .upload(fileName, profileImageFile);
           
         if (uploadError) {
           console.error("Error uploading profile image:", uploadError);
+          toast({
+            title: "Upload Error",
+            description: "Failed to upload profile image",
+            variant: "destructive",
+          });
         } else {
           // Get public URL
           const { data: { publicUrl } } = supabase.storage
@@ -286,11 +314,12 @@ export function ExpertProfileDetail({ expertId, onUpdate }: ExpertProfileDetailP
               <FormLabel>Profile Image</FormLabel>
               <Input 
                 type="file" 
-                accept="image/*"
+                accept="image/png, image/jpeg, image/jpg, image/webp"
                 onChange={handleImageChange}
               />
               <FormDescription>
-                Recommended size: 500x500 pixels
+                Recommended size: 500x500 pixels. Maximum size: 5MB.
+                Allowed formats: PNG, JPG, WEBP.
               </FormDescription>
             </div>
           </div>

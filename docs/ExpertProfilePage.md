@@ -33,6 +33,15 @@ The page uses two primary data fetches:
 - **ExpertProfile**: Displays the expert's personal information, contact details, and ratings
 - **Activity Summary Card**: Shows the expert's contribution metrics on the platform
 
+### Image Handling
+- Profile images are stored in the `expert-profiles` bucket in Supabase Storage
+- Images are uploaded with a path format: `experts/{expertId}/{timestamp}.{extension}`
+- Public URLs are saved to `ExpertProfiles.profile_image_url`
+- Image constraints:
+  - Maximum size: 5MB
+  - Supported formats: PNG, JPG/JPEG, WEBP
+  - Recommended dimensions: 500x500 pixels
+
 ### Rating Logic
 - Ratings are displayed as stars using the expert's average_rating field
 - Total number of ratings is shown using the rating_count field

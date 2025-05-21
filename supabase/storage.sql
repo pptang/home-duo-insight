@@ -15,3 +15,4 @@ CREATE POLICY "Authenticated users can upload" ON storage.objects
     bucket_id = 'expert-profiles' AND
     auth.role() = 'authenticated'
   );
+

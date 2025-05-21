@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -94,6 +95,29 @@ export default function AdminExpertPanel() {
     if (!event.target.files || !event.target.files[0]) return;
 
     const file = event.target.files[0];
+    
+    // Validate file type
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a valid image file (PNG, JPG, or WEBP)",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: "Image must be smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setProfileImageFile(file);
 
     // Create a preview
@@ -143,18 +167,23 @@ export default function AdminExpertPanel() {
 
       if (profileImageFile) {
         const fileExt = profileImageFile.name.split(".").pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const { error: uploadError, data: uploadData } = await supabase.storage
+        const fileName = `experts/${newExpert.id}/${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
           .from("expert-profiles")
           .upload(fileName, profileImageFile);
 
         if (uploadError) {
           console.error("Error uploading profile image:", uploadError);
+          toast({
+            title: "Warning",
+            description: "Expert created but profile image upload failed",
+            variant: "destructive",
+          });
         } else {
           // Get public URL
-          const {
-            data: { publicUrl },
-          } = supabase.storage.from("expert-profiles").getPublicUrl(fileName);
+          const { data: { publicUrl } } = supabase.storage
+            .from("expert-profiles")
+            .getPublicUrl(fileName);
 
           profileImageUrl = publicUrl;
         }
@@ -351,11 +380,12 @@ export default function AdminExpertPanel() {
                             <div className="flex-1">
                               <Input
                                 type="file"
-                                accept="image/*"
+                                accept="image/png, image/jpeg, image/jpg, image/webp"
                                 onChange={handleImageChange}
                               />
                               <FormDescription className="mt-2">
-                                Recommended size: 500x500 pixels
+                                Recommended size: 500x500 pixels. Maximum size: 5MB.
+                                Allowed formats: PNG, JPG, WEBP.
                               </FormDescription>
                             </div>
                           </div>

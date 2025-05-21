@@ -114,7 +114,10 @@ export function ExpertProfile({ expertId, className, showRating = true }: Expert
       <CardContent className="p-6 space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={expert.profile_image_url || undefined} />
+            <AvatarImage 
+              src={expert.profile_image_url || undefined} 
+              alt={`${expert.name}'s profile photo`} 
+            />
             <AvatarFallback>{getInitials(expert.name)}</AvatarFallback>
           </Avatar>
           
