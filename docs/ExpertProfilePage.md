@@ -2,7 +2,7 @@
 # Expert Profile Page
 
 ## Overview
-The Expert Profile Page provides a public-facing view of real estate experts registered on DuoHome Advisor. It's accessible to all users, whether logged in or not.
+The Expert Profile Page provides a public-facing view of real estate experts registered on DuoHome Advisor. It's accessible to all users, whether logged in or not. Experts can edit their own profiles when viewing their own profile page.
 
 ## Route
 - Path: `/experts/:expertId`
@@ -31,6 +31,7 @@ The page uses two primary data fetches:
 
 ### Components
 - **ExpertProfile**: Displays the expert's personal information, contact details, and ratings
+- **ExpertProfileEditForm**: Allows experts to edit their own profile information
 - **Activity Summary Card**: Shows the expert's contribution metrics on the platform
 
 ### Image Handling
@@ -46,6 +47,17 @@ The page uses two primary data fetches:
 - Ratings are displayed as stars using the expert's average_rating field
 - Total number of ratings is shown using the rating_count field
 - The ExpertRating component is imported but set to read-only for public viewing
+
+### Edit Mode
+- The page includes role-based checks to determine if the viewer is the profile owner
+- Only profile owners see an "Edit Profile" button
+- Edit mode allows updating:
+  - Profile image
+  - Name, Email, Phone
+  - Bio/Description
+  - Website and social media links
+- Form validation enforces required fields and format constraints
+- Successful updates are immediately reflected in the UI
 
 ### Contact CTA
 - The "Contact Expert" button links to the expert's email using a mailto: link
@@ -67,7 +79,9 @@ The page follows DuoHome visual style:
    - Recent comparisons voted on
    - Areas of specialization based on voting patterns
 
-2. Add a short bio or "about me" section
+2. Expand profile customization:
+   - Add more specialized fields
+   - Allow adding certifications or credentials
 
 3. Implement in-app messaging instead of email contact
 

@@ -51,6 +51,7 @@ export type Database = {
       expert_profiles: {
         Row: {
           average_rating: number | null
+          bio: string | null
           company_website: string | null
           created_at: string | null
           email: string
@@ -66,6 +67,7 @@ export type Database = {
         }
         Insert: {
           average_rating?: number | null
+          bio?: string | null
           company_website?: string | null
           created_at?: string | null
           email: string
@@ -81,6 +83,7 @@ export type Database = {
         }
         Update: {
           average_rating?: number | null
+          bio?: string | null
           company_website?: string | null
           created_at?: string | null
           email?: string
