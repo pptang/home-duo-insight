@@ -46,6 +46,11 @@ interface AIRecommendation {
   final_recommendation: string;
 }
 
+interface AIRecommendationResponse extends AIRecommendation {
+  recommendation_id: string | null;
+  comparison_id: string;
+}
+
 // In-memory rate limiting
 const rateLimiter = new Map<string, { count: number, lastReset: number }>();
 const RATE_LIMIT = 10; // requests
@@ -237,12 +242,49 @@ Return your response in the following JSON format (and only this format, with no
       const aiRecommendation: AIRecommendation = JSON.parse(jsonString);
       console.log('Parsed recommendation data:', aiRecommendation);
 
-      // Store the recommendation in Supabase (optional)
-      // This could be added later to save recommendations for future reference
+      // Store the recommendation in Supabase database
+      let recommendationId: string | null = null;
 
-      // Return success response with AI recommendation
+      if (requestData.comparison_id) {
+        try {
+          const recommendationData = {
+            comparison_id: requestData.comparison_id,
+            user_id: session?.user?.id || null,
+            property_a_pros: aiRecommendation.property_a_pros,
+            property_a_cons: aiRecommendation.property_a_cons,
+            property_b_pros: aiRecommendation.property_b_pros,
+            property_b_cons: aiRecommendation.property_b_cons,
+            summary_table: aiRecommendation.summary_table,
+            final_recommendation: aiRecommendation.final_recommendation,
+            user_profile: requestData.user_profile
+          };
+
+          const { data: savedRecommendation, error: saveError } = await supabaseClient
+            .from('recommendations')
+            .insert([recommendationData])
+            .select('id')
+            .single();
+
+          if (saveError) {
+            console.error('Error saving recommendation:', saveError);
+            // Don't fail the request if saving fails, just log it
+          } else {
+            recommendationId = savedRecommendation?.id || null;
+            console.log('Recommendation saved with ID:', recommendationId);
+          }
+        } catch (saveError) {
+          console.error('Error saving recommendation to database:', saveError);
+          // Continue without failing the request
+        }
+      }
+
+      // Return success response with AI recommendation and recommendation ID
       return new Response(
-        JSON.stringify(aiRecommendation),
+        JSON.stringify({
+          ...aiRecommendation,
+          recommendation_id: recommendationId,
+          comparison_id: requestData.comparison_id
+        }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
 

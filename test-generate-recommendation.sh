@@ -21,6 +21,7 @@ curl -X POST "$FUNCTION_URL" \
   -H "Content-Type: application/json" \
   -H "apikey: $SUPABASE_ANON_KEY" \
   -d '{
+    "comparison_id": "fc7b8b3b-a899-4423-a21b-41a4df660f66",
     "property_a": {
       "property_name": "Modern Tokyo Apartment",
       "address": "Shibuya, Tokyo",

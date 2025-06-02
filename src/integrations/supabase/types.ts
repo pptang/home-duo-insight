@@ -194,6 +194,59 @@ export type Database = {
         };
         Relationships: [];
       };
+      recommendations: {
+        Row: {
+          comparison_id: string;
+          created_at: string;
+          final_recommendation: string;
+          id: string;
+          property_a_cons: string[];
+          property_a_pros: string[];
+          property_b_cons: string[];
+          property_b_pros: string[];
+          summary_table: Json;
+          updated_at: string;
+          user_id: string | null;
+          user_profile: Json | null;
+        };
+        Insert: {
+          comparison_id: string;
+          created_at?: string;
+          final_recommendation: string;
+          id?: string;
+          property_a_cons?: string[];
+          property_a_pros?: string[];
+          property_b_cons?: string[];
+          property_b_pros?: string[];
+          summary_table?: Json;
+          updated_at?: string;
+          user_id?: string | null;
+          user_profile?: Json | null;
+        };
+        Update: {
+          comparison_id?: string;
+          created_at?: string;
+          final_recommendation?: string;
+          id?: string;
+          property_a_cons?: string[];
+          property_a_pros?: string[];
+          property_b_cons?: string[];
+          property_b_pros?: string[];
+          summary_table?: Json;
+          updated_at?: string;
+          user_id?: string | null;
+          user_profile?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_comparison_id_fkey";
+            columns: ["comparison_id"];
+            isOneToOne: false;
+            referencedRelation: "comparisons";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       votes: {
         Row: {
           comment: string | null;
