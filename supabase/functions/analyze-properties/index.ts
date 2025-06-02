@@ -111,7 +111,7 @@ serve(async (req) => {
     }
 
     const { html_property_a, html_property_b } = parseResponse.data;
-    
+
     if (!html_property_a || !html_property_b) {
       return new Response(
         JSON.stringify({ error: "Failed to retrieve HTML content from one or both URLs" }),
@@ -137,11 +137,11 @@ serve(async (req) => {
     // Prepare prompt for Gemini - use HTML content
     // Truncate HTML if too long to avoid token limit issues
     const maxHtmlLength = 20000; // Adjust based on Gemini's token limit
-    const truncatedHtmlA = html_property_a.length > maxHtmlLength ? 
-      html_property_a.substring(0, maxHtmlLength) + "... [HTML truncated]" : 
+    const truncatedHtmlA = html_property_a.length > maxHtmlLength ?
+      html_property_a.substring(0, maxHtmlLength) + "... [HTML truncated]" :
       html_property_a;
-    const truncatedHtmlB = html_property_b.length > maxHtmlLength ? 
-      html_property_b.substring(0, maxHtmlLength) + "... [HTML truncated]" : 
+    const truncatedHtmlB = html_property_b.length > maxHtmlLength ?
+      html_property_b.substring(0, maxHtmlLength) + "... [HTML truncated]" :
       html_property_b;
 
     const prompt = `You are DuoHome Advisor AI. Here are two raw real estate listing pages.
@@ -182,7 +182,7 @@ Please return the data in this exact format (do not include any explanation, jus
     // Make request to Gemini API
     console.log("Calling Gemini API to extract data");
     const geminiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro-latest:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
       {
         method: "POST",
         headers: {

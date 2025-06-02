@@ -1,4 +1,3 @@
-
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
 project_id = "qditnqwrjioypsuxwagg"
@@ -74,8 +73,6 @@ additional_redirect_urls = ["https://localhost:3000"]
 jwt_expiry = 3600
 # Allow/disallow new user signups to your project.
 enable_signup = true
-# If enabled, a user will need to verify their email address before logging in.
-enable_confirmations = false
 
 [auth.email]
 # Allow/disallow new user signups via email to your project.
@@ -84,14 +81,10 @@ enable_signup = true
 enable_confirmations = false
 # If enabled, users need to confirm any email change.
 double_confirm_changes = true
-# If enabled, users will receive a welcome email upon signing up.
-enable_welcome = true
 
 [auth.sms]
 # Allow/disallow new user signups via SMS to your project.
 enable_signup = true
-# If enabled, users will receive a welcome email upon signing up.
-enable_welcome = true
 
 [auth.external.apple]
 enabled = false
@@ -99,12 +92,6 @@ enabled = false
 client_id = ""
 # Secret for the Apple provider.
 secret = ""
-# Authorize URL for the Apple provider.
-authorize_url = ""
-# Token URL for the Apple provider.
-token_url = ""
-# Redirect URL for the Apple provider.
-redirect_url = ""
 
 [auth.external.azure]
 enabled = false
@@ -112,12 +99,6 @@ enabled = false
 client_id = ""
 # Secret for the Azure provider.
 secret = ""
-# Authorize URL for the Azure provider.
-authorize_url = ""
-# Token URL for the Azure provider.
-token_url = ""
-# Redirect URL for the Azure provider.
-redirect_url = ""
 
 [auth.external.bitbucket]
 enabled = false
@@ -125,12 +106,6 @@ enabled = false
 client_id = ""
 # Secret for the Bitbucket provider.
 secret = ""
-# Authorize URL for the Bitbucket provider.
-authorize_url = ""
-# Token URL for the Bitbucket provider.
-token_url = ""
-# Redirect URL for the Bitbucket provider.
-redirect_url = ""
 
 [auth.external.discord]
 enabled = false
@@ -138,12 +113,6 @@ enabled = false
 client_id = ""
 # Secret for the Discord provider.
 secret = ""
-# Authorize URL for the Discord provider.
-authorize_url = ""
-# Token URL for the Discord provider.
-token_url = ""
-# Redirect URL for the Discord provider.
-redirect_url = ""
 
 [auth.external.facebook]
 enabled = false
@@ -151,12 +120,6 @@ enabled = false
 client_id = ""
 # Secret for the Facebook provider.
 secret = ""
-# Authorize URL for the Facebook provider.
-authorize_url = ""
-# Token URL for the Facebook provider.
-token_url = ""
-# Redirect URL for the Facebook provider.
-redirect_url = ""
 
 [auth.external.github]
 enabled = false
@@ -164,12 +127,6 @@ enabled = false
 client_id = ""
 # Secret for the GitHub provider.
 secret = ""
-# Authorize URL for the GitHub provider.
-authorize_url = ""
-# Token URL for the GitHub provider.
-token_url = ""
-# Redirect URL for the GitHub provider.
-redirect_url = ""
 
 [auth.external.gitlab]
 enabled = false
@@ -177,12 +134,6 @@ enabled = false
 client_id = ""
 # Secret for the GitLab provider.
 secret = ""
-# Authorize URL for the GitLab provider.
-authorize_url = ""
-# Token URL for the GitLab provider.
-token_url = ""
-# Redirect URL for the GitLab provider.
-redirect_url = ""
 
 [auth.external.google]
 enabled = false
@@ -190,12 +141,6 @@ enabled = false
 client_id = ""
 # Secret for the Google provider.
 secret = ""
-# Authorize URL for the Google provider.
-authorize_url = ""
-# Token URL for the Google provider.
-token_url = ""
-# Redirect URL for the Google provider.
-redirect_url = ""
 
 [auth.external.keycloak]
 enabled = false
@@ -203,12 +148,6 @@ enabled = false
 client_id = ""
 # Secret for the Keycloak provider.
 secret = ""
-# Authorize URL for the Keycloak provider.
-authorize_url = ""
-# Token URL for the Keycloak provider.
-token_url = ""
-# Redirect URL for the Keycloak provider.
-redirect_url = ""
 
 [auth.external.linkedin]
 enabled = false
@@ -216,12 +155,6 @@ enabled = false
 client_id = ""
 # Secret for the LinkedIn provider.
 secret = ""
-# Authorize URL for the LinkedIn provider.
-authorize_url = ""
-# Token URL for the LinkedIn provider.
-token_url = ""
-# Redirect URL for the LinkedIn provider.
-redirect_url = ""
 
 [auth.external.notion]
 enabled = false
@@ -229,12 +162,6 @@ enabled = false
 client_id = ""
 # Secret for the Notion provider.
 secret = ""
-# Authorize URL for the Notion provider.
-authorize_url = ""
-# Token URL for the Notion provider.
-token_url = ""
-# Redirect URL for the Notion provider.
-redirect_url = ""
 
 [auth.external.twitch]
 enabled = false
@@ -242,12 +169,6 @@ enabled = false
 client_id = ""
 # Secret for the Twitch provider.
 secret = ""
-# Authorize URL for the Twitch provider.
-authorize_url = ""
-# Token URL for the Twitch provider.
-token_url = ""
-# Redirect URL for the Twitch provider.
-redirect_url = ""
 
 [auth.external.twitter]
 enabled = false
@@ -255,12 +176,6 @@ enabled = false
 client_id = ""
 # Secret for the Twitter provider.
 secret = ""
-# Authorize URL for the Twitter provider.
-authorize_url = ""
-# Token URL for the Twitter provider.
-token_url = ""
-# Redirect URL for the Twitter provider.
-redirect_url = ""
 
 [auth.external.workos]
 enabled = false
@@ -268,23 +183,9 @@ enabled = false
 client_id = ""
 # Secret for the WorkOS provider.
 secret = ""
-# Authorize URL for the WorkOS provider.
-authorize_url = ""
-# Token URL for the WorkOS provider.
-token_url = ""
-# Redirect URL for the WorkOS provider.
-redirect_url = ""
 
 [functions]
+# Limit for the number of functions that can be instantiated.
+
+[functions.api_docs]
 enabled = true
-
-[analytics]
-enabled = false
-# Backend URL for the analytics service.
-backend_url = "http://localhost:54327"
-# Token for the analytics service.
-token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
-vector_enabled = false
-
-[experimental.realtime]
-enabled = false

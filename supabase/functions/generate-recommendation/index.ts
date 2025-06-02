@@ -56,7 +56,7 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  
+
   try {
     // Extract and validate the session from the request
     const supabaseClient = createClient(
@@ -64,26 +64,26 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
     );
-    
+
     // Get session for user identification (optional)
     const {
       data: { session },
     } = await supabaseClient.auth.getSession();
-    
+
     // Basic rate limiting by IP or user ID
     const clientIP = req.headers.get('cf-connecting-ip') || 'anonymous';
     const identifier = session?.user?.id || clientIP;
-    
+
     // Check rate limiting
     const now = Date.now();
     const userRateLimit = rateLimiter.get(identifier) || { count: 0, lastReset: now };
-    
+
     // Reset counter if window has passed
     if (now - userRateLimit.lastReset > RATE_WINDOW) {
       userRateLimit.count = 0;
       userRateLimit.lastReset = now;
     }
-    
+
     // Check if user has exceeded rate limit
     if (userRateLimit.count >= RATE_LIMIT) {
       return new Response(
@@ -91,14 +91,14 @@ serve(async (req) => {
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     // Increment rate limit counter
     userRateLimit.count++;
     rateLimiter.set(identifier, userRateLimit);
-    
+
     // Parse request
     const requestData: RequestData = await req.json();
-    
+
     if (!requestData.property_a || !requestData.property_b || !requestData.user_profile) {
       return new Response(
         JSON.stringify({ error: 'Missing property or user profile data' }),
@@ -121,7 +121,7 @@ serve(async (req) => {
         );
       }
     }
-    
+
     // Call Gemini API to generate property recommendation
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -130,7 +130,7 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     // Format user profile for prompt
     const userProfileText = `
 - Has pets: ${requestData.user_profile.has_pets ? 'Yes' : 'No'}
@@ -187,29 +187,30 @@ Return your response in the following JSON format (and only this format, with no
 }`;
 
     // Make request to Gemini API
-    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': geminiApiKey,
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt }
-            ]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
+    const geminiResponse = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": geminiApiKey,
         },
-      }),
-    });
-    
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.2,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          },
+        }),
+      }
+    );
+
     if (!geminiResponse.ok) {
       const errorData = await geminiResponse.json();
       console.error('Gemini API error:', errorData);
@@ -218,37 +219,37 @@ Return your response in the following JSON format (and only this format, with no
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-    
+
     const geminiData = await geminiResponse.json();
     console.log('Gemini response:', JSON.stringify(geminiData));
-    
+
     try {
       // Extract the JSON from Gemini's response
       const responseText = geminiData.candidates[0]?.content?.parts?.[0]?.text || '';
       console.log('Response text:', responseText);
-      
+
       // Extract the JSON part from the response
       const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || responseText.match(/({[\s\S]*})/);
       const jsonString = jsonMatch ? jsonMatch[1] : responseText;
       console.log('Extracted JSON string:', jsonString);
-      
+
       // Parse the extracted JSON
       const aiRecommendation: AIRecommendation = JSON.parse(jsonString);
       console.log('Parsed recommendation data:', aiRecommendation);
-      
+
       // Store the recommendation in Supabase (optional)
       // This could be added later to save recommendations for future reference
-      
+
       // Return success response with AI recommendation
       return new Response(
         JSON.stringify(aiRecommendation),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
-      
+
     } catch (error) {
       console.error('Error processing Gemini response:', error);
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Could not generate recommendation. Please try again.',
           details: error.message
         }),
