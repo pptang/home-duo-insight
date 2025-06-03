@@ -32,10 +32,24 @@ serve(async (req) => {
       }
     );
 
-    // Get session for user identification (optional)
+    // Create a service role client for database operations (bypasses RLS)
+    const supabaseServiceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+    );
+
+    // Get session for user identification (optional for rate limiting)
     const {
       data: { session },
+      error: sessionError,
     } = await supabaseClient.auth.getSession();
+
+    // Debug authentication
+    console.log("Authorization header:", req.headers.get("Authorization"));
+    console.log("Session data:", session);
+    console.log("Session error:", sessionError);
+
+    // Authentication is optional - we'll use service role for database operations
 
     // Basic rate limiting by IP or user ID
     const clientIP = req.headers.get("cf-connecting-ip") || "anonymous";
@@ -239,9 +253,9 @@ Please return the data in this exact format (do not include any explanation, jus
       const propertyA = extractedData.property_a;
       const propertyB = extractedData.property_b;
 
-      // Insert PropertyA
+      // Insert PropertyA using service role client (bypasses RLS)
       const { data: propertyAData, error: propertyAError } =
-        await supabaseClient.from("properties").insert([propertyA]).select();
+        await supabaseServiceClient.from("properties").insert([propertyA]).select();
 
       if (propertyAError) {
         throw new Error(
@@ -249,9 +263,9 @@ Please return the data in this exact format (do not include any explanation, jus
         );
       }
 
-      // Insert PropertyB
+      // Insert PropertyB using service role client (bypasses RLS)
       const { data: propertyBData, error: propertyBError } =
-        await supabaseClient.from("properties").insert([propertyB]).select();
+        await supabaseServiceClient.from("properties").insert([propertyB]).select();
 
       if (propertyBError) {
         throw new Error(
@@ -267,7 +281,7 @@ Please return the data in this exact format (do not include any explanation, jus
       };
 
       const { data: comparisonResult, error: comparisonError } =
-        await supabaseClient
+        await supabaseServiceClient
           .from("comparisons")
           .insert([comparisonData])
           .select();
