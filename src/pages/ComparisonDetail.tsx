@@ -186,7 +186,9 @@ const ComparisonDetail = () => {
           const { data: { session } } = await supabase.auth.getSession();
 
           // Construct the URL with query parameters for the GET request
-          const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "http://127.0.0.1:54321";
+          const supabaseUrl =
+            import.meta.env.VITE_SUPABASE_URL ||
+            "https://qditnqwrjioypsuxwagg.supabase.co";
           const functionUrl = `${supabaseUrl}/functions/v1/get-recommendation?comparison_id=${id}`;
 
           // Make direct fetch call with proper headers

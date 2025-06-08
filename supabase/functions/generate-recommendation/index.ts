@@ -64,10 +64,15 @@ serve(async (req) => {
 
   try {
     // Extract and validate the session from the request
+    const authHeader = req.headers.get('Authorization');
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      {
+        global: {
+          headers: authHeader ? { Authorization: authHeader } : {}
+        }
+      }
     );
 
     // Get session for user identification (optional)
@@ -247,6 +252,9 @@ Return your response in the following JSON format (and only this format, with no
 
       if (requestData.comparison_id) {
         try {
+          console.log('Attempting to save recommendation for comparison:', requestData.comparison_id);
+          console.log('Session user ID:', session?.user?.id);
+
           const recommendationData = {
             comparison_id: requestData.comparison_id,
             user_id: session?.user?.id || null,
@@ -259,6 +267,8 @@ Return your response in the following JSON format (and only this format, with no
             user_profile: requestData.user_profile
           };
 
+          console.log('Recommendation data to insert:', JSON.stringify(recommendationData, null, 2));
+
           const { data: savedRecommendation, error: saveError } = await supabaseClient
             .from('recommendations')
             .insert([recommendationData])
@@ -267,6 +277,7 @@ Return your response in the following JSON format (and only this format, with no
 
           if (saveError) {
             console.error('Error saving recommendation:', saveError);
+            console.error('Error details:', JSON.stringify(saveError, null, 2));
             // Don't fail the request if saving fails, just log it
           } else {
             recommendationId = savedRecommendation?.id || null;
@@ -274,8 +285,11 @@ Return your response in the following JSON format (and only this format, with no
           }
         } catch (saveError) {
           console.error('Error saving recommendation to database:', saveError);
+          console.error('Save error details:', JSON.stringify(saveError, null, 2));
           // Continue without failing the request
         }
+      } else {
+        console.log('No comparison_id provided, skipping database save');
       }
 
       // Return success response with AI recommendation and recommendation ID
