@@ -108,15 +108,34 @@ serve(async (req) => {
     }
 
     // 1. First call the parse-properties function to get the HTML content
-    console.log("Calling parse-properties function");
-    const parseResponse = await supabaseClient.functions.invoke("parse-properties", {
-      body: { property_url_a, property_url_b },
-    });
+    console.log("Calling parse-properties function with URLs:", { property_url_a, property_url_b });
+    let parseResponse;
+    try {
+      parseResponse = await supabaseClient.functions.invoke("parse-properties", {
+        body: { property_url_a, property_url_b },
+      });
+    } catch (invokeError) {
+      console.error("Error invoking parse-properties function:", invokeError);
+      return new Response(
+        JSON.stringify({
+          error: "Failed to invoke parse-properties function",
+          details: invokeError.message
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     if (parseResponse.error) {
       console.error("Parse function error:", parseResponse.error);
       return new Response(
-        JSON.stringify({ error: "Error parsing property URLs: " + parseResponse.error.message }),
+        JSON.stringify({
+          error: "Error parsing property URLs",
+          details: parseResponse.error.message || parseResponse.error,
+          statusCode: parseResponse.error.status || 'unknown'
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -124,17 +143,34 @@ serve(async (req) => {
       );
     }
 
-    const { html_property_a, html_property_b } = parseResponse.data;
+    const { html_property_a, html_property_b } = parseResponse.data || {};
 
     if (!html_property_a || !html_property_b) {
+      console.error("Missing HTML content from parse response:", {
+        hasPropertyA: !!html_property_a,
+        hasPropertyB: !!html_property_b,
+        parseResponseData: parseResponse.data
+      });
       return new Response(
-        JSON.stringify({ error: "Failed to retrieve HTML content from one or both URLs" }),
+        JSON.stringify({
+          error: "Failed to retrieve HTML content from one or both URLs",
+          details: {
+            property_a_retrieved: !!html_property_a,
+            property_b_retrieved: !!html_property_b,
+            response_data: parseResponse.data
+          }
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
+
+    console.log("HTML content retrieved successfully", {
+      property_a_length: html_property_a.length,
+      property_b_length: html_property_b.length
+    });
 
     // 2. Call Gemini API to extract property data from HTML
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
@@ -195,35 +231,59 @@ Please return the data in this exact format (do not include any explanation, jus
 
     // Make request to Gemini API
     console.log("Calling Gemini API to extract data");
-    const geminiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": geminiApiKey,
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.2,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
+    let geminiResponse;
+    try {
+      geminiResponse = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": geminiApiKey,
           },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.2,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 1024,
+            },
+          }),
+        }
+      );
+    } catch (fetchError) {
+      console.error("Network error calling Gemini API:", fetchError);
+      return new Response(
+        JSON.stringify({
+          error: "Network error connecting to Gemini API",
+          details: fetchError.message
         }),
-      }
-    );
+        {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     if (!geminiResponse.ok) {
-      const errorData = await geminiResponse.json();
-      console.error("Gemini API error:", errorData);
+      const errorData = await geminiResponse.json().catch(() => ({ error: "Could not parse error response" }));
+      console.error("Gemini API error:", {
+        status: geminiResponse.status,
+        statusText: geminiResponse.statusText,
+        errorData
+      });
       return new Response(
-        JSON.stringify({ error: "Error extracting property data" }),
+        JSON.stringify({
+          error: "Gemini API request failed",
+          status: geminiResponse.status,
+          statusText: geminiResponse.statusText,
+          details: errorData
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -231,13 +291,30 @@ Please return the data in this exact format (do not include any explanation, jus
       );
     }
 
-    const geminiData = await geminiResponse.json();
-    console.log("Gemini response received");
+    let geminiData;
+    try {
+      geminiData = await geminiResponse.json();
+      console.log("Gemini response received successfully");
+    } catch (jsonError) {
+      console.error("Error parsing Gemini response JSON:", jsonError);
+      return new Response(
+        JSON.stringify({
+          error: "Invalid JSON response from Gemini API",
+          details: jsonError.message
+        }),
+        {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
     try {
       // Extract the JSON from Gemini's response
       const responseText =
         geminiData.candidates[0]?.content?.parts?.[0]?.text || "";
+
+      console.log("Raw Gemini response text:", responseText.substring(0, 500) + "...");
 
       // Extract the JSON part from the response
       const jsonMatch =
@@ -245,33 +322,59 @@ Please return the data in this exact format (do not include any explanation, jus
         responseText.match(/({[\s\S]*})/);
       const jsonString = jsonMatch ? jsonMatch[1] : responseText;
 
+      console.log("Extracted JSON string:", jsonString.substring(0, 500) + "...");
+
       // Parse the extracted JSON
-      const extractedData = JSON.parse(jsonString);
-      console.log("Successfully parsed property data");
+      let extractedData;
+      try {
+        extractedData = JSON.parse(jsonString);
+        console.log("Successfully parsed property data");
+      } catch (parseError) {
+        console.error("JSON parsing failed:", parseError.message);
+        console.error("Failed JSON string:", jsonString);
+        throw new Error(`Failed to parse JSON from Gemini response: ${parseError.message}. Raw response: ${responseText.substring(0, 1000)}`);
+      }
+
+      // Validate extracted data structure
+      if (!extractedData.property_a || !extractedData.property_b) {
+        console.error("Missing property data in extracted response:", extractedData);
+        throw new Error(`Invalid data structure from Gemini. Missing property_a or property_b. Received: ${JSON.stringify(extractedData)}`);
+      }
 
       // Insert property data into Supabase
       const propertyA = extractedData.property_a;
       const propertyB = extractedData.property_b;
+
+      console.log("Property A data:", JSON.stringify(propertyA, null, 2));
+      console.log("Property B data:", JSON.stringify(propertyB, null, 2));
 
       // Insert PropertyA using service role client (bypasses RLS)
       const { data: propertyAData, error: propertyAError } =
         await supabaseServiceClient.from("properties").insert([propertyA]).select();
 
       if (propertyAError) {
+        console.error("Property A insertion error:", propertyAError);
+        console.error("Property A data that failed:", JSON.stringify(propertyA, null, 2));
         throw new Error(
-          `Error inserting property A: ${propertyAError.message}`
+          `Error inserting property A: ${propertyAError.message}. Details: ${JSON.stringify(propertyAError.details || {})}. Code: ${propertyAError.code || 'unknown'}`
         );
       }
+
+      console.log("Property A inserted successfully:", propertyAData[0]);
 
       // Insert PropertyB using service role client (bypasses RLS)
       const { data: propertyBData, error: propertyBError } =
         await supabaseServiceClient.from("properties").insert([propertyB]).select();
 
       if (propertyBError) {
+        console.error("Property B insertion error:", propertyBError);
+        console.error("Property B data that failed:", JSON.stringify(propertyB, null, 2));
         throw new Error(
-          `Error inserting property B: ${propertyBError.message}`
+          `Error inserting property B: ${propertyBError.message}. Details: ${JSON.stringify(propertyBError.details || {})}. Code: ${propertyBError.code || 'unknown'}`
         );
       }
+
+      console.log("Property B inserted successfully:", propertyBData[0]);
 
       // Create comparison record
       const comparisonData = {
@@ -280,6 +383,8 @@ Please return the data in this exact format (do not include any explanation, jus
         user_id: session?.user?.id || null,
       };
 
+      console.log("Creating comparison with data:", JSON.stringify(comparisonData, null, 2));
+
       const { data: comparisonResult, error: comparisonError } =
         await supabaseServiceClient
           .from("comparisons")
@@ -287,10 +392,14 @@ Please return the data in this exact format (do not include any explanation, jus
           .select();
 
       if (comparisonError) {
+        console.error("Comparison creation error:", comparisonError);
+        console.error("Comparison data that failed:", JSON.stringify(comparisonData, null, 2));
         throw new Error(
-          `Error creating comparison: ${comparisonError.message}`
+          `Error creating comparison: ${comparisonError.message}. Details: ${JSON.stringify(comparisonError.details || {})}. Code: ${comparisonError.code || 'unknown'}`
         );
       }
+
+      console.log("Comparison created successfully:", comparisonResult[0]);
 
       // Return success response with property data
       return new Response(
@@ -303,12 +412,17 @@ Please return the data in this exact format (do not include any explanation, jus
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } catch (error) {
-      console.error("Error processing Gemini response:", error);
+      console.error("Error processing Gemini response:", {
+        errorMessage: error.message,
+        errorStack: error.stack,
+        geminiDataReceived: !!geminiData,
+        responseText: geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 500)
+      });
       return new Response(
         JSON.stringify({
-          error:
-            "Could not extract data. Please check the URLs or try another.",
+          error: "Could not extract property data from response",
           details: error.message,
+          geminiResponse: geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 1000) || "No response text available"
         }),
         {
           status: 422,
@@ -317,11 +431,18 @@ Please return the data in this exact format (do not include any explanation, jus
       );
     }
   } catch (error) {
-    console.error("Function error:", error);
+    console.error("Function error:", {
+      errorMessage: error.message,
+      errorStack: error.stack,
+      errorName: error.name,
+      timestamp: new Date().toISOString()
+    });
     return new Response(
       JSON.stringify({
         error: "Internal server error",
         details: error.message,
+        errorType: error.name || 'UnknownError',
+        timestamp: new Date().toISOString()
       }),
       {
         status: 500,
