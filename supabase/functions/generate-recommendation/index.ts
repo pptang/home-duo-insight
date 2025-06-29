@@ -1,11 +1,11 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Required for CORS
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface PropertyData {
@@ -24,6 +24,7 @@ interface UserProfile {
   works_from_home: boolean;
   family_size: number;
   commute_priority: number;
+  why_move: string;
 }
 
 interface RequestData {
@@ -31,6 +32,7 @@ interface RequestData {
   property_a: PropertyData;
   property_b: PropertyData;
   user_profile: UserProfile;
+  why_move: string;
 }
 
 interface AIRecommendation {
@@ -52,26 +54,26 @@ interface AIRecommendationResponse extends AIRecommendation {
 }
 
 // In-memory rate limiting
-const rateLimiter = new Map<string, { count: number, lastReset: number }>();
+const rateLimiter = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT = 10; // requests
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
 
 serve(async (req) => {
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     // Extract and validate the session from the request
-    const authHeader = req.headers.get('Authorization');
+    const authHeader = req.headers.get("Authorization");
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
         global: {
-          headers: authHeader ? { Authorization: authHeader } : {}
-        }
+          headers: authHeader ? { Authorization: authHeader } : {},
+        },
       }
     );
 
@@ -81,12 +83,15 @@ serve(async (req) => {
     } = await supabaseClient.auth.getSession();
 
     // Basic rate limiting by IP or user ID
-    const clientIP = req.headers.get('cf-connecting-ip') || 'anonymous';
+    const clientIP = req.headers.get("cf-connecting-ip") || "anonymous";
     const identifier = session?.user?.id || clientIP;
 
     // Check rate limiting
     const now = Date.now();
-    const userRateLimit = rateLimiter.get(identifier) || { count: 0, lastReset: now };
+    const userRateLimit = rateLimiter.get(identifier) || {
+      count: 0,
+      lastReset: now,
+    };
 
     // Reset counter if window has passed
     if (now - userRateLimit.lastReset > RATE_WINDOW) {
@@ -97,8 +102,11 @@ serve(async (req) => {
     // Check if user has exceeded rate limit
     if (userRateLimit.count >= RATE_LIMIT) {
       return new Response(
-        JSON.stringify({ error: 'Rate limit exceeded. Try again later.' }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Rate limit exceeded. Try again later." }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
 
@@ -109,44 +117,61 @@ serve(async (req) => {
     // Parse request
     const requestData: RequestData = await req.json();
 
-    if (!requestData.property_a || !requestData.property_b || !requestData.user_profile) {
+    if (
+      !requestData.property_a ||
+      !requestData.property_b ||
+      !requestData.user_profile
+    ) {
       return new Response(
-        JSON.stringify({ error: 'Missing property or user profile data' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Missing property or user profile data" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
 
     // Check if comparison exists in DB
     if (requestData.comparison_id) {
-      const { data: comparisonData, error: comparisonError } = await supabaseClient
-        .from('comparisons')
-        .select('id')
-        .eq('id', requestData.comparison_id)
-        .single();
+      const { data: comparisonData, error: comparisonError } =
+        await supabaseClient
+          .from("comparisons")
+          .select("id")
+          .eq("id", requestData.comparison_id)
+          .single();
 
       if (comparisonError || !comparisonData) {
         return new Response(
-          JSON.stringify({ error: 'Invalid comparison ID' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: "Invalid comparison ID" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
         );
       }
     }
 
     // Call Gemini API to generate property recommendation
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
+    const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiApiKey) {
       return new Response(
-        JSON.stringify({ error: 'Gemini API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Gemini API key not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
 
     // Format user profile for prompt
     const userProfileText = `
-- Has pets: ${requestData.user_profile.has_pets ? 'Yes' : 'No'}
-- Works from home: ${requestData.user_profile.works_from_home ? 'Yes' : 'No'}
+- Has pets: ${requestData.user_profile.has_pets ? "Yes" : "No"}
+- Works from home: ${requestData.user_profile.works_from_home ? "Yes" : "No"}
 - Family size: ${requestData.user_profile.family_size} people
-- Commute priority: ${requestData.user_profile.commute_priority}/5 (higher means more important)
+- Commute priority: ${
+      requestData.user_profile.commute_priority
+    }/5 (higher means more important)
+- Why move: ${requestData.user_profile.why_move} 
 `;
 
     // Format property data for prompt
@@ -157,7 +182,7 @@ Property A: ${requestData.property_a.property_name}
 - Floor Plan: ${requestData.property_a.floor_plan}
 - Commute Time: ${requestData.property_a.commute_minutes} minutes
 - Property Type: ${requestData.property_a.property_type}
-- Additional Notes: ${requestData.property_a.notes || 'None'}
+- Additional Notes: ${requestData.property_a.notes || "None"}
 `;
 
     const propertyBText = `
@@ -167,7 +192,7 @@ Property B: ${requestData.property_b.property_name}
 - Floor Plan: ${requestData.property_b.floor_plan}
 - Commute Time: ${requestData.property_b.commute_minutes} minutes
 - Property Type: ${requestData.property_b.property_type}
-- Additional Notes: ${requestData.property_b.notes || 'None'}
+- Additional Notes: ${requestData.property_b.notes || "None"}
 `;
 
     // Prepare prompt for Gemini
@@ -223,37 +248,46 @@ Return your response in the following JSON format (and only this format, with no
 
     if (!geminiResponse.ok) {
       const errorData = await geminiResponse.json();
-      console.error('Gemini API error:', errorData);
+      console.error("Gemini API error:", errorData);
       return new Response(
-        JSON.stringify({ error: 'Error generating recommendation' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: "Error generating recommendation" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
 
     const geminiData = await geminiResponse.json();
-    console.log('Gemini response:', JSON.stringify(geminiData));
+    console.log("Gemini response:", JSON.stringify(geminiData));
 
     try {
       // Extract the JSON from Gemini's response
-      const responseText = geminiData.candidates[0]?.content?.parts?.[0]?.text || '';
-      console.log('Response text:', responseText);
+      const responseText =
+        geminiData.candidates[0]?.content?.parts?.[0]?.text || "";
+      console.log("Response text:", responseText);
 
       // Extract the JSON part from the response
-      const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || responseText.match(/({[\s\S]*})/);
+      const jsonMatch =
+        responseText.match(/```json\n([\s\S]*?)\n```/) ||
+        responseText.match(/({[\s\S]*})/);
       const jsonString = jsonMatch ? jsonMatch[1] : responseText;
-      console.log('Extracted JSON string:', jsonString);
+      console.log("Extracted JSON string:", jsonString);
 
       // Parse the extracted JSON
       const aiRecommendation: AIRecommendation = JSON.parse(jsonString);
-      console.log('Parsed recommendation data:', aiRecommendation);
+      console.log("Parsed recommendation data:", aiRecommendation);
 
       // Store the recommendation in Supabase database
       let recommendationId: string | null = null;
 
       if (requestData.comparison_id) {
         try {
-          console.log('Attempting to save recommendation for comparison:', requestData.comparison_id);
-          console.log('Session user ID:', session?.user?.id);
+          console.log(
+            "Attempting to save recommendation for comparison:",
+            requestData.comparison_id
+          );
+          console.log("Session user ID:", session?.user?.id);
 
           const recommendationData = {
             comparison_id: requestData.comparison_id,
@@ -264,32 +298,39 @@ Return your response in the following JSON format (and only this format, with no
             property_b_cons: aiRecommendation.property_b_cons,
             summary_table: aiRecommendation.summary_table,
             final_recommendation: aiRecommendation.final_recommendation,
-            user_profile: requestData.user_profile
+            user_profile: requestData.user_profile,
           };
 
-          console.log('Recommendation data to insert:', JSON.stringify(recommendationData, null, 2));
+          console.log(
+            "Recommendation data to insert:",
+            JSON.stringify(recommendationData, null, 2)
+          );
 
-          const { data: savedRecommendation, error: saveError } = await supabaseClient
-            .from('recommendations')
-            .insert([recommendationData])
-            .select('id')
-            .single();
+          const { data: savedRecommendation, error: saveError } =
+            await supabaseClient
+              .from("recommendations")
+              .insert([recommendationData])
+              .select("id")
+              .single();
 
           if (saveError) {
-            console.error('Error saving recommendation:', saveError);
-            console.error('Error details:', JSON.stringify(saveError, null, 2));
+            console.error("Error saving recommendation:", saveError);
+            console.error("Error details:", JSON.stringify(saveError, null, 2));
             // Don't fail the request if saving fails, just log it
           } else {
             recommendationId = savedRecommendation?.id || null;
-            console.log('Recommendation saved with ID:', recommendationId);
+            console.log("Recommendation saved with ID:", recommendationId);
           }
         } catch (saveError) {
-          console.error('Error saving recommendation to database:', saveError);
-          console.error('Save error details:', JSON.stringify(saveError, null, 2));
+          console.error("Error saving recommendation to database:", saveError);
+          console.error(
+            "Save error details:",
+            JSON.stringify(saveError, null, 2)
+          );
           // Continue without failing the request
         }
       } else {
-        console.log('No comparison_id provided, skipping database save');
+        console.log("No comparison_id provided, skipping database save");
       }
 
       // Return success response with AI recommendation and recommendation ID
@@ -297,26 +338,34 @@ Return your response in the following JSON format (and only this format, with no
         JSON.stringify({
           ...aiRecommendation,
           recommendation_id: recommendationId,
-          comparison_id: requestData.comparison_id
+          comparison_id: requestData.comparison_id,
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-
     } catch (error) {
-      console.error('Error processing Gemini response:', error);
+      console.error("Error processing Gemini response:", error);
       return new Response(
         JSON.stringify({
-          error: 'Could not generate recommendation. Please try again.',
-          details: error.message
+          error: "Could not generate recommendation. Please try again.",
+          details: error.message,
         }),
-        { status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        {
+          status: 422,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
       );
     }
   } catch (error) {
-    console.error('Function error:', error);
+    console.error("Function error:", error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({
+        error: "Internal server error",
+        details: error.message,
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
   }
 });
