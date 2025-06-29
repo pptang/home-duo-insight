@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -46,8 +47,8 @@ interface ComparisonPost {
   propertyA: Property;
   propertyB: Property;
   ai_recommendation_text?: string | null;
-  userName?: string; // Will be fetched separately if needed
-  userAvatar?: string; // Will be fetched separately if needed
+  userName?: string;
+  userAvatar?: string;
   expertVotes?: number;
   communityVotes?: number;
   comments?: number;
@@ -73,7 +74,7 @@ const Feed = () => {
       setError(null);
 
       try {
-        // Fetch comparisons with their linked properties - using explicit property_a_id/property_b_id
+        // Fetch comparisons with their linked properties and author profile data
         const { data: comparisonsData, error: comparisonsError } =
           await supabase
             .from("comparisons")
@@ -81,7 +82,8 @@ const Feed = () => {
               `
             *,
             propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
-            propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
+            propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
+            profiles:user_id(id, full_name, avatar_url)
           `
             )
             .order("created_at", { ascending: false });
@@ -98,7 +100,7 @@ const Feed = () => {
           return;
         }
 
-        // Check the data to ensure it properly matches our types
+        // Transform the data to include author information
         const transformedData: ComparisonPost[] = comparisonsData
           .map((comparison) => {
             // Ensure properties are correctly typed
@@ -112,12 +114,19 @@ const Feed = () => {
               return null;
             }
 
+            // Extract author information from profiles join
+            const authorProfile = comparison.profiles && typeof comparison.profiles === 'object' 
+              ? comparison.profiles as { id: string; full_name: string | null; avatar_url: string | null }
+              : null;
+
             return {
               id: comparison.id,
               created_at: comparison.created_at,
               user_id: comparison.user_id,
               propertyA: comparison.propertyA as Property,
               propertyB: comparison.propertyB as Property,
+              userName: authorProfile?.full_name || "Anonymous User",
+              userAvatar: authorProfile?.avatar_url || undefined,
               expertVotes: 0, // Will be updated with aggregation later
               communityVotes: 0, // Will be updated with aggregation later
               comments: 0, // Will be updated with aggregation later
@@ -137,7 +146,7 @@ const Feed = () => {
                 id, 
                 expert_user_id,
                 voted_for,
-                expert:expert_profiles(
+                expert_profiles!inner(
                   id,
                   name,
                   profile_image_url
@@ -154,11 +163,12 @@ const Feed = () => {
 
               votesData.forEach((vote) => {
                 // Make sure expert profile data exists
-                if (vote.expert && typeof vote.expert === "object") {
+                if (vote.expert_profiles && typeof vote.expert_profiles === "object") {
+                  const expert = vote.expert_profiles as { id: string; name: string; profile_image_url: string | null };
                   uniqueExperts[vote.expert_user_id] = {
                     id: vote.expert_user_id,
-                    name: vote.expert?.name || "Expert",
-                    profile_image_url: vote.expert?.profile_image_url || "",
+                    name: expert.name || "Expert",
+                    profile_image_url: expert.profile_image_url,
                   };
                 }
               });
@@ -424,7 +434,7 @@ const Feed = () => {
                         </div>
                         <div className="ml-3">
                           <div className="text-sm font-medium text-gray-900">
-                            {comparison.userName || "Anonymous User"}
+                            {comparison.userName}
                           </div>
                           <div className="text-sm text-gray-500">
                             {new Date(
