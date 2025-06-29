@@ -47,6 +47,7 @@ interface ComparisonData {
   user_id: string | null;
   property_a: PropertyData;
   property_b: PropertyData;
+  recommendations?: AIRecommendation[];
 }
 
 interface AIRecommendation {
@@ -123,7 +124,7 @@ const ComparisonDetail = () => {
       try {
         setIsLoading(true);
 
-        // Fetch comparison with properties
+        // Fetch comparison with properties and recommendations
         const { data: comparisonData, error: comparisonError } = await supabase
           .from("comparisons")
           .select(`
@@ -151,6 +152,16 @@ const ComparisonDetail = () => {
               property_type,
               image_urls,
               notes
+            ),
+            recommendations(
+              id,
+              property_a_pros,
+              property_a_cons,
+              property_b_pros,
+              property_b_cons,
+              summary_table,
+              final_recommendation,
+              created_at
             )
           `)
           .eq("id", id)
@@ -176,41 +187,14 @@ const ComparisonDetail = () => {
           user_id: comparisonData.user_id,
           property_a: comparisonData.property_a as PropertyData,
           property_b: comparisonData.property_b as PropertyData,
+          recommendations: comparisonData.recommendations as AIRecommendation[],
         };
 
         setComparison(typedComparison);
 
-        // Fetch recommendation using the existing edge function
-        try {
-          // Get the current session for authorization
-          const { data: { session } } = await supabase.auth.getSession();
-
-          // Construct the URL with query parameters for the GET request
-          const supabaseUrl =
-            import.meta.env.VITE_SUPABASE_URL ||
-            "https://qditnqwrjioypsuxwagg.supabase.co";
-          const functionUrl = `${supabaseUrl}/functions/v1/get-recommendation?comparison_id=${id}`;
-
-          // Make direct fetch call with proper headers
-          const response = await fetch(functionUrl, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
-              'Content-Type': 'application/json',
-            }
-          });
-
-          if (response.ok) {
-            const recommendationData = await response.json();
-            setRecommendation(recommendationData);
-          } else {
-            const errorData = await response.json();
-            console.log("No recommendation found:", errorData.error);
-          }
-        } catch (err) {
-          console.log("No recommendation found for this comparison");
-          // This is not an error - some comparisons may not have recommendations yet
+        // Set the first recommendation if available
+        if (typedComparison.recommendations && typedComparison.recommendations.length > 0) {
+          setRecommendation(typedComparison.recommendations[0]);
         }
 
       } catch (err) {
@@ -597,7 +581,7 @@ const ComparisonDetail = () => {
               {!recommendation && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-blue-800 mb-2">
-                    No AI recommendation available for this comparison yet.
+                    AI recommendation is not available for this comparison yet.
                   </p>
                   <Button asChild>
                     <Link to="/compare">
