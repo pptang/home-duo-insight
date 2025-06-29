@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -108,6 +108,7 @@ const personalizationSchema = z.object({
   works_from_home: z.boolean().default(false),
   family_size: z.number().min(1).max(10).default(1),
   commute_priority: z.number().min(1).max(5).default(3),
+  why_move: z.string().max(500).default(""),
 });
 
 type FormValues = z.infer<typeof urlSchema>;
@@ -142,6 +143,7 @@ const Compare = () => {
       works_from_home: false,
       family_size: 1,
       commute_priority: 3,
+      why_move: "",
     },
   });
 
@@ -216,6 +218,18 @@ const Compare = () => {
     setShowPersonalizationDialog(false);
 
     try {
+      // First, update the comparison with the why_move field
+      if (values.why_move.trim()) {
+        const { error: updateError } = await supabase
+          .from("comparisons")
+          .update({ why_move: values.why_move })
+          .eq("id", comparisonResult.comparison_id);
+
+        if (updateError) {
+          console.error("Error updating comparison with why_move:", updateError);
+        }
+      }
+
       const { data, error } = await supabase.functions.invoke(
         "generate-recommendation",
         {
@@ -841,6 +855,37 @@ const Compare = () => {
                           ))}
                         </div>
                       </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={personalizationForm.control}
+                  name="why_move"
+                  render={({ field }) => (
+                    <FormItem className="rounded-lg border p-4">
+                      <div className="space-y-2">
+                        <FormLabel htmlFor="whyMove">
+                          Why do you want to move?
+                        </FormLabel>
+                        <p className="text-sm text-gray-500">
+                          This helps us understand what matters most to you — e.g., "I want a quieter space for remote work."
+                        </p>
+                      </div>
+                      <FormControl>
+                        <Textarea
+                          id="whyMove"
+                          placeholder="Tell us about your motivation for moving..."
+                          maxLength={500}
+                          rows={4}
+                          className="w-full mt-2 resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <div className="text-xs text-gray-400 text-right mt-1">
+                        {field.value.length}/500 characters
+                      </div>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

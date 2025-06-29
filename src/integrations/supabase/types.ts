@@ -16,6 +16,7 @@ export type Database = {
           property_a_id: string
           property_b_id: string
           user_id: string | null
+          why_move: string | null
         }
         Insert: {
           created_at?: string | null
@@ -23,6 +24,7 @@ export type Database = {
           property_a_id: string
           property_b_id: string
           user_id?: string | null
+          why_move?: string | null
         }
         Update: {
           created_at?: string | null
@@ -30,6 +32,7 @@ export type Database = {
           property_a_id?: string
           property_b_id?: string
           user_id?: string | null
+          why_move?: string | null
         }
         Relationships: [
           {
