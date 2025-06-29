@@ -44,12 +44,9 @@ serve(async (req) => {
       error: sessionError,
     } = await supabaseClient.auth.getSession();
 
-    // Debug authentication
     console.log("Authorization header:", req.headers.get("Authorization"));
     console.log("Session data:", session);
     console.log("Session error:", sessionError);
-
-    // Authentication is optional - we'll use service role for database operations
 
     // Basic rate limiting by IP or user ID
     const clientIP = req.headers.get("cf-connecting-ip") || "anonymous";
@@ -84,7 +81,7 @@ serve(async (req) => {
     rateLimiter.set(identifier, userRateLimit);
 
     // Parse request
-    const { property_url_a, property_url_b } = await req.json();
+    const { property_url_a, property_url_b, user_id } = await req.json();
 
     if (!property_url_a || !property_url_b) {
       return new Response(
@@ -106,6 +103,9 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Log the user_id we received
+    console.log("Received user_id from request:", user_id);
 
     // 1. First call the parse-properties function to get the HTML content
     console.log("Calling parse-properties function with URLs:", { property_url_a, property_url_b });
@@ -376,11 +376,11 @@ Please return the data in this exact format (do not include any explanation, jus
 
       console.log("Property B inserted successfully:", propertyBData[0]);
 
-      // Create comparison record
+      // Create comparison record with user_id from request
       const comparisonData = {
         property_a_id: propertyAData[0].id,
         property_b_id: propertyBData[0].id,
-        user_id: session?.user?.id || null,
+        user_id: user_id || null, // Use user_id from request body
       };
 
       console.log("Creating comparison with data:", JSON.stringify(comparisonData, null, 2));
