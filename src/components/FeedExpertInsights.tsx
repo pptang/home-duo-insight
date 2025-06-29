@@ -6,11 +6,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThumbsUp } from "lucide-react";
 
 type Vote = Database['public']['Tables']['votes']['Row'] & {
-  expert: {
-    full_name: string | null;
-    avatar_url: string | null;
-    area_specialization: string | null;
-  }
+  expert_profiles: {
+    name: string | null;
+    profile_image_url: string | null;
+    user_id: string | null;
+    profiles: {
+      full_name: string | null;
+      area_specialization: string | null;
+    } | null;
+  } | null;
 };
 
 interface FeedExpertInsightsProps {
@@ -37,10 +41,14 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
           .from('votes')
           .select(`
             *,
-            expert:profiles(
-              full_name, 
-              avatar_url, 
-              area_specialization
+            expert_profiles:expert_user_id (
+              name,
+              profile_image_url,
+              user_id,
+              profiles:user_id (
+                full_name,
+                area_specialization
+              )
             )
           `)
           .eq('comparison_id', comparison_id)
@@ -80,49 +88,53 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
         <h3 className="font-semibold text-lg">Expert Insights</h3>
       </div>
       <div className="divide-y">
-        {votes.map((vote) => (
-          <div key={vote.id} className="p-4">
-            <div className="flex items-start gap-3">
-              <Avatar className="h-10 w-10">
-                {vote.expert.avatar_url ? (
-                  <img 
-                    src={vote.expert.avatar_url} 
-                    alt={vote.expert.full_name || "Expert"} 
-                  />
-                ) : (
-                  <AvatarFallback>
-                    {(vote.expert.full_name?.charAt(0) || "E").toUpperCase()}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              
-              <div className="flex-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium">{vote.expert.full_name || "Expert"}</h4>
-                    {vote.expert.area_specialization && (
-                      <p className="text-xs text-gray-500">{vote.expert.area_specialization}</p>
-                    )}
-                  </div>
-                  <div className="bg-[#F7F7F8] text-sm py-1 px-2 rounded-full flex items-center gap-1">
-                    <ThumbsUp className="h-3.5 w-3.5" />
-                    <span>
-                      {vote.voted_for === 'A' ? propertyAName || 'Property A' : propertyBName || 'Property B'}
-                    </span>
-                  </div>
-                </div>
+        {votes.map((vote) => {
+          const expertName = vote.expert_profiles?.profiles?.full_name || vote.expert_profiles?.name || "Expert";
+          
+          return (
+            <div key={vote.id} className="p-4">
+              <div className="flex items-start gap-3">
+                <Avatar className="h-10 w-10">
+                  {vote.expert_profiles?.profile_image_url ? (
+                    <img 
+                      src={vote.expert_profiles.profile_image_url} 
+                      alt={expertName} 
+                    />
+                  ) : (
+                    <AvatarFallback>
+                      {expertName.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
                 
-                {vote.comment && (
-                  <p className="mt-2 text-sm text-gray-700">{vote.comment}</p>
-                )}
-                
-                <div className="mt-1 text-xs text-gray-400">
-                  {new Date(vote.created_at).toLocaleDateString()}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h4 className="font-medium">{expertName}</h4>
+                      {vote.expert_profiles?.profiles?.area_specialization && (
+                        <p className="text-xs text-gray-500">{vote.expert_profiles.profiles.area_specialization}</p>
+                      )}
+                    </div>
+                    <div className="bg-[#F7F7F8] text-sm py-1 px-2 rounded-full flex items-center gap-1">
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                      <span>
+                        {vote.voted_for === 'A' ? propertyAName || 'Property A' : propertyBName || 'Property B'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {vote.comment && (
+                    <p className="mt-2 text-sm text-gray-700">{vote.comment}</p>
+                  )}
+                  
+                  <div className="mt-1 text-xs text-gray-400">
+                    {new Date(vote.created_at).toLocaleDateString()}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

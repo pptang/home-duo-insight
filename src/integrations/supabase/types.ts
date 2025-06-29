@@ -62,6 +62,7 @@ export type Database = {
           phone: string | null
           profile_image_url: string | null
           rating_count: number | null
+          user_id: string | null
           x_handle: string | null
         }
         Insert: {
@@ -77,6 +78,7 @@ export type Database = {
           phone?: string | null
           profile_image_url?: string | null
           rating_count?: number | null
+          user_id?: string | null
           x_handle?: string | null
         }
         Update: {
@@ -92,9 +94,18 @@ export type Database = {
           phone?: string | null
           profile_image_url?: string | null
           rating_count?: number | null
+          user_id?: string | null
           x_handle?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "expert_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       expert_ratings: {
         Row: {

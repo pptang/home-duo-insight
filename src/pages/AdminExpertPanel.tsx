@@ -193,7 +193,7 @@ export default function AdminExpertPanel() {
       const { error: profileError } = await supabase
         .from("expert_profiles")
         .insert({
-          user_id: newExpert.id,
+          id: newExpert.id,
           name: data.name,
           profile_image_url: profileImageUrl,
           email: data.email,

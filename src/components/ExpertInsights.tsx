@@ -7,11 +7,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
 type Vote = Database["public"]["Tables"]["votes"]["Row"] & {
-  profiles: {
-    full_name: string | null;
-    avatar_url: string | null;
-    area_specialization: string | null;
-  };
+  expert_profiles: {
+    name: string | null;
+    profile_image_url: string | null;
+    user_id: string | null;
+    profiles: {
+      full_name: string | null;
+      area_specialization: string | null;
+    } | null;
+  } | null;
 };
 
 interface ExpertInsightsProps {
@@ -38,10 +42,14 @@ export function ExpertInsights({
           .from("votes")
           .select(`
             *,
-            profiles:expert_user_id (
-              full_name,
-              avatar_url,
-              area_specialization
+            expert_profiles:expert_user_id (
+              name,
+              profile_image_url,
+              user_id,
+              profiles:user_id (
+                full_name,
+                area_specialization
+              )
             )
           `)
           .eq("comparison_id", comparisonId)
@@ -122,7 +130,7 @@ export function ExpertInsights({
         {/* Expert votes list */}
         <div className="space-y-4">
           {votes.map(vote => {
-            const expertName = vote.profiles?.full_name || "Expert";
+            const expertName = vote.expert_profiles?.profiles?.full_name || vote.expert_profiles?.name || "Expert";
             const initials = expertName
               .split(" ")
               .map(n => n[0])
@@ -133,13 +141,13 @@ export function ExpertInsights({
               <div key={vote.id} className="border-b pb-4 last:border-0">
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar>
-                    <AvatarImage src={vote.profiles?.avatar_url || ""} />
+                    <AvatarImage src={vote.expert_profiles?.profile_image_url || ""} />
                     <AvatarFallback>{initials}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="font-medium">{expertName}</div>
-                    {vote.profiles?.area_specialization && (
-                      <div className="text-sm text-gray-500">{vote.profiles.area_specialization}</div>
+                    {vote.expert_profiles?.profiles?.area_specialization && (
+                      <div className="text-sm text-gray-500">{vote.expert_profiles.profiles.area_specialization}</div>
                     )}
                   </div>
                   <div className="ml-auto">

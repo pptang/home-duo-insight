@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,7 +86,7 @@ const ExpertProfileEditForm = ({
       if (imageFile) {
         const timestamp = new Date().getTime();
         const fileExt = imageFile.name.split('.').pop();
-        const filePath = `experts/${profile.user_id}/${timestamp}.${fileExt}`;
+        const filePath = `experts/${profile.id}/${timestamp}.${fileExt}`;
         
         const { error: uploadError } = await supabase.storage
           .from("expert-profiles")
