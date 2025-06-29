@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
@@ -49,7 +50,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
 
 interface PropertyData {
@@ -150,13 +151,14 @@ const Compare = () => {
       // Show loading stages for better user feedback
       setLoadingStage("Fetching property webpages...");
 
-      // Call the Supabase Edge Function
+      // Call the Supabase Edge Function with user_id
       const { data, error } = await supabase.functions.invoke(
         "analyze-properties",
         {
           body: {
             property_url_a: values.property_url_a,
             property_url_b: values.property_url_b,
+            user_id: user?.id || null, // Include user_id if logged in
           },
         }
       );
@@ -222,6 +224,7 @@ const Compare = () => {
             property_a: comparisonResult.property_a,
             property_b: comparisonResult.property_b,
             user_profile: values,
+            user_id: user?.id || null, // Include user_id if logged in
           },
         }
       );
