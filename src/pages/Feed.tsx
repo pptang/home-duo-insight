@@ -463,6 +463,9 @@ const Feed = () => {
                                       "Property A"
                                     }
                                     className="object-cover w-full h-full"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                                    }}
                                   />
                                 </AspectRatio>
                               </div>
@@ -505,6 +508,9 @@ const Feed = () => {
                                       "Property B"
                                     }
                                     className="object-cover w-full h-full"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src = "/placeholder.svg";
+                                    }}
                                   />
                                 </AspectRatio>
                               </div>

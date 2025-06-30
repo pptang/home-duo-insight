@@ -172,6 +172,33 @@ serve(async (req) => {
       property_b_length: html_property_b.length
     });
 
+    // Get Firecrawl API key for image extraction
+    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlApiKey) {
+      return new Response(
+        JSON.stringify({ error: "Firecrawl API key not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Extract images using Firecrawl for both properties
+    console.log("Extracting images using Firecrawl...");
+    const [imageResultA, imageResultB] = await Promise.all([
+      extractImagesWithFirecrawl(property_url_a, firecrawlApiKey),
+      extractImagesWithFirecrawl(property_url_b, firecrawlApiKey),
+    ]);
+
+    const imageUrlsA = imageResultA.images || [];
+    const imageUrlsB = imageResultB.images || [];
+    
+    console.log("Firecrawl image extraction results:", {
+      property_a_images: imageUrlsA.length,
+      property_b_images: imageUrlsB.length
+    });
+
     // 2. Call Gemini API to extract property data from HTML
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
     if (!geminiApiKey) {
@@ -194,10 +221,10 @@ serve(async (req) => {
       html_property_b.substring(0, maxHtmlLength) + "... [HTML truncated]" :
       html_property_b;
 
-    const prompt = `You are DuoHome Advisor AI. Here are two raw real estate listing pages.
-Extract structured property data for each property:
-Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Image URLs, Notes.
-Return results as structured JSON for DuoHome Advisor.
+    const prompt = `You are DuoHome Advisor AI. Extract structured property data from these real estate listing pages.
+
+Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, and Notes.
+DO NOT extract images - they will be provided separately.
 
 FOR PROPERTY A:
 ${truncatedHtmlA}
@@ -205,7 +232,7 @@ ${truncatedHtmlA}
 FOR PROPERTY B:
 ${truncatedHtmlB}
 
-Please return the data in this exact format (do not include any explanation, just the JSON):
+Return only this JSON format (no explanations):
 {
   "property_a": {
     "property_name": "",
@@ -214,7 +241,6 @@ Please return the data in this exact format (do not include any explanation, jus
     "floor_plan": "",
     "commute_minutes": 0,
     "property_type": "",
-    "image_urls": [],
     "notes": ""
   },
   "property_b": {
@@ -224,7 +250,6 @@ Please return the data in this exact format (do not include any explanation, jus
     "floor_plan": "",
     "commute_minutes": 0,
     "property_type": "",
-    "image_urls": [],
     "notes": ""
   }
 }`;
@@ -251,7 +276,7 @@ Please return the data in this exact format (do not include any explanation, jus
               temperature: 0.2,
               topK: 40,
               topP: 0.95,
-              maxOutputTokens: 1024,
+              maxOutputTokens: 2048,
             },
           }),
         }
@@ -341,12 +366,18 @@ Please return the data in this exact format (do not include any explanation, jus
         throw new Error(`Invalid data structure from Gemini. Missing property_a or property_b. Received: ${JSON.stringify(extractedData)}`);
       }
 
-      // Insert property data into Supabase
-      const propertyA = extractedData.property_a;
-      const propertyB = extractedData.property_b;
+      // Add Firecrawl-extracted images to the property data
+      const propertyA = {
+        ...extractedData.property_a,
+        image_urls: imageUrlsA
+      };
+      const propertyB = {
+        ...extractedData.property_b,
+        image_urls: imageUrlsB
+      };
 
-      console.log("Property A data:", JSON.stringify(propertyA, null, 2));
-      console.log("Property B data:", JSON.stringify(propertyB, null, 2));
+      console.log("Property A data with images:", JSON.stringify(propertyA, null, 2));
+      console.log("Property B data with images:", JSON.stringify(propertyB, null, 2));
 
       // Insert PropertyA using service role client (bypasses RLS)
       const { data: propertyAData, error: propertyAError } =
@@ -451,3 +482,132 @@ Please return the data in this exact format (do not include any explanation, jus
     );
   }
 });
+
+// Helper function to extract images using Firecrawl API
+async function extractImagesWithFirecrawl(
+  url: string,
+  apiKey: string
+): Promise<{ images?: string[]; error?: string }> {
+  try {
+    console.log(`Extracting images from ${url} using Firecrawl`);
+
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        url: url,
+        formats: ['extract', 'html'],
+        extract: {
+          schema: {
+            type: 'object',
+            properties: {
+              property_images: {
+                type: 'array',
+                items: {
+                  type: 'string'
+                },
+                description: 'Property photo URLs only - exclude tracking pixels, analytics images, logos, icons, and advertisements. Focus on actual property interior/exterior photos that show the house/apartment rooms, facade, or building.'
+              }
+            },
+            required: ['property_images']
+          }
+        },
+        actions: [
+          { type: 'wait', milliseconds: 3000 },
+          { type: 'scroll', direction: 'down' }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "Could not parse error response" }));
+      console.error(`Firecrawl image extraction error for ${url}:`, errorData);
+      return { error: `Firecrawl error: ${response.status} ${response.statusText}` };
+    }
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      console.error(`Firecrawl image extraction failed for ${url}:`, data);
+      return { error: `Firecrawl extraction failed: ${data.error || 'Unknown error'}` };
+    }
+
+    const extractedData = data.data?.extract;
+    const aiExtractedImages = extractedData?.property_images || [];
+    
+    // Also get the raw HTML to extract images as fallback
+    const htmlData = data.data?.html || '';
+    const regexExtractedImages = extractImagesFromHtml(htmlData);
+    
+    // Combine AI-extracted and regex-extracted images
+    const allImages = [...new Set([...aiExtractedImages, ...regexExtractedImages])];
+    
+    // Filter out tracking URLs and non-property images
+    const images = allImages.filter(url => {
+      // Exclude analytics/tracking URLs
+      if (url.includes('log.suumo.jp') || url.includes('ls.gif')) return false;
+      if (url.includes('track') || url.includes('analytics')) return false;
+      
+      // Include images that are clearly property photos
+      if (url.includes('gazo/bukken') || url.includes('front/gazo')) return true;
+      
+      // For resized images, filter by size
+      if (url.includes('resizeImage') && url.includes('&w=') && url.includes('&h=')) {
+        const widthMatch = url.match(/w=(\d+)/);
+        const heightMatch = url.match(/h=(\d+)/);
+        if (widthMatch && heightMatch) {
+          const width = parseInt(widthMatch[1]);
+          const height = parseInt(heightMatch[1]);
+          return width >= 200 && height >= 150; // Keep reasonably sized images
+        }
+      }
+      
+      // Include other SUUMO image URLs
+      return url.includes('suumo.jp') && (url.includes('.jpg') || url.includes('.png') || url.includes('.webp'));
+    });
+    
+    console.log(`Extracted ${images.length} property images from ${url} (AI: ${aiExtractedImages.length}, Regex: ${regexExtractedImages.length}, Combined: ${allImages.length})`);
+    return { images: images.slice(0, 10) }; // Limit to 10 images
+
+  } catch (error) {
+    console.error(`Error extracting images from ${url}:`, error);
+    return { error: `Image extraction error: ${error.message}` };
+  }
+}
+
+// Helper function to extract images from HTML using regex patterns
+function extractImagesFromHtml(html: string): string[] {
+  const imageUrls = new Set<string>();
+  
+  // Focus on SUUMO property image patterns
+  const patterns = [
+    // Direct property image URLs
+    /src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
+    /src=["']([^"']*front\/gazo[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
+    // Resized images with property IDs
+    /src=["']([^"']*resizeImage[^"']*gazo[^"']*\.(?:jpg|jpeg|png|webp)[^"']*)[^"']*["']/gi,
+    // Data attributes for lazy loading
+    /data-src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
+    /data-original=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
+  ];
+  
+  patterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(html)) !== null) {
+      const url = match[1];
+      if (url && !url.startsWith('data:')) {
+        try {
+          const fullUrl = url.startsWith('http') ? url : `https:${url.startsWith('//') ? '' : '//'}${url}`;
+          imageUrls.add(fullUrl);
+        } catch (e) {
+          // Ignore invalid URLs
+        }
+      }
+    }
+  });
+  
+  return Array.from(imageUrls);
+}

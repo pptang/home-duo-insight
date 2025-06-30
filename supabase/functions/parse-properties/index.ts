@@ -44,25 +44,25 @@ serve(async (req) => {
       });
     }
 
-    // Fetch HTML content from both URLs with retry logic
-    console.log("Fetching HTML from URLs:", property_url_a, property_url_b);
+    // Get Firecrawl API key
+    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlApiKey) {
+      return new Response(
+        JSON.stringify({ error: "Firecrawl API key not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
-    // First attempt with standard timeout
-    let [resultA, resultB] = await Promise.all([
-      fetchHtmlWithTimeout(property_url_a, 30000),
-      fetchHtmlWithTimeout(property_url_b, 30000),
+    // Fetch HTML content from both URLs using Firecrawl API
+    console.log("Fetching content using Firecrawl API:", property_url_a, property_url_b);
+
+    const [resultA, resultB] = await Promise.all([
+      fetchWithFirecrawl(property_url_a, firecrawlApiKey),
+      fetchWithFirecrawl(property_url_b, firecrawlApiKey),
     ]);
-
-    // Retry failed requests with longer timeout
-    if (resultA.error && resultA.error.includes('timed out')) {
-      console.log("Retrying property A with extended timeout...");
-      resultA = await fetchHtmlWithTimeout(property_url_a, 60000);
-    }
-
-    if (resultB.error && resultB.error.includes('timed out')) {
-      console.log("Retrying property B with extended timeout...");
-      resultB = await fetchHtmlWithTimeout(property_url_b, 60000);
-    }
 
     if (resultA.error) {
       console.error("Final error for property A:", resultA.error);
@@ -142,84 +142,78 @@ serve(async (req) => {
   }
 });
 
-// Helper function to fetch HTML with a timeout
-async function fetchHtmlWithTimeout(
+// Helper function to fetch HTML using Firecrawl API
+async function fetchWithFirecrawl(
   url: string,
-  timeoutMs = 10000
+  apiKey: string
 ): Promise<{ html?: string; error?: string }> {
   try {
-    console.log(`Fetching URL: ${url} with timeout: ${timeoutMs}ms`);
+    console.log(`Fetching URL with Firecrawl: ${url}`);
 
-    // Set fetch options - including user-agent to avoid being blocked
-    const fetchOptions = {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "ja-JP,ja;q=0.9,en;q=0.8", // Japanese preference for Japanese sites
-        "Accept-Encoding": "gzip, deflate, br",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "none",
-        "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1",
-      },
-      redirect: "follow" as RequestRedirect,
-    };
-
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      console.log(`Request to ${url} timed out after ${timeoutMs}ms`);
-      controller.abort();
-    }, timeoutMs);
-
-    fetchOptions["signal"] = controller.signal;
-
-    // Fetch the URL
     const startTime = Date.now();
-    const response = await fetch(url, fetchOptions);
+    
+    // Call Firecrawl API to scrape the URL
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        url: url,
+        formats: ['html'],
+        actions: [
+          { type: 'wait', milliseconds: 3000 }, // Wait for dynamic content
+          { type: 'scroll', direction: 'down' }   // Trigger lazy loading
+        ],
+        onlyMainContent: false // Get full page content including images
+      })
+    });
+
     const fetchDuration = Date.now() - startTime;
+    console.log(`Firecrawl request completed for ${url} in ${fetchDuration}ms`);
 
-    clearTimeout(timeoutId);
-
-    console.log(`Fetch completed for ${url} in ${fetchDuration}ms`);
-
-    // Check if response is OK
     if (!response.ok) {
-      console.error(`HTTP error for ${url}: ${response.status} ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({ error: "Could not parse error response" }));
+      console.error(`Firecrawl API error for ${url}:`, {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
       return {
-        error: `HTTP error! Status: ${response.status} ${response.statusText}`,
+        error: `Firecrawl API error: ${response.status} ${response.statusText}. Details: ${JSON.stringify(errorData)}`
       };
     }
 
-    // Get the HTML content
-    const html = await response.text();
-    console.log(`Successfully retrieved ${html.length} characters from ${url}`);
+    const data = await response.json();
+    
+    if (!data.success) {
+      console.error(`Firecrawl scraping failed for ${url}:`, data);
+      return {
+        error: `Firecrawl scraping failed: ${data.error || 'Unknown error'}`
+      };
+    }
+
+    const html = data.data?.html;
+    if (!html) {
+      console.error(`No HTML content returned from Firecrawl for ${url}:`, data);
+      return {
+        error: 'No HTML content returned from Firecrawl'
+      };
+    }
+
+    console.log(`Successfully retrieved ${html.length} characters from ${url} via Firecrawl`);
     return { html };
+
   } catch (error) {
-    console.error(`Error fetching ${url}:`, {
+    console.error(`Error calling Firecrawl API for ${url}:`, {
       name: error.name,
       message: error.message,
       stack: error.stack,
     });
 
-    // Provide more specific error messages
-    if (error.name === 'AbortError') {
-      return {
-        error: `Request timed out after ${timeoutMs}ms. The website may be slow or blocking automated requests. URL: ${url}`
-      };
-    } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      return {
-        error: `Network error: Unable to connect to ${url}. Please check if the URL is accessible.`
-      };
-    } else {
-      return {
-        error: `${error.name}: ${error.message}`
-      };
-    }
+    return {
+      error: `Firecrawl API error: ${error.message}`
+    };
   }
 }
