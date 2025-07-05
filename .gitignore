@@ -34,6 +34,7 @@ out/
 supabase/functions/.env
 supabase/.env
 supabase/seed.sql
+supabase/.temp/
 
 # Database files
 *.sqlite
