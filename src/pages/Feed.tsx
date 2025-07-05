@@ -74,7 +74,7 @@ const Feed = () => {
       setError(null);
 
       try {
-        // Fetch comparisons with their linked properties and author profile data
+        // Fetch comparisons with their linked properties (without profiles for now)
         const { data: comparisonsData, error: comparisonsError } =
           await supabase
             .from("comparisons")
@@ -82,8 +82,7 @@ const Feed = () => {
               `
             *,
             propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
-            propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
-            profiles:user_id(id, full_name, avatar_url)
+            propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
           `
             )
             .order("created_at", { ascending: false });
@@ -100,6 +99,28 @@ const Feed = () => {
           return;
         }
 
+        // Get unique user IDs for profile fetching
+        const userIds = [...new Set(comparisonsData
+          .map(c => c.user_id)
+          .filter(Boolean)
+        )];
+
+        // Fetch profiles for all users
+        let profilesMap: Record<string, any> = {};
+        if (userIds.length > 0) {
+          const { data: profilesData, error: profilesError } = await supabase
+            .from("profiles")
+            .select("id, full_name, avatar_url")
+            .in("id", userIds);
+
+          if (!profilesError && profilesData) {
+            profilesMap = profilesData.reduce((acc, profile) => ({
+              ...acc,
+              [profile.id]: profile
+            }), {});
+          }
+        }
+
         // Transform the data to include author information
         const transformedData: ComparisonPost[] = comparisonsData
           .map((comparison) => {
@@ -114,10 +135,8 @@ const Feed = () => {
               return null;
             }
 
-            // Extract author information from profiles join
-            const authorProfile = comparison.profiles && typeof comparison.profiles === 'object' 
-              ? comparison.profiles as { id: string; full_name: string | null; avatar_url: string | null }
-              : null;
+            // Get author profile from our profiles map
+            const authorProfile = comparison.user_id ? profilesMap[comparison.user_id] : null;
 
             return {
               id: comparison.id,
@@ -143,7 +162,7 @@ const Feed = () => {
               .from("votes")
               .select(
                 `
-                id, 
+                id,
                 expert_user_id,
                 voted_for,
                 expert_profiles!inner(
