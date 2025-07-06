@@ -172,11 +172,20 @@ serve(async (req) => {
       property_b_length: html_property_b.length
     });
 
-    // Get Firecrawl API key for image extraction
-    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
-    if (!firecrawlApiKey) {
+    // Extract images using extract-property-images function
+    console.log("Extracting images using extract-property-images function...");
+    let imageExtractionResponse;
+    try {
+      imageExtractionResponse = await supabaseClient.functions.invoke("extract-property-images", {
+        body: { property_urls: [property_url_a, property_url_b] },
+      });
+    } catch (invokeError) {
+      console.error("Error invoking extract-property-images function:", invokeError);
       return new Response(
-        JSON.stringify({ error: "Firecrawl API key not configured" }),
+        JSON.stringify({
+          error: "Failed to invoke extract-property-images function",
+          details: invokeError.message
+        }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -184,17 +193,25 @@ serve(async (req) => {
       );
     }
 
-    // Extract images using Firecrawl for both properties
-    console.log("Extracting images using Firecrawl...");
-    const [imageResultA, imageResultB] = await Promise.all([
-      extractImagesWithFirecrawl(property_url_a, firecrawlApiKey),
-      extractImagesWithFirecrawl(property_url_b, firecrawlApiKey),
-    ]);
+    if (imageExtractionResponse.error) {
+      console.error("Image extraction error:", imageExtractionResponse.error);
+      return new Response(
+        JSON.stringify({
+          error: "Error extracting property images",
+          details: imageExtractionResponse.error.message || imageExtractionResponse.error,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
 
-    const imageUrlsA = imageResultA.images || [];
-    const imageUrlsB = imageResultB.images || [];
+    const imageResults = imageExtractionResponse.data?.results || [];
+    const imageUrlsA = imageResults.find(r => r.url === property_url_a)?.images || [];
+    const imageUrlsB = imageResults.find(r => r.url === property_url_b)?.images || [];
     
-    console.log("Firecrawl image extraction results:", {
+    console.log("Image extraction results:", {
       property_a_images: imageUrlsA.length,
       property_b_images: imageUrlsB.length
     });
@@ -483,131 +500,3 @@ Return only this JSON format (no explanations):
   }
 });
 
-// Helper function to extract images using Firecrawl API
-async function extractImagesWithFirecrawl(
-  url: string,
-  apiKey: string
-): Promise<{ images?: string[]; error?: string }> {
-  try {
-    console.log(`Extracting images from ${url} using Firecrawl`);
-
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        url: url,
-        formats: ['extract', 'html'],
-        extract: {
-          schema: {
-            type: 'object',
-            properties: {
-              property_images: {
-                type: 'array',
-                items: {
-                  type: 'string'
-                },
-                description: 'Property photo URLs only - exclude tracking pixels, analytics images, logos, icons, and advertisements. Focus on actual property interior/exterior photos that show the house/apartment rooms, facade, or building.'
-              }
-            },
-            required: ['property_images']
-          }
-        },
-        actions: [
-          { type: 'wait', milliseconds: 3000 },
-          { type: 'scroll', direction: 'down' }
-        ]
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: "Could not parse error response" }));
-      console.error(`Firecrawl image extraction error for ${url}:`, errorData);
-      return { error: `Firecrawl error: ${response.status} ${response.statusText}` };
-    }
-
-    const data = await response.json();
-    
-    if (!data.success) {
-      console.error(`Firecrawl image extraction failed for ${url}:`, data);
-      return { error: `Firecrawl extraction failed: ${data.error || 'Unknown error'}` };
-    }
-
-    const extractedData = data.data?.extract;
-    const aiExtractedImages = extractedData?.property_images || [];
-    
-    // Also get the raw HTML to extract images as fallback
-    const htmlData = data.data?.html || '';
-    const regexExtractedImages = extractImagesFromHtml(htmlData);
-    
-    // Combine AI-extracted and regex-extracted images
-    const allImages = [...new Set([...aiExtractedImages, ...regexExtractedImages])];
-    
-    // Filter out tracking URLs and non-property images
-    const images = allImages.filter(url => {
-      // Exclude analytics/tracking URLs
-      if (url.includes('log.suumo.jp') || url.includes('ls.gif')) return false;
-      if (url.includes('track') || url.includes('analytics')) return false;
-      
-      // Include images that are clearly property photos
-      if (url.includes('gazo/bukken') || url.includes('front/gazo')) return true;
-      
-      // For resized images, filter by size
-      if (url.includes('resizeImage') && url.includes('&w=') && url.includes('&h=')) {
-        const widthMatch = url.match(/w=(\d+)/);
-        const heightMatch = url.match(/h=(\d+)/);
-        if (widthMatch && heightMatch) {
-          const width = parseInt(widthMatch[1]);
-          const height = parseInt(heightMatch[1]);
-          return width >= 200 && height >= 150; // Keep reasonably sized images
-        }
-      }
-      
-      // Include other SUUMO image URLs
-      return url.includes('suumo.jp') && (url.includes('.jpg') || url.includes('.png') || url.includes('.webp'));
-    });
-    
-    console.log(`Extracted ${images.length} property images from ${url} (AI: ${aiExtractedImages.length}, Regex: ${regexExtractedImages.length}, Combined: ${allImages.length})`);
-    return { images: images.slice(0, 10) }; // Limit to 10 images
-
-  } catch (error) {
-    console.error(`Error extracting images from ${url}:`, error);
-    return { error: `Image extraction error: ${error.message}` };
-  }
-}
-
-// Helper function to extract images from HTML using regex patterns
-function extractImagesFromHtml(html: string): string[] {
-  const imageUrls = new Set<string>();
-  
-  // Focus on SUUMO property image patterns
-  const patterns = [
-    // Direct property image URLs
-    /src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    /src=["']([^"']*front\/gazo[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    // Resized images with property IDs
-    /src=["']([^"']*resizeImage[^"']*gazo[^"']*\.(?:jpg|jpeg|png|webp)[^"']*)[^"']*["']/gi,
-    // Data attributes for lazy loading
-    /data-src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    /data-original=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-  ];
-  
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(html)) !== null) {
-      const url = match[1];
-      if (url && !url.startsWith('data:')) {
-        try {
-          const fullUrl = url.startsWith('http') ? url : `https:${url.startsWith('//') ? '' : '//'}${url}`;
-          imageUrls.add(fullUrl);
-        } catch (e) {
-          // Ignore invalid URLs
-        }
-      }
-    }
-  });
-  
-  return Array.from(imageUrls);
-}

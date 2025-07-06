@@ -53,6 +53,21 @@ npm run supabase:status  # Check service status
 npm run supabase:reset   # Reset local database
 ```
 
+## Environment Variables
+
+**Firecrawl Configuration:**
+```bash
+FIRECRAWL_URL=https://api.firecrawl.dev  # Default hosted service
+# For self-hosted: FIRECRAWL_URL=http://localhost:3002
+FIRECRAWL_API_KEY=your_api_key_here
+```
+
+**Other API Keys:**
+```bash
+GEMINI_API_KEY=your_gemini_key_here
+# Additional API keys as needed
+```
+
 ## Database Schema
 
 The application uses the following main tables:
