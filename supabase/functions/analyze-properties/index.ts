@@ -172,49 +172,10 @@ serve(async (req) => {
       property_b_length: html_property_b.length
     });
 
-    // Extract images using extract-property-images function
-    console.log("Extracting images using extract-property-images function...");
-    let imageExtractionResponse;
-    try {
-      imageExtractionResponse = await supabaseClient.functions.invoke("extract-property-images", {
-        body: { property_urls: [property_url_a, property_url_b] },
-      });
-    } catch (invokeError) {
-      console.error("Error invoking extract-property-images function:", invokeError);
-      return new Response(
-        JSON.stringify({
-          error: "Failed to invoke extract-property-images function",
-          details: invokeError.message
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    if (imageExtractionResponse.error) {
-      console.error("Image extraction error:", imageExtractionResponse.error);
-      return new Response(
-        JSON.stringify({
-          error: "Error extracting property images",
-          details: imageExtractionResponse.error.message || imageExtractionResponse.error,
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
-
-    const imageResults = imageExtractionResponse.data?.results || [];
-    const imageUrlsA = imageResults.find(r => r.url === property_url_a)?.images || [];
-    const imageUrlsB = imageResults.find(r => r.url === property_url_b)?.images || [];
-    
-    console.log("Image extraction results:", {
-      property_a_images: imageUrlsA.length,
-      property_b_images: imageUrlsB.length
-    });
+    // Skip image extraction for now - will be handled asynchronously
+    console.log("Skipping image extraction for faster response - will be processed in background");
+    const imageUrlsA = [];
+    const imageUrlsB = [];
 
     // 2. Call Gemini API to extract property data from HTML
     const geminiApiKey = Deno.env.get('GEMINI_API_KEY');
@@ -240,8 +201,15 @@ serve(async (req) => {
 
     const prompt = `You are DuoHome Advisor AI. Extract structured property data from these real estate listing pages.
 
-Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, and Notes.
-DO NOT extract images - they will be provided separately.
+Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Notes, and Image URLs.
+
+IMPORTANT FOR IMAGE EXTRACTION:
+- Look for property images in <img> tags, data-src attributes, background-image styles
+- Focus on property photos (interior, exterior, floor plans) 
+- Exclude small icons, logos, UI elements, and tracking pixels
+- Look for patterns like: /gazo/, /bukken/, /img/, property IDs in filenames
+- Return up to 10 high-quality property image URLs per property
+- If no suitable images found, return empty array []
 
 FOR PROPERTY A:
 ${truncatedHtmlA}
@@ -258,6 +226,7 @@ Return only this JSON format (no explanations):
     "floor_plan": "",
     "commute_minutes": 0,
     "property_type": "",
+    "image_urls": [],
     "notes": ""
   },
   "property_b": {
@@ -267,6 +236,7 @@ Return only this JSON format (no explanations):
     "floor_plan": "",
     "commute_minutes": 0,
     "property_type": "",
+    "image_urls": [],
     "notes": ""
   }
 }`;
@@ -383,15 +353,20 @@ Return only this JSON format (no explanations):
         throw new Error(`Invalid data structure from Gemini. Missing property_a or property_b. Received: ${JSON.stringify(extractedData)}`);
       }
 
-      // Add Firecrawl-extracted images to the property data
+      // Use Gemini-extracted images if available, otherwise keep empty for background extraction
       const propertyA = {
         ...extractedData.property_a,
-        image_urls: imageUrlsA
+        image_urls: extractedData.property_a.image_urls || []
       };
       const propertyB = {
         ...extractedData.property_b,
-        image_urls: imageUrlsB
+        image_urls: extractedData.property_b.image_urls || []
       };
+
+      // Check if we need background image extraction
+      const needsImageExtractionA = !propertyA.image_urls || propertyA.image_urls.length === 0;
+      const needsImageExtractionB = !propertyB.image_urls || propertyB.image_urls.length === 0;
+      const needsBackgroundImageExtraction = needsImageExtractionA || needsImageExtractionB;
 
       console.log("Property A data with images:", JSON.stringify(propertyA, null, 2));
       console.log("Property B data with images:", JSON.stringify(propertyB, null, 2));
@@ -424,11 +399,14 @@ Return only this JSON format (no explanations):
 
       console.log("Property B inserted successfully:", propertyBData[0]);
 
-      // Create comparison record with user_id from request
+      // Create comparison record with user_id from request and original URLs
       const comparisonData = {
         property_a_id: propertyAData[0].id,
         property_b_id: propertyBData[0].id,
         user_id: user_id || null, // Use user_id from request body
+        property_url_a: property_url_a,
+        property_url_b: property_url_b,
+        image_extraction_status: needsBackgroundImageExtraction ? "pending" : "completed",
       };
 
       console.log("Creating comparison with data:", JSON.stringify(comparisonData, null, 2));
@@ -449,6 +427,29 @@ Return only this JSON format (no explanations):
 
       console.log("Comparison created successfully:", comparisonResult[0]);
 
+      // Determine final image extraction status
+      let finalImageExtractionStatus = "completed";
+      
+      if (needsBackgroundImageExtraction) {
+        // Trigger background image extraction (fire-and-forget) only if needed
+        console.log("Some properties missing images, triggering background image extraction...");
+        finalImageExtractionStatus = "pending";
+        
+        supabaseClient.functions.invoke("process-image-extraction", {
+          body: { 
+            comparison_id: comparisonResult[0].id,
+            property_urls: [property_url_a, property_url_b],
+            property_a_id: propertyAData[0].id,
+            property_b_id: propertyBData[0].id
+          }
+        }).catch(error => {
+          console.error("Background image extraction trigger failed:", error);
+          // Don't fail the main request if background job fails to trigger
+        });
+      } else {
+        console.log("All properties have images from Gemini extraction, skipping background extraction");
+      }
+
       // Return success response with property data
       return new Response(
         JSON.stringify({
@@ -456,6 +457,7 @@ Return only this JSON format (no explanations):
           comparison_id: comparisonResult[0].id,
           property_a: propertyAData[0],
           property_b: propertyBData[0],
+          image_extraction_status: finalImageExtractionStatus
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

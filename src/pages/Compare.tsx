@@ -15,6 +15,8 @@ import {
   Upload,
   XCircle,
 } from "lucide-react";
+import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
+import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import {
   Form,
   FormControl,
@@ -68,6 +70,7 @@ interface ComparisonResult {
   comparison_id: string;
   property_a: PropertyData;
   property_b: PropertyData;
+  image_extraction_status?: 'pending' | 'in_progress' | 'completed' | 'failed';
 }
 
 interface AIRecommendation {
@@ -127,6 +130,81 @@ const Compare = () => {
     useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Handle retry image extraction
+  const handleRetryImageExtraction = async (comparisonId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('retry-image-extraction', {
+        body: { comparison_id: comparisonId }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Retry failed",
+          description: "Could not retry image extraction. Please try again later.",
+        });
+        return;
+      }
+
+      toast({
+        title: "Retry started",
+        description: "Image extraction has been restarted. Please wait...",
+      });
+    } catch (error) {
+      console.error('Retry image extraction error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred while retrying.",
+      });
+    }
+  };
+
+  // Subscribe to real-time updates for image extraction
+  useComparisonSubscription({
+    comparisonId: comparisonResult?.comparison_id || '',
+    onImageExtractionComplete: async () => {
+      // Refresh the comparison data to get the updated images
+      if (comparisonResult?.comparison_id) {
+        try {
+          const { data: refreshedData, error } = await supabase
+            .from('comparisons')
+            .select(`
+              *,
+              property_a:property_a_id(*),
+              property_b:property_b_id(*)
+            `)
+            .eq('id', comparisonResult.comparison_id)
+            .single();
+
+          if (!error && refreshedData) {
+            setComparisonResult({
+              comparison_id: refreshedData.id,
+              property_a: refreshedData.property_a,
+              property_b: refreshedData.property_b,
+              image_extraction_status: refreshedData.image_extraction_status
+            });
+            
+            toast({
+              title: "Images loaded!",
+              description: "Property images have been successfully extracted.",
+            });
+          }
+        } catch (error) {
+          console.error('Error refreshing comparison data:', error);
+        }
+      }
+    },
+    onImageExtractionStatusChange: (status) => {
+      if (comparisonResult) {
+        setComparisonResult({
+          ...comparisonResult,
+          image_extraction_status: status
+        });
+      }
+    }
+  });
 
   const form = useForm<FormValues>({
     resolver: zodResolver(urlSchema),
@@ -379,24 +457,15 @@ const Compare = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                     {/* Property A */}
                     <div className="p-6">
-                      <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                        {comparisonResult.property_a.image_urls &&
-                        comparisonResult.property_a.image_urls.length > 0 ? (
-                          <img
-                            src={comparisonResult.property_a.image_urls[0]}
-                            alt={comparisonResult.property_a.property_name}
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "/placeholder.svg";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                            <ImageIcon className="h-12 w-12 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
+                      <PropertyImageDisplay
+                        imageUrls={comparisonResult.property_a.image_urls}
+                        propertyName={comparisonResult.property_a.property_name}
+                        imageExtractionStatus={comparisonResult.image_extraction_status}
+                        className="mb-4"
+                        aspectRatio="video"
+                        comparisonId={comparisonResult.comparison_id}
+                        onRetryImageExtraction={handleRetryImageExtraction}
+                      />
                       <h3 className="text-xl font-semibold text-gray-900">
                         {comparisonResult.property_a.property_name}
                       </h3>
@@ -442,24 +511,15 @@ const Compare = () => {
 
                     {/* Property B */}
                     <div className="p-6">
-                      <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                        {comparisonResult.property_b.image_urls &&
-                        comparisonResult.property_b.image_urls.length > 0 ? (
-                          <img
-                            src={comparisonResult.property_b.image_urls[0]}
-                            alt={comparisonResult.property_b.property_name}
-                            className="w-full h-full object-cover rounded-lg"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src =
-                                "/placeholder.svg";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                            <ImageIcon className="h-12 w-12 text-gray-400" />
-                          </div>
-                        )}
-                      </div>
+                      <PropertyImageDisplay
+                        imageUrls={comparisonResult.property_b.image_urls}
+                        propertyName={comparisonResult.property_b.property_name}
+                        imageExtractionStatus={comparisonResult.image_extraction_status}
+                        className="mb-4"
+                        aspectRatio="video"
+                        comparisonId={comparisonResult.comparison_id}
+                        onRetryImageExtraction={handleRetryImageExtraction}
+                      />
                       <h3 className="text-xl font-semibold text-gray-900">
                         {comparisonResult.property_b.property_name}
                       </h3>

@@ -192,4 +192,8 @@ config/master.key
 firebase-debug.log*
 firestore-debug.log*
 
+# Database backups (contain sensitive data)
+backups/
+logs/
+
 screenshots/

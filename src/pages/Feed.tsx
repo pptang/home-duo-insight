@@ -23,6 +23,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import ExpertAvatarGroup from "@/components/ExpertAvatarGroup";
 
 interface Expert {
@@ -471,28 +472,13 @@ const Feed = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div className="bg-softgray p-3 rounded-lg">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                            {comparison.propertyA.image_urls &&
-                            comparison.propertyA.image_urls.length > 0 ? (
-                              <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 overflow-hidden rounded-md bg-gray-100">
-                                <AspectRatio ratio={1}>
-                                  <img
-                                    src={comparison.propertyA.image_urls[0]}
-                                    alt={
-                                      comparison.propertyA.property_name ||
-                                      "Property A"
-                                    }
-                                    className="object-cover w-full h-full"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                                    }}
-                                  />
-                                </AspectRatio>
-                              </div>
-                            ) : (
-                              <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 flex items-center justify-center rounded-md bg-gray-100">
-                                <Home className="h-8 w-8 text-gray-400" />
-                              </div>
-                            )}
+                            <PropertyImageDisplay
+                              imageUrls={comparison.propertyA.image_urls}
+                              propertyName={comparison.propertyA.property_name || "Property A"}
+                              imageExtractionStatus={comparison.image_extraction_status}
+                              className="w-16 h-16 mr-3 mb-2 sm:mb-0"
+                              aspectRatio="square"
+                            />
                             <div>
                               <h3 className="font-medium text-gray-900">
                                 {comparison.propertyA.property_name ||
@@ -516,28 +502,13 @@ const Feed = () => {
 
                         <div className="bg-softgray p-3 rounded-lg">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center">
-                            {comparison.propertyB.image_urls &&
-                            comparison.propertyB.image_urls.length > 0 ? (
-                              <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 overflow-hidden rounded-md bg-gray-100">
-                                <AspectRatio ratio={1}>
-                                  <img
-                                    src={comparison.propertyB.image_urls[0]}
-                                    alt={
-                                      comparison.propertyB.property_name ||
-                                      "Property B"
-                                    }
-                                    className="object-cover w-full h-full"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = "/placeholder.svg";
-                                    }}
-                                  />
-                                </AspectRatio>
-                              </div>
-                            ) : (
-                              <div className="w-16 h-16 mr-3 mb-2 sm:mb-0 flex items-center justify-center rounded-md bg-gray-100">
-                                <Home className="h-8 w-8 text-gray-400" />
-                              </div>
-                            )}
+                            <PropertyImageDisplay
+                              imageUrls={comparison.propertyB.image_urls}
+                              propertyName={comparison.propertyB.property_name || "Property B"}
+                              imageExtractionStatus={comparison.image_extraction_status}
+                              className="w-16 h-16 mr-3 mb-2 sm:mb-0"
+                              aspectRatio="square"
+                            />
                             <div>
                               <h3 className="font-medium text-gray-900">
                                 {comparison.propertyB.property_name ||

@@ -11,6 +11,8 @@ import {
   Share,
   Calendar,
 } from "lucide-react";
+import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
+import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import {
   Card,
   CardContent,
@@ -48,6 +50,7 @@ interface ComparisonData {
   property_a: PropertyData;
   property_b: PropertyData;
   recommendations?: AIRecommendation[];
+  image_extraction_status?: 'pending' | 'in_progress' | 'completed' | 'failed';
 }
 
 interface AIRecommendation {
@@ -69,10 +72,103 @@ const ComparisonDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
 
+  // Handle retry image extraction
+  const handleRetryImageExtraction = async (comparisonId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('retry-image-extraction', {
+        body: { comparison_id: comparisonId }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Retry failed",
+          description: "Could not retry image extraction. Please try again later.",
+        });
+        return;
+      }
+
+      toast({
+        title: "Retry started",
+        description: "Image extraction has been restarted. Please wait...",
+      });
+    } catch (error) {
+      console.error('Retry image extraction error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred while retrying.",
+      });
+    }
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [comparison, setComparison] = useState<ComparisonData | null>(null);
   const [recommendation, setRecommendation] = useState<AIRecommendation | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // Subscribe to real-time updates for image extraction
+  useComparisonSubscription({
+    comparisonId: id || '',
+    onImageExtractionComplete: async () => {
+      // Refresh the comparison data to get the updated images
+      if (id) {
+        try {
+          const { data: refreshedData, error } = await supabase
+            .from('comparisons')
+            .select(`
+              id,
+              created_at,
+              user_id,
+              image_extraction_status,
+              property_a:properties!comparisons_property_a_id_fkey(
+                id,
+                property_name,
+                address,
+                price_yen,
+                floor_plan,
+                commute_minutes,
+                property_type,
+                image_urls,
+                notes
+              ),
+              property_b:properties!comparisons_property_b_id_fkey(
+                id,
+                property_name,
+                address,
+                price_yen,
+                floor_plan,
+                commute_minutes,
+                property_type,
+                image_urls,
+                notes
+              )
+            `)
+            .eq('id', id)
+            .single();
+
+          if (!error && refreshedData) {
+            setComparison(refreshedData);
+            
+            toast({
+              title: "Images loaded!",
+              description: "Property images have been successfully extracted.",
+            });
+          }
+        } catch (error) {
+          console.error('Error refreshing comparison data:', error);
+        }
+      }
+    },
+    onImageExtractionStatusChange: (status) => {
+      if (comparison) {
+        setComparison({
+          ...comparison,
+          image_extraction_status: status
+        });
+      }
+    }
+  });
 
   // Function to format price in Japanese Yen (reused from Compare.tsx)
   const formatPrice = (price: number): string => {
@@ -131,6 +227,7 @@ const ComparisonDetail = () => {
             id,
             created_at,
             user_id,
+            image_extraction_status,
             property_a:properties!comparisons_property_a_id_fkey(
               id,
               property_name,
@@ -300,23 +397,15 @@ const ComparisonDetail = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                 {/* Property A */}
                 <div className="p-6">
-                  <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                    {comparison.property_a.image_urls &&
-                    comparison.property_a.image_urls.length > 0 ? (
-                      <img
-                        src={comparison.property_a.image_urls[0]}
-                        alt={comparison.property_a.property_name || "Property A"}
-                        className="w-full h-full object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                        <ImageIcon className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+                  <PropertyImageDisplay
+                    imageUrls={comparison.property_a.image_urls}
+                    propertyName={comparison.property_a.property_name || "Property A"}
+                    imageExtractionStatus={comparison.image_extraction_status}
+                    className="mb-4"
+                    aspectRatio="video"
+                    comparisonId={comparison.id}
+                    onRetryImageExtraction={handleRetryImageExtraction}
+                  />
                   <h3 className="text-xl font-semibold text-gray-900">
                     {comparison.property_a.property_name || "Property A"}
                   </h3>
@@ -369,23 +458,15 @@ const ComparisonDetail = () => {
 
                 {/* Property B */}
                 <div className="p-6">
-                  <div className="aspect-video bg-gray-200 rounded-lg mb-4 overflow-hidden">
-                    {comparison.property_b.image_urls &&
-                    comparison.property_b.image_urls.length > 0 ? (
-                      <img
-                        src={comparison.property_b.image_urls[0]}
-                        alt={comparison.property_b.property_name || "Property B"}
-                        className="w-full h-full object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = "/placeholder.svg";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                        <ImageIcon className="h-12 w-12 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
+                  <PropertyImageDisplay
+                    imageUrls={comparison.property_b.image_urls}
+                    propertyName={comparison.property_b.property_name || "Property B"}
+                    imageExtractionStatus={comparison.image_extraction_status}
+                    className="mb-4"
+                    aspectRatio="video"
+                    comparisonId={comparison.id}
+                    onRetryImageExtraction={handleRetryImageExtraction}
+                  />
                   <h3 className="text-xl font-semibold text-gray-900">
                     {comparison.property_b.property_name || "Property B"}
                   </h3>
