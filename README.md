@@ -61,14 +61,15 @@ This project is built with:
 - Tailwind CSS
 - Supabase (for backend and database)
 
-## Local Development with Supabase
+## Local Development with Supabase and Firecrawl
 
-This project uses Supabase for backend services. You can run it locally for development.
+This project uses Supabase for backend services and Firecrawl for web scraping. You can run both locally for development.
 
 ### Prerequisites
 
 1. Install [Supabase CLI](https://supabase.com/docs/guides/cli/getting-started)
-2. Install Docker (required for local Supabase)
+2. Install Docker (required for local Supabase and Firecrawl)
+3. Install [Git](https://git-scm.com/) for cloning repositories
 
 ### Setup
 
@@ -79,20 +80,54 @@ cd <YOUR_PROJECT_NAME>
 npm i
 ```
 
-2. **Start local Supabase:**
+2. **Set up local Firecrawl (optional but recommended):**
+```sh
+# Clone Firecrawl in a separate directory
+cd ..
+git clone https://github.com/mendableai/firecrawl.git
+cd firecrawl
+
+# Create Firecrawl environment file
+cat > .env << EOF
+PORT=3002
+HOST=0.0.0.0
+USE_DB_AUTHENTICATION=false
+BULL_AUTH_KEY=your_secure_admin_key
+EOF
+
+# Start Firecrawl
+docker compose up -d
+
+# Verify Firecrawl is running
+curl http://localhost:3002/health
+
+# Return to your project directory
+cd ../home-duo-insight
+```
+
+3. **Start local Supabase:**
 ```sh
 npm run supabase:start
 ```
 
-3. **Set up environment variables:**
+4. **Set up environment variables:**
 Copy `.env.example` to `.env.local`:
 ```sh
 cp .env.example .env.local
 ```
 
-The default values in `.env.local` should work with your local Supabase instance.
+Update `.env.local` with local service URLs:
+```env
+# Supabase (automatically configured)
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=your_local_anon_key
 
-4. **Start the development server:**
+# Firecrawl (add these lines)
+FIRECRAWL_URL=http://localhost:3002
+FIRECRAWL_API_KEY=your_firecrawl_api_key
+```
+
+5. **Start the development server:**
 ```sh
 npm run dev
 ```
@@ -102,13 +137,38 @@ Or use the combined command:
 npm run dev:local
 ```
 
+### Quick Setup Script
+
+For a faster setup, you can use this one-liner script (make sure you're in the parent directory of where you want to clone both repositories):
+
+```bash
+# Quick setup script - run from parent directory
+git clone <YOUR_GIT_URL> && \
+git clone https://github.com/mendableai/firecrawl.git && \
+cd home-duo-insight && npm i && \
+cd ../firecrawl && \
+echo -e "PORT=3002\nHOST=0.0.0.0\nUSE_DB_AUTHENTICATION=false\nBULL_AUTH_KEY=your_secure_admin_key" > .env && \
+docker compose up -d && \
+cd ../home-duo-insight && \
+cp .env.example .env.local && \
+npm run supabase:start && \
+echo "✅ Setup complete! Run 'npm run dev' to start development."
+```
+
 ### Useful Commands
 
+**Supabase:**
 - `npm run supabase:start` - Start local Supabase
 - `npm run supabase:stop` - Stop local Supabase
 - `npm run supabase:status` - Check status of local services
 - `npm run supabase:reset` - Reset local database
 - `npm run dev:local` - Start both Supabase and frontend
+
+**Firecrawl:**
+- `docker compose up -d` - Start Firecrawl (run in firecrawl directory)
+- `docker compose down` - Stop Firecrawl
+- `docker compose ps` - Check Firecrawl status
+- `docker compose logs -f` - View Firecrawl logs
 
 ### Accessing Local Services
 
@@ -116,9 +176,13 @@ When running locally, you can access:
 
 - **Frontend**: http://localhost:8080
 - **Supabase Studio**: http://localhost:54323
-- **API**: http://localhost:54321
+- **Supabase API**: http://localhost:54321
+- **Firecrawl API**: http://localhost:3002
+- **Firecrawl Health Check**: http://localhost:3002/health
 
 The Supabase Studio provides a web interface to manage your local database, view tables, run queries, and more.
+
+For Firecrawl API documentation and testing, refer to the [Firecrawl documentation](https://docs.firecrawl.dev/).
 
 ## How can I deploy this project?
 
