@@ -148,7 +148,7 @@ const ComparisonDetail = () => {
             .single();
 
           if (!error && refreshedData) {
-            setComparison(refreshedData);
+            setComparison(refreshedData as ComparisonData);
             
             toast({
               title: "Images loaded!",

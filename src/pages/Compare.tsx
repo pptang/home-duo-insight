@@ -175,8 +175,8 @@ const Compare = () => {
             .from('comparisons')
             .select(`
               *,
-              property_a:property_a_id(*),
-              property_b:property_b_id(*)
+              property_a:properties!comparisons_property_a_id_fkey(*),
+              property_b:properties!comparisons_property_b_id_fkey(*)
             `)
             .eq('id', comparisonResult.comparison_id)
             .single();
@@ -184,9 +184,9 @@ const Compare = () => {
           if (!error && refreshedData) {
             setComparisonResult({
               comparison_id: refreshedData.id,
-              property_a: refreshedData.property_a,
-              property_b: refreshedData.property_b,
-              image_extraction_status: refreshedData.image_extraction_status
+              property_a: refreshedData.property_a as PropertyData,
+              property_b: refreshedData.property_b as PropertyData,
+              image_extraction_status: refreshedData.image_extraction_status as 'pending' | 'in_progress' | 'completed' | 'failed'
             });
             
             toast({

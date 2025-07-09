@@ -51,6 +51,7 @@ interface ComparisonPost {
   userName?: string;
   userAvatar?: string;
   expertVotes?: number;
+  image_extraction_status?: 'pending' | 'in_progress' | 'completed' | 'failed';
   communityVotes?: number;
   comments?: number;
   experts?: Expert[];

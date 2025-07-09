@@ -29,8 +29,8 @@ export const useComparisonSubscription = ({
         (payload) => {
           console.log('Comparison updated:', payload);
           
-          const newRecord = payload.new as { image_extraction_status: string };
-          const oldRecord = payload.old as { image_extraction_status: string };
+          const newRecord = payload.new as { image_extraction_status: 'pending' | 'in_progress' | 'completed' | 'failed' };
+          const oldRecord = payload.old as { image_extraction_status: 'pending' | 'in_progress' | 'completed' | 'failed' };
           
           // Check if image extraction status changed
           if (newRecord.image_extraction_status !== oldRecord.image_extraction_status) {
