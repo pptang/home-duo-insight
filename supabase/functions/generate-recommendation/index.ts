@@ -209,6 +209,7 @@ Based on this profile and the 2 properties below, provide:
 - A detailed pros and cons list for each property (at least 3 of each)
 - A side-by-side summary table (5-7 key details most relevant for comparison)
 - Your final recommendation should start with giving overall summary of each neighborhood and then put emphasis on user's input (why move and top priorities) with reasoning in a natural, conversational tone
+- Search every information you need from Google to make your recommendation as accurate as possible
 
 Here are the properties:
 ${propertyAText}
@@ -240,6 +241,11 @@ Return your response in the following JSON format (and only this format, with no
           contents: [
             {
               parts: [{ text: prompt }],
+              tools: [
+                {
+                  google_search: {},
+                },
+              ],
             },
           ],
           generationConfig: {
