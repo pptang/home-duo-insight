@@ -112,6 +112,9 @@ const personalizationSchema = z.object({
   family_size: z.number().min(1).max(10).default(1),
   commute_priority: z.number().min(1).max(5).default(3),
   why_move: z.string().max(500).default(""),
+  top_priority_1: z.string().max(100).default(""),
+  top_priority_2: z.string().max(100).default(""),
+  top_priority_3: z.string().max(100).default(""),
 });
 
 type FormValues = z.infer<typeof urlSchema>;
@@ -222,6 +225,9 @@ const Compare = () => {
       family_size: 1,
       commute_priority: 3,
       why_move: "",
+      top_priority_1: "",
+      top_priority_2: "",
+      top_priority_3: "",
     },
   });
 
@@ -296,16 +302,19 @@ const Compare = () => {
     setShowPersonalizationDialog(false);
 
     try {
-      // First, update the comparison with the why_move field
-      if (values.why_move.trim()) {
-        const { error: updateError } = await supabase
-          .from("comparisons")
-          .update({ why_move: values.why_move })
-          .eq("id", comparisonResult.comparison_id);
+      // Update the comparison with all the preference data
+      const { error: updateError } = await supabase
+        .from("comparisons")
+        .update({ 
+          why_move: values.why_move,
+          top_priority_1: values.top_priority_1,
+          top_priority_2: values.top_priority_2,
+          top_priority_3: values.top_priority_3
+        })
+        .eq("id", comparisonResult.comparison_id);
 
-        if (updateError) {
-          console.error("Error updating comparison with why_move:", updateError);
-        }
+      if (updateError) {
+        console.error("Error updating comparison with preferences:", updateError);
       }
 
       const { data, error } = await supabase.functions.invoke(
@@ -949,6 +958,68 @@ const Compare = () => {
                     </FormItem>
                   )}
                 />
+
+                <div className="rounded-lg border p-4">
+                  <div className="space-y-2 mb-4">
+                    <FormLabel>What are your top 3 priorities when choosing a home?</FormLabel>
+                    <p className="text-sm text-gray-500">
+                      Help us focus on what matters most to you (optional)
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <FormField
+                      control={personalizationForm.control}
+                      name="top_priority_1"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="First Priority (e.g., Quiet neighborhood)"
+                              className="w-full"
+                              maxLength={100}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={personalizationForm.control}
+                      name="top_priority_2"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Second Priority (e.g., Good natural light)"
+                              className="w-full"
+                              maxLength={100}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={personalizationForm.control}
+                      name="top_priority_3"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Third Priority (e.g., Near shopping areas)"
+                              className="w-full"
+                              maxLength={100}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end">
