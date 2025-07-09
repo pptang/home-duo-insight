@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { Mail, User, Eye } from "lucide-react";
 
 type Vote = Database["public"]["Tables"]["votes"]["Row"] & {
   expert_profiles: {
@@ -25,6 +28,12 @@ interface ExpertInsightsProps {
   refreshTrigger?: number;
 }
 
+interface AuthorProfile {
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+}
+
 export function ExpertInsights({
   comparisonId,
   propertyAName,
@@ -33,6 +42,10 @@ export function ExpertInsights({
 }: ExpertInsightsProps) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authorProfile, setAuthorProfile] = useState<AuthorProfile | null>(null);
+  const [showAuthorEmail, setShowAuthorEmail] = useState(false);
+  const [canRevealAuthorEmail, setCanRevealAuthorEmail] = useState(false);
+  const { user, isExpert } = useAuth();
 
   useEffect(() => {
     const fetchExpertVotes = async () => {
@@ -70,6 +83,66 @@ export function ExpertInsights({
 
     fetchExpertVotes();
   }, [comparisonId, refreshTrigger]);
+
+  useEffect(() => {
+    const fetchAuthorAndCheckPermission = async () => {
+      if (!isExpert || !user) {
+        setCanRevealAuthorEmail(false);
+        return;
+      }
+
+      try {
+        // Check if current expert has commented on this comparison
+        const { data: expertVote, error: voteError } = await supabase
+          .from("votes")
+          .select("id")
+          .eq("comparison_id", comparisonId)
+          .eq("expert_user_id", user.id)
+          .maybeSingle();
+
+        if (voteError) {
+          console.error("Error checking expert vote:", voteError);
+          return;
+        }
+
+        const hasCommented = !!expertVote;
+
+        if (hasCommented) {
+          // Fetch comparison author's profile
+          const { data: comparisonData, error: comparisonError } = await supabase
+            .from("comparisons")
+            .select(`
+              user_id,
+              profiles:user_id (
+                full_name,
+                email,
+                avatar_url
+              )
+            `)
+            .eq("id", comparisonId)
+            .single();
+
+          if (comparisonError) {
+            console.error("Error fetching comparison author:", comparisonError);
+            return;
+          }
+
+          if (comparisonData?.user_id && comparisonData.profiles) {
+            setAuthorProfile(comparisonData.profiles);
+            setCanRevealAuthorEmail(true);
+          }
+        }
+      } catch (error) {
+        console.error("Unexpected error checking permissions:", error);
+      }
+    };
+
+    fetchAuthorAndCheckPermission();
+  }, [comparisonId, user, isExpert, refreshTrigger]);
+
+  const handleRevealAuthorEmail = () => {
+    setShowAuthorEmail(true);
+  };
 
   if (loading) {
     return (
@@ -163,6 +236,41 @@ export function ExpertInsights({
             );
           })}
         </div>
+
+        {/* Author contact reveal section */}
+        {canRevealAuthorEmail && (
+          <div className="mt-6 pt-4 border-t">
+            {!showAuthorEmail ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRevealAuthorEmail}
+                className="flex items-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                Reveal Author's Contact
+              </Button>
+            ) : (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium text-blue-900">Comparison Author</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="font-medium">Name:</span>
+                    <span>{authorProfile?.full_name || "Anonymous"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Mail className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">Email:</span>
+                    <span className="text-blue-600">{authorProfile?.email || "Not available"}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
