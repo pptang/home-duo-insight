@@ -25,6 +25,9 @@ interface UserProfile {
   family_size: number;
   commute_priority: number;
   why_move: string;
+  top_priority_1: string;
+  top_priority_2: string;
+  top_priority_3: string;
 }
 
 interface RequestData {
@@ -172,6 +175,9 @@ serve(async (req) => {
       requestData.user_profile.commute_priority
     }/5 (higher means more important)
 - Why move: ${requestData.user_profile.why_move} 
+- Top priority 1: ${requestData.user_profile.top_priority_1}
+- Top priority 2: ${requestData.user_profile.top_priority_2}
+- Top priority 3: ${requestData.user_profile.top_priority_3}
 `;
 
     // Format property data for prompt
