@@ -22,7 +22,6 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import ExpertAvatarGroup from "@/components/ExpertAvatarGroup";
 
@@ -640,7 +639,6 @@ const Feed = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };
