@@ -119,6 +119,26 @@ const personalizationSchema = z.object({
 type FormValues = z.infer<typeof urlSchema>;
 type PersonalizationValues = z.infer<typeof personalizationSchema>;
 
+// Function to extract URLs from pasted text
+const extractUrlFromText = (text: string): string => {
+  // Remove any leading/trailing whitespace
+  const trimmed = text.trim();
+  
+  // URL regex pattern to match http/https URLs
+  const urlRegex = /(https?:\/\/[^\s]+)/gi;
+  
+  // Find all URLs in the text
+  const matches = trimmed.match(urlRegex);
+  
+  // If URLs are found, return the first one
+  if (matches && matches.length > 0) {
+    return matches[0];
+  }
+  
+  // If no URLs found, return the original text (user might have pasted a URL without protocol)
+  return trimmed;
+};
+
 const Compare = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState<string | null>(null);
@@ -406,6 +426,12 @@ const Compare = () => {
                                   {...field}
                                   className="bg-white"
                                   disabled={isLoading}
+                                  onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pastedText = e.clipboardData.getData('text');
+                                    const extractedUrl = extractUrlFromText(pastedText);
+                                    field.onChange(extractedUrl);
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -426,6 +452,12 @@ const Compare = () => {
                                   {...field}
                                   className="bg-white"
                                   disabled={isLoading}
+                                  onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pastedText = e.clipboardData.getData('text');
+                                    const extractedUrl = extractUrlFromText(pastedText);
+                                    field.onChange(extractedUrl);
+                                  }}
                                 />
                               </FormControl>
                               <FormMessage />
