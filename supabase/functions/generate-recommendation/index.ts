@@ -202,13 +202,15 @@ Property B: ${requestData.property_b.property_name}
 `;
 
     // Prepare prompt for Gemini
-    const prompt = `You are the DuoHome Advisor AI. The user is comparing 2 shortlisted homes in Japan. The user profile is:
+    const prompt = `You are the senior real estate agent. The user is comparing 2 shortlisted homes in Japan. The user profile is:
 ${userProfileText}
 
 Based on this profile and the 2 properties below, provide:
 - A detailed pros and cons list for each property (at least 3 of each)
-- A side-by-side summary table (5-7 key details most relevant for comparison)
-- Your final recommendation with reasoning in a natural, conversational tone
+- A side-by-side summary table which includes
+  - An overall summary of the vibe of the neighborhood
+  - 5-7 key details most relevant for comparison
+- Your final recommendation should put emphasis on user's input (why move and top priorities) with reasoning in a natural, conversational tone
 
 Here are the properties:
 ${propertyAText}
