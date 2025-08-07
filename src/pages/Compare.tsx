@@ -808,7 +808,7 @@ const Compare = () => {
         open={showPersonalizationDialog}
         onOpenChange={setShowPersonalizationDialog}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Tell us about your preferences</DialogTitle>
             <DialogDescription>
