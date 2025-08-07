@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,27 +24,41 @@ const ExpertProfileEditForm = ({
 }: ExpertProfileEditFormProps) => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: profile.name || "",
-    email: profile.email || "",
-    phone: profile.phone || "",
-    bio: profile.bio || "",
-    company_website: profile.company_website || "",
-    x_handle: profile.x_handle || "",
-    instagram_url: profile.instagram_url || "",
-    line_url: profile.line_url || "",
-  });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     profile.profile_image_url
   );
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      name: profile.name || "",
+      email: profile.email || "",
+      phone: profile.phone || "",
+      bio: profile.bio || "",
+      company_website: profile.company_website || "",
+      x_handle: profile.x_handle || "",
+      instagram_url: profile.instagram_url || "",
+      line_url: profile.line_url || "",
+    }
+  });
+
+  // Load existing data into form
+  useEffect(() => {
+    setValue("name", profile.name || "");
+    setValue("email", profile.email || "");
+    setValue("phone", profile.phone || "");
+    setValue("bio", profile.bio || "");
+    setValue("company_website", profile.company_website || "");
+    setValue("x_handle", profile.x_handle || "");
+    setValue("instagram_url", profile.instagram_url || "");
+    setValue("line_url", profile.line_url || "");
+  }, [profile, setValue]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -75,8 +90,8 @@ const ExpertProfileEditForm = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: any) => {
+    console.log("Submitted data:", data); // Debug log
     setIsLoading(true);
 
     try {
@@ -96,18 +111,25 @@ const ExpertProfileEditForm = ({
           throw uploadError;
         }
 
-        const { data } = supabase.storage
+        const { data: urlData } = supabase.storage
           .from("expert-profiles")
           .getPublicUrl(filePath);
         
-        profile_image_url = data.publicUrl;
+        profile_image_url = urlData.publicUrl;
       }
 
-      // Update profile data
+      // Update profile data using react-hook-form data
       const { error } = await supabase
         .from("expert_profiles")
         .update({
-          ...formData,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          bio: data.bio,
+          company_website: data.company_website,
+          x_handle: data.x_handle,
+          instagram_url: data.instagram_url,
+          line_url: data.line_url,
           profile_image_url,
         })
         .eq("id", profile.id);
@@ -135,7 +157,7 @@ const ExpertProfileEditForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
         {/* Profile Image */}
         <div className="space-y-2">
@@ -169,11 +191,11 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="name">Name*</Label>
           <Input
             id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
+            {...register("name", { required: "Name is required" })}
           />
+          {errors.name && (
+            <p className="text-sm text-destructive">{errors.name.message}</p>
+          )}
         </div>
 
         {/* Email */}
@@ -181,12 +203,18 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="email">Email*</Label>
           <Input
             id="email"
-            name="email"
             type="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
+            {...register("email", { 
+              required: "Email is required",
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: "Invalid email address"
+              }
+            })}
           />
+          {errors.email && (
+            <p className="text-sm text-destructive">{errors.email.message}</p>
+          )}
         </div>
 
         {/* Phone */}
@@ -194,9 +222,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
-            name="phone"
-            value={formData.phone || ""}
-            onChange={handleInputChange}
+            {...register("phone")}
           />
         </div>
 
@@ -205,9 +231,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="bio">Bio</Label>
           <Textarea
             id="bio"
-            name="bio"
-            value={formData.bio || ""}
-            onChange={handleInputChange}
+            {...register("bio")}
             placeholder="Tell us about yourself and your expertise..."
             rows={4}
           />
@@ -218,9 +242,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="company_website">Website</Label>
           <Input
             id="company_website"
-            name="company_website"
-            value={formData.company_website || ""}
-            onChange={handleInputChange}
+            {...register("company_website")}
             placeholder="https://..."
           />
         </div>
@@ -230,9 +252,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="x_handle">X (Twitter) Handle</Label>
           <Input
             id="x_handle"
-            name="x_handle"
-            value={formData.x_handle || ""}
-            onChange={handleInputChange}
+            {...register("x_handle")}
             placeholder="@username"
           />
         </div>
@@ -241,9 +261,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="instagram_url">Instagram URL</Label>
           <Input
             id="instagram_url"
-            name="instagram_url"
-            value={formData.instagram_url || ""}
-            onChange={handleInputChange}
+            {...register("instagram_url")}
             placeholder="https://instagram.com/username"
           />
         </div>
@@ -252,9 +270,7 @@ const ExpertProfileEditForm = ({
           <Label htmlFor="line_url">LINE URL</Label>
           <Input
             id="line_url"
-            name="line_url"
-            value={formData.line_url || ""}
-            onChange={handleInputChange}
+            {...register("line_url")}
             placeholder="https://line.me/..."
           />
         </div>
