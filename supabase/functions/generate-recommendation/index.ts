@@ -314,11 +314,6 @@ Now return your response in the following **JSON format only** (with no extra ex
           contents: [
             {
               parts: [{ text: prompt }],
-              tools: [
-                {
-                  google_search: {},
-                },
-              ],
             },
           ],
           generationConfig: {
