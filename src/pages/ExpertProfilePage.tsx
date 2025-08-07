@@ -99,7 +99,7 @@ const ExpertProfilePage: React.FC = () => {
       const { data, error } = await supabase
         .from("expert_profiles")
         .select("*")
-        .eq("user_id", expertId)
+        .eq("id", expertId)
         .single();
 
       if (error) throw error;
