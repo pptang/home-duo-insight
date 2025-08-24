@@ -14,7 +14,6 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { sendWelcomeEmail } from "@/lib/emailClient";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -31,7 +30,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -48,23 +47,9 @@ const Auth = () => {
           description: error.message,
         });
       } else {
-        // Send welcome email via Resend
-        if (data.user) {
-          try {
-            await sendWelcomeEmail({
-              name: fullName,
-              email: email,
-              dashboardUrl: window.location.origin,
-            });
-          } catch (emailError) {
-            console.error("Failed to send welcome email:", emailError);
-            // Don't block signup for email failure
-          }
-        }
-
         toast({
           title: "Sign up successful",
-          description: "Welcome to DuoHome Advisor! Check your email for a welcome message.",
+          description: "Please check your email for the confirmation link.",
         });
         navigate("/");
       }
