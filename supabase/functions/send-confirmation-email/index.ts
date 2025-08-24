@@ -130,7 +130,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: "DuoHome Advisor <noreply@duohome.jp>",
+      from: "DuoHome Advisor <noreply@aisum.ai>",
       to: [email],
       subject: "Confirm your DuoHome Advisor account",
       html: emailHTML,

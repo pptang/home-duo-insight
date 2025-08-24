@@ -123,7 +123,7 @@ serve(async (req) => {
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: 'DuoHome Advisor <noreply@duohome.jp>',
+      from: 'DuoHome Advisor <noreply@aisum.ai>',
       to: Array.isArray(to) ? to : [to],
       subject: emailContent.subject,
       html: emailContent.html,

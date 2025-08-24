@@ -55,17 +55,6 @@ export const sendContactExpertEmail = async (contactData: {
   });
 };
 
-export const sendWelcomeEmail = async (userData: {
-  name: string;
-  email: string;
-  dashboardUrl?: string;
-}) => {
-  return sendEmail({
-    to: userData.email,
-    template: 'welcome',
-    templateData: userData
-  });
-};
 
 export const sendFeedbackEmail = async (feedbackData: {
   userName: string;
@@ -74,7 +63,7 @@ export const sendFeedbackEmail = async (feedbackData: {
   message: string;
 }) => {
   return sendEmail({
-    to: 'support@duohome.jp', // Replace with your support email
+    to: 'support@aisum.ai', // Replace with your support email
     template: 'feedback',
     templateData: feedbackData
   });
