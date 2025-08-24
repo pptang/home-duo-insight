@@ -36,6 +36,7 @@ const Auth = () => {
         options: {
           data: {
             full_name: fullName,
+            template: "welcome",
           },
         },
       });

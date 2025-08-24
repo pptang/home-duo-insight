@@ -189,3 +189,6 @@ secret = ""
 
 [functions.api_docs]
 enabled = true
+
+[functions.send-email]
+verify_jwt = false
