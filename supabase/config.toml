@@ -78,7 +78,7 @@ enable_signup = true
 # Allow/disallow new user signups via email to your project.
 enable_signup = true
 # If enabled, a user will need to verify their email address before logging in.
-enable_confirmations = false
+enable_confirmations = true
 # If enabled, users need to confirm any email change.
 double_confirm_changes = true
 
@@ -191,4 +191,7 @@ secret = ""
 enabled = true
 
 [functions.send-email]
+verify_jwt = false
+
+[functions.send-confirmation-email]
 verify_jwt = false

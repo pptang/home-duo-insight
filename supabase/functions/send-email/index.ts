@@ -13,7 +13,7 @@ interface EmailRequest {
   subject: string
   html?: string
   text?: string
-  template?: 'expert-invite' | 'contact-expert' | 'welcome' | 'feedback'
+  template?: 'expert-invite' | 'contact-expert' | 'feedback'
   templateData?: Record<string, any>
 }
 
@@ -65,25 +65,6 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
         `
       }
     
-    case 'welcome':
-      return {
-        subject: 'Welcome to DuoHome Advisor!',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #6A7FDB;">Welcome to DuoHome Advisor!</h1>
-            <p>Hello ${data.name},</p>
-            <p>Thank you for joining DuoHome Advisor - your AI-powered property comparison platform.</p>
-            <p>With DuoHome Advisor, you can:</p>
-            <ul>
-              <li>Compare two properties side-by-side with AI analysis</li>
-              <li>Get expert insights from verified real estate professionals</li>
-              <li>Make confident decisions with community wisdom</li>
-            </ul>
-            <p><a href="${data.dashboardUrl || 'https://duohome-advisor.lovable.app'}" style="background: #6A7FDB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Start Comparing Properties</a></p>
-            <p>Best regards,<br>The DuoHome Advisor Team</p>
-          </div>
-        `
-      }
     
     case 'feedback':
       return {
