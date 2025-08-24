@@ -107,154 +107,16 @@
   font-family: 'Noto Sans JP', serif;
 }
 
-/* Immersive Design Utilities */
-.hero-landscape {
-  background: linear-gradient(135deg, 
-    hsl(var(--primary)) 0%, 
-    hsl(var(--secondary)) 50%, 
-    hsl(var(--accent) / 0.3) 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-landscape::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-  opacity: 0.3;
-}
-
-.parallax-layer {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.scrollytelling-section {
-  position: relative;
-  overflow: hidden;
-}
-
-.scrollytelling-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, transparent 0%, hsl(var(--background)) 100%);
-  pointer-events: none;
-}
-
 .section-fade {
-  @apply transition-all duration-700 ease-out opacity-0 transform translate-y-8;
-}
-
-.section-fade.visible {
-  @apply opacity-100 translate-y-0;
+  @apply transition-all duration-700 ease-out;
 }
 
 .hover-lift {
   @apply transition-transform duration-300 hover:scale-105 hover:shadow-lg;
 }
 
-.hover-glow:hover {
-  box-shadow: 0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.3);
-  animation: pulse-glow 1s ease-in-out;
-}
-
-.feature-scroll-container {
-  @apply flex overflow-x-auto space-x-8 pb-4 scroll-smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.feature-scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.interactive-comparison:hover .comparison-overlay {
-  @apply opacity-100;
-}
-
-.comparison-overlay {
-  @apply absolute inset-0 bg-primary/10 opacity-0 transition-opacity duration-300 flex items-center justify-center;
-}
-
-.gradient-cta {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
-  position: relative;
-}
-
-.gradient-cta::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-  animation: shimmer 3s infinite;
-}
-
-.cinematic-heading {
-  @apply text-5xl md:text-7xl font-black tracking-tight leading-none;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.micro-animation {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Keyframe Animations */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px hsl(var(--accent) / 0.5); }
-  50% { box-shadow: 0 0 30px hsl(var(--accent) / 0.8), 0 0 60px hsl(var(--accent) / 0.4); }
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.animate-in {
-  @apply opacity-0;
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-.animate-in-delayed {
-  @apply opacity-0;
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
+.gradient-overlay {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--accent) / 0.05));
 }
 
 .animate-in {
