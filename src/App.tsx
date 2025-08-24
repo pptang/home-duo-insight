@@ -9,10 +9,12 @@ import Footer from '@/components/Footer';
 import Index from '@/pages/Index';
 import Compare from '@/pages/Compare';
 import Feed from '@/pages/Feed';
+import Experts from '@/pages/Experts';
 import About from '@/pages/About';
 import Auth from '@/pages/Auth';
 import NotFound from '@/pages/NotFound';
 import AdminExpertPanel from "./pages/AdminExpertPanel";
+import AdminExpertReview from "./pages/AdminExpertReview";
 import ExpertProfilePage from "./pages/ExpertProfilePage";
 import ComparisonDetail from "./pages/ComparisonDetail";
 
@@ -30,9 +32,11 @@ function App() {
                 <Route path="/" element={<Index />} />
                 <Route path="/compare" element={<Compare />} />
                 <Route path="/feed" element={<Feed />} />
+                <Route path="/experts" element={<Experts />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/admin/experts" element={<AdminExpertPanel />} />
+                <Route path="/admin/expert-review" element={<AdminExpertReview />} />
                 <Route path="/experts/:expertId" element={<ExpertProfilePage />} />
                 <Route path="/comparisons/:id" element={<ComparisonDetail />} />
                 <Route path="*" element={<NotFound />} />

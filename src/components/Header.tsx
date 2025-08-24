@@ -30,6 +30,9 @@ const Header = () => {
             <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors font-medium">
               Feed
             </Link>
+            <Link to="/experts" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+              Experts
+            </Link>
             <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors font-medium">
               About
             </Link>
@@ -75,6 +78,13 @@ const Header = () => {
               onClick={() => setIsOpen(false)}
             >
               Feed
+            </Link>
+            <Link 
+              to="/experts" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Experts
             </Link>
             <Link 
               to="/about" 
