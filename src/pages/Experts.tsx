@@ -143,7 +143,7 @@ const Experts = () => {
       const { error } = await supabase
         .from("expert_profiles")
         .insert({
-          user_id: user.id,
+          id: user.id,
           name: formData.name,
           email: formData.email,
           phone: formData.phone || null,
