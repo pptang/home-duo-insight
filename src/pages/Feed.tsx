@@ -269,50 +269,72 @@ const Feed = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow bg-softgray py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold text-gray-900">
-                Comparison Feed
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      
+      {/* Immersive Hero Section */}
+      <section className="hero-landscape relative py-16 md:py-20 overflow-hidden">
+        <div className="parallax-layer absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-90"></div>
+        <div className="parallax-layer absolute inset-0" style={{backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Cpath d=\"M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')", opacity: 0.2}}></div>
+        
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <span className="text-5xl md:text-6xl micro-animation">📊</span>
+              <h1 className="cinematic-heading text-white text-4xl md:text-6xl font-bold leading-tight">
+                Community Feed
               </h1>
-              <Button asChild variant="outline">
-                <Link to="/compare">
-                  <Plus className="mr-1 h-4 w-4" /> New Comparison
+              <span className="text-5xl md:text-6xl micro-animation">🏘️</span>
+            </div>
+            
+            <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
+              Discover how others chose their homes with 
+              <span className="font-semibold text-accent"> AiSumai (愛住)</span>
+            </p>
+            
+            <div className="mt-8">
+              <Button asChild className="gradient-cta text-white px-6 py-3 h-auto hover-glow transition-all duration-300 transform hover:scale-105">
+                <Link to="/compare" className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  <span>Create Comparison</span>
+                  <span className="text-lg">✨</span>
                 </Link>
               </Button>
             </div>
+          </div>
+        </div>
+      </section>
 
-            <p className="mt-2 text-gray-600">
-              Browse public property comparisons from the community
-            </p>
+      <main className="flex-grow bg-background relative z-10 -mt-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
 
-            {/* Search and Filters */}
-            <div className="mt-6 bg-white rounded-xl shadow-sm p-4">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-grow">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            {/* Modern Search and Filters */}
+            <div className="section-fade animate-in bg-card rounded-2xl shadow-xl p-6 border border-border">
+              <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+                <div className="relative flex-grow group">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 group-focus-within:text-primary transition-colors" />
                   <input
                     type="text"
-                    placeholder="Search comparisons..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="🔍 Search comparisons, locations, or property types..."
+                    className="w-full pl-12 pr-4 py-4 bg-background border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-foreground placeholder:text-muted-foreground"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
                 <Button
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="px-6 py-4 h-auto border-2 hover:bg-secondary/20 hover:border-secondary transition-all duration-300 group"
                   onClick={() => setFilterOpen(!filterOpen)}
                 >
-                  <Filter className="h-4 w-4" />
-                  Filters
+                  <Filter className="h-4 w-4 group-hover:rotate-180 transition-transform duration-500" />
+                  <span className="ml-2">Filters</span>
+                  {filterOpen && <span className="ml-1 animate-pulse">✨</span>}
                 </Button>
               </div>
 
               {filterOpen && (
-                <div className="mt-4 p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
+                <div className="mt-6 p-6 bg-secondary/5 rounded-xl border border-secondary/20 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Property Type
@@ -638,7 +660,6 @@ const Feed = () => {
           </div>
         </div>
       </main>
-
     </div>
   );
 };

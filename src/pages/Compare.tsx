@@ -388,107 +388,184 @@ const Compare = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow bg-[#F7F7F8] py-8">
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+      
+      {/* Immersive Hero with Step Indicator */}
+      <div className="hero-landscape relative py-16 md:py-24 overflow-hidden">
+        <div className="parallax-layer absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-90"></div>
+        <div className="parallax-layer absolute inset-0" style={{backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')", opacity: 0.3}}></div>
+        
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="cinematic-heading text-white mb-6">
+            <span className="text-5xl md:text-7xl font-black">🏠</span>
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mt-4">
+              Compare Properties
+            </h1>
+          </div>
+          
+          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            Get AI insights, expert opinions, and make confident decisions with 
+            <span className="font-semibold text-accent"> AiSumai (愛住)</span>
+          </p>
+
+          {/* Dynamic Step Progress */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center space-x-4 md:space-x-8">
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${!comparisonResult ? 'scale-110 text-accent' : 'text-white/70'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${!comparisonResult ? 'bg-accent text-primary animate-pulse' : 'bg-white/20'}`}>
+                  1
+                </div>
+                <span className="hidden md:block font-medium">Parse URLs</span>
+              </div>
+              
+              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
+                <div className={`h-full bg-accent transition-all duration-700 ${comparisonResult ? 'w-full' : 'w-0'}`}></div>
+              </div>
+              
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${comparisonResult && !aiRecommendation ? 'scale-110 text-accent' : comparisonResult ? 'text-white' : 'text-white/50'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${comparisonResult && !aiRecommendation ? 'bg-accent text-primary animate-pulse' : comparisonResult ? 'bg-white/20' : 'bg-white/10'}`}>
+                  2
+                </div>
+                <span className="hidden md:block font-medium">Compare</span>
+              </div>
+              
+              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
+                <div className={`h-full bg-accent transition-all duration-700 ${aiRecommendation ? 'w-full' : 'w-0'}`}></div>
+              </div>
+              
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${aiRecommendation ? 'scale-110 text-accent' : 'text-white/50'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${aiRecommendation ? 'bg-accent text-primary animate-pulse' : 'bg-white/10'}`}>
+                  3
+                </div>
+                <span className="hidden md:block font-medium">Verdict</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-grow bg-background relative z-10 -mt-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-3xl font-bold text-gray-900">
-              Compare Two Properties
-            </h1>
-            <p className="mt-2 text-gray-600">
-              Paste the URLs of two properties you're considering to see a
-              side-by-side comparison.
-            </p>
 
             {!comparisonResult ? (
-              <div className="mt-8">
-                <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-                  <h2 className="text-xl font-semibold mb-4">
-                    Property URL Input
+              <div className="section-fade animate-in bg-card rounded-2xl shadow-xl p-8 md:p-10 border border-border">
+                <div className="text-center mb-8">
+                  <div className="text-6xl mb-4 micro-animation">🏡</div>
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                    Start Your Property Journey
                   </h2>
-                  <div className="space-y-6">
-                    <Form {...form}>
-                      <form
-                        onSubmit={form.handleSubmit(handleAnalyzeProperties)}
-                        className="space-y-6"
-                      >
-                        <FormField
-                          control={form.control}
-                          name="property_url_a"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-medium">
-                                Property A URL
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="https://example.com/property/123"
-                                  {...field}
-                                  className="bg-white"
-                                  disabled={isLoading}
-                                  onPaste={(e) => {
-                                    e.preventDefault();
-                                    const pastedText = e.clipboardData.getData('text');
-                                    const extractedUrl = extractUrlFromText(pastedText);
-                                    field.onChange(extractedUrl);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="property_url_b"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="font-medium">
-                                Property B URL
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="https://example.com/property/456"
-                                  {...field}
-                                  className="bg-white"
-                                  disabled={isLoading}
-                                  onPaste={(e) => {
-                                    e.preventDefault();
-                                    const pastedText = e.clipboardData.getData('text');
-                                    const extractedUrl = extractUrlFromText(pastedText);
-                                    field.onChange(extractedUrl);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="mt-8 text-center">
-                          <Button
-                            size="lg"
-                            type="submit"
-                            disabled={isLoading || !form.formState.isValid}
-                            className="relative bg-[#6A7FDB] hover:bg-[#5A6DCB] text-white px-6 py-3 rounded-lg"
-                          >
-                            {isLoading ? (
-                              <>
-                                <span className="opacity-0">
-                                  Analyze Properties
-                                </span>
-                                <span className="absolute inset-0 flex items-center justify-center">
-                                  {loadingStage || "Analyzing properties..."}
-                                </span>
-                              </>
-                            ) : (
-                              <>Analyze Properties</>
-                            )}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </div>
+                  <p className="text-muted-foreground">
+                    Paste property URLs and let AI guide your decision
+                  </p>
                 </div>
+                
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(handleAnalyzeProperties)}
+                    className="space-y-8"
+                  >
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="property_url_a"
+                        render={({ field }) => (
+                          <FormItem className="group">
+                            <FormLabel className="flex items-center gap-2 font-medium text-foreground">
+                              <span className="text-2xl">🏠</span>
+                              Property A URL
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  placeholder="https://suumo.jp/property/..."
+                                  {...field}
+                                  className="pl-12 h-12 bg-background border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 group-hover:shadow-lg"
+                                  disabled={isLoading}
+                                  onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pastedText = e.clipboardData.getData('text');
+                                    const extractedUrl = extractUrlFromText(pastedText);
+                                    field.onChange(extractedUrl);
+                                  }}
+                                />
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                  🔗
+                                </div>
+                                {field.value && (
+                                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-bounce">
+                                    ✨
+                                  </div>
+                                )}
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="property_url_b"
+                        render={({ field }) => (
+                          <FormItem className="group">
+                            <FormLabel className="flex items-center gap-2 font-medium text-foreground">
+                              <span className="text-2xl">🏘️</span>
+                              Property B URL
+                            </FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Input
+                                  placeholder="https://athome.co.jp/property/..."
+                                  {...field}
+                                  className="pl-12 h-12 bg-background border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 group-hover:shadow-lg"
+                                  disabled={isLoading}
+                                  onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pastedText = e.clipboardData.getData('text');
+                                    const extractedUrl = extractUrlFromText(pastedText);
+                                    field.onChange(extractedUrl);
+                                  }}
+                                />
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                  🔗
+                                </div>
+                                {field.value && (
+                                  <div className="absolute right-3 top-1/2 -translate-y-1/2 text-primary animate-bounce">
+                                    ✨
+                                  </div>
+                                )}
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    
+                    <div className="text-center pt-4">
+                      <Button
+                        size="lg"
+                        type="submit"
+                        disabled={isLoading || !form.formState.isValid}
+                        className="gradient-cta text-white px-8 py-4 h-auto text-lg font-semibold hover-glow transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span className="animate-pulse">
+                              {loadingStage || "Analyzing properties..."}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <span>🚀 Analyze Properties</span>
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
               </div>
             ) : (
               // Comparison Results
@@ -1060,7 +1137,6 @@ const Compare = () => {
           </Form>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 };
