@@ -214,11 +214,36 @@ export default function AdminExpertPanel() {
         return;
       }
 
-      // Success
-      toast({
-        title: "Expert created successfully",
-        description: `Created expert account for ${data.name}`,
-      });
+      // Send invitation email via Resend
+      try {
+        await supabase.functions.invoke('send-email', {
+          body: {
+            to: data.email,
+            template: 'expert-invite',
+            templateData: {
+              name: data.name,
+              email: data.email,
+              password: data.password,
+              loginUrl: `${window.location.origin}/auth`
+            }
+          }
+        });
+
+        // Success
+        toast({
+          title: "Expert created successfully",
+          description: `Created expert account for ${data.name} and sent invitation email.`,
+        });
+      } catch (emailError) {
+        console.error('Failed to send invitation email:', emailError);
+        
+        // Success with email warning
+        toast({
+          title: "Expert created successfully",
+          description: `Created expert account for ${data.name}, but invitation email failed to send.`,
+          variant: "destructive",
+        });
+      }
 
       // Reset form
       form.reset();

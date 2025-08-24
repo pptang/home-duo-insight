@@ -12,6 +12,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Building, MapPin, Edit } from "lucide-react";
@@ -31,6 +35,14 @@ const ExpertProfilePage: React.FC = () => {
   const [activity, setActivity] = useState<ExpertActivity | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [editMode, setEditMode] = useState<boolean>(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [sendingEmail, setSendingEmail] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -106,6 +118,53 @@ const ExpertProfilePage: React.FC = () => {
       setExpertProfile(data);
     } catch (error) {
       console.error("Error refreshing profile:", error);
+    }
+  };
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!expertProfile || !contactForm.name || !contactForm.email || !contactForm.message) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please fill in all required fields.",
+      });
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      await supabase.functions.invoke('send-email', {
+        body: {
+          to: expertProfile.email,
+          template: 'contact-expert',
+          templateData: {
+            expertName: expertProfile.name,
+            expertEmail: expertProfile.email,
+            userName: contactForm.name,
+            userEmail: contactForm.email,
+            subject: contactForm.subject || 'Message from DuoHome Advisor',
+            message: contactForm.message
+          }
+        }
+      });
+
+      toast({
+        title: "Message sent successfully",
+        description: "Your message has been sent to the expert.",
+      });
+
+      setContactForm({ name: "", email: "", subject: "", message: "" });
+      setShowContactModal(false);
+    } catch (error) {
+      console.error('Failed to send contact email:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+      });
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -239,10 +298,11 @@ const ExpertProfilePage: React.FC = () => {
 
                   <div className="pt-2">
                     {!editMode && expertProfile?.email && (
-                      <Button className="w-full" asChild>
-                        <a href={`mailto:${expertProfile.email}`}>
-                          Contact Expert
-                        </a>
+                      <Button 
+                        className="w-full"
+                        onClick={() => setShowContactModal(true)}
+                      >
+                        Contact Expert
                       </Button>
                     )}
                   </div>
@@ -252,6 +312,73 @@ const ExpertProfilePage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Contact Expert Modal */}
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact {expertProfile?.name}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleContactSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="contact-name">Your Name *</Label>
+              <Input
+                id="contact-name"
+                value={contactForm.name}
+                onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact-email">Your Email *</Label>
+              <Input
+                id="contact-email"
+                type="email"
+                value={contactForm.email}
+                onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact-subject">Subject</Label>
+              <Input
+                id="contact-subject"
+                value={contactForm.subject}
+                onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                placeholder="Property consultation"
+              />
+            </div>
+            <div>
+              <Label htmlFor="contact-message">Message *</Label>
+              <Textarea
+                id="contact-message"
+                value={contactForm.message}
+                onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                placeholder="Please share details about the property you'd like to discuss..."
+                rows={4}
+                required
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowContactModal(false)}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={sendingEmail}
+                className="flex-1"
+              >
+                {sendingEmail ? "Sending..." : "Send Message"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
