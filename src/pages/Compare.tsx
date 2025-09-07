@@ -63,6 +63,11 @@ interface PropertyData {
   property_type: string;
   image_urls: string[];
   notes: string;
+  // New enhanced fields
+  private_area_sqm?: number;
+  construction_year?: number;
+  construction_month?: number;
+  building_age_years?: number;
 }
 
 interface ComparisonResult {
@@ -387,6 +392,23 @@ const Compare = () => {
     }).format(price);
   };
 
+  // Helper functions for formatting new fields
+  const formatArea = (area?: number): string => {
+    if (!area) return "N/A";
+    return `${area}㎡`;
+  };
+
+  const formatBuildingAge = (age?: number): string => {
+    if (!age) return "N/A";
+    return `${Math.floor(age)} years old`;
+  };
+
+  const formatConstructionDate = (year?: number, month?: number): string => {
+    if (!year) return "N/A";
+    if (!month) return `Built in ${year}`;
+    return `Built in ${year}年${month}月`;
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -592,7 +614,7 @@ const Compare = () => {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
-                          <span className="font-medium">
+                          <span className="font-medium text-right">
                             {comparisonResult.property_a.address}
                           </span>
                         </div>
@@ -603,10 +625,33 @@ const Compare = () => {
                           </span>
                         </div>
                         <div className="flex justify-between">
+                          <span className="text-gray-600">Private Area:</span>
+                          <span className="font-medium">
+                            {formatArea(comparisonResult.property_a.private_area_sqm)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_a.commute_minutes}{" "}
-                            minutes
+                            {comparisonResult.property_a.commute_minutes ? 
+                              `${comparisonResult.property_a.commute_minutes} minutes` : 
+                              "N/A"
+                            }
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Building Age:</span>
+                          <span className="font-medium">
+                            {formatBuildingAge(comparisonResult.property_a.building_age_years)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Construction:</span>
+                          <span className="font-medium">
+                            {formatConstructionDate(
+                              comparisonResult.property_a.construction_year,
+                              comparisonResult.property_a.construction_month
+                            )}
                           </span>
                         </div>
                         <div className="flex justify-between">
@@ -646,7 +691,7 @@ const Compare = () => {
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
-                          <span className="font-medium">
+                          <span className="font-medium text-right">
                             {comparisonResult.property_b.address}
                           </span>
                         </div>
@@ -657,10 +702,33 @@ const Compare = () => {
                           </span>
                         </div>
                         <div className="flex justify-between">
+                          <span className="text-gray-600">Private Area:</span>
+                          <span className="font-medium">
+                            {formatArea(comparisonResult.property_b.private_area_sqm)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_b.commute_minutes}{" "}
-                            minutes
+                            {comparisonResult.property_b.commute_minutes ? 
+                              `${comparisonResult.property_b.commute_minutes} minutes` : 
+                              "N/A"
+                            }
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Building Age:</span>
+                          <span className="font-medium">
+                            {formatBuildingAge(comparisonResult.property_b.building_age_years)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Construction:</span>
+                          <span className="font-medium">
+                            {formatConstructionDate(
+                              comparisonResult.property_b.construction_year,
+                              comparisonResult.property_b.construction_month
+                            )}
                           </span>
                         </div>
                         <div className="flex justify-between">
