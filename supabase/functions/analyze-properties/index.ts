@@ -175,31 +175,31 @@ serve(async (req) => {
     // Debug: Log sample content to see what we're working with
     console.log("Sample HTML A content:", html_property_a.substring(0, 1000));
     console.log("Sample HTML B content:", html_property_b.substring(0, 1000));
-    
+
     // Check if HTML contains Japanese property-related keywords
     const keyTerms = ['専有面積', '居住面積', '面積', '徒歩', '築年月', '建築年', '竣工年', '賃料', '家賃', '価格', '㎡', '平米'];
     const foundTermsA = keyTerms.filter(term => html_property_a.includes(term));
     const foundTermsB = keyTerms.filter(term => html_property_b.includes(term));
-    
+
     console.log("Property A contains key terms:", foundTermsA);
     console.log("Property B contains key terms:", foundTermsB);
 
     // Simplified and fast image extraction to prevent CPU timeout
     console.log("Starting optimized image extraction");
-    
+
     const fastExtractImages = (html: string): string[] => {
       const images: string[] = [];
-      
+
       // Fast regex for basic image extraction - limit complexity
       const imgPattern = /<img[^>]+src=["']([^"']+)["']/gi;
       const matches = html.match(imgPattern) || [];
-      
+
       // Process only first 10 matches to avoid timeout
       for (let i = 0; i < Math.min(matches.length, 10); i++) {
         const srcMatch = matches[i].match(/src=["']([^"']+)["']/);
         if (srcMatch && srcMatch[1]) {
           let url = srcMatch[1];
-          
+
           // Quick URL validation
           if (url.startsWith('//')) url = 'https:' + url;
           if (url.startsWith('http') && /\.(jpg|jpeg|png|webp)/i.test(url)) {
@@ -210,20 +210,20 @@ serve(async (req) => {
           }
         }
       }
-      
+
       return images.slice(0, 5); // Limit to 5 images max
     };
-    
+
     const fallbackImagesA = fastExtractImages(html_property_a);
     const fallbackImagesB = fastExtractImages(html_property_b);
-    
+
     console.log("Fallback image extraction results:", {
       property_a_images_found: fallbackImagesA.length,
       property_b_images_found: fallbackImagesB.length,
       sample_a: fallbackImagesA.slice(0, 3),
       sample_b: fallbackImagesB.slice(0, 3)
     });
-    
+
     // Simplified logging to avoid timeout
     if (fallbackImagesA.length > 0) {
       console.log("Property A Fallback - found", fallbackImagesA.length, "images");
@@ -246,7 +246,7 @@ serve(async (req) => {
 
     // Send full HTML content directly to Gemini without preprocessing
     console.log(`Sending full HTML content to Gemini - Property A: ${html_property_a.length} chars, Property B: ${html_property_b.length} chars`);
-    
+
     const fullHtmlA = html_property_a;
     const fullHtmlB = html_property_b;
 
@@ -264,7 +264,7 @@ CRITICAL EXTRACTION GUIDELINES:
 
 JAPANESE TERMINOLOGY TO LOOK FOR:
 - 専有面積 / 居住面積 / 面積 = Private Area
-- 徒歩○分 / ○分歩 / 駅まで○分 = Walking time to station  
+- 徒歩○分 / ○分歩 / 駅まで○分 = Walking time to station
 - 築○年○月 / 建築年○年 / 竣工○年 = Construction date
 - 賃料 / 家賃 / 月額 = Rent
 - 価格 / 売買価格 / 販売価格 = Sale price
@@ -335,7 +335,7 @@ Return only this JSON format (no explanations):
     let geminiResponse;
     try {
       geminiResponse = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
         {
           method: "POST",
           headers: {
@@ -431,7 +431,7 @@ Return only this JSON format (no explanations):
         extractedData = JSON.parse(jsonString);
         console.log("Successfully parsed property data");
         console.log("Extracted data structure:", JSON.stringify(extractedData, null, 2));
-        
+
         // Log specific field extraction for debugging
         if (extractedData.property_a) {
           console.log("Property A extracted fields:", {
@@ -484,7 +484,7 @@ Return only this JSON format (no explanations):
           const currentYear = 2025;
           const currentMonth = 9; // September
           const constructionMonth = propertyData.construction_month || 1;
-          
+
           building_age_years = currentYear - propertyData.construction_year;
           if (currentMonth < constructionMonth) {
             building_age_years -= 1;
@@ -505,30 +505,30 @@ Return only this JSON format (no explanations):
         const prioritizeImages = (images: string[]): Array<{url: string, priority: number}> => {
           return images.filter(validateImageUrl).map(url => {
             let priority = 50; // Base priority
-            
+
             // High priority for main/hero/primary images
             if (url.match(/(?:main|hero|primary|first|top|default)/i)) priority += 40;
-            
+
             // High priority for Japanese property keywords
             if (url.match(/(?:gazo|shashin|bukken|madori|heimen)/i)) priority += 35;
-            
+
             // High priority for room/interior keywords
             if (url.match(/(?:room|interior|living|bedroom|kitchen|bath|exterior|view)/i)) priority += 30;
             if (url.match(/(?:居間|寝室|キッチン|バスルーム|玄関|外観|内観)/i)) priority += 30;
-            
+
             // Medium-high priority for large dimensions and first images
             if (url.match(/(?:1200|1000|800|large|big|xl)/i)) priority += 25;
             if (url.match(/(?:01|001|_1\.|\/1\.)/i)) priority += 20;
-            
+
             // Medium priority for property-specific paths
             if (url.match(/\/(?:gazo|bukken|img|images|photo|gallery)\//i)) priority += 15;
-            
+
             // Lower priority for numbered images beyond the first few
             if (url.match(/(?:02|03|04|002|003|004|_2\.|_3\.|_4\.)/i)) priority += 5;
-            
+
             // Penalty for likely UI/navigation images
             if (url.match(/(?:thumb|nav|menu|btn|icon|arrow|logo)/i)) priority -= 30;
-            
+
             return {url, priority};
           });
         };
@@ -537,13 +537,13 @@ Return only this JSON format (no explanations):
         const geminiImages = propertyData.image_urls || [];
         const geminiPrioritized = prioritizeImages(geminiImages);
         const fallbackPrioritized = prioritizeImages(fallbackImages);
-        
+
         // Combine and sort by priority (Gemini images get slight bonus for being AI-selected)
         const allPrioritizedImages = [
           ...geminiPrioritized.map(img => ({...img, priority: img.priority + 10})), // Gemini bonus
           ...fallbackPrioritized
         ];
-        
+
         // Remove duplicates, keeping highest priority version
         const uniqueImages = new Map<string, number>();
         allPrioritizedImages.forEach(({url, priority}) => {
@@ -551,13 +551,13 @@ Return only this JSON format (no explanations):
             uniqueImages.set(url, priority);
           }
         });
-        
+
         // Sort by priority and take top images
         const finalImages = Array.from(uniqueImages.entries())
           .sort(([,a], [,b]) => b - a)
           .map(([url]) => url)
           .slice(0, 10);
-        
+
         console.log("Final image prioritization results:", {
           gemini_images: geminiImages.length,
           fallback_images: fallbackImages.length,
@@ -590,7 +590,7 @@ Return only this JSON format (no explanations):
         property_a_images: propertyA.image_urls?.length || 0,
         property_b_images: propertyB.image_urls?.length || 0
       });
-      
+
       console.log("Property A data with images:", JSON.stringify(propertyA, null, 2));
       console.log("Property B data with images:", JSON.stringify(propertyB, null, 2));
 
