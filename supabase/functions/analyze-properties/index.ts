@@ -184,109 +184,38 @@ serve(async (req) => {
     console.log("Property A contains key terms:", foundTermsA);
     console.log("Property B contains key terms:", foundTermsB);
 
-    // Enhanced image extraction with fallback mechanisms
-    console.log("Starting enhanced image extraction with fallback mechanisms");
+    // Simplified and fast image extraction to prevent CPU timeout
+    console.log("Starting optimized image extraction");
     
-    // Enhanced HTML image extraction with prioritization for main property images
-    const extractImagesFromHtml = (html: string): string[] => {
-      const allImages: Array<{url: string, priority: number}> = [];
+    const fastExtractImages = (html: string): string[] => {
+      const images: string[] = [];
       
-      // Enhanced regex patterns with priority scoring
-      const patterns = [
-        // High priority - main property image containers and galleries
-        { pattern: /<img[^>]+class="[^"]*(?:main|hero|primary|photo|gallery|property)[^"]*"[^>]+src=["']([^"']+)["']/gi, priority: 100 },
-        { pattern: /<img[^>]+src=["']([^"']+)["'][^>]*class="[^"]*(?:main|hero|primary|photo|gallery|property)[^"]*"/gi, priority: 100 },
-        
-        // High priority - data-src for lazy loading main images
-        { pattern: /<img[^>]+class="[^"]*(?:main|hero|primary|photo|gallery|property)[^"]*"[^>]+data-src=["']([^"']+)["']/gi, priority: 95 },
-        { pattern: /<img[^>]+data-src=["']([^"']+)["'][^>]*class="[^"]*(?:main|hero|primary|photo|gallery|property)[^"]*"/gi, priority: 95 },
-        
-        // Medium-high priority - Japanese property site specific patterns
-        { pattern: /\/gazo\/[^"'\s)]*(?:main|big|large|l|01|001)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 90 },
-        { pattern: /\/bukken\/[^"'\s)]*(?:main|big|large|l|01|001)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 90 },
-        { pattern: /\/img\/[^"'\s)]*(?:main|big|large|l|01|001)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 90 },
-        { pattern: /\/images\/[^"'\s)]*(?:main|big|large|l|01|001)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 90 },
-        
-        // Medium priority - larger image dimensions in filename
-        { pattern: /[^"'\s)]*(?:1200|1000|800|large|big)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 80 },
-        
-        // Medium priority - numbered images (first few are usually main images)
-        { pattern: /[^"'\s)]*(?:01|02|03|001|002|003|_1|_2|_3)[^"'\s)]*\.(jpg|jpeg|png|webp)/gi, priority: 75 },
-        
-        // Medium priority - general property site paths
-        { pattern: /\/gazo\/[^"'\s)]+\.(jpg|jpeg|png|webp)/gi, priority: 70 },
-        { pattern: /\/bukken\/[^"'\s)]+\.(jpg|jpeg|png|webp)/gi, priority: 70 },
-        { pattern: /\/img\/[^"'\s)]+\.(jpg|jpeg|png|webp)/gi, priority: 70 },
-        { pattern: /\/images\/[^"'\s)]+\.(jpg|jpeg|png|webp)/gi, priority: 70 },
-        
-        // Standard patterns with lower priority
-        { pattern: /<img[^>]+src=["']([^"']+)["']/gi, priority: 50 },
-        { pattern: /<img[^>]+data-src=["']([^"']+)["']/gi, priority: 45 },
-        { pattern: /background-image:\s*url\(["']?([^"')]+)["']?\)/gi, priority: 40 }
-      ];
+      // Fast regex for basic image extraction - limit complexity
+      const imgPattern = /<img[^>]+src=["']([^"']+)["']/gi;
+      const matches = html.match(imgPattern) || [];
       
-      // Optimized image extraction with early termination and limits
-      let processedImages = 0;
-      const maxImages = 50; // Limit processing to avoid timeout
-      
-      for (const {pattern, priority} of patterns) {
-        if (processedImages >= maxImages) break;
-        
-        const matches = html.match(pattern);
-        if (!matches) continue;
-        
-        // Limit matches per pattern to avoid timeout
-        const limitedMatches = matches.slice(0, 20);
-        
-        for (const match of limitedMatches) {
-          if (processedImages >= maxImages) break;
+      // Process only first 10 matches to avoid timeout
+      for (let i = 0; i < Math.min(matches.length, 10); i++) {
+        const srcMatch = matches[i].match(/src=["']([^"']+)["']/);
+        if (srcMatch && srcMatch[1]) {
+          let url = srcMatch[1];
           
-          // Extract URL from match
-          let url = match.includes('src=') ? match.match(/src=["']([^"']+)["']/)?.[1] :
-                   match.includes('data-src=') ? match.match(/data-src=["']([^"']+)["']/)?.[1] :
-                   match.includes('url(') ? match.match(/url\(["']?([^"')]+)["']?\)/)?.[1] :
-                   match;
-          
-          if (!url || url.includes('data:image') || url.includes('base64')) continue;
-          
-          // Convert relative URLs to absolute if needed
-          if (url.startsWith('//')) {
-            url = 'https:' + url;
-          } else if (url.startsWith('/')) {
-            continue; // Skip relative URLs for now
+          // Quick URL validation
+          if (url.startsWith('//')) url = 'https:' + url;
+          if (url.startsWith('http') && /\.(jpg|jpeg|png|webp)/i.test(url)) {
+            // Quick filter out obvious non-property images
+            if (!/(icon|logo|btn|nav|menu)/i.test(url)) {
+              images.push(url);
+            }
           }
-          
-          // Quick filtering with simplified patterns
-          if (!/\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(url)) continue;
-          if (/(icon|logo|btn|button|arrow|star|check|thumb|nav|menu|16x16|24x24|32x32)/i.test(url)) continue;
-          
-          // Calculate final priority
-          let finalPriority = priority;
-          if (/(main|primary|hero|gallery|photo|room|interior|exterior|view)/i.test(url)) finalPriority += 20;
-          if (/(1200|1000|800|large|big|xl)/i.test(url)) finalPriority += 15;
-          if (/(01|001|_1\.)/i.test(url)) finalPriority += 10;
-          
-          allImages.push({url, priority: finalPriority});
-          processedImages++;
         }
       }
       
-      // Remove duplicates, sort by priority (highest first), and limit to 10 images
-      const uniqueImages = new Map<string, number>();
-      allImages.forEach(({url, priority}) => {
-        if (!uniqueImages.has(url) || uniqueImages.get(url)! < priority) {
-          uniqueImages.set(url, priority);
-        }
-      });
-      
-      return Array.from(uniqueImages.entries())
-        .sort(([,a], [,b]) => b - a)
-        .map(([url]) => url)
-        .slice(0, 10);
+      return images.slice(0, 5); // Limit to 5 images max
     };
     
-    const fallbackImagesA = extractImagesFromHtml(html_property_a);
-    const fallbackImagesB = extractImagesFromHtml(html_property_b);
+    const fallbackImagesA = fastExtractImages(html_property_a);
+    const fallbackImagesB = fastExtractImages(html_property_b);
     
     console.log("Fallback image extraction results:", {
       property_a_images_found: fallbackImagesA.length,
@@ -315,20 +244,11 @@ serve(async (req) => {
       );
     }
 
-    // Prepare prompt for Gemini - use HTML content
-    // Reduced HTML length to avoid CPU timeout
-    const maxHtmlLength = 15000; // Reduced to prevent timeout
+    // Send full HTML content directly to Gemini without preprocessing
+    console.log(`Sending full HTML content to Gemini - Property A: ${html_property_a.length} chars, Property B: ${html_property_b.length} chars`);
     
-    const smartTruncate = (html: string, maxLength: number) => {
-      if (html.length <= maxLength) return html;
-      
-      // Simplified truncation to avoid CPU timeout
-      // Take the first portion which usually contains the main content
-      return html.substring(0, maxLength) + "... [HTML truncated]";
-    };
-    
-    const truncatedHtmlA = smartTruncate(html_property_a, maxHtmlLength);
-    const truncatedHtmlB = smartTruncate(html_property_b, maxHtmlLength);
+    const fullHtmlA = html_property_a;
+    const fullHtmlB = html_property_b;
 
     const prompt = `You are DuoHome Advisor AI. Extract structured property data from these Japanese real estate listing pages.
 
@@ -371,10 +291,10 @@ CRITICAL FOR MAIN PROPERTY IMAGE EXTRACTION:
 - If no main images found, return empty array []
 
 FOR PROPERTY A:
-${truncatedHtmlA}
+${fullHtmlA}
 
 FOR PROPERTY B:
-${truncatedHtmlB}
+${fullHtmlB}
 
 IMPORTANT: Search thoroughly through ALL text content. If you cannot find specific values, set them to null (not 0). Only use 0 for actual zero values.
 
@@ -432,7 +352,7 @@ Return only this JSON format (no explanations):
               temperature: 0.2,
               topK: 40,
               topP: 0.95,
-              maxOutputTokens: 2048,
+              maxOutputTokens: 4096, // Increased from 2048 to allow full response
             },
           }),
         }

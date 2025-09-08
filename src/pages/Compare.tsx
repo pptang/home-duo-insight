@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
+import { MetadataEditingProvider, useMetadataEditing } from "@/contexts/MetadataEditingContext";
+import { MetadataReviewStage } from "@/components/MetadataReviewStage";
 import {
   Form,
   FormControl,
@@ -55,14 +57,15 @@ import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
 
 interface PropertyData {
-  property_name: string;
-  address: string;
-  price_yen: number;
-  floor_plan: string;
-  commute_minutes: number;
-  property_type: string;
+  id: string;
+  property_name?: string;
+  address?: string;
+  price_yen?: number;
+  floor_plan?: string;
+  commute_minutes?: number;
+  property_type?: string;
   image_urls: string[];
-  notes: string;
+  notes?: string;
   // New enhanced fields
   private_area_sqm?: number;
   construction_year?: number;
@@ -128,18 +131,18 @@ type PersonalizationValues = z.infer<typeof personalizationSchema>;
 const extractUrlFromText = (text: string): string => {
   // Remove any leading/trailing whitespace
   const trimmed = text.trim();
-  
+
   // URL regex pattern to match http/https URLs
   const urlRegex = /(https?:\/\/[^\s]+)/gi;
-  
+
   // Find all URLs in the text
   const matches = trimmed.match(urlRegex);
-  
+
   // If URLs are found, return the first one
   if (matches && matches.length > 0) {
     return matches[0];
   }
-  
+
   // If no URLs found, return the original text (user might have pasted a URL without protocol)
   return trimmed;
 };
@@ -155,6 +158,7 @@ const Compare = () => {
     useState<AIRecommendation | null>(null);
   const [showPersonalizationDialog, setShowPersonalizationDialog] =
     useState(false);
+  const [currentStage, setCurrentStage] = useState<'url-input' | 'metadata-review' | 'full-comparison'>('url-input');
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -212,7 +216,7 @@ const Compare = () => {
               property_b: refreshedData.property_b as PropertyData,
               image_extraction_status: refreshedData.image_extraction_status as 'pending' | 'in_progress' | 'completed' | 'failed'
             });
-            
+
             toast({
               title: "Images loaded!",
               description: "Property images have been successfully extracted.",
@@ -294,11 +298,12 @@ const Compare = () => {
         return;
       }
 
-      // Success - set comparison result
+      // Success - set comparison result and move to metadata review stage
       setComparisonResult(data);
+      setCurrentStage('metadata-review');
       toast({
         title: "Success",
-        description: "Properties analyzed successfully!",
+        description: "Properties analyzed successfully! Please review the details.",
       });
     } catch (err) {
       console.error("Unexpected error:", err);
@@ -317,6 +322,7 @@ const Compare = () => {
     form.reset();
     setComparisonResult(null);
     setAiRecommendation(null);
+    setCurrentStage('url-input');
   };
 
   const handleGetRecommendation = async (values: PersonalizationValues) => {
@@ -326,20 +332,14 @@ const Compare = () => {
     setShowPersonalizationDialog(false);
 
     try {
-      // Update the comparison with all the preference data
-      const { error: updateError } = await supabase
-        .from("comparisons")
-        .update({ 
-          why_move: values.why_move,
-          top_priority_1: values.top_priority_1,
-          top_priority_2: values.top_priority_2,
-          top_priority_3: values.top_priority_3
-        })
-        .eq("id", comparisonResult.comparison_id);
-
-      if (updateError) {
-        console.error("Error updating comparison with preferences:", updateError);
-      }
+      // Store preferences for recommendation generation
+      // Note: These fields may need to be added to the comparisons table schema
+      const preferences = {
+        why_move: values.why_move,
+        top_priority_1: values.top_priority_1,
+        top_priority_2: values.top_priority_2,
+        top_priority_3: values.top_priority_3
+      };
 
       const { data, error } = await supabase.functions.invoke(
         "generate-recommendation",
@@ -383,6 +383,118 @@ const Compare = () => {
     }
   };
 
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header />
+
+      {/* Immersive Hero with Step Indicator */}
+      <div className="hero-landscape relative py-16 md:py-24 overflow-hidden">
+        <div className="parallax-layer absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-90"></div>
+        <div className="parallax-layer absolute inset-0" style={{backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')", opacity: 0.3}}></div>
+
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="cinematic-heading text-white mb-6">
+            <span className="text-5xl md:text-7xl font-black">🏠</span>
+            <h1 className="text-4xl md:text-6xl font-bold leading-tight mt-4">
+              Compare Properties
+            </h1>
+          </div>
+
+          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
+            Get AI insights, expert opinions, and make confident decisions with
+            <span className="font-semibold text-accent"> AiSumai (愛住)</span>
+          </p>
+
+          {/* Dynamic Step Progress */}
+          <div className="mt-12 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center space-x-4 md:space-x-8">
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${currentStage === 'url-input' ? 'scale-110 text-accent' : 'text-white/70'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'url-input' ? 'bg-accent text-primary animate-pulse' : 'bg-white/20'}`}>
+                  1
+                </div>
+                <span className="hidden md:block font-medium">Parse URLs</span>
+              </div>
+
+              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
+                <div className={`h-full bg-accent transition-all duration-700 ${currentStage !== 'url-input' ? 'w-full' : 'w-0'}`}></div>
+              </div>
+
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${currentStage === 'metadata-review' ? 'scale-110 text-accent' : currentStage === 'full-comparison' ? 'text-white' : 'text-white/50'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'metadata-review' ? 'bg-accent text-primary animate-pulse' : currentStage === 'full-comparison' ? 'bg-white/20' : 'bg-white/10'}`}>
+                  2
+                </div>
+                <span className="hidden md:block font-medium">Review Details</span>
+              </div>
+
+              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
+                <div className={`h-full bg-accent transition-all duration-700 ${currentStage === 'full-comparison' ? 'w-full' : 'w-0'}`}></div>
+              </div>
+
+              <div className={`flex items-center space-x-2 transition-all duration-500 ${currentStage === 'full-comparison' ? 'scale-110 text-accent' : 'text-white/50'}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'full-comparison' ? 'bg-accent text-primary animate-pulse' : 'bg-white/10'}`}>
+                  3
+                </div>
+                <span className="hidden md:block font-medium">Get Insights</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="flex-grow bg-background relative z-10 -mt-16">
+        <MetadataEditingProvider>
+          <CompareContent
+            currentStage={currentStage}
+            setCurrentStage={setCurrentStage}
+            comparisonResult={comparisonResult}
+            aiRecommendation={aiRecommendation}
+            isLoading={isLoading}
+            loadingStage={loadingStage}
+            form={form}
+            handleAnalyzeProperties={handleAnalyzeProperties}
+            resetForm={resetForm}
+            showPersonalizationDialog={showPersonalizationDialog}
+            setShowPersonalizationDialog={setShowPersonalizationDialog}
+            personalizationForm={personalizationForm}
+            handleGetRecommendation={handleGetRecommendation}
+            isGeneratingRecommendation={isGeneratingRecommendation}
+            handleRetryImageExtraction={handleRetryImageExtraction}
+          />
+        </MetadataEditingProvider>
+      </main>
+    </div>
+  );
+};
+
+const CompareContent: React.FC<any> = ({
+  currentStage,
+  setCurrentStage,
+  comparisonResult,
+  aiRecommendation,
+  isLoading,
+  loadingStage,
+  form,
+  handleAnalyzeProperties,
+  resetForm,
+  showPersonalizationDialog,
+  setShowPersonalizationDialog,
+  personalizationForm,
+  handleGetRecommendation,
+  isGeneratingRecommendation,
+  handleRetryImageExtraction
+}) => {
+  const { initializeProperties, setStage, state } = useMetadataEditing();
+
+  // Get the most up-to-date property data (edited if available, original if not)
+  const getPropertyData = (propertyKey: 'property_a' | 'property_b') => {
+    // If we have edited properties in context, use those
+    if (state.editedProperties[propertyKey]?.id) {
+      return state.editedProperties[propertyKey];
+    }
+    // Otherwise, use the comparison result data
+    return propertyKey === 'property_a' ? comparisonResult.property_a : comparisonResult.property_b;
+  };
+
   // Function to format price in Japanese Yen
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat("ja-JP", {
@@ -409,69 +521,36 @@ const Compare = () => {
     return `Built in ${year}年${month}月`;
   };
 
+  // Initialize metadata editing when we get comparison results
+  React.useEffect(() => {
+    if (comparisonResult && currentStage === 'metadata-review') {
+      initializeProperties(
+        comparisonResult.property_a,
+        comparisonResult.property_b,
+        comparisonResult.comparison_id
+      );
+      setStage('metadata-review');
+    }
+    if (currentStage === 'full-comparison') {
+      setStage('full-comparison');
+    }
+  }, [comparisonResult, currentStage, initializeProperties, setStage]);
+
+  // Listen for metadata editing completion
+  React.useEffect(() => {
+    const handleMetadataComplete = () => {
+      setCurrentStage('full-comparison');
+    };
+
+    window.addEventListener('metadataEditingComplete', handleMetadataComplete);
+    return () => window.removeEventListener('metadataEditingComplete', handleMetadataComplete);
+  }, [setCurrentStage]);
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Header />
-      
-      {/* Immersive Hero with Step Indicator */}
-      <div className="hero-landscape relative py-16 md:py-24 overflow-hidden">
-        <div className="parallax-layer absolute inset-0 bg-gradient-to-br from-primary via-secondary to-accent opacity-90"></div>
-        <div className="parallax-layer absolute inset-0" style={{backgroundImage: "url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.1\"%3E%3Ccircle cx=\"30\" cy=\"30\" r=\"4\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')", opacity: 0.3}}></div>
-        
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="cinematic-heading text-white mb-6">
-            <span className="text-5xl md:text-7xl font-black">🏠</span>
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight mt-4">
-              Compare Properties
-            </h1>
-          </div>
-          
-          <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-            Get AI insights, expert opinions, and make confident decisions with 
-            <span className="font-semibold text-accent"> AiSumai (愛住)</span>
-          </p>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
 
-          {/* Dynamic Step Progress */}
-          <div className="mt-12 max-w-2xl mx-auto">
-            <div className="flex items-center justify-center space-x-4 md:space-x-8">
-              <div className={`flex items-center space-x-2 transition-all duration-500 ${!comparisonResult ? 'scale-110 text-accent' : 'text-white/70'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${!comparisonResult ? 'bg-accent text-primary animate-pulse' : 'bg-white/20'}`}>
-                  1
-                </div>
-                <span className="hidden md:block font-medium">Parse URLs</span>
-              </div>
-              
-              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
-                <div className={`h-full bg-accent transition-all duration-700 ${comparisonResult ? 'w-full' : 'w-0'}`}></div>
-              </div>
-              
-              <div className={`flex items-center space-x-2 transition-all duration-500 ${comparisonResult && !aiRecommendation ? 'scale-110 text-accent' : comparisonResult ? 'text-white' : 'text-white/50'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${comparisonResult && !aiRecommendation ? 'bg-accent text-primary animate-pulse' : comparisonResult ? 'bg-white/20' : 'bg-white/10'}`}>
-                  2
-                </div>
-                <span className="hidden md:block font-medium">Compare</span>
-              </div>
-              
-              <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
-                <div className={`h-full bg-accent transition-all duration-700 ${aiRecommendation ? 'w-full' : 'w-0'}`}></div>
-              </div>
-              
-              <div className={`flex items-center space-x-2 transition-all duration-500 ${aiRecommendation ? 'scale-110 text-accent' : 'text-white/50'}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${aiRecommendation ? 'bg-accent text-primary animate-pulse' : 'bg-white/10'}`}>
-                  3
-                </div>
-                <span className="hidden md:block font-medium">Verdict</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <main className="flex-grow bg-background relative z-10 -mt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-
-            {!comparisonResult ? (
+        {currentStage === 'url-input' && (
               <div className="section-fade animate-in bg-card rounded-2xl shadow-xl p-8 md:p-10 border border-border">
                 <div className="text-center mb-8">
                   <div className="text-6xl mb-4 micro-animation">🏡</div>
@@ -482,7 +561,7 @@ const Compare = () => {
                     Paste property URLs and let AI guide your decision
                   </p>
                 </div>
-                
+
                 <Form {...form}>
                   <form
                     onSubmit={form.handleSubmit(handleAnalyzeProperties)}
@@ -564,7 +643,7 @@ const Compare = () => {
                         )}
                       />
                     </div>
-                    
+
                     <div className="text-center pt-4">
                       <Button
                         size="lg"
@@ -589,16 +668,21 @@ const Compare = () => {
                   </form>
                 </Form>
               </div>
-            ) : (
-              // Comparison Results
-              <div className="mt-8 animate-fade-in">
+        )}
+
+        {currentStage === 'metadata-review' && (
+          <MetadataReviewStage />
+        )}
+
+        {currentStage === 'full-comparison' && (
+          <div className="mt-8 animate-fade-in">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-200">
                     {/* Property A */}
                     <div className="p-6">
                       <PropertyImageDisplay
-                        imageUrls={comparisonResult.property_a.image_urls}
-                        propertyName={comparisonResult.property_a.property_name}
+                        imageUrls={getPropertyData('property_a').image_urls}
+                        propertyName={getPropertyData('property_a').property_name}
                         imageExtractionStatus={comparisonResult.image_extraction_status}
                         className="mb-4"
                         aspectRatio="video"
@@ -606,35 +690,35 @@ const Compare = () => {
                         onRetryImageExtraction={handleRetryImageExtraction}
                       />
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {comparisonResult.property_a.property_name}
+                        {getPropertyData('property_a').property_name}
                       </h3>
                       <p className="text-[#6A7FDB] font-medium">
-                        {formatPrice(comparisonResult.property_a.price_yen)}
+                        {formatPrice(getPropertyData('property_a').price_yen)}
                       </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
                           <span className="font-medium text-right">
-                            {comparisonResult.property_a.address}
+                            {getPropertyData('property_a').address}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Floor Plan:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_a.floor_plan}
+                            {getPropertyData('property_a').floor_plan}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Private Area:</span>
                           <span className="font-medium">
-                            {formatArea(comparisonResult.property_a.private_area_sqm)}
+                            {formatArea(getPropertyData('property_a').private_area_sqm)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_a.commute_minutes ? 
-                              `${comparisonResult.property_a.commute_minutes} minutes` : 
+                            {getPropertyData('property_a').commute_minutes ?
+                              `${getPropertyData('property_a').commute_minutes} minutes` :
                               "N/A"
                             }
                           </span>
@@ -642,22 +726,22 @@ const Compare = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-600">Building Age:</span>
                           <span className="font-medium">
-                            {formatBuildingAge(comparisonResult.property_a.building_age_years)}
+                            {formatBuildingAge(getPropertyData('property_a').building_age_years)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Construction:</span>
                           <span className="font-medium">
                             {formatConstructionDate(
-                              comparisonResult.property_a.construction_year,
-                              comparisonResult.property_a.construction_month
+                              getPropertyData('property_a').construction_year,
+                              getPropertyData('property_a').construction_month
                             )}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Property Type:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_a.property_type}
+                            {getPropertyData('property_a').property_type}
                           </span>
                         </div>
                         {comparisonResult.property_a.notes && (
@@ -674,8 +758,8 @@ const Compare = () => {
                     {/* Property B */}
                     <div className="p-6">
                       <PropertyImageDisplay
-                        imageUrls={comparisonResult.property_b.image_urls}
-                        propertyName={comparisonResult.property_b.property_name}
+                        imageUrls={getPropertyData('property_b').image_urls}
+                        propertyName={getPropertyData('property_b').property_name}
                         imageExtractionStatus={comparisonResult.image_extraction_status}
                         className="mb-4"
                         aspectRatio="video"
@@ -683,35 +767,35 @@ const Compare = () => {
                         onRetryImageExtraction={handleRetryImageExtraction}
                       />
                       <h3 className="text-xl font-semibold text-gray-900">
-                        {comparisonResult.property_b.property_name}
+                        {getPropertyData('property_b').property_name}
                       </h3>
                       <p className="text-[#6A7FDB] font-medium">
-                        {formatPrice(comparisonResult.property_b.price_yen)}
+                        {formatPrice(getPropertyData('property_b').price_yen)}
                       </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Address:</span>
                           <span className="font-medium text-right">
-                            {comparisonResult.property_b.address}
+                            {getPropertyData('property_b').address}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Floor Plan:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_b.floor_plan}
+                            {getPropertyData('property_b').floor_plan}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Private Area:</span>
                           <span className="font-medium">
-                            {formatArea(comparisonResult.property_b.private_area_sqm)}
+                            {formatArea(getPropertyData('property_b').private_area_sqm)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Commute Time:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_b.commute_minutes ? 
-                              `${comparisonResult.property_b.commute_minutes} minutes` : 
+                            {getPropertyData('property_b').commute_minutes ?
+                              `${getPropertyData('property_b').commute_minutes} minutes` :
                               "N/A"
                             }
                           </span>
@@ -719,22 +803,22 @@ const Compare = () => {
                         <div className="flex justify-between">
                           <span className="text-gray-600">Building Age:</span>
                           <span className="font-medium">
-                            {formatBuildingAge(comparisonResult.property_b.building_age_years)}
+                            {formatBuildingAge(getPropertyData('property_b').building_age_years)}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Construction:</span>
                           <span className="font-medium">
                             {formatConstructionDate(
-                              comparisonResult.property_b.construction_year,
-                              comparisonResult.property_b.construction_month
+                              getPropertyData('property_b').construction_year,
+                              getPropertyData('property_b').construction_month
                             )}
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Property Type:</span>
                           <span className="font-medium">
-                            {comparisonResult.property_b.property_type}
+                            {getPropertyData('property_b').property_type}
                           </span>
                         </div>
                         {comparisonResult.property_b.notes && (
@@ -811,7 +895,7 @@ const Compare = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle>
-                            {comparisonResult.property_a.property_name}
+                            {getPropertyData('property_a').property_name}
                           </CardTitle>
                           <CardDescription>Pros and Cons</CardDescription>
                         </CardHeader>
@@ -857,7 +941,7 @@ const Compare = () => {
                       <Card>
                         <CardHeader className="pb-2">
                           <CardTitle>
-                            {comparisonResult.property_b.property_name}
+                            {getPropertyData('property_b').property_name}
                           </CardTitle>
                           <CardDescription>Pros and Cons</CardDescription>
                         </CardHeader>
@@ -922,11 +1006,11 @@ const Compare = () => {
                     <ExpertSection
                       comparisonId={comparisonResult.comparison_id}
                       propertyAName={
-                        comparisonResult.property_a.property_name ||
+                        getPropertyData('property_a').property_name ||
                         "Property A"
                       }
                       propertyBName={
-                        comparisonResult.property_b.property_name ||
+                        getPropertyData('property_b').property_name ||
                         "Property B"
                       }
                     />
@@ -942,269 +1026,117 @@ const Compare = () => {
                     Compare Different Properties
                   </Button>
                 </div>
-              </div>
-            )}
           </div>
-        </div>
-      </main>
+        )}
 
-      {/* Personalization Dialog */}
-      <Dialog
-        open={showPersonalizationDialog}
-        onOpenChange={setShowPersonalizationDialog}
-      >
-        <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Tell us about your preferences</DialogTitle>
-            <DialogDescription>
-              Help us personalize your property recommendation by answering a
-              few questions.
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...personalizationForm}>
-            <form
-              onSubmit={personalizationForm.handleSubmit(
-                handleGetRecommendation
-              )}
-              className="space-y-6 py-4"
-            >
-              <div className="grid grid-cols-1 gap-4">
-                <FormField
-                  control={personalizationForm.control}
-                  name="has_pets"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Do you have pets?</FormLabel>
-                      </div>
-                      <FormControl>
-                        <div className="flex items-center">
-                          <button
-                            type="button"
-                            className={`px-3 py-1 rounded-l-md ${
-                              field.value
-                                ? "bg-[#6A7FDB] text-white"
-                                : "bg-gray-100"
-                            }`}
-                            onClick={() => field.onChange(true)}
-                          >
-                            Yes
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1 rounded-r-md ${
-                              !field.value
-                                ? "bg-[#6A7FDB] text-white"
-                                : "bg-gray-100"
-                            }`}
-                            onClick={() => field.onChange(false)}
-                          >
-                            No
-                          </button>
-                        </div>
-                      </FormControl>
-                    </FormItem>
+        {/* Personalization Dialog - shown for any stage that has comparison results */}
+        {(currentStage === 'metadata-review' || currentStage === 'full-comparison') && comparisonResult && (
+          <Dialog
+            open={showPersonalizationDialog}
+            onOpenChange={setShowPersonalizationDialog}
+          >
+            <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Tell us about your preferences</DialogTitle>
+                <DialogDescription>
+                  Help us personalize your property recommendation by answering a
+                  few questions.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...personalizationForm}>
+                <form
+                  onSubmit={personalizationForm.handleSubmit(
+                    handleGetRecommendation
                   )}
-                />
-
-                <FormField
-                  control={personalizationForm.control}
-                  name="works_from_home"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Do you work from home?</FormLabel>
-                      </div>
-                      <FormControl>
-                        <div className="flex items-center">
-                          <button
-                            type="button"
-                            className={`px-3 py-1 rounded-l-md ${
-                              field.value
-                                ? "bg-[#6A7FDB] text-white"
-                                : "bg-gray-100"
-                            }`}
-                            onClick={() => field.onChange(true)}
-                          >
-                            Yes
-                          </button>
-                          <button
-                            type="button"
-                            className={`px-3 py-1 rounded-r-md ${
-                              !field.value
-                                ? "bg-[#6A7FDB] text-white"
-                                : "bg-gray-100"
-                            }`}
-                            onClick={() => field.onChange(false)}
-                          >
-                            No
-                          </button>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalizationForm.control}
-                  name="family_size"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>Family Size</FormLabel>
-                      </div>
-                      <FormControl>
-                        <div className="flex items-center">
-                          <Input
-                            type="number"
-                            min={1}
-                            max={10}
-                            className="w-16 text-center"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(parseInt(e.target.value))
-                            }
-                          />
-                          <span className="ml-2">people</span>
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalizationForm.control}
-                  name="commute_priority"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel>
-                          How important is commute time? (1-5)
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <div className="flex items-center space-x-2">
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <button
-                              key={value}
-                              type="button"
-                              className={`w-8 h-8 rounded-full ${
-                                field.value === value
-                                  ? "bg-[#6A7FDB] text-white"
-                                  : "bg-gray-100"
-                              }`}
-                              onClick={() => field.onChange(value)}
-                            >
-                              {value}
-                            </button>
-                          ))}
-                        </div>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={personalizationForm.control}
-                  name="why_move"
-                  render={({ field }) => (
-                    <FormItem className="rounded-lg border p-4">
-                      <div className="space-y-2">
-                        <FormLabel htmlFor="whyMove">
-                          Why do you want to move?
-                        </FormLabel>
-                        <p className="text-sm text-gray-500">
-                          This helps us understand what matters most to you — e.g., "I want a quieter space for remote work."
-                        </p>
-                      </div>
-                      <FormControl>
-                        <Textarea
-                          id="whyMove"
-                          placeholder="Tell us about your motivation for moving..."
-                          maxLength={500}
-                          rows={4}
-                          className="w-full mt-2 resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <div className="text-xs text-gray-400 text-right mt-1">
-                        {field.value.length}/500 characters
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="rounded-lg border p-4">
-                  <div className="space-y-2 mb-4">
-                    <FormLabel>What are your top 3 priorities when choosing a home?</FormLabel>
-                    <p className="text-sm text-gray-500">
-                      Help us focus on what matters most to you (optional)
-                    </p>
-                  </div>
-                  <div className="space-y-3">
+                  className="space-y-6 py-4"
+                >
+                  <div className="grid grid-cols-1 gap-4">
                     <FormField
                       control={personalizationForm.control}
-                      name="top_priority_1"
+                      name="has_pets"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Do you have pets?</FormLabel>
+                          </div>
                           <FormControl>
-                            <Input
-                              placeholder="First Priority (e.g., Quiet neighborhood)"
-                              className="w-full"
-                              maxLength={100}
-                              {...field}
-                            />
+                            <div className="flex items-center">
+                              <button
+                                type="button"
+                                className={`px-3 py-1 rounded-l-md ${
+                                  field.value
+                                    ? "bg-[#6A7FDB] text-white"
+                                    : "bg-gray-100"
+                                }`}
+                                onClick={() => field.onChange(true)}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                className={`px-3 py-1 rounded-r-md ${
+                                  !field.value
+                                    ? "bg-[#6A7FDB] text-white"
+                                    : "bg-gray-100"
+                                }`}
+                                onClick={() => field.onChange(false)}
+                              >
+                                No
+                              </button>
+                            </div>
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
+
                     <FormField
                       control={personalizationForm.control}
-                      name="top_priority_2"
+                      name="works_from_home"
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel>Do you work from home?</FormLabel>
+                          </div>
                           <FormControl>
-                            <Input
-                              placeholder="Second Priority (e.g., Good natural light)"
-                              className="w-full"
-                              maxLength={100}
-                              {...field}
-                            />
+                            <div className="flex items-center">
+                              <button
+                                type="button"
+                                className={`px-3 py-1 rounded-l-md ${
+                                  field.value
+                                    ? "bg-[#6A7FDB] text-white"
+                                    : "bg-gray-100"
+                                }`}
+                                onClick={() => field.onChange(true)}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                className={`px-3 py-1 rounded-r-md ${
+                                  !field.value
+                                    ? "bg-[#6A7FDB] text-white"
+                                    : "bg-gray-100"
+                                }`}
+                                onClick={() => field.onChange(false)}
+                              >
+                                No
+                              </button>
+                            </div>
                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={personalizationForm.control}
-                      name="top_priority_3"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Third Priority (e.g., Near shopping areas)"
-                              className="w-full"
-                              maxLength={100}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
                   </div>
-                </div>
-              </div>
 
-              <div className="flex justify-end">
-                <Button type="submit">Generate Recommendation</Button>
-              </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+                  <div className="flex justify-end">
+                    <Button type="submit">Generate Recommendation</Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
     </div>
   );
 };

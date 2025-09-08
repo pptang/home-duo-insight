@@ -197,3 +197,7 @@ backups/
 logs/
 
 screenshots/
+
+.planning/
+.mcp.json
+.claude/
