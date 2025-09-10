@@ -270,7 +270,6 @@ const Feed = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
       
       {/* Immersive Hero Section */}
       <section className="hero-landscape relative py-16 md:py-20 overflow-hidden">

@@ -385,7 +385,6 @@ const Compare = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
 
       {/* Immersive Hero with Step Indicator */}
       <div className="hero-landscape relative py-16 md:py-24 overflow-hidden">
