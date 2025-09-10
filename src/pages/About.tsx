@@ -73,97 +73,17 @@ const About = () => {
           </div>
         </section>
 
-        {/* Mission Section with Scrollytelling */}
-        <section className="scrollytelling-section py-20 bg-gradient-to-b from-primary/5 to-secondary/10 relative overflow-hidden">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-4xl mx-auto">
-              <div className="section-fade text-center mb-16">
-                <h2 className="cinematic-heading text-foreground mb-6">
-                  Our Mission
-                </h2>
-                <div className="text-5xl mb-4 micro-animation">🎯</div>
-              </div>
-              
-              {/* Scrollytelling Timeline */}
-              <div className="space-y-16">
-                <div className="section-fade flex flex-col md:flex-row items-center gap-8">
-                  <div className="md:w-1/2">
-                    <div className="text-6xl mb-4">😰</div>
-                    <h3 className="text-2xl font-bold text-foreground mb-4">The Problem</h3>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                      The final decision between two properties is often the most stressful part of the home search process. 
-                      Even after narrowing down your options, it can be challenging to confidently choose one over the other 
-                      – especially in Japan's unique real estate market.
-                    </p>
-                  </div>
-                  <div className="md:w-1/2 p-8 bg-card rounded-2xl shadow-lg border border-border hover-lift">
-                    <div className="text-center">
-                      <div className="text-4xl mb-4">🤔💭</div>
-                      <p className="text-muted-foreground italic">
-                        "Which property should I choose? Am I missing something important?"
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="section-fade flex flex-col md:flex-row-reverse items-center gap-8">
-                  <div className="md:w-1/2">
-                    <div className="text-6xl mb-4">✨</div>
-                    <h3 className="text-2xl font-bold text-foreground mb-4">Our Solution</h3>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                      At AiSumai, we believe that by combining three powerful perspectives – 
-                      <span className="font-semibold text-primary"> unbiased AI analysis</span>,
-                      <span className="font-semibold text-primary"> expert local insights</span>, and
-                      <span className="font-semibold text-primary"> community wisdom</span> – 
-                      we can help you make a decision you'll feel genuinely good about.
-                    </p>
-                  </div>
-                  <div className="md:w-1/2 p-8 bg-gradient-to-br from-primary/10 to-secondary/20 rounded-2xl shadow-lg border border-primary/20 hover-lift">
-                    <div className="text-center">
-                      <div className="flex justify-center gap-4 text-3xl mb-4">
-                        <span>🤖</span><span>+</span><span>👨‍💼</span><span>+</span><span>👥</span>
-                      </div>
-                      <p className="text-foreground font-medium">
-                        Three perspectives, one confident decision
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="section-fade flex flex-col md:flex-row items-center gap-8">
-                  <div className="md:w-1/2">
-                    <div className="text-6xl mb-4">🎉</div>
-                    <h3 className="text-2xl font-bold text-foreground mb-4">The Result</h3>
-                    <p className="text-lg text-muted-foreground leading-relaxed">
-                      Our goal is to reduce decision fatigue, eliminate second-guessing, and give you confidence 
-                      that you've made the right choice for your unique situation – whether you're renting or buying.
-                    </p>
-                  </div>
-                  <div className="md:w-1/2 p-8 bg-gradient-to-br from-accent/20 to-secondary/20 rounded-2xl shadow-lg border border-accent/30 hover-lift">
-                    <div className="text-center">
-                      <div className="text-4xl mb-4">😊🏠</div>
-                      <p className="text-foreground font-medium">
-                        Confidence in your perfect home choice
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* How It Works Section */}
         <section className="py-20 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="section-fade text-center mb-16">
+            {/* <div className="section-fade text-center mb-16">
               <h2 className="cinematic-heading text-foreground mb-6">
                 How AiSumai Works
               </h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Three powerful perspectives working together for your perfect decision
               </p>
-            </div>
+            </div> */}
 
             {/* Interactive Feature Scroll */}
             <div className="feature-scroll-container max-w-6xl mx-auto pb-8">
