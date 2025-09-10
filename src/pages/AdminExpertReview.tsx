@@ -45,7 +45,7 @@ const AdminExpertReview = () => {
       const { data, error } = await supabase
         .from("expert_profiles")
         .select("*")
-        .in("status", ["pending", "approved", "rejected"])
+        .in("status", ["pending", "rejected"])
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -82,7 +82,7 @@ const AdminExpertReview = () => {
       const { error: userError } = await supabase
         .from("profiles")
         .update({ role: "expert" })
-        .eq("id", application.user_id);
+        .eq("id", application.id);
 
       if (userError) {
         throw userError;
