@@ -26,6 +26,14 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,14 +122,40 @@ const urlSchema = z.object({
 });
 
 const personalizationSchema = z.object({
-  has_pets: z.boolean().default(false),
-  works_from_home: z.boolean().default(false),
-  family_size: z.number().min(1).max(10).default(1),
-  commute_priority: z.number().min(1).max(5).default(3),
-  why_move: z.string().max(500).default(""),
-  top_priority_1: z.string().max(100).default(""),
-  top_priority_2: z.string().max(100).default(""),
-  top_priority_3: z.string().max(100).default(""),
+  // Lifestyle Fit (Day-to-Day Life)
+  proximity_to_cafes: z.number().min(1).max(5).default(3),
+  access_to_gym: z.number().min(1).max(5).default(3),
+  dog_walking_friendly: z.number().min(1).max(5).default(3),
+  quiet_at_night: z.number().min(1).max(5).default(3),
+  morning_vs_afternoon_sunlight: z.enum(["morning", "afternoon", "no_preference"]).default("no_preference"),
+  laundromat_access: z.number().min(1).max(5).default(3),
+  
+  // Emotional Desires / Aesthetic Preferences
+  open_view: z.number().min(1).max(5).default(3),
+  feels_like_home: z.number().min(1).max(5).default(3),
+  creative_friendly: z.number().min(1).max(5).default(3),
+  reading_corner_space: z.number().min(1).max(5).default(3),
+  natural_surroundings: z.number().min(1).max(5).default(3),
+  
+  // Life Planning / Forward-looking Goals
+  future_family_growth: z.number().min(1).max(5).default(3),
+  work_from_home_support: z.number().min(1).max(5).default(3),
+  resale_potential: z.number().min(1).max(5).default(3),
+  renovation_willingness: z.number().min(1).max(5).default(3),
+  storage_capacity: z.number().min(1).max(5).default(3),
+  
+  // Sensory or Comfort Needs
+  natural_ventilation: z.number().min(1).max(5).default(3),
+  light_sensitivity: z.number().min(1).max(5).default(3),
+  minimalist_vs_maximalist: z.enum(["minimalist", "maximalist", "no_preference"]).default("no_preference"),
+  privacy_from_neighbors: z.number().min(1).max(5).default(3),
+  
+  // Cultural / Routine-Based Needs
+  grocery_chain_access: z.number().min(1).max(5).default(3),
+  international_schools: z.number().min(1).max(5).default(3),
+  weekend_market_access: z.number().min(1).max(5).default(3),
+  safe_for_biking: z.number().min(1).max(5).default(3),
+  spiritual_space_access: z.number().min(1).max(5).default(3),
 });
 
 type FormValues = z.infer<typeof urlSchema>;
@@ -248,14 +282,40 @@ const Compare = () => {
   const personalizationForm = useForm<PersonalizationValues>({
     resolver: zodResolver(personalizationSchema),
     defaultValues: {
-      has_pets: false,
-      works_from_home: false,
-      family_size: 1,
-      commute_priority: 3,
-      why_move: "",
-      top_priority_1: "",
-      top_priority_2: "",
-      top_priority_3: "",
+      // Lifestyle Fit (Day-to-Day Life)
+      proximity_to_cafes: 3,
+      access_to_gym: 3,
+      dog_walking_friendly: 3,
+      quiet_at_night: 3,
+      morning_vs_afternoon_sunlight: "no_preference",
+      laundromat_access: 3,
+      
+      // Emotional Desires / Aesthetic Preferences
+      open_view: 3,
+      feels_like_home: 3,
+      creative_friendly: 3,
+      reading_corner_space: 3,
+      natural_surroundings: 3,
+      
+      // Life Planning / Forward-looking Goals
+      future_family_growth: 3,
+      work_from_home_support: 3,
+      resale_potential: 3,
+      renovation_willingness: 3,
+      storage_capacity: 3,
+      
+      // Sensory or Comfort Needs
+      natural_ventilation: 3,
+      light_sensitivity: 3,
+      minimalist_vs_maximalist: "no_preference",
+      privacy_from_neighbors: 3,
+      
+      // Cultural / Routine-Based Needs
+      grocery_chain_access: 3,
+      international_schools: 3,
+      weekend_market_access: 3,
+      safe_for_biking: 3,
+      spiritual_space_access: 3,
     },
   });
 
@@ -332,13 +392,43 @@ const Compare = () => {
     setShowPersonalizationDialog(false);
 
     try {
-      // Store preferences for recommendation generation
-      // Note: These fields may need to be added to the comparisons table schema
-      const preferences = {
-        why_move: values.why_move,
-        top_priority_1: values.top_priority_1,
-        top_priority_2: values.top_priority_2,
-        top_priority_3: values.top_priority_3
+      // Organize preferences by category for better AI processing
+      const categorizedPreferences = {
+        lifestyle_fit: {
+          proximity_to_cafes: values.proximity_to_cafes,
+          access_to_gym: values.access_to_gym,
+          dog_walking_friendly: values.dog_walking_friendly,
+          quiet_at_night: values.quiet_at_night,
+          morning_vs_afternoon_sunlight: values.morning_vs_afternoon_sunlight,
+          laundromat_access: values.laundromat_access,
+        },
+        emotional_desires: {
+          open_view: values.open_view,
+          feels_like_home: values.feels_like_home,
+          creative_friendly: values.creative_friendly,
+          reading_corner_space: values.reading_corner_space,
+          natural_surroundings: values.natural_surroundings,
+        },
+        life_planning: {
+          future_family_growth: values.future_family_growth,
+          work_from_home_support: values.work_from_home_support,
+          resale_potential: values.resale_potential,
+          renovation_willingness: values.renovation_willingness,
+          storage_capacity: values.storage_capacity,
+        },
+        sensory_comfort: {
+          natural_ventilation: values.natural_ventilation,
+          light_sensitivity: values.light_sensitivity,
+          minimalist_vs_maximalist: values.minimalist_vs_maximalist,
+          privacy_from_neighbors: values.privacy_from_neighbors,
+        },
+        cultural_routine: {
+          grocery_chain_access: values.grocery_chain_access,
+          international_schools: values.international_schools,
+          weekend_market_access: values.weekend_market_access,
+          safe_for_biking: values.safe_for_biking,
+          spiritual_space_access: values.spiritual_space_access,
+        }
       };
 
       const { data, error } = await supabase.functions.invoke(
@@ -348,7 +438,7 @@ const Compare = () => {
             comparison_id: comparisonResult.comparison_id,
             property_a: comparisonResult.property_a,
             property_b: comparisonResult.property_b,
-            user_profile: values,
+            user_profile: categorizedPreferences,
             user_id: user?.id || null, // Include user_id if logged in
           },
         }
@@ -465,7 +555,25 @@ const Compare = () => {
   );
 };
 
-const CompareContent: React.FC<any> = ({
+interface CompareContentProps {
+  currentStage: 'url-input' | 'metadata-review' | 'full-comparison';
+  setCurrentStage: React.Dispatch<React.SetStateAction<'url-input' | 'metadata-review' | 'full-comparison'>>;
+  comparisonResult: ComparisonResult | null;
+  aiRecommendation: AIRecommendation | null;
+  isLoading: boolean;
+  loadingStage: string;
+  form: ReturnType<typeof useForm<FormValues>>;
+  handleAnalyzeProperties: (values: FormValues) => Promise<void>;
+  resetForm: () => void;
+  showPersonalizationDialog: boolean;
+  setShowPersonalizationDialog: (show: boolean) => void;
+  personalizationForm: ReturnType<typeof useForm<PersonalizationValues>>;
+  handleGetRecommendation: (values: PersonalizationValues) => Promise<void>;
+  isGeneratingRecommendation: boolean;
+  handleRetryImageExtraction: (comparisonId: string) => Promise<void>;
+}
+
+const CompareContent: React.FC<CompareContentProps> = ({
   currentStage,
   setCurrentStage,
   comparisonResult,
@@ -1049,82 +1157,687 @@ const CompareContent: React.FC<any> = ({
                   )}
                   className="space-y-6 py-4"
                 >
-                  <div className="grid grid-cols-1 gap-4">
-                    <FormField
-                      control={personalizationForm.control}
-                      name="has_pets"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel>Do you have pets?</FormLabel>
-                          </div>
-                          <FormControl>
-                            <div className="flex items-center">
-                              <button
-                                type="button"
-                                className={`px-3 py-1 rounded-l-md ${
-                                  field.value
-                                    ? "bg-[#6A7FDB] text-white"
-                                    : "bg-gray-100"
-                                }`}
-                                onClick={() => field.onChange(true)}
-                              >
-                                Yes
-                              </button>
-                              <button
-                                type="button"
-                                className={`px-3 py-1 rounded-r-md ${
-                                  !field.value
-                                    ? "bg-[#6A7FDB] text-white"
-                                    : "bg-gray-100"
-                                }`}
-                                onClick={() => field.onChange(false)}
-                              >
-                                No
-                              </button>
+                  <div className="space-y-6">
+                    {/* Lifestyle Fit (Day-to-Day Life) */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        🌿 Lifestyle Fit (Day-to-Day Life)
+                      </h3>
+                      
+                      <FormField
+                        control={personalizationForm.control}
+                        name="proximity_to_cafes"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              ☕ Proximity to local cafés
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
                             </div>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                          </FormItem>
+                        )}
+                      />
 
-                    <FormField
-                      control={personalizationForm.control}
-                      name="works_from_home"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                          <div className="space-y-0.5">
-                            <FormLabel>Do you work from home?</FormLabel>
-                          </div>
-                          <FormControl>
-                            <div className="flex items-center">
-                              <button
-                                type="button"
-                                className={`px-3 py-1 rounded-l-md ${
-                                  field.value
-                                    ? "bg-[#6A7FDB] text-white"
-                                    : "bg-gray-100"
-                                }`}
-                                onClick={() => field.onChange(true)}
-                              >
-                                Yes
-                              </button>
-                              <button
-                                type="button"
-                                className={`px-3 py-1 rounded-r-md ${
-                                  !field.value
-                                    ? "bg-[#6A7FDB] text-white"
-                                    : "bg-gray-100"
-                                }`}
-                                onClick={() => field.onChange(false)}
-                              >
-                                No
-                              </button>
+                      <FormField
+                        control={personalizationForm.control}
+                        name="access_to_gym"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🏋️ Access to gym or wellness studios
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
                             </div>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="dog_walking_friendly"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🦶 Dog-walking friendly neighborhood
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="quiet_at_night"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🎧 Quiet at night / noise sensitivity
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="morning_vs_afternoon_sunlight"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🌅 Morning vs. afternoon sunlight
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select preference" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="morning">Morning sunlight</SelectItem>
+                                <SelectItem value="afternoon">Afternoon sunlight</SelectItem>
+                                <SelectItem value="no_preference">No preference</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="laundromat_access"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🧺 Onsite or nearby laundromat
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Emotional Desires / Aesthetic Preferences */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        ✨ Emotional Desires / Aesthetic Preferences
+                      </h3>
+                      
+                      <FormField
+                        control={personalizationForm.control}
+                        name="open_view"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🪟 Open view / no blocking buildings
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="feels_like_home"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🏡 "Feels like home" / warmth
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="creative_friendly"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🎨 Creative-friendly / artist-vibe
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="reading_corner_space"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              📚 Reading or quiet corner space
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="natural_surroundings"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🌲 Natural surroundings
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Life Planning / Forward-looking Goals */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        📈 Life Planning / Forward-looking Goals
+                      </h3>
+                      
+                      <FormField
+                        control={personalizationForm.control}
+                        name="future_family_growth"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              👶 Ready for future family growth
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="work_from_home_support"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🪑 Work-from-home support
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="resale_potential"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              💼 Potential for future resale
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="renovation_willingness"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🔨 Willingness to renovate
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="storage_capacity"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              📦 Storage capacity needs
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Sensory or Comfort Needs */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        🧘 Sensory or Comfort Needs
+                      </h3>
+                      
+                      <FormField
+                        control={personalizationForm.control}
+                        name="natural_ventilation"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              ❄️ Natural ventilation / airiness
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="light_sensitivity"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              ☀️ Light sensitivity
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="minimalist_vs_maximalist"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🧘‍♀️ Minimalist vs. maximalist
+                            </FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select preference" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="minimalist">Minimalist</SelectItem>
+                                <SelectItem value="maximalist">Maximalist</SelectItem>
+                                <SelectItem value="no_preference">No preference</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="privacy_from_neighbors"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🚪 Privacy from neighbors
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Cultural / Routine-Based Needs */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        🧭 Cultural / Routine-Based Needs
+                      </h3>
+                      
+                      <FormField
+                        control={personalizationForm.control}
+                        name="grocery_chain_access"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🍱 Near favorite grocery chain
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="international_schools"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🏫 Access to international schools
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="weekend_market_access"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🛍️ Weekend market / shopping access
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="safe_for_biking"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🚴 Safe for biking
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={personalizationForm.control}
+                        name="spiritual_space_access"
+                        render={({ field }) => (
+                          <FormItem className="space-y-2">
+                            <FormLabel className="flex items-center gap-2">
+                              🛕 Nearby temples/shrines or spiritual space
+                            </FormLabel>
+                            <FormControl>
+                              <Slider
+                                min={1}
+                                max={5}
+                                step={1}
+                                value={[field.value]}
+                                onValueChange={(value) => field.onChange(value[0])}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            <div className="flex justify-between text-xs text-gray-500">
+                              <span>Not Important</span>
+                              <span>Very Important</span>
+                            </div>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <div className="flex justify-end">
