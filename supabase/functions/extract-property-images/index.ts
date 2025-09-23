@@ -269,26 +269,42 @@ async function extractImagesWithFirecrawl(
 function extractImagesFromHtml(html: string): string[] {
   const imageUrls = new Set<string>();
   
-  // Focus on SUUMO property image patterns
+  // Focus on SUUMO property image patterns - preserve full URLs with query parameters including w= and h=
   const patterns = [
-    // Direct property image URLs
-    /src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    /src=["']([^"']*front\/gazo[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    // Resized images with property IDs
-    /src=["']([^"']*resizeImage[^"']*gazo[^"']*\.(?:jpg|jpeg|png|webp)[^"']*)[^"']*["']/gi,
-    // Data attributes for lazy loading
-    /data-src=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
-    /data-original=["']([^"']*gazo\/bukken[^"']*\.(?:jpg|jpeg|png|webp)(?:\?[^"']*)?)[^"']*["']/gi,
+    // Standard img src attributes - capture complete URLs
+    /src=["']([^"']+)[\"']/gi,
+    // Data-src attributes for lazy loading
+    /data-src=["']([^"']+)[\"']/gi,
+    /data-original=["']([^"']+)[\"']/gi,
+    // Markdown-style image links - capture everything inside parentheses (most reliable for SUUMO)
+    /\[!\[[^\]]*\]\(([^)]+)\)/gi,
   ];
   
   patterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(html)) !== null) {
-      const url = match[1];
+      const url = match[1] || match[0];
       if (url && !url.startsWith('data:')) {
         try {
-          const fullUrl = url.startsWith('http') ? url : `https:${url.startsWith('//') ? '' : '//'}${url}`;
-          imageUrls.add(fullUrl);
+          let fullUrl = url;
+
+          // Handle relative URLs
+          if (!url.startsWith('http')) {
+            if (url.startsWith('//')) {
+              fullUrl = 'https:' + url;
+            } else if (url.startsWith('/')) {
+              fullUrl = 'https://img01.suumo.com' + url;
+            } else {
+              fullUrl = 'https://' + url;
+            }
+          }
+
+          // Only add if it's a SUUMO image URL
+          if (fullUrl.includes('suumo.com') &&
+              (fullUrl.includes('gazo') || fullUrl.includes('bukken') || fullUrl.includes('resizeImage')) &&
+              fullUrl.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+            imageUrls.add(fullUrl);
+          }
         } catch (e) {
           // Ignore invalid URLs
         }

@@ -113,6 +113,9 @@ serve(async (req) => {
     try {
       parseResponse = await supabaseClient.functions.invoke("parse-properties", {
         body: { property_url_a, property_url_b },
+        headers: {
+          Authorization: req.headers.get("Authorization") || "",
+        },
       });
     } catch (invokeError) {
       console.error("Error invoking parse-properties function:", invokeError);
@@ -143,7 +146,7 @@ serve(async (req) => {
       );
     }
 
-    const { html_property_a, html_property_b } = parseResponse.data || {};
+    const { html_property_a, html_property_b, images_property_a, images_property_b } = parseResponse.data || {};
 
     if (!html_property_a || !html_property_b) {
       console.error("Missing HTML content from parse response:", {
@@ -184,9 +187,25 @@ serve(async (req) => {
     console.log("Property A contains key terms:", foundTermsA);
     console.log("Property B contains key terms:", foundTermsB);
 
-    // Simplified and fast image extraction to prevent CPU timeout
-    console.log("Starting optimized image extraction");
+    // Use images from parse-properties response, with optional fallback
+    console.log("Using images from parse-properties response");
 
+    // Use images from parse-properties if available, otherwise fallback to extraction
+    const parsedImagesA = images_property_a || [];
+    const parsedImagesB = images_property_b || [];
+
+    console.log("ANALYZE-PROPERTIES: Images from parse-properties with detailed analysis:", {
+      property_a_images: parsedImagesA.length,
+      property_b_images: parsedImagesB.length,
+      sample_a_full: parsedImagesA.slice(0, 3),
+      sample_b_full: parsedImagesB.slice(0, 3),
+      sample_a_has_w_param: parsedImagesA.slice(0, 3).map(url => url.includes('&w=')),
+      sample_b_has_w_param: parsedImagesB.slice(0, 3).map(url => url.includes('&w=')),
+      sample_a_has_h_param: parsedImagesA.slice(0, 3).map(url => url.includes('&h=')),
+      sample_b_has_h_param: parsedImagesB.slice(0, 3).map(url => url.includes('&h='))
+    });
+
+    // Fallback image extraction only if no images from parse-properties
     const fastExtractImages = (html: string): string[] => {
       const images: string[] = [];
 
@@ -214,22 +233,25 @@ serve(async (req) => {
       return images.slice(0, 5); // Limit to 5 images max
     };
 
-    const fallbackImagesA = fastExtractImages(html_property_a);
-    const fallbackImagesB = fastExtractImages(html_property_b);
+    // Use parsed images if available, otherwise use fallback extraction
+    const fallbackImagesA = parsedImagesA.length > 0 ? parsedImagesA : fastExtractImages(html_property_a);
+    const fallbackImagesB = parsedImagesB.length > 0 ? parsedImagesB : fastExtractImages(html_property_b);
 
-    console.log("Fallback image extraction results:", {
+    console.log("Final image results:", {
       property_a_images_found: fallbackImagesA.length,
       property_b_images_found: fallbackImagesB.length,
+      property_a_source: parsedImagesA.length > 0 ? "parse-properties" : "fallback-extraction",
+      property_b_source: parsedImagesB.length > 0 ? "parse-properties" : "fallback-extraction",
       sample_a: fallbackImagesA.slice(0, 3),
       sample_b: fallbackImagesB.slice(0, 3)
     });
 
     // Simplified logging to avoid timeout
     if (fallbackImagesA.length > 0) {
-      console.log("Property A Fallback - found", fallbackImagesA.length, "images");
+      console.log("Property A - found", fallbackImagesA.length, "images from", parsedImagesA.length > 0 ? "parse-properties" : "fallback extraction");
     }
     if (fallbackImagesB.length > 0) {
-      console.log("Property B Fallback - found", fallbackImagesB.length, "images");
+      console.log("Property B - found", fallbackImagesB.length, "images from", parsedImagesB.length > 0 ? "parse-properties" : "fallback extraction");
     }
 
     // 2. Call Gemini API to extract property data from HTML
@@ -275,19 +297,24 @@ SEARCH PATTERNS:
 - For building age: Look for numbers followed by 年, 月, combined with 築, 建築, 竣工
 - Check both visible text AND data attributes, meta tags, JSON-LD structured data
 
-CRITICAL FOR MAIN PROPERTY IMAGE EXTRACTION:
+CRITICAL FOR MAIN PROPERTY IMAGE EXTRACTION (SUUMO-OPTIMIZED):
 - PRIORITIZE main/hero/primary property images first - these are the most important
-- Look for images with CSS classes containing: main, hero, primary, photo, gallery, property
-- Japanese property sites often use: gazo (画像), shashin (写真), bukken (物件)
-- Focus on LARGE property photos showing: interiors, exteriors, rooms, floor plans (間取り図)
-- Image path priorities (highest first):
-  1. URLs containing: main, primary, hero, large, big, 01, 001, _1
-  2. Paths like: /gazo/main/, /bukken/primary/, /img/hero/
-  3. Large dimensions: 1200px, 1000px, 800px, large, big
-  4. Interior/room images: 居間, 寝室, キッチン, バスルーム
-- EXCLUDE completely: icons, logos, buttons, navigation, thumbnails, UI elements, ads
-- Look for images in <img> tags, data-src attributes, background-image styles, JSON-LD
-- Return 5-10 highest quality MAIN property images per property
+- SUUMO-SPECIFIC IMAGE PATTERNS to look for:
+  1. HIGHEST PRIORITY: URLs with pattern like "73125861_0001.jpg", "76216406_0095.jpg" (property ID + sequential numbers)
+  2. SUUMO resizeImage URLs: "resizeImage?src=gazo%2Fbukken%2F040%2FN010000%2Fimg%2F861%2F73125861%2F73125861_0001.jpg"
+  3. Direct SUUMO paths: "img01.suumo.com/front/gazo/bukken/" or "img01.suumo.com/jj/resizeImage"
+  4. Japanese text context: 現地外観写真, 浴室, 間取り図, リビング, キッチン, 寝室, 玄関
+- IMAGE NUMBERING PRIORITY for SUUMO:
+  1. _0001, _0002, _0003 (first few images are usually main property photos)
+  2. _01, _02, _03 (alternative numbering)
+  3. Lower numbers generally = more important property images
+- SUUMO ROOM TYPES to prioritize:
+  - 現地外観写真 (exterior photos) - HIGHEST priority
+  - 間取り図 (floor plan) - HIGH priority
+  - リビング (living room), キッチン (kitchen), 浴室 (bathroom), 寝室 (bedroom)
+- EXCLUDE completely: spacer.gif, icons, logos, buttons, navigation, thumbnails, UI elements
+- Look for images in <img> tags, data-src attributes, markdown image syntax like [![alt](url)]
+- Return 5-10 highest quality MAIN property images per property, prioritizing low-numbered SUUMO images
 - If no main images found, return empty array []
 
 FOR PROPERTY A:
@@ -421,9 +448,17 @@ Return only this JSON format (no explanations):
       const jsonMatch =
         responseText.match(/```json\n([\s\S]*?)\n```/) ||
         responseText.match(/({[\s\S]*})/);
-      const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+      let jsonString = jsonMatch ? jsonMatch[1] : responseText;
 
-      console.log("Extracted JSON string:", jsonString.substring(0, 500) + "...");
+      // Clean HTML entities from JSON string before parsing
+      jsonString = jsonString
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+
+      console.log("Extracted and cleaned JSON string:", jsonString.substring(0, 500) + "...");
 
       // Parse the extracted JSON
       let extractedData;
@@ -495,8 +530,16 @@ Return only this JSON format (no explanations):
         // Enhanced image processing with prioritization for main property images
         const validateImageUrl = (url: string): boolean => {
           try {
-            new URL(url);
-            return url.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i) !== null;
+            // Decode HTML entities first
+            const decodedUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+            new URL(decodedUrl);
+
+            // Check for image extensions, including URL-encoded ones in query parameters
+            const hasDirectExtension = decodedUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i) !== null;
+            const hasEncodedExtension = decodedUrl.match(/\.(jpg|jpeg|png|webp|gif)/i) !== null ||
+                                      decodedUrl.includes('%2F') && decodedUrl.match(/(jpg|jpeg|png|webp|gif)/i) !== null;
+
+            return hasDirectExtension || hasEncodedExtension;
           } catch {
             return false;
           }
@@ -504,32 +547,35 @@ Return only this JSON format (no explanations):
 
         const prioritizeImages = (images: string[]): Array<{url: string, priority: number}> => {
           return images.filter(validateImageUrl).map(url => {
+            // Decode HTML entities to get clean URL
+            const decodedUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+
             let priority = 50; // Base priority
 
             // High priority for main/hero/primary images
-            if (url.match(/(?:main|hero|primary|first|top|default)/i)) priority += 40;
+            if (decodedUrl.match(/(?:main|hero|primary|first|top|default)/i)) priority += 40;
 
             // High priority for Japanese property keywords
-            if (url.match(/(?:gazo|shashin|bukken|madori|heimen)/i)) priority += 35;
+            if (decodedUrl.match(/(?:gazo|shashin|bukken|madori|heimen)/i)) priority += 35;
 
             // High priority for room/interior keywords
-            if (url.match(/(?:room|interior|living|bedroom|kitchen|bath|exterior|view)/i)) priority += 30;
-            if (url.match(/(?:居間|寝室|キッチン|バスルーム|玄関|外観|内観)/i)) priority += 30;
+            if (decodedUrl.match(/(?:room|interior|living|bedroom|kitchen|bath|exterior|view)/i)) priority += 30;
+            if (decodedUrl.match(/(?:居間|寝室|キッチン|バスルーム|玄関|外観|内観)/i)) priority += 30;
 
             // Medium-high priority for large dimensions and first images
-            if (url.match(/(?:1200|1000|800|large|big|xl)/i)) priority += 25;
-            if (url.match(/(?:01|001|_1\.|\/1\.)/i)) priority += 20;
+            if (decodedUrl.match(/(?:1200|1000|800|large|big|xl)/i)) priority += 25;
+            if (decodedUrl.match(/(?:01|001|_1\.|\/1\.)/i)) priority += 20;
 
             // Medium priority for property-specific paths
-            if (url.match(/\/(?:gazo|bukken|img|images|photo|gallery)\//i)) priority += 15;
+            if (decodedUrl.match(/\/(?:gazo|bukken|img|images|photo|gallery)\//i)) priority += 15;
 
             // Lower priority for numbered images beyond the first few
-            if (url.match(/(?:02|03|04|002|003|004|_2\.|_3\.|_4\.)/i)) priority += 5;
+            if (decodedUrl.match(/(?:02|03|04|002|003|004|_2\.|_3\.|_4\.)/i)) priority += 5;
 
             // Penalty for likely UI/navigation images
-            if (url.match(/(?:thumb|nav|menu|btn|icon|arrow|logo)/i)) priority -= 30;
+            if (decodedUrl.match(/(?:thumb|nav|menu|btn|icon|arrow|logo)/i)) priority -= 30;
 
-            return {url, priority};
+            return {url: decodedUrl, priority}; // Return decoded URL
           });
         };
 
@@ -538,31 +584,44 @@ Return only this JSON format (no explanations):
         const geminiPrioritized = prioritizeImages(geminiImages);
         const fallbackPrioritized = prioritizeImages(fallbackImages);
 
-        // Combine and sort by priority (Gemini images get slight bonus for being AI-selected)
+        console.log("ANALYZE-PROPERTIES: Before prioritization:", {
+          gemini_images_count: geminiImages.length,
+          fallback_images_count: fallbackImages.length,
+          gemini_sample: geminiImages.slice(0, 3),
+          fallback_sample: fallbackImages.slice(0, 3),
+          gemini_has_w_params: geminiImages.slice(0, 3).map(url => url.includes('&w=')),
+          fallback_has_w_params: fallbackImages.slice(0, 3).map(url => url.includes('&w='))
+        });
+
+        // Combine and sort by priority (Gemini images get much higher bonus as they have correct w= and h= params)
         const allPrioritizedImages = [
-          ...geminiPrioritized.map(img => ({...img, priority: img.priority + 10})), // Gemini bonus
+          ...geminiPrioritized.map(img => ({...img, priority: img.priority + 1000})), // Large Gemini bonus for w= and h= params
           ...fallbackPrioritized
         ];
 
-        // Remove duplicates, keeping highest priority version
-        const uniqueImages = new Map<string, number>();
+
+        // Remove duplicates, keeping highest priority version with full URL (including query params)
+        const uniqueImages = new Map<string, {url: string, priority: number}>();
         allPrioritizedImages.forEach(({url, priority}) => {
-          if (!uniqueImages.has(url) || uniqueImages.get(url)! < priority) {
-            uniqueImages.set(url, priority);
+          // Use full URL (including query params) as key to preserve unique parameter combinations
+          if (!uniqueImages.has(url) || uniqueImages.get(url)!.priority < priority) {
+            uniqueImages.set(url, {url, priority}); // Store full URL with query params
           }
         });
 
-        // Sort by priority and take top images
-        const finalImages = Array.from(uniqueImages.entries())
-          .sort(([,a], [,b]) => b - a)
-          .map(([url]) => url)
+        // Sort by priority and take top images with full URLs including query params
+        const finalImages = Array.from(uniqueImages.values())
+          .sort((a, b) => b.priority - a.priority)
+          .map(item => item.url) // Extract the full URL with query params
           .slice(0, 10);
 
-        console.log("Final image prioritization results:", {
+        console.log("ANALYZE-PROPERTIES: Final image prioritization results:", {
           gemini_images: geminiImages.length,
           fallback_images: fallbackImages.length,
           final_images: finalImages.length,
-          top_3_images: finalImages.slice(0, 3)
+          top_3_images: finalImages.slice(0, 3),
+          final_has_w_params: finalImages.slice(0, 3).map(url => url.includes('&w=')),
+          final_has_h_params: finalImages.slice(0, 3).map(url => url.includes('&h='))
         });
 
         return {
@@ -586,13 +645,19 @@ Return only this JSON format (no explanations):
       const propertyB = processPropertyData(extractedData.property_b, fallbackImagesB);
 
       // Log final image extraction results
-      console.log("Final property data with enhanced images:", {
+      console.log("ANALYZE-PROPERTIES: Final property data with enhanced images:", {
         property_a_images: propertyA.image_urls?.length || 0,
-        property_b_images: propertyB.image_urls?.length || 0
+        property_b_images: propertyB.image_urls?.length || 0,
+        property_a_sample: propertyA.image_urls?.slice(0, 3),
+        property_b_sample: propertyB.image_urls?.slice(0, 3),
+        property_a_has_w_params: propertyA.image_urls?.slice(0, 3).map(url => url.includes('&w=')),
+        property_b_has_w_params: propertyB.image_urls?.slice(0, 3).map(url => url.includes('&w=')),
+        property_a_has_h_params: propertyA.image_urls?.slice(0, 3).map(url => url.includes('&h=')),
+        property_b_has_h_params: propertyB.image_urls?.slice(0, 3).map(url => url.includes('&h='))
       });
 
-      console.log("Property A data with images:", JSON.stringify(propertyA, null, 2));
-      console.log("Property B data with images:", JSON.stringify(propertyB, null, 2));
+      console.log("ANALYZE-PROPERTIES: Property A image URLs (first 3):", propertyA.image_urls?.slice(0, 3));
+      console.log("ANALYZE-PROPERTIES: Property B image URLs (first 3):", propertyB.image_urls?.slice(0, 3));
 
       // Insert PropertyA using service role client (bypasses RLS)
       const { data: propertyAData, error: propertyAError } =

@@ -94,11 +94,28 @@ serve(async (req) => {
       );
     }
 
-    // Return the HTML content
+    // Extract image URLs from HTML content
+    const imagesA = extractImageUrls(resultA.html || '');
+    const imagesB = extractImageUrls(resultB.html || '');
+
+    console.log("PARSE-PROPERTIES: Extracted images with detailed analysis:", {
+      property_a_images: imagesA.length,
+      property_b_images: imagesB.length,
+      sample_a_full: imagesA.slice(0, 3),
+      sample_b_full: imagesB.slice(0, 3),
+      sample_a_has_w_param: imagesA.slice(0, 3).map(url => url.includes('&w=')),
+      sample_b_has_w_param: imagesB.slice(0, 3).map(url => url.includes('&w=')),
+      sample_a_has_h_param: imagesA.slice(0, 3).map(url => url.includes('&h=')),
+      sample_b_has_h_param: imagesB.slice(0, 3).map(url => url.includes('&h='))
+    });
+
+    // Return the HTML content and extracted image URLs
     return new Response(
       JSON.stringify({
         html_property_a: resultA.html,
         html_property_b: resultB.html,
+        images_property_a: imagesA,
+        images_property_b: imagesB,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -142,6 +159,113 @@ serve(async (req) => {
   }
 });
 
+// Helper function to extract image URLs from HTML content
+function extractImageUrls(html: string): string[] {
+  const images: Array<{ url: string; priority: number }> = [];
+
+  try {
+    // Enhanced regex for comprehensive image extraction with SUUMO-specific patterns
+    const imgPatterns = [
+      // Standard img tags with src - preserve full URLs with query parameters
+      /<img[^>]+src=['"']([^'"]+)['"']/gi,
+      // Data-src attributes (lazy loading)
+      /<img[^>]+data-src=['"']([^'"]+)['"']/gi,
+      // Background images in style attributes
+      /background-image:\s*url\(['"']?([^'"()]+)['"']?\)/gi,
+      // Data attributes for image URLs
+      /data-[^=]*image[^=]*=['"']([^'"]+)['"']/gi,
+      // Markdown-style image links (most reliable for SUUMO scraped content) - capture full URLs with w= and h=
+      /\[!\[[^\]]*\]\(([^)]+)\)/gi,
+      // SUUMO-specific patterns for image URLs - preserve query parameters
+      /(?:gazo|shashin|bukken)[^=]*=['"']([^'"]+\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'"]*)?)['"']/gi,
+      // Direct SUUMO image paths with query parameters
+      /(https?:\/\/img01\.suumo\.com[^'")\s]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'")\s]*)?)/gi,
+      // SUUMO front gazo paths with query parameters
+      /(https?:\/\/[^'")\s]*front\/gazo\/bukken\/[^'")\s]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'")\s]*)?)/gi
+    ];
+
+    for (const pattern of imgPatterns) {
+      let match: RegExpExecArray | null;
+      while ((match = pattern.exec(html)) !== null) {
+        let url = match[1] || match[0];
+        if (!url) continue;
+
+        // Clean and validate URL
+        url = url.trim();
+
+        // Handle URL encoding for SUUMO resizeImage URLs
+        if (url.includes('%2F')) {
+          url = decodeURIComponent(url);
+        }
+
+        // Handle relative URLs
+        if (url.startsWith('//')) {
+          url = 'https:' + url;
+        } else if (url.startsWith('/')) {
+          // For SUUMO relative paths, prepend the base domain
+          if (url.includes('gazo') || url.includes('bukken')) {
+            url = 'https://img01.suumo.com' + url;
+          } else {
+            continue;
+          }
+        } else if (!url.startsWith('http')) {
+          // Handle protocol-relative or domain-relative URLs
+          if (url.includes('img01.suumo.com')) {
+            url = 'https://' + url;
+          }
+        }
+
+        // Only include image file extensions
+        if (url.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i)) {
+          // Filter out obvious non-property images
+          if (!url.match(/(icon|logo|btn|nav|menu|header|footer|ui|thumb|spacer)/i)) {
+            // Log URL before processing
+            console.log("PARSE-PROPERTIES: Processing URL:", url);
+            console.log("PARSE-PROPERTIES: URL has w param:", url.includes('&w='));
+            console.log("PARSE-PROPERTIES: URL has h param:", url.includes('&h='));
+
+            // Enhanced prioritization for SUUMO images
+            let priority = 0;
+
+            // Highest priority: Main property images with low numbers
+            if (url.match(/_000[1-5]\.jpg|_00[0-5][0-9]\.jpg/i)) priority += 100;
+
+            // High priority: SUUMO-specific keywords
+            if (url.match(/(gazo|bukken|madori|heimen)/i)) priority += 80;
+
+            // High priority: Room types in Japanese
+            if (url.match(/(リビング|キッチン|浴室|寝室|玄関|外観|内観|間取)/i)) priority += 70;
+
+            // Medium-high priority: Standard main image indicators
+            if (url.match(/(main|primary|hero|large|big)/i)) priority += 60;
+
+            // Medium priority: First few numbered images
+            if (url.match(/(_001|_01|_1\.)/i)) priority += 50;
+
+            // Add image with priority
+            images.push({ url, priority });
+            console.log("PARSE-PROPERTIES: Added to images array:", url);
+          }
+        }
+      }
+    }
+
+    // Sort by priority (highest first) and extract URLs
+    const sortedImages = images
+      .sort((a: any, b: any) => b.priority - a.priority)
+      .map((img: any) => img.url);
+
+    // Remove duplicates while preserving priority order
+    const uniqueImages = [...new Set(sortedImages)];
+
+    // Limit to reasonable number to avoid overwhelming response
+    return uniqueImages.slice(0, 20);
+  } catch (error) {
+    console.error("Error extracting images:", error);
+    return [];
+  }
+}
+
 // Helper function to fetch HTML using Firecrawl API
 async function fetchWithFirecrawl(
   url: string,
@@ -152,13 +276,24 @@ async function fetchWithFirecrawl(
 
     const startTime = Date.now();
     
+    // Get Firecrawl URL from environment, default to hosted service
+    const firecrawlUrl = Deno.env.get('FIRECRAWL_URL') || 'https://api.firecrawl.dev';
+    const isLocal = firecrawlUrl.includes('localhost') || firecrawlUrl.includes('host.docker.internal');
+    
+    // Prepare headers - local Firecrawl doesn't need authorization
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    // Only add authorization for hosted service
+    if (!isLocal) {
+      headers['Authorization'] = `Bearer ${apiKey}`;
+    }
+    
     // Call Firecrawl API to scrape the URL
-    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+    const response = await fetch(`${firecrawlUrl}/v1/scrape`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
+      headers,
       body: JSON.stringify({
         url: url,
         formats: ['html'],

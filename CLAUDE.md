@@ -53,6 +53,12 @@ npm run supabase:status  # Check service status
 npm run supabase:reset   # Reset local database
 ```
 
+**Testing Scripts:**
+```bash
+./verify-analyze-properties.sh    # Test analyze-properties edge function
+./test-parse-properties-final.sh  # Test parse-properties edge function
+```
+
 ## Environment Variables
 
 **Firecrawl Configuration:**
@@ -102,3 +108,21 @@ The application uses the following main tables:
 - Rate limiting implemented in edge functions
 - All database operations in edge functions use the service role for reliability
 - TypeScript types auto-generated from Supabase schema in `src/integrations/supabase/types.ts`
+
+## Recent Fixes & Technical Notes
+
+### SUUMO Image URL Parameter Preservation (Fixed)
+**Issue:** SUUMO property image URLs were losing resize parameters (`w=452&h=339`) during processing.
+
+**Root Cause:** The `validateImageUrl` function in `analyze-properties/index.ts` was filtering out Gemini-extracted URLs because:
+- Gemini returns URLs with URL-encoded characters: `src=gazo%2Fbukken%2F...&w=452&h=339`
+- The regex pattern couldn't match file extensions when URL-encoded within query parameters
+
+**Solution:** Enhanced `validateImageUrl` to handle both direct and URL-encoded file extensions.
+
+**Files Modified:**
+- `supabase/functions/analyze-properties/index.ts:531-546` - Fixed validateImageUrl function
+- `supabase/functions/analyze-properties/index.ts:599-610` - Fixed deduplication to preserve query parameters
+- `supabase/functions/analyze-properties/index.ts:453-459` - Added HTML entity decoding
+
+**Testing:** Use `./verify-analyze-properties.sh` to verify image URLs retain w= and h= parameters.
