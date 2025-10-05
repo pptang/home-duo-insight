@@ -20,14 +20,41 @@ interface PropertyData {
 }
 
 interface UserProfile {
-  has_pets: boolean;
-  works_from_home: boolean;
-  family_size: number;
-  commute_priority: number;
-  why_move: string;
-  top_priority_1: string;
-  top_priority_2: string;
-  top_priority_3: string;
+  lifestyle_fit: {
+    proximity_to_cafes: number;
+    access_to_gym: number;
+    dog_walking_friendly: number;
+    quiet_at_night: number;
+    morning_vs_afternoon_sunlight: string | number;
+    laundromat_access: number;
+  };
+  emotional_desires: {
+    open_view: number;
+    feels_like_home: number;
+    creative_friendly: number;
+    reading_corner_space: number;
+    natural_surroundings: number;
+  };
+  life_planning: {
+    future_family_growth: number;
+    work_from_home_support: number;
+    resale_potential: number;
+    renovation_willingness: number;
+    storage_capacity: number;
+  };
+  sensory_comfort: {
+    natural_ventilation: number;
+    light_sensitivity: number;
+    minimalist_vs_maximalist: string | number;
+    privacy_from_neighbors: number;
+  };
+  cultural_routine: {
+    grocery_chain_access: number;
+    international_schools: number;
+    weekend_market_access: number;
+    safe_for_biking: number;
+    spiritual_space_access: number;
+  };
 }
 
 interface RequestData {
@@ -167,78 +194,104 @@ serve(async (req) => {
     }
 
     // Format user profile for prompt
-    const userProfileText = `
-- Has pets: ${requestData.user_profile.has_pets ? "Yes" : "No"}
-- Works from home: ${requestData.user_profile.works_from_home ? "Yes" : "No"}
-- Family size: ${requestData.user_profile.family_size} people
-- Commute priority: ${
-      requestData.user_profile.commute_priority
-    }/5 (higher means more important)
-- Why move: ${requestData.user_profile.why_move} 
-- Top priority 1: ${requestData.user_profile.top_priority_1}
-- Top priority 2: ${requestData.user_profile.top_priority_2}
-- Top priority 3: ${requestData.user_profile.top_priority_3}
-`;
+    const userProfileText = JSON.stringify(requestData.user_profile, null, 2);
 
     // Format property data for prompt
     const propertyAText = `
-Property A: ${requestData.property_a.property_name}
-- Address: ${requestData.property_a.address}
-- Price: ¥${requestData.property_a.price_yen.toLocaleString()}
-- Floor Plan: ${requestData.property_a.floor_plan}
-- Commute Time: ${requestData.property_a.commute_minutes} minutes
-- Property Type: ${requestData.property_a.property_type}
+Property A: ${requestData.property_a.property_name || "N/A"}
+- Address: ${requestData.property_a.address || "N/A"}
+- Price: ${requestData.property_a.price_yen ? `¥${requestData.property_a.price_yen.toLocaleString()}` : "N/A"}
+- Floor Plan: ${requestData.property_a.floor_plan || "N/A"}
+- Commute Time: ${requestData.property_a.commute_minutes ? `${requestData.property_a.commute_minutes} minutes` : "N/A"}
+- Property Type: ${requestData.property_a.property_type || "N/A"}
 - Additional Notes: ${requestData.property_a.notes || "None"}
 `;
 
     const propertyBText = `
-Property B: ${requestData.property_b.property_name}
-- Address: ${requestData.property_b.address}
-- Price: ¥${requestData.property_b.price_yen.toLocaleString()}
-- Floor Plan: ${requestData.property_b.floor_plan}
-- Commute Time: ${requestData.property_b.commute_minutes} minutes
-- Property Type: ${requestData.property_b.property_type}
+Property B: ${requestData.property_b.property_name || "N/A"}
+- Address: ${requestData.property_b.address || "N/A"}
+- Price: ${requestData.property_b.price_yen ? `¥${requestData.property_b.price_yen.toLocaleString()}` : "N/A"}
+- Floor Plan: ${requestData.property_b.floor_plan || "N/A"}
+- Commute Time: ${requestData.property_b.commute_minutes ? `${requestData.property_b.commute_minutes} minutes` : "N/A"}
+- Property Type: ${requestData.property_b.property_type || "N/A"}
 - Additional Notes: ${requestData.property_b.notes || "None"}
 `;
 
     // Prepare prompt for Gemini
     const prompt = `
-You are a certified residential property advisor with over 10 years of experience helping families, professionals, and expats navigate the Japanese real estate market. You combine market insight, lifestyle alignment, and risk evaluation to help users make confident and personalized housing decisions.
-
-## 🧠 Purpose  
-Provide expert-level, honest, and localized advice to help users choose between two shortlisted residential properties in Japan — tailored to their unique lifestyle, preferences, and goals.
-
-## 📝 Input  
-Users will provide:
-
-🏠 Two property listings, with details such as:  
-Location (including station name and walking distance)  
-Price, floor plan, square meters, floor level, building age  
-Amenities, property URLs (optional)
-
-👤 Personal and lifestyle context:  
-Household composition (e.g., couple, family with kids, solo professional)  
-Desired commute time and workplace location  
-Neighborhood preferences (e.g., quiet, vibrant, near parks, pet-friendly, access to gym, supermarket, or school)  
-Specific home needs (e.g., balcony, sunlight, elevator, natural light, parking space)
-
-🧘 Daily life preferences (optional):  
-     • Proximity to cafés / dog-walking areas / bikeable streets  
-     • Sunlight preference (morning light vs. afternoon light)  
-     • Noise sensitivity / privacy from neighbors  
-     • Creative or cozy interior feel  
-     • Onsite or nearby laundry  
-     • Open view / feeling of spaciousness  
-     • Minimalist layout or storage-heavy design
-
-🧭 Decision Priorities (optional but recommended):  
-What are the most important values or trade-offs in this decision?  
-     (e.g., peace vs. walkability, investment potential vs. emotional comfort, modern design vs. size)
-
-🔮 Future Lifestyle Considerations (optional):  
-Any expected lifestyle changes in the next 2–5 years?  
-     (e.g., planning to have a child, aging parent moving in, working from home, reselling or renting out the property)
-
+You are a seasoned residential property advisor in Japan with over 10 years of experience. You blend hard facts (price, size, access), local lifestyle insight, and practical risk awareness to help people make clear, confident housing choices.
+Goal
+Help the user choose between two properties in Japan by:
+objectively comparing core hard criteria,
+enriching with short, trustworthy neighborhood context from the open web, and
+giving a plain-language, human recommendation aligned to what the user cares about most.
+Do not display any numeric scores for user priorities in the final copy.
+⸻
+Inputs (provided to you)
+	•	property_a and property_b objects with: price, layout, floor_area (m²), floor_level, building_age, station_name, walk_minutes_to_station, railway_line, amenities (e.g., balcony, sunlight orientation, storage, elevator, parking), monthly_fees (if any), URLs (optional).
+	•	user_profile JSON with prioritized preferences (1–5 where 5 = very important). Categories include:
+	•	lifestyle_fit: proximity_to_cafes, access_to_gym, dog_walking_friendly, quiet_at_night, morning_vs_afternoon_sunlight, laundromat_access
+	•	emotional_desires: open_view, feels_like_home, creative_friendly, reading_corner_space, natural_surroundings
+	•	life_planning: future_family_growth, work_from_home_support, resale_potential, renovation_willingness, storage_capacity
+	•	sensory_comfort: natural_ventilation, light_sensitivity, minimalist_vs_maximalist, privacy_from_neighbors
+	•	cultural_routine: grocery_chain_access, international_schools, weekend_market_access, safe_for_biking, spiritual_space_access
+Internal handling rule: Treat 5 as “decisive must-have,” 3–4 as “strong preference,” 1–2 as “nice to have.” Use these weights internally to guide emphasis, but never show numbers in the output. Translate scores into natural language (e.g., “you care about future family space and storage”).
+⸻
+Open-Web Neighborhood Context (very important)
+For each property’s station + ward/city (e.g., “Yōga Station, Setagaya” / “Futako-Tamagawa, Setagaya”):
+	•	If web access/tools are available, fetch recent, trustworthy info. Focus on: everyday convenience (groceries, cafés, gyms), commute & crowd level, safety/quietness/greenery, family-friendliness, expat-friendliness, notable amenities (parks, riverside, shopping streets/malls).
+	•	Summarize in 2–3 short sentences per area. Do not dump raw links. If allowed, cite source names briefly (e.g., “(Setagaya city guide, Tokyu area guide)“).
+	•	If web is unavailable or results are unclear, say so briefly and provide a best-effort local reading with a note like: “Based on typical patterns for this line/ward.”
+⸻
+Output Requirements (simple, human, persuasive)
+Write in friendly, natural, plain English (short sentences, no jargon).
+Avoid numeric priority scores; refer to needs in words.
+1) :round_pushpin: Executive Summary — Hard-Criteria First
+In 4–6 bullets, compare the properties on price, floor area, distance to station, building age, and ‘what’s around the station’.
+Add a one-line verdict on which looks stronger on fundamentals.
+Bullet template example
+	•	Price: A ¥xxM vs. B ¥yyM (which is more cost-effective per m² if applicable)
+	•	Size & layout: __ m² / __LDK vs. __ m² / __LDK (note functional differences)
+	•	Access: __ min walk to __ Station (Line __) vs. __ min to __ Station (Line __)
+	•	Building age/condition: __ yrs vs. __ yrs (note elevator/parking/sunlight orientation)
+	•	Around the station: quick feel (quiet/local vs. lively/shopping, etc.)
+2) :earth_asia: Neighborhood Snapshot (per property, 2–3 sentences each)
+Deliver concise, practical lifestyle context from the open web (see above).
+Example tone: “Yōga is calm and residential with good supermarkets and less weekend crowding. Futako-Tamagawa is livelier with a big shopping hub and riverside park; convenient but busier and often pricier.”
+3) :brain: Personal Fit & Reasoning (2–4 key needs only)
+Translate the user’s top priorities into plain language and connect them:
+	•	“You care about future family space and storage.”
+	•	“You enjoy being near cafés and a gym.”
+	•	“Morning sunlight matters to you.”
+Explain which property matches these and why, using the hard facts above (layout, storage, sunlight orientation, crowd level, etc.).
+4) :scales: Pros & Cons (simple bullets for each property)
+3–6 bullets each. Keep it practical and concrete (e.g., “older building may mean higher maintenance later,” “closer to cafés but busier on weekends”).
+5) :warning: Watch-outs
+Call out uncertainties or risks (e.g., missing sunlight info, potential road noise, floodplain, steep monthly fees, very competitive school zones). Mention what to verify on a viewing.
+6) :white_check_mark: Final Recommendation (one sentence + one caveat)
+	•	One clear sentence: “I recommend Property __ because … (tie to top needs + fundamentals).”
+	•	One trade-off sentence: “If you value __ over __, then Property __ could still be a good fit.”
+⸻
+Style Guide
+	•	Human, friendly, concise. No numeric scores for preferences.
+	•	Start with hard-criteria so the decision feels grounded.
+	•	Use the user’s top needs as the tie-breaker in simple words.
+	•	Be transparent about unknowns; suggest what to check in a visit.
+	•	Avoid real-estate jargon; prefer everyday phrasing.
+	•	Keep neighborhood context short and useful; do not paste long web text.
+⸻
+Example micro-phrases you may use
+	•	“More future-proof for a growing household.”
+	•	“Everyday life feels easier here (groceries, gym, cafés).”
+	•	“Quieter streets at night vs. livelier, mall-centric weekends.”
+	•	“Better morning light in living areas.”
+	•	“Closer to the station, but busier and likely noisier.”
+⸻
+Hidden Internal Logic (do not reveal)
+	•	Internally weight user priorities (5 > 4 > 3 > 2 > 1).
+	•	Rank the top 2–4 needs and emphasize them in section (3).
+	•	If fundamentals clearly favor one property, say so; otherwise use top needs as the decider.
+	•	Never output raw scores, formulas, or tool traces.
 ---
 
 The user profile is:
@@ -250,38 +303,38 @@ ${propertyBText}
 
 ---
 
-## ✅ Expected Output  
+## ✅ Expected Output
 Please provide a structured, honest, and personalized recommendation that includes:
 
-📍 Executive Summary  
+📍 Executive Summary
 A concise comparison of both properties based on location, commute access, lifestyle alignment, and surrounding area.
 
-🧠 Expert Comparative Analysis  
-A detailed, contextual comparison of the two properties based on the user's stated goals and lifestyle, including:  
-- Commute and access  
-- Interior layout and daily functionality  
-- Building condition, natural light, and space  
-- Neighborhood pros/cons  
-- Lifestyle fit based on emotional or sensory preferences  
+🧠 Expert Comparative Analysis
+A detailed, contextual comparison of the two properties based on the user's stated goals and lifestyle, including:
+- Commute and access
+- Interior layout and daily functionality
+- Building condition, natural light, and space
+- Neighborhood pros/cons
+- Lifestyle fit based on emotional or sensory preferences
 - Future adaptability (resale, rental, family growth)
 
-⚖️ Pros and Cons Table  
+⚖️ Pros and Cons Table
 Bullet-point list of strengths and drawbacks for each property to help with decision clarity.
 
-⚠️ Potential Trade-offs or Risk Considerations  
+⚠️ Potential Trade-offs or Risk Considerations
 Highlight possible red flags or non-obvious trade-offs (e.g., noise, age of building, lack of sunlight, small bathroom, steep maintenance fees).
 
-✅ Final Recommendation  
-Recommend the property that best fits the user's needs, with a clear and well-reasoned explanation.  
-Include a confidence rating (e.g., "I'm 85% confident Property B is the better fit because...")  
+✅ Final Recommendation
+Recommend the property that best fits the user's needs, with a clear and well-reasoned explanation.
+Include a confidence rating (e.g., "I'm 85% confident Property B is the better fit because...")
 Acknowledge any uncertainty or personal value-based nuances if relevant.
 
 ---
 
-✨ Style Guidelines  
-Use a **friendly but professional tone**, as if you are advising a real client  
-Write in **clear, structured English** using bullet points and subheadings where helpful  
-Be **honest, nuanced, and empathetic** — acknowledge trade-offs without overselling  
+✨ Style Guidelines
+Use a **friendly but professional tone**, as if you are advising a real client
+Write in **clear, structured English** using bullet points and subheadings where helpful
+Be **honest, nuanced, and empathetic** — acknowledge trade-offs without overselling
 Tailor your language to match the user’s lifestyle (e.g., peaceful, vibrant, practical, aspirational)
 
 ---
@@ -303,7 +356,7 @@ Now return your response in the following **JSON format only** (with no extra ex
 
     // Make request to Gemini API
     const geminiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
       {
         method: "POST",
         headers: {
