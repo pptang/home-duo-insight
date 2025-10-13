@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "home": "Home",
+    "compare": "Compare",
+    "feed": "Feed",
+    "experts": "Experts",
+    "about": "About"
+  },
+  "home": {
+    "hero": {
+      "title": "No longer be overwhelmed by property searching. Let's find your ideal lifestyle with Aisum.ai.",
+      "subtitle": "Finding a home is a major life event. That's precisely why we want to deliver deep satisfaction and joy, not compromises and anxiety. AI uncovers possibilities from vast data, while experienced experts stay close to your feelings. Aisum is the new standard for finding a home.",
+      "cta_primary": "Search for your ideal lifestyle",
+      "cta_secondary": "What are Aisum's strengths?"
+    },
+    "approach": {
+      "title": "A satisfying choice, made surprisingly smooth.",
+      "step1": {
+        "title": "AI gives form to your \"feelings and thoughts\"",
+        "description": "A vague image like \"I want to live this kind of life\" is perfectly fine. Just by conveying your lifestyle and the values you hold dear, our AI instantly sketches out the perfect options for you from a vast amount of property information."
+      },
+      "step2": {
+        "title": "With data, turn hesitation into conviction",
+        "description": "When you line up the properties you're interested in, you can see multifaceted data like the surrounding environment, asset value, and sun exposure at a glance. Objective facts will guide your intuitive \"like\" into unwavering \"conviction.\""
+      },
+      "step3": {
+        "title": "Experts provide strong support for the final step",
+        "description": "When professional judgment is needed for things like contracts or loans, it's our turn. Experienced professionals will always be on your side, resolving any questions or concerns. We will run alongside you until the very end, so you can make your decision with peace of mind."
+      }
+    }
+  },
+  "compare": {
+    "title": "Understand the resolution of your lifestyle by comparing",
+    "subtitle": "Line up the properties you're interested in here and let's simulate your future life."
+  },
+  "feed": {
+    "title": "Aisum Magazine",
+    "subtitle": "Tips to further enrich your ideal lifestyle"
+  },
+  "experts": {
+    "title": "Lifestyle Concierge",
+    "subtitle": "They are not just real estate pros, but also partners in realizing your ideal lifestyle.",
+    "apply_title": "Interested in becoming an expert on AiSumai?",
+    "apply_button": "Apply to Become an Expert",
+    "pending": "Your application is under review."
+  },
+  "about": {
+    "title": "Our Origin",
+    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"Aisum\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner."
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "signup": "Sign Up"
+  }
+}

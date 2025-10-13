@@ -5,16 +5,18 @@ import { Database } from "@/integrations/supabase/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ThumbsUp } from "lucide-react";
 
-type Vote = Database['public']['Tables']['votes']['Row'] & {
-  expert_profiles: {
-    name: string | null;
-    profile_image_url: string | null;
-    user_id: string | null;
-    profiles: {
-      full_name: string | null;
-      area_specialization: string | null;
-    } | null;
+type ExpertProfile = {
+  name: string | null;
+  profile_image_url: string | null;
+  user_id: string | null;
+  profiles: {
+    full_name: string | null;
+    area_specialization: string | null;
   } | null;
+};
+
+type Vote = Database['public']['Tables']['votes']['Row'] & {
+  expert_profiles: ExpertProfile | null;
 };
 
 interface FeedExpertInsightsProps {
@@ -34,23 +36,11 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
       setIsLoading(true);
       
       try {
-        // Make sure comparisonId is a string
         const comparison_id = String(comparisonId);
         
-        const { data, error } = await supabase
+        const { data: votesData, error } = await supabase
           .from('votes')
-          .select(`
-            *,
-            expert_profiles:expert_user_id (
-              name,
-              profile_image_url,
-              user_id,
-              profiles:user_id (
-                full_name,
-                area_specialization
-              )
-            )
-          `)
+          .select("*")
           .eq('comparison_id', comparison_id)
           .order('created_at', { ascending: false });
           
@@ -59,7 +49,36 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
           return;
         }
         
-        setVotes(data as Vote[]);
+        // Fetch expert profiles and user profiles separately
+        const votesWithProfiles = await Promise.all(
+          (votesData || []).map(async (vote) => {
+            const { data: expertProfile } = await supabase
+              .from("expert_profiles")
+              .select("name, profile_image_url, user_id")
+              .eq("user_id", vote.expert_user_id)
+              .single();
+
+            let profiles = null;
+            if (expertProfile?.user_id) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("full_name, area_specialization")
+                .eq("id", expertProfile.user_id)
+                .single();
+              profiles = profileData;
+            }
+
+            return {
+              ...vote,
+              expert_profiles: expertProfile ? {
+                ...expertProfile,
+                profiles
+              } : null
+            };
+          })
+        );
+        
+        setVotes(votesWithProfiles as Vote[]);
       } catch (error) {
         console.error("Error fetching votes:", error);
       } finally {

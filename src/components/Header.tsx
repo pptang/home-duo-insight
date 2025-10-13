@@ -1,12 +1,15 @@
 
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { AuthButtons } from "@/components/AuthButtons";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
@@ -22,23 +25,24 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             <Link to="/" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              Home
+              {t("nav.home")}
             </Link>
             <Link to="/compare" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              Compare
+              {t("nav.compare")}
             </Link>
             <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              Feed
+              {t("nav.feed")}
             </Link>
             <Link to="/experts" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              Experts
+              {t("nav.experts")}
             </Link>
             <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              About
+              {t("nav.about")}
             </Link>
           </nav>
 
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center gap-2">
+            <LanguageSwitcher />
             <AuthButtons />
           </div>
 
@@ -63,37 +67,38 @@ const Header = () => {
               className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Home
+              {t("nav.home")}
             </Link>
             <Link 
               to="/compare" 
               className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Compare
+              {t("nav.compare")}
             </Link>
             <Link 
               to="/feed" 
               className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Feed
+              {t("nav.feed")}
             </Link>
             <Link 
               to="/experts" 
               className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Experts
+              {t("nav.experts")}
             </Link>
             <Link 
               to="/about" 
               className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              About
+              {t("nav.about")}
             </Link>
-            <div className="pt-4 pb-3 border-t border-border">
+            <div className="pt-4 pb-3 border-t border-border flex items-center justify-between">
+              <LanguageSwitcher />
               <AuthButtons />
             </div>
           </div>

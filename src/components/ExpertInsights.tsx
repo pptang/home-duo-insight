@@ -6,16 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
-type Vote = Database["public"]["Tables"]["votes"]["Row"] & {
-  expert_profiles: {
-    name: string | null;
-    profile_image_url: string | null;
-    user_id: string | null;
-    profiles: {
-      full_name: string | null;
-      area_specialization: string | null;
-    } | null;
+type ExpertProfile = {
+  name: string | null;
+  profile_image_url: string | null;
+  user_id: string | null;
+  profiles: {
+    full_name: string | null;
+    area_specialization: string | null;
   } | null;
+};
+
+type Vote = Database["public"]["Tables"]["votes"]["Row"] & {
+  expert_profiles: ExpertProfile | null;
 };
 
 interface ExpertInsightsProps {
@@ -38,20 +40,9 @@ export function ExpertInsights({
     const fetchExpertVotes = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
+        const { data: votesData, error } = await supabase
           .from("votes")
-          .select(`
-            *,
-            expert_profiles:expert_user_id (
-              name,
-              profile_image_url,
-              user_id,
-              profiles:user_id (
-                full_name,
-                area_specialization
-              )
-            )
-          `)
+          .select("*")
           .eq("comparison_id", comparisonId)
           .order("created_at", { ascending: false });
 
@@ -60,7 +51,36 @@ export function ExpertInsights({
           return;
         }
 
-        setVotes(data as Vote[]);
+        // Fetch expert profiles and user profiles separately
+        const votesWithProfiles = await Promise.all(
+          (votesData || []).map(async (vote) => {
+            const { data: expertProfile } = await supabase
+              .from("expert_profiles")
+              .select("name, profile_image_url, user_id")
+              .eq("user_id", vote.expert_user_id)
+              .single();
+
+            let profiles = null;
+            if (expertProfile?.user_id) {
+              const { data: profileData } = await supabase
+                .from("profiles")
+                .select("full_name, area_specialization")
+                .eq("id", expertProfile.user_id)
+                .single();
+              profiles = profileData;
+            }
+
+            return {
+              ...vote,
+              expert_profiles: expertProfile ? {
+                ...expertProfile,
+                profiles
+              } : null
+            };
+          })
+        );
+
+        setVotes(votesWithProfiles as Vote[]);
       } catch (error) {
         console.error("Unexpected error fetching votes:", error);
       } finally {
