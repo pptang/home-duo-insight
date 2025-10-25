@@ -411,5 +411,72 @@
       "imagesLoaded": "Images loaded!",
       "imagesLoadedDesc": "Property images have been successfully extracted."
     }
+  },
+  "about": {
+    "hero": {
+      "brandName": "AiSumai",
+      "brandMeaning": "AI × 住まい (home) × 愛 (love)",
+      "heading": "Making It Easier to Choose Your Perfect Home",
+      "description": "Helping renters and home buyers in Japan make confident final housing decisions through",
+      "descriptionAI": "AI-powered analysis",
+      "descriptionExpert": "expert insights",
+      "descriptionCommunity": "community wisdom",
+      "ctaPrimary": "🚀 Compare Properties",
+      "ctaSecondary": "📊 Browse Comparisons"
+    },
+    "howItWorks": {
+      "aiTitle": "AI Analysis",
+      "aiDescription": "Our AI evaluates both properties based on objective criteria and your personal priorities. It analyzes floor plans, location data, pricing, and more to provide a detailed comparison.",
+      "aiFeature": "🎯 Personalized recommendations based on your lifestyle",
+      "aiOverlay": "Click to see AI in action",
+      "expertTitle": "Expert Insights",
+      "expertDescription": "Local real estate professionals provide their expert opinion on your choices, highlighting factors you might have missed and offering practical advice based on experience.",
+      "expertFeature": "🏆 Verified local market expertise",
+      "expertOverlay": "Real expert opinions",
+      "communityTitle": "Community Wisdom",
+      "communityDescription": "Browse similar comparisons from other users and learn from their experiences. See which properties others chose and why, gaining valuable perspective for your decision.",
+      "communityFeature": "🌟 Real stories from real decisions",
+      "communityOverlay": "Community experiences"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "What types of properties can I compare?",
+      "a1": "You can compare any two residential properties in Japan, including apartments, houses, condominiums, and more. The service works for both rentals and properties for sale.",
+      "q2": "How much does it cost to use DuoHome Advisor?",
+      "a2": "Basic property comparisons are free. Premium features, including detailed AI analysis and expert consultations, will be available through subscription plans (coming soon).",
+      "q3": "Which real estate websites are supported for URL importing?",
+      "a3": "In the future, we plan to support automatic data importing from major Japanese real estate platforms including Suumo, at home, LIFULL HOME'S, and others. Currently, you can enter property information manually.",
+      "q4": "How accurate is the AI recommendation?",
+      "a4": "Our AI provides recommendations based on the data available and your stated preferences. It's designed to offer an objective analysis, but we always recommend considering the expert insights alongside the AI recommendation for a complete picture.",
+      "q5": "Who are the experts providing insights?",
+      "a5": "Our experts include licensed real estate agents, property managers, and other industry professionals in Japan. Each expert has a verified profile showing their credentials, experience, and areas of specialization.",
+      "q6": "Is my comparison private?",
+      "a6": "By default, your property comparisons are private. You have the option to make them public to contribute to our community knowledge base, but this is entirely optional."
+    },
+    "team": {
+      "title": "Our Team",
+      "description": "We're a passionate team of real estate professionals, data scientists, and developers dedicated to making property decisions easier in Japan.",
+      "member1Name": "Tanaka Hiroshi",
+      "member1Role": "Founder & CEO",
+      "member1Bio": "Former real estate consultant with 15+ years experience in the Tokyo market.",
+      "member2Name": "Emma Takahashi",
+      "member2Role": "Head of Data Science",
+      "member2Bio": "AI specialist focused on property valuation and recommendation systems.",
+      "member3Name": "Yamamoto Ken",
+      "member3Role": "Expert Relations Manager",
+      "member3Bio": "Coordinates our network of real estate professionals across Japan."
+    },
+    "cta": {
+      "heading": "Ready to Start Your Journey with AiSumai?",
+      "description": "Compare your shortlisted properties now and get personalized insights to help you choose the",
+      "descriptionHighlight": "perfect home",
+      "descriptionEnd": "with confidence.",
+      "button": "Start Your Comparison",
+      "freeToUse": "Free to use",
+      "noRegistration": "No registration required",
+      "feature1": "Instant Analysis",
+      "feature2": "Personalized Results",
+      "feature3": "Expert Insights"
+    }
   }
 }
