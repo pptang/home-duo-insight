@@ -1,5 +1,5 @@
-
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ export function ExpertRating({ expertId, className, onRatingSubmitted }: ExpertR
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Check if the user has already rated this expert
   useEffect(() => {
@@ -48,8 +49,8 @@ export function ExpertRating({ expertId, className, onRatingSubmitted }: ExpertR
   const handleRatingClick = async (value: number) => {
     if (!user) {
       toast({
-        title: "Login Required",
-        description: "You must be logged in to rate experts",
+        title: t("expertRating.loginRequired"),
+        description: t("expertRating.loginRequiredDesc"),
         variant: "destructive",
       });
       return;
@@ -84,8 +85,8 @@ export function ExpertRating({ expertId, className, onRatingSubmitted }: ExpertR
       setUserPreviousRating(value);
       
       toast({
-        title: "Rating Submitted",
-        description: "Thank you for your feedback!",
+        title: t("expertRating.ratingSubmitted"),
+        description: t("expertRating.ratingSubmittedDesc"),
       });
       
       if (onRatingSubmitted) {
@@ -94,8 +95,8 @@ export function ExpertRating({ expertId, className, onRatingSubmitted }: ExpertR
     } catch (error) {
       console.error("Error submitting rating:", error);
       toast({
-        title: "Error",
-        description: "Failed to submit your rating",
+        title: t("expertRating.error"),
+        description: t("expertRating.errorDesc"),
         variant: "destructive",
       });
     } finally {
@@ -135,7 +136,7 @@ export function ExpertRating({ expertId, className, onRatingSubmitted }: ExpertR
       onMouseLeave={() => setHoveredRating(null)}
     >
       <p className="text-sm mb-1">
-        {userPreviousRating ? "Your rating:" : "Rate this expert:"}
+        {userPreviousRating ? t("expertRating.yourRating") : t("expertRating.rateThisExpert")}
       </p>
       <div className="flex items-center">
         {renderStars()}

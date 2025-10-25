@@ -531,5 +531,91 @@
     "myAccount": "My Account",
     "myProfile": "My Public Profile",
     "signOut": "Sign out"
+  },
+  "feedExpertVoting": {
+    "alreadyVoted": "You've already voted on this comparison.",
+    "title": "Expert Vote",
+    "voteFor": "Vote for",
+    "commentLabel": "Optional comment (max 280 characters)",
+    "commentPlaceholder": "Share your expert insight...",
+    "characterCount": "{{count}}/280",
+    "submitting": "Submitting...",
+    "submitVote": "Submit Vote",
+    "voteFailed": "Vote failed",
+    "voteFailedDesc": "Could not submit your vote. Please try again.",
+    "voteSubmitted": "Vote submitted",
+    "voteSubmittedDesc": "Your expert vote has been recorded."
+  },
+  "feedExpertInsights": {
+    "loading": "Loading expert insights...",
+    "noVotes": "No expert votes yet",
+    "title": "Expert Insights"
+  },
+  "expertSection": {
+    "title": "Expert Opinions"
+  },
+  "expertRating": {
+    "loginRequired": "Login Required",
+    "loginRequiredDesc": "You must be logged in to rate experts",
+    "ratingSubmitted": "Rating Submitted",
+    "ratingSubmittedDesc": "Thank you for your feedback!",
+    "error": "Error",
+    "errorDesc": "Failed to submit your rating",
+    "yourRating": "Your rating:",
+    "rateThisExpert": "Rate this expert:"
+  },
+  "expertProfileEditForm": {
+    "profileImage": "Profile Image",
+    "maxSize": "Max 5MB. JPG, PNG, or WEBP format.",
+    "name": "Name",
+    "nameRequired": "Name is required",
+    "email": "Email",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Invalid email address",
+    "phone": "Phone",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us about yourself and your expertise...",
+    "website": "Website",
+    "websitePlaceholder": "https://...",
+    "xHandle": "X (Twitter) Handle",
+    "xHandlePlaceholder": "@username",
+    "instagramUrl": "Instagram URL",
+    "instagramPlaceholder": "https://instagram.com/username",
+    "lineUrl": "LINE URL",
+    "linePlaceholder": "https://line.me/...",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "profileUpdated": "Profile updated",
+    "profileUpdatedDesc": "Your profile has been successfully updated",
+    "errorUpdating": "Error updating profile",
+    "imageTooLarge": "Image must be less than 5MB",
+    "invalidImageType": "Image must be JPG, PNG, or WEBP format"
+  },
+  "expertProfile": {
+    "expertBadge": "Expert",
+    "ratings": "ratings",
+    "notFound": "Expert profile not found",
+    "companyWebsite": "Company Website",
+    "twitter": "𝕏 Twitter",
+    "instagram": "Instagram",
+    "line": "LINE",
+    "error": "Error",
+    "errorDesc": "Failed to load expert profile",
+    "unexpectedError": "An unexpected error occurred"
+  },
+  "expertInsights": {
+    "title": "Expert Insights",
+    "loading": "Loading expert opinions...",
+    "description": "Professional opinions from real estate experts",
+    "noOpinions": "No expert opinions yet for this comparison",
+    "noVotes": "Experts haven't voted on this comparison yet",
+    "expertVotes": "Expert votes:",
+    "votes": "votes",
+    "property": "Property"
+  },
+  "expertAvatarGroup": {
+    "moreExperts": "{{count}} more expert",
+    "moreExpertsPlural": "{{count}} more experts",
+    "viewProfile": "View {{name}}'s profile"
   }
 }

@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,7 @@ export function ExpertInsights({
 }: ExpertInsightsProps) {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchExpertVotes = async () => {
@@ -95,8 +96,8 @@ export function ExpertInsights({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Expert Insights</CardTitle>
-          <CardDescription>Loading expert opinions...</CardDescription>
+          <CardTitle>{t("expertInsights.title")}</CardTitle>
+          <CardDescription>{t("expertInsights.loading")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -106,11 +107,11 @@ export function ExpertInsights({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Expert Insights</CardTitle>
-          <CardDescription>No expert opinions yet for this comparison</CardDescription>
+          <CardTitle>{t("expertInsights.title")}</CardTitle>
+          <CardDescription>{t("expertInsights.noOpinions")}</CardDescription>
         </CardHeader>
         <CardContent className="text-center py-6 text-gray-500">
-          Experts haven't voted on this comparison yet
+          {t("expertInsights.noVotes")}
         </CardContent>
       </Card>
     );
@@ -128,16 +129,16 @@ export function ExpertInsights({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle>Expert Insights</CardTitle>
-        <CardDescription>Professional opinions from real estate experts</CardDescription>
+        <CardTitle>{t("expertInsights.title")}</CardTitle>
+        <CardDescription>{t("expertInsights.description")}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Vote summary */}
         <div className="bg-slate-50 p-4 rounded-md mb-4">
-          <div className="text-sm mb-2">Expert votes: {totalVotes}</div>
+          <div className="text-sm mb-2">{t("expertInsights.expertVotes")} {totalVotes}</div>
           <div className="flex justify-between text-sm mb-1">
-            <span>{propertyAName}: {propertyAVotes} votes ({propertyAPercentage}%)</span>
-            <span>{propertyBName}: {propertyBVotes} votes ({propertyBPercentage}%)</span>
+            <span>{propertyAName}: {propertyAVotes} {t("expertInsights.votes")} ({propertyAPercentage}%)</span>
+            <span>{propertyBName}: {propertyBVotes} {t("expertInsights.votes")} ({propertyBPercentage}%)</span>
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
@@ -172,7 +173,7 @@ export function ExpertInsights({
                   </div>
                   <div className="ml-auto">
                     <Badge className={vote.voted_for === "A" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}>
-                      Property {vote.voted_for}
+                      {t("expertInsights.property")} {vote.voted_for}
                     </Badge>
                   </div>
                 </div>

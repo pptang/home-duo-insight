@@ -1,5 +1,5 @@
-
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -28,6 +28,7 @@ interface FeedExpertInsightsProps {
 export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName }: FeedExpertInsightsProps) => {
   const [votes, setVotes] = useState<Vote[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchVotes = async () => {
@@ -90,13 +91,13 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
   }, [comparisonId]);
   
   if (isLoading) {
-    return <div className="p-4 text-center text-gray-500">Loading expert insights...</div>;
+    return <div className="p-4 text-center text-gray-500">{t("feedExpertInsights.loading")}</div>;
   }
   
   if (votes.length === 0) {
     return (
       <div className="bg-white rounded-lg border p-4 text-center text-gray-500">
-        No expert votes yet
+        {t("feedExpertInsights.noVotes")}
       </div>
     );
   }
@@ -104,7 +105,7 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
   return (
     <div className="bg-white rounded-lg border">
       <div className="p-4 border-b">
-        <h3 className="font-semibold text-lg">Expert Insights</h3>
+        <h3 className="font-semibold text-lg">{t("feedExpertInsights.title")}</h3>
       </div>
       <div className="divide-y">
         {votes.map((vote) => {

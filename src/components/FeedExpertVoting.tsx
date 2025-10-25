@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,13 +26,14 @@ export const FeedExpertVoting = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // If the user has already voted, show a message instead of the voting form
   if (hasVoted) {
     return (
       <div className="bg-white rounded-lg border p-4">
         <p className="text-center text-gray-600">
-          You've already voted on this comparison.
+          {t("feedExpertVoting.alreadyVoted")}
         </p>
       </div>
     );
@@ -58,15 +59,15 @@ export const FeedExpertVoting = ({
         console.error("Error submitting vote:", error);
         toast({
           variant: "destructive",
-          title: "Vote failed",
-          description: "Could not submit your vote. Please try again.",
+          title: t("feedExpertVoting.voteFailed"),
+          description: t("feedExpertVoting.voteFailedDesc"),
         });
         return;
       }
 
       toast({
-        title: "Vote submitted",
-        description: "Your expert vote has been recorded.",
+        title: t("feedExpertVoting.voteSubmitted"),
+        description: t("feedExpertVoting.voteSubmittedDesc"),
       });
 
       setVoteOption(null);
@@ -76,8 +77,8 @@ export const FeedExpertVoting = ({
       console.error("Error submitting vote:", error);
       toast({
         variant: "destructive",
-        title: "Vote failed",
-        description: "Could not submit your vote. Please try again.",
+        title: t("feedExpertVoting.voteFailed"),
+        description: t("feedExpertVoting.voteFailedDesc"),
       });
     } finally {
       setIsSubmitting(false);
@@ -86,7 +87,7 @@ export const FeedExpertVoting = ({
 
   return (
     <div className="bg-white rounded-lg border p-4 space-y-4">
-      <h3 className="font-semibold text-lg">Expert Vote</h3>
+      <h3 className="font-semibold text-lg">{t("feedExpertVoting.title")}</h3>
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
           variant={voteOption === "A" ? "default" : "outline"}
@@ -94,7 +95,7 @@ export const FeedExpertVoting = ({
           onClick={() => setVoteOption("A")}
           size="sm"
         >
-          Vote for {propertyAName || "Property A"}
+          {t("feedExpertVoting.voteFor")} {propertyAName || "Property A"}
         </Button>
         <Button
           variant={voteOption === "B" ? "default" : "outline"}
@@ -102,7 +103,7 @@ export const FeedExpertVoting = ({
           onClick={() => setVoteOption("B")}
           size="sm"
         >
-          Vote for {propertyBName || "Property B"}
+          {t("feedExpertVoting.voteFor")} {propertyBName || "Property B"}
         </Button>
       </div>
 
@@ -113,11 +114,11 @@ export const FeedExpertVoting = ({
               htmlFor="comment"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Optional comment (max 280 characters)
+              {t("feedExpertVoting.commentLabel")}
             </label>
             <Textarea
               id="comment"
-              placeholder="Share your expert insight..."
+              placeholder={t("feedExpertVoting.commentPlaceholder")}
               value={comment}
               onChange={(e) => setComment(e.target.value.slice(0, 280))}
               className="w-full"
@@ -125,7 +126,7 @@ export const FeedExpertVoting = ({
               rows={3}
             />
             <div className="text-xs text-right text-gray-500 mt-1">
-              {comment.length}/280
+              {t("feedExpertVoting.characterCount", { count: comment.length })}
             </div>
           </div>
 
@@ -134,7 +135,7 @@ export const FeedExpertVoting = ({
             disabled={isSubmitting}
             className="w-full sm:w-auto"
           >
-            {isSubmitting ? "Submitting..." : "Submit Vote"}
+            {isSubmitting ? t("feedExpertVoting.submitting") : t("feedExpertVoting.submitVote")}
           </Button>
         </div>
       )}

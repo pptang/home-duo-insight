@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +24,7 @@ const ExpertProfileEditForm = ({
   onUpdate,
 }: ExpertProfileEditFormProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
@@ -67,8 +69,8 @@ const ExpertProfileEditForm = ({
       // Validate file size (5MB limit)
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: "Error",
-          description: "Image must be less than 5MB",
+          title: t("expertRating.error"),
+          description: t("expertProfileEditForm.imageTooLarge"),
           variant: "destructive",
         });
         return;
@@ -78,8 +80,8 @@ const ExpertProfileEditForm = ({
       const validTypes = ["image/jpeg", "image/png", "image/webp"];
       if (!validTypes.includes(file.type)) {
         toast({
-          title: "Error",
-          description: "Image must be JPG, PNG, or WEBP format",
+          title: t("expertRating.error"),
+          description: t("expertProfileEditForm.invalidImageType"),
           variant: "destructive",
         });
         return;
@@ -139,14 +141,14 @@ const ExpertProfileEditForm = ({
       }
 
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated",
+        title: t("expertProfileEditForm.profileUpdated"),
+        description: t("expertProfileEditForm.profileUpdatedDesc"),
       });
       
       onUpdate();
     } catch (error: any) {
       toast({
-        title: "Error updating profile",
+        title: t("expertProfileEditForm.errorUpdating"),
         description: error.message,
         variant: "destructive",
       });
@@ -161,7 +163,7 @@ const ExpertProfileEditForm = ({
       <div className="space-y-4">
         {/* Profile Image */}
         <div className="space-y-2">
-          <Label htmlFor="profileImage">Profile Image</Label>
+          <Label htmlFor="profileImage">{t("expertProfileEditForm.profileImage")}</Label>
           <div className="flex items-center gap-4">
             {previewUrl && (
               <div className="relative w-24 h-24 rounded-full overflow-hidden">
@@ -180,7 +182,7 @@ const ExpertProfileEditForm = ({
                 onChange={handleImageChange}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Max 5MB. JPG, PNG, or WEBP format.
+                {t("expertProfileEditForm.maxSize")}
               </p>
             </div>
           </div>
@@ -188,10 +190,10 @@ const ExpertProfileEditForm = ({
 
         {/* Name */}
         <div className="space-y-2">
-          <Label htmlFor="name">Name*</Label>
+          <Label htmlFor="name">{t("expertProfileEditForm.name")}*</Label>
           <Input
             id="name"
-            {...register("name", { required: "Name is required" })}
+            {...register("name", { required: t("expertProfileEditForm.nameRequired") })}
           />
           {errors.name && (
             <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -200,15 +202,15 @@ const ExpertProfileEditForm = ({
 
         {/* Email */}
         <div className="space-y-2">
-          <Label htmlFor="email">Email*</Label>
+          <Label htmlFor="email">{t("expertProfileEditForm.email")}*</Label>
           <Input
             id="email"
             type="email"
             {...register("email", { 
-              required: "Email is required",
+              required: t("expertProfileEditForm.emailRequired"),
               pattern: {
                 value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email address"
+                message: t("expertProfileEditForm.emailInvalid")
               }
             })}
           />
@@ -219,7 +221,7 @@ const ExpertProfileEditForm = ({
 
         {/* Phone */}
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone</Label>
+          <Label htmlFor="phone">{t("expertProfileEditForm.phone")}</Label>
           <Input
             id="phone"
             {...register("phone")}
@@ -228,50 +230,50 @@ const ExpertProfileEditForm = ({
 
         {/* Bio */}
         <div className="space-y-2">
-          <Label htmlFor="bio">Bio</Label>
+          <Label htmlFor="bio">{t("expertProfileEditForm.bio")}</Label>
           <Textarea
             id="bio"
             {...register("bio")}
-            placeholder="Tell us about yourself and your expertise..."
+            placeholder={t("expertProfileEditForm.bioPlaceholder")}
             rows={4}
           />
         </div>
 
         {/* Website */}
         <div className="space-y-2">
-          <Label htmlFor="company_website">Website</Label>
+          <Label htmlFor="company_website">{t("expertProfileEditForm.website")}</Label>
           <Input
             id="company_website"
             {...register("company_website")}
-            placeholder="https://..."
+            placeholder={t("expertProfileEditForm.websitePlaceholder")}
           />
         </div>
 
         {/* Social Media */}
         <div className="space-y-2">
-          <Label htmlFor="x_handle">X (Twitter) Handle</Label>
+          <Label htmlFor="x_handle">{t("expertProfileEditForm.xHandle")}</Label>
           <Input
             id="x_handle"
             {...register("x_handle")}
-            placeholder="@username"
+            placeholder={t("expertProfileEditForm.xHandlePlaceholder")}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="instagram_url">Instagram URL</Label>
+          <Label htmlFor="instagram_url">{t("expertProfileEditForm.instagramUrl")}</Label>
           <Input
             id="instagram_url"
             {...register("instagram_url")}
-            placeholder="https://instagram.com/username"
+            placeholder={t("expertProfileEditForm.instagramPlaceholder")}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="line_url">LINE URL</Label>
+          <Label htmlFor="line_url">{t("expertProfileEditForm.lineUrl")}</Label>
           <Input
             id="line_url"
             {...register("line_url")}
-            placeholder="https://line.me/..."
+            placeholder={t("expertProfileEditForm.linePlaceholder")}
           />
         </div>
       </div>
@@ -279,11 +281,11 @@ const ExpertProfileEditForm = ({
       {/* Form Actions */}
       <div className="flex justify-end gap-2">
         <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+          {t("expertProfileEditForm.cancel")}
         </Button>
         <Button type="submit" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save Changes
+          {t("expertProfileEditForm.saveChanges")}
         </Button>
       </div>
     </form>

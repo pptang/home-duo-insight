@@ -1,5 +1,5 @@
-
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ExpertVoting } from "@/components/ExpertVoting";
 import { ExpertInsights } from "@/components/ExpertInsights";
@@ -14,6 +14,7 @@ interface ExpertSectionProps {
 
 export function ExpertSection({ comparisonId, propertyAName, propertyBName }: ExpertSectionProps) {
   const { user, isExpert } = useAuth();
+  const { t } = useTranslation();
   const [hasVoted, setHasVoted] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [isCheckingVote, setIsCheckingVote] = useState(true);
@@ -57,7 +58,7 @@ export function ExpertSection({ comparisonId, propertyAName, propertyBName }: Ex
 
   return (
     <div className="space-y-8">
-      <h2 className="text-2xl font-bold text-gray-900">Expert Opinions</h2>
+      <h2 className="text-2xl font-bold text-gray-900">{t("expertSection.title")}</h2>
       
       {isExpert && !isCheckingVote && (
         <ExpertVoting

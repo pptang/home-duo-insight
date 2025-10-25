@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,6 +38,7 @@ export function ExpertProfile({
   const [expert, setExpert] = useState<ExpertProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   // Fetch expert profile
   const fetchExpertProfile = async () => {
@@ -52,8 +54,8 @@ export function ExpertProfile({
       if (error) {
         console.error("Error fetching expert profile:", error);
         toast({
-          title: "Error",
-          description: "Failed to load expert profile",
+          title: t("expertProfile.error"),
+          description: t("expertProfile.errorDesc"),
           variant: "destructive",
         });
         return;
@@ -63,8 +65,8 @@ export function ExpertProfile({
     } catch (error) {
       console.error("Error:", error);
       toast({
-        title: "Error",
-        description: "An unexpected error occurred",
+        title: t("expertProfile.error"),
+        description: t("expertProfile.unexpectedError"),
         variant: "destructive",
       });
     } finally {
@@ -106,7 +108,7 @@ export function ExpertProfile({
   if (!expert) {
     return (
       <Card className={`p-4 ${className}`}>
-        <p className="text-gray-500">Expert profile not found</p>
+        <p className="text-gray-500">{t("expertProfile.notFound")}</p>
       </Card>
     );
   }
@@ -128,7 +130,7 @@ export function ExpertProfile({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold">{expert.name}</h2>
-              <Badge className="bg-[#C2A9FF]">Expert</Badge>
+              <Badge className="bg-[#C2A9FF]">{t("expertProfile.expertBadge")}</Badge>
             </div>
 
             {expert.rating_count > 0 && (
@@ -138,7 +140,7 @@ export function ExpertProfile({
                   {expert.average_rating.toFixed(1)}
                 </span>
                 <span className="text-gray-500 text-sm">
-                  ({expert.rating_count} ratings)
+                  ({expert.rating_count} {t("expertProfile.ratings")})
                 </span>
               </div>
             )}
@@ -186,7 +188,7 @@ export function ExpertProfile({
                 rel="noopener noreferrer"
                 className="text-[#6A7FDB] hover:underline"
               >
-                Company Website
+                {t("expertProfile.companyWebsite")}
               </a>
             </div>
           )}
@@ -201,7 +203,7 @@ export function ExpertProfile({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                𝕏 Twitter
+                {t("expertProfile.twitter")}
               </a>
             </Button>
           )}
@@ -213,7 +215,7 @@ export function ExpertProfile({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Instagram
+                {t("expertProfile.instagram")}
               </a>
             </Button>
           )}
@@ -225,7 +227,7 @@ export function ExpertProfile({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                LINE
+                {t("expertProfile.line")}
               </a>
             </Button>
           )}

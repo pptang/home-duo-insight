@@ -531,5 +531,91 @@
     "myAccount": "マイアカウント",
     "myProfile": "公開プロフィール",
     "signOut": "ログアウト"
+  },
+  "feedExpertVoting": {
+    "alreadyVoted": "既にこの比較に投票済みです。",
+    "title": "専門家の投票",
+    "voteFor": "投票する",
+    "commentLabel": "コメント（任意・最大280文字）",
+    "commentPlaceholder": "専門家としての見解を共有してください...",
+    "characterCount": "{{count}}/280",
+    "submitting": "送信中...",
+    "submitVote": "投票を送信",
+    "voteFailed": "投票に失敗しました",
+    "voteFailedDesc": "投票を送信できませんでした。もう一度お試しください。",
+    "voteSubmitted": "投票を送信しました",
+    "voteSubmittedDesc": "専門家の投票が記録されました。"
+  },
+  "feedExpertInsights": {
+    "loading": "専門家の見解を読み込み中...",
+    "noVotes": "まだ専門家の投票がありません",
+    "title": "専門家の見解"
+  },
+  "expertSection": {
+    "title": "専門家の意見"
+  },
+  "expertRating": {
+    "loginRequired": "ログインが必要です",
+    "loginRequiredDesc": "専門家を評価するにはログインが必要です",
+    "ratingSubmitted": "評価を送信しました",
+    "ratingSubmittedDesc": "フィードバックをありがとうございます！",
+    "error": "エラー",
+    "errorDesc": "評価の送信に失敗しました",
+    "yourRating": "あなたの評価：",
+    "rateThisExpert": "この専門家を評価する："
+  },
+  "expertProfileEditForm": {
+    "profileImage": "プロフィール画像",
+    "maxSize": "最大5MB。JPG、PNG、またはWEBP形式。",
+    "name": "名前",
+    "nameRequired": "名前は必須です",
+    "email": "メールアドレス",
+    "emailRequired": "メールアドレスは必須です",
+    "emailInvalid": "無効なメールアドレスです",
+    "phone": "電話番号",
+    "bio": "自己紹介",
+    "bioPlaceholder": "あなた自身と専門知識について教えてください...",
+    "website": "ウェブサイト",
+    "websitePlaceholder": "https://...",
+    "xHandle": "X（Twitter）ハンドル",
+    "xHandlePlaceholder": "@ユーザー名",
+    "instagramUrl": "Instagram URL",
+    "instagramPlaceholder": "https://instagram.com/ユーザー名",
+    "lineUrl": "LINE URL",
+    "linePlaceholder": "https://line.me/...",
+    "cancel": "キャンセル",
+    "saveChanges": "変更を保存",
+    "profileUpdated": "プロフィールを更新しました",
+    "profileUpdatedDesc": "プロフィールが正常に更新されました",
+    "errorUpdating": "プロフィールの更新エラー",
+    "imageTooLarge": "画像は5MB未満である必要があります",
+    "invalidImageType": "画像はJPG、PNG、またはWEBP形式である必要があります"
+  },
+  "expertProfile": {
+    "expertBadge": "専門家",
+    "ratings": "件の評価",
+    "notFound": "専門家プロフィールが見つかりません",
+    "companyWebsite": "会社のウェブサイト",
+    "twitter": "𝕏 Twitter",
+    "instagram": "Instagram",
+    "line": "LINE",
+    "error": "エラー",
+    "errorDesc": "専門家プロフィールの読み込みに失敗しました",
+    "unexpectedError": "予期しないエラーが発生しました"
+  },
+  "expertInsights": {
+    "title": "専門家の見解",
+    "loading": "専門家の意見を読み込み中...",
+    "description": "不動産専門家からのプロフェッショナルな意見",
+    "noOpinions": "この比較にはまだ専門家の意見がありません",
+    "noVotes": "専門家はまだこの比較に投票していません",
+    "expertVotes": "専門家の投票数：",
+    "votes": "票",
+    "property": "物件"
+  },
+  "expertAvatarGroup": {
+    "moreExperts": "他{{count}}名の専門家",
+    "moreExpertsPlural": "他{{count}}名の専門家",
+    "viewProfile": "{{name}}のプロフィールを見る"
   }
 }
