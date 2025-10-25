@@ -312,7 +312,7 @@ const Index = () => {
         </section>
 
         {/* Success Stories */}
-        <section className="py-32 scrollytelling-section">
+        {/* <section className="py-32 scrollytelling-section">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16 section-fade">
               <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
@@ -367,7 +367,7 @@ const Index = () => {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* High-Contrast CTA */}
         <section className="gradient-cta py-32 relative">
