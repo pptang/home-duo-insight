@@ -202,8 +202,14 @@
       "vs": "vs",
       "expert_votes": "{{count}} expert voted",
       "expert_votes_plural": "{{count}} experts voted",
+      "community_vote": "{{count}} community vote",
+      "community_votes": "{{count}} community votes",
+      "comment": "{{count}} comment",
+      "comments": "{{count}} comments",
       "view_full": "View Full Comparison",
-      "price_unavailable": "Price unavailable"
+      "price_unavailable": "Price unavailable",
+      "ai_recommendation": "AI Recommendation",
+      "expert_voting": "Expert Voting"
     }
   },
   "experts": {
@@ -285,14 +291,7 @@
       "税務": "Tax Affairs"
     }
   },
-  "about": {
-    "title": "Our Origin",
-    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"Aisum\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner."
-  },
   "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "signup": "Sign Up",
     "tabs": {
       "signin": "Sign In",
       "signup": "Sign Up"
@@ -417,6 +416,8 @@
     }
   },
   "about": {
+    "title": "Our Origin",
+    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"Aisum\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner.",
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
@@ -496,6 +497,13 @@
     "totalVotes": "Total property comparisons evaluated",
     "contactButton": "Contact Expert",
     "contactTitle": "Contact {{name}}",
+    "expertBadge": "Expert",
+    "ratings": "ratings",
+    "notFound": "Expert profile not found",
+    "companyWebsite": "Company Website",
+    "twitter": "𝕏 Twitter",
+    "instagram": "Instagram",
+    "line": "LINE",
     "contactForm": {
       "yourName": "Your Name *",
       "yourEmail": "Your Email *",
@@ -515,7 +523,10 @@
       "messageSent": "Message sent successfully",
       "messageSentDesc": "Your message has been sent to the expert.",
       "sendFailed": "Failed to send message. Please try again."
-    }
+    },
+    "error": "Error",
+    "errorDesc": "Failed to load expert profile",
+    "unexpectedError": "An unexpected error occurred"
   },
   "notFound": {
     "title": "404",
@@ -590,18 +601,6 @@
     "errorUpdating": "Error updating profile",
     "imageTooLarge": "Image must be less than 5MB",
     "invalidImageType": "Image must be JPG, PNG, or WEBP format"
-  },
-  "expertProfile": {
-    "expertBadge": "Expert",
-    "ratings": "ratings",
-    "notFound": "Expert profile not found",
-    "companyWebsite": "Company Website",
-    "twitter": "𝕏 Twitter",
-    "instagram": "Instagram",
-    "line": "LINE",
-    "error": "Error",
-    "errorDesc": "Failed to load expert profile",
-    "unexpectedError": "An unexpected error occurred"
   },
   "expertInsights": {
     "title": "Expert Insights",

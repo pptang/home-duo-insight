@@ -549,7 +549,7 @@ const Feed = () => {
                       {comparison.ai_recommendation_text && (
                         <div className="bg-softgray p-4 rounded-lg mb-4">
                           <h4 className="font-medium text-gray-900">
-                            AI Recommendation
+                            {t("feed.card.ai_recommendation")}
                           </h4>
                           <p className="mt-1 text-gray-600">
                             {comparison.ai_recommendation_text.length > 200
@@ -570,7 +570,7 @@ const Feed = () => {
                               variant="outline"
                               className="bg-blue-50 text-blue-700 border-blue-200"
                             >
-                              Expert Voting
+                              {t("feed.card.expert_voting")}
                             </Badge>
                           </div>
                           <FeedExpertVoting
@@ -614,19 +614,13 @@ const Feed = () => {
                           <div className="flex items-center text-gray-600">
                             <ThumbsUp className="h-4 w-4 mr-1" />
                             <span className="text-sm">
-                              {comparison.communityVotes} community{" "}
-                              {comparison.communityVotes === 1
-                                ? "vote"
-                                : "votes"}
+                              {t(comparison.communityVotes === 1 ? "feed.card.community_vote" : "feed.card.community_votes", { count: comparison.communityVotes })}
                             </span>
                           </div>
                           <div className="flex items-center text-gray-600">
                             <MessageSquare className="h-4 w-4 mr-1" />
                             <span className="text-sm">
-                              {comparison.comments}{" "}
-                              {comparison.comments === 1
-                                ? "comment"
-                                : "comments"}
+                              {t(comparison.comments === 1 ? "feed.card.comment" : "feed.card.comments", { count: comparison.comments })}
                             </span>
                           </div>
                         </div>

@@ -202,8 +202,14 @@
       "vs": "vs",
       "expert_votes": "{{count}}人の専門家が投票しました",
       "expert_votes_plural": "{{count}}人の専門家が投票しました",
+      "community_vote": "{{count}}票のコミュニティ投票",
+      "community_votes": "{{count}}票のコミュニティ投票",
+      "comment": "{{count}}件のコメント",
+      "comments": "{{count}}件のコメント",
       "view_full": "完全な比較を見る",
-      "price_unavailable": "価格不明"
+      "price_unavailable": "価格不明",
+      "ai_recommendation": "AIレコメンデーション",
+      "expert_voting": "専門家投票"
     }
   },
   "experts": {
@@ -285,14 +291,7 @@
       "税務": "税務"
     }
   },
-  "about": {
-    "title": "私たちの原点",
-    "mission": "「理想の住まいと出会うまでに、なぜこれほど多くの時間と不安が必要なのだろう？」このシンプルな問いが、私たち「愛すまい」の出発点です。創業者自身が経験した、情報過多でありながら本質が見えにくい従来の住まい探し。その不透明性と非効率性を、テクノロジーと人の温もりで解消したい。その想いから、私たちの挑戦は始まりました。私たちの使命は、誰もが心から納得できる住まいと出会い、自分らしい豊かな人生を歩み出す、その最初の一歩を支えること。AIは最適な地図を描き、専門家は信頼できるコンパスとなる。私たちは、あなたの最高のパートナーでありたいと願っています。"
-  },
   "auth": {
-    "login": "ログイン",
-    "logout": "ログアウト",
-    "signup": "新規登録",
     "tabs": {
       "signin": "ログイン",
       "signup": "新規登録"
@@ -417,6 +416,8 @@
     }
   },
   "about": {
+    "title": "私たちの原点",
+    "mission": "「理想の住まいと出会うまでに、なぜこれほど多くの時間と不安が必要なのだろう？」このシンプルな問いが、私たち「愛すまい」の出発点です。創業者自身が経験した、情報過多でありながら本質が見えにくい従来の住まい探し。その不透明性と非効率性を、テクノロジーと人の温もりで解消したい。その想いから、私たちの挑戦は始まりました。私たちの使命は、誰もが心から納得できる住まいと出会い、自分らしい豊かな人生を歩み出す、その最初の一歩を支えること。AIは最適な地図を描き、専門家は信頼できるコンパスとなる。私たちは、あなたの最高のパートナーでありたいと願っています。",
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
@@ -496,6 +497,13 @@
     "totalVotes": "評価した物件比較の総数",
     "contactButton": "専門家に連絡",
     "contactTitle": "{{name}}に連絡",
+    "expertBadge": "専門家",
+    "ratings": "件の評価",
+    "notFound": "専門家プロフィールが見つかりません",
+    "companyWebsite": "会社のウェブサイト",
+    "twitter": "𝕏 Twitter",
+    "instagram": "Instagram",
+    "line": "LINE",
     "contactForm": {
       "yourName": "お名前 *",
       "yourEmail": "メールアドレス *",
@@ -515,7 +523,10 @@
       "messageSent": "メッセージが送信されました",
       "messageSentDesc": "専門家にメッセージが送信されました。",
       "sendFailed": "メッセージの送信に失敗しました。もう一度お試しください。"
-    }
+    },
+    "error": "エラー",
+    "errorDesc": "専門家プロフィールの読み込みに失敗しました",
+    "unexpectedError": "予期しないエラーが発生しました"
   },
   "notFound": {
     "title": "404",
@@ -590,18 +601,6 @@
     "errorUpdating": "プロフィールの更新エラー",
     "imageTooLarge": "画像は5MB未満である必要があります",
     "invalidImageType": "画像はJPG、PNG、またはWEBP形式である必要があります"
-  },
-  "expertProfile": {
-    "expertBadge": "専門家",
-    "ratings": "件の評価",
-    "notFound": "専門家プロフィールが見つかりません",
-    "companyWebsite": "会社のウェブサイト",
-    "twitter": "𝕏 Twitter",
-    "instagram": "Instagram",
-    "line": "LINE",
-    "error": "エラー",
-    "errorDesc": "専門家プロフィールの読み込みに失敗しました",
-    "unexpectedError": "予期しないエラーが発生しました"
   },
   "expertInsights": {
     "title": "専門家の見解",
