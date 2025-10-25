@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import ExpertAvatarGroup from "@/components/ExpertAvatarGroup";
+import { useTranslation } from "react-i18next";
 
 interface Expert {
   id: string;
@@ -57,6 +58,7 @@ interface ComparisonPost {
 }
 
 const Feed = () => {
+  const { t } = useTranslation();
   const { isExpert, user } = useAuth();
   const { toast } = useToast();
   const [comparisons, setComparisons] = useState<ComparisonPost[]>([]);
@@ -253,7 +255,7 @@ const Feed = () => {
 
   // Format yen price to show in a nice format
   const formatYenPrice = (price: number | null): string => {
-    if (price === null) return "Price unavailable";
+    if (price === null) return t("feed.card.price_unavailable");
 
     // If price is >= 10,000,000 yen, show in millions
     if (price >= 10000000) {
@@ -281,21 +283,20 @@ const Feed = () => {
             <div className="flex items-center justify-center gap-4 mb-6">
               <span className="text-5xl md:text-6xl micro-animation">📊</span>
               <h1 className="cinematic-heading text-white text-4xl md:text-6xl font-bold leading-tight">
-                Community Feed
+                {t("feed.title")}
               </h1>
               <span className="text-5xl md:text-6xl micro-animation">🏘️</span>
             </div>
             
             <p className="text-xl md:text-2xl text-white/90 leading-relaxed">
-              Discover how others chose their homes with 
-              <span className="font-semibold text-accent"> AiSumai (愛住)</span>
+              {t("feed.subtitle")}
             </p>
             
             <div className="mt-8">
               <Button asChild className="gradient-cta text-white px-6 py-3 h-auto hover-glow transition-all duration-300 transform hover:scale-105">
                 <Link to="/compare" className="flex items-center gap-2">
                   <Plus className="h-5 w-5" />
-                  <span>Create Comparison</span>
+                  <span>{t("feed.create_comparison")}</span>
                   <span className="text-lg">✨</span>
                 </Link>
               </Button>
@@ -315,7 +316,7 @@ const Feed = () => {
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5 group-focus-within:text-primary transition-colors" />
                   <input
                     type="text"
-                    placeholder="🔍 Search comparisons, locations, or property types..."
+                    placeholder={t("feed.search_placeholder")}
                     className="w-full pl-12 pr-4 py-4 bg-background border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300 text-foreground placeholder:text-muted-foreground"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -327,7 +328,7 @@ const Feed = () => {
                   onClick={() => setFilterOpen(!filterOpen)}
                 >
                   <Filter className="h-4 w-4 group-hover:rotate-180 transition-transform duration-500" />
-                  <span className="ml-2">Filters</span>
+                  <span className="ml-2">{t("feed.filters")}</span>
                   {filterOpen && <span className="ml-1 animate-pulse">✨</span>}
                 </Button>
               </div>
@@ -336,44 +337,38 @@ const Feed = () => {
                 <div className="mt-6 p-6 bg-secondary/5 rounded-xl border border-secondary/20 grid grid-cols-1 md:grid-cols-3 gap-6 animate-in">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Property Type
+                      {t("feed.filter.property_type")}
                     </label>
                     <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-                      <option value="">All Types</option>
-                      <option value="apartment">Apartment</option>
-                      <option value="house">House</option>
-                      <option value="condo">Condominium</option>
+                      <option value="">{t("feed.filter.all_types")}</option>
+                      <option value="apartment">{t("feed.filter.apartment")}</option>
+                      <option value="house">{t("feed.filter.house")}</option>
+                      <option value="condo">{t("feed.filter.condo")}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Price Range
+                      {t("feed.filter.price_range")}
                     </label>
                     <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-                      <option value="">Any Price</option>
-                      <option value="rental-low">Rental: Under ¥100,000</option>
-                      <option value="rental-mid">
-                        Rental: ¥100,000 - ¥200,000
-                      </option>
-                      <option value="rental-high">Rental: Over ¥200,000</option>
-                      <option value="purchase-low">Purchase: Under ¥50M</option>
-                      <option value="purchase-mid">
-                        Purchase: ¥50M - ¥100M
-                      </option>
-                      <option value="purchase-high">
-                        Purchase: Over ¥100M
-                      </option>
+                      <option value="">{t("feed.filter.any_price")}</option>
+                      <option value="rental-low">{t("feed.filter.rental_low")}</option>
+                      <option value="rental-mid">{t("feed.filter.rental_mid")}</option>
+                      <option value="rental-high">{t("feed.filter.rental_high")}</option>
+                      <option value="purchase-low">{t("feed.filter.purchase_low")}</option>
+                      <option value="purchase-mid">{t("feed.filter.purchase_mid")}</option>
+                      <option value="purchase-high">{t("feed.filter.purchase_high")}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Sort By
+                      {t("feed.filter.sort_by")}
                     </label>
                     <select className="w-full border border-gray-300 rounded-md px-3 py-2">
-                      <option value="recent">Most Recent</option>
-                      <option value="popular">Most Popular</option>
-                      <option value="votes">Most Expert Votes</option>
-                      <option value="comments">Most Comments</option>
+                      <option value="recent">{t("feed.filter.most_recent")}</option>
+                      <option value="popular">{t("feed.filter.most_popular")}</option>
+                      <option value="votes">{t("feed.filter.most_expert_votes")}</option>
+                      <option value="comments">{t("feed.filter.most_comments")}</option>
                     </select>
                   </div>
                 </div>
@@ -424,7 +419,7 @@ const Feed = () => {
                   className="ml-auto"
                   onClick={() => setRefreshTrigger((prev) => prev + 1)}
                 >
-                  Retry
+                  {t("feed.error.retry")}
                 </Button>
               </div>
             )}
@@ -434,16 +429,15 @@ const Feed = () => {
               <div className="mt-8 bg-white rounded-lg border p-8 text-center">
                 <div className="max-w-md mx-auto">
                   <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    No comparisons yet
+                    {t("feed.empty.title")}
                   </h3>
                   <p className="text-gray-600 mb-4">
-                    No comparisons have been shared yet. Be the first to create
-                    one!
+                    {t("feed.empty.subtitle")}
                   </p>
                   <Button asChild>
                     <Link to="/compare">
                       <Plus className="mr-2 h-4 w-4" />
-                      Create Comparison
+                      {t("feed.empty.button")}
                     </Link>
                   </Button>
                 </div>
@@ -613,10 +607,7 @@ const Feed = () => {
                             <div className="flex items-center text-gray-600">
                               <Building className="h-4 w-4 mr-1" />
                               <span className="text-sm">
-                                {comparison.expertVotes} expert{" "}
-                                {comparison.expertVotes === 1
-                                  ? "vote"
-                                  : "votes"}
+                                {t(comparison.expertVotes === 1 ? "feed.card.expert_votes" : "feed.card.expert_votes_plural", { count: comparison.expertVotes })}
                               </span>
                             </div>
                           ) : null}
@@ -647,7 +638,7 @@ const Feed = () => {
                           className="mt-2 sm:mt-0"
                         >
                           <Link to={`/comparisons/${comparison.id}`}>
-                            View Full Comparison
+                            {t("feed.card.view_full")}
                           </Link>
                         </Button>
                       </div>

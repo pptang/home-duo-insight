@@ -160,8 +160,47 @@
     }
   },
   "feed": {
-    "title": "Aisum Magazine",
-    "subtitle": "Tips to further enrich your ideal lifestyle"
+    "title": "Community Feed",
+    "subtitle": "Discover how others chose their homes with AiSumai (愛住)",
+    "create_comparison": "Create Comparison",
+    "search_placeholder": "🔍 Search comparisons, locations, or property types...",
+    "filters": "Filters",
+    "filter": {
+      "property_type": "Property Type",
+      "all_types": "All Types",
+      "apartment": "Apartment",
+      "house": "House",
+      "condo": "Condominium",
+      "price_range": "Price Range",
+      "any_price": "Any Price",
+      "rental_low": "Rental: Under ¥100,000",
+      "rental_mid": "Rental: ¥100,000 - ¥200,000",
+      "rental_high": "Rental: Over ¥200,000",
+      "purchase_low": "Purchase: Under ¥50M",
+      "purchase_mid": "Purchase: ¥50M - ¥100M",
+      "purchase_high": "Purchase: Over ¥100M",
+      "sort_by": "Sort By",
+      "most_recent": "Most Recent",
+      "most_popular": "Most Popular",
+      "most_expert_votes": "Most Expert Votes",
+      "most_comments": "Most Comments"
+    },
+    "empty": {
+      "title": "No comparisons yet",
+      "subtitle": "Be the first to share your property comparison journey!",
+      "button": "Create First Comparison"
+    },
+    "error": {
+      "retry": "Retry"
+    },
+    "card": {
+      "comparing": "Comparing",
+      "vs": "vs",
+      "expert_votes": "{{count}} expert voted",
+      "expert_votes_plural": "{{count}} experts voted",
+      "view_full": "View Full Comparison",
+      "price_unavailable": "Price unavailable"
+    }
   },
   "experts": {
     "title": "Lifestyle Concierge",

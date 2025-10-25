@@ -160,8 +160,47 @@
     }
   },
   "feed": {
-    "title": "愛すまいマガジン",
-    "subtitle": "理想の暮らしを、もっと豊かにするヒント"
+    "title": "コミュニティフィード",
+    "subtitle": "AiSumai（愛住）で他の人がどのように住まいを選んだかを見てみましょう",
+    "create_comparison": "比較を作成",
+    "search_placeholder": "🔍 比較、場所、または物件タイプを検索...",
+    "filters": "フィルター",
+    "filter": {
+      "property_type": "物件タイプ",
+      "all_types": "すべてのタイプ",
+      "apartment": "アパート",
+      "house": "一戸建て",
+      "condo": "マンション",
+      "price_range": "価格帯",
+      "any_price": "すべての価格",
+      "rental_low": "賃貸：¥100,000以下",
+      "rental_mid": "賃貸：¥100,000 - ¥200,000",
+      "rental_high": "賃貸：¥200,000以上",
+      "purchase_low": "購入：¥50M以下",
+      "purchase_mid": "購入：¥50M - ¥100M",
+      "purchase_high": "購入：¥100M以上",
+      "sort_by": "並び替え",
+      "most_recent": "最新",
+      "most_popular": "人気",
+      "most_expert_votes": "専門家の投票数",
+      "most_comments": "コメント数"
+    },
+    "empty": {
+      "title": "まだ比較がありません",
+      "subtitle": "あなたの物件比較の旅を最初に共有しましょう！",
+      "button": "最初の比較を作成"
+    },
+    "error": {
+      "retry": "再試行"
+    },
+    "card": {
+      "comparing": "比較中",
+      "vs": "vs",
+      "expert_votes": "{{count}}人の専門家が投票しました",
+      "expert_votes_plural": "{{count}}人の専門家が投票しました",
+      "view_full": "完全な比較を見る",
+      "price_unavailable": "価格不明"
+    }
   },
   "experts": {
     "title": "暮らしのコンシェルジュ",
