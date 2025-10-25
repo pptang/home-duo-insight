@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -70,6 +71,7 @@ interface AIRecommendation {
 
 const ComparisonDetail = () => {
   const { id } = useParams<{ id: string }>();
+  const { t } = useTranslation();
   const { toast } = useToast();
 
   // Handle retry image extraction
@@ -82,22 +84,22 @@ const ComparisonDetail = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Retry failed",
-          description: "Could not retry image extraction. Please try again later.",
+          title: t("comparisonDetail.toast.retryFailed"),
+          description: t("comparisonDetail.toast.retryFailedDesc"),
         });
         return;
       }
 
       toast({
-        title: "Retry started",
-        description: "Image extraction has been restarted. Please wait...",
+        title: t("comparisonDetail.toast.retryStarted"),
+        description: t("comparisonDetail.toast.retryStartedDesc"),
       });
     } catch (error) {
       console.error('Retry image extraction error:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred while retrying.",
+        title: t("comparisonDetail.toast.retryError"),
+        description: t("comparisonDetail.toast.retryErrorDesc"),
       });
     }
   };
@@ -151,8 +153,8 @@ const ComparisonDetail = () => {
             setComparison(refreshedData as ComparisonData);
             
             toast({
-              title: "Images loaded!",
-              description: "Property images have been successfully extracted.",
+              title: t("comparisonDetail.toast.imagesLoaded"),
+              description: t("comparisonDetail.toast.imagesLoadedDesc"),
             });
           }
         } catch (error) {
@@ -196,14 +198,14 @@ const ComparisonDetail = () => {
       try {
         await navigator.clipboard.writeText(url);
         toast({
-          title: "Link copied!",
-          description: "Comparison link copied to clipboard",
+          title: t("comparisonDetail.toast.linkCopied"),
+          description: t("comparisonDetail.toast.linkCopiedDesc"),
         });
       } catch (err) {
         toast({
           variant: "destructive",
-          title: "Failed to copy link",
-          description: "Please copy the URL manually",
+          title: t("comparisonDetail.toast.linkCopyFailed"),
+          description: t("comparisonDetail.toast.linkCopyFailedDesc"),
         });
       }
     }
@@ -349,15 +351,15 @@ const ComparisonDetail = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Comparison Not Found
+              {t("comparisonDetail.notFound.title")}
             </h1>
             <p className="text-gray-600 mb-8">
-              {error || "The comparison you're looking for doesn't exist."}
+              {error || t("comparisonDetail.notFound.description")}
             </p>
             <Button asChild>
               <Link to="/feed">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Feed
+                {t("comparisonDetail.backToFeed")}
               </Link>
             </Button>
           </div>
@@ -375,19 +377,19 @@ const ComparisonDetail = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {comparison.property_a.property_name || "Property A"} vs{" "}
-                  {comparison.property_b.property_name || "Property B"}
+                  {comparison.property_a.property_name || t("comparisonDetail.property.propertyA")} vs{" "}
+                  {comparison.property_b.property_name || t("comparisonDetail.property.propertyB")}
                 </h1>
                 <div className="flex items-center text-gray-600 mt-2">
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>
-                    Created {new Date(comparison.created_at).toLocaleDateString()}
+                    {t("comparisonDetail.created", { date: new Date(comparison.created_at).toLocaleDateString() })}
                   </span>
                 </div>
               </div>
                 <Button variant="outline" onClick={shareComparison}>
                   <Share className="mr-2 h-4 w-4" />
-                  Share
+                  {t("comparisonDetail.shareButton")}
                 </Button>
               </div>
             </div>
@@ -399,7 +401,7 @@ const ComparisonDetail = () => {
                 <div className="p-6">
                   <PropertyImageDisplay
                     imageUrls={comparison.property_a.image_urls}
-                    propertyName={comparison.property_a.property_name || "Property A"}
+                    propertyName={comparison.property_a.property_name || t("comparisonDetail.property.propertyA")}
                     imageExtractionStatus={comparison.image_extraction_status}
                     className="mb-4"
                     aspectRatio="video"
@@ -407,7 +409,7 @@ const ComparisonDetail = () => {
                     onRetryImageExtraction={handleRetryImageExtraction}
                   />
                   <h3 className="text-xl font-semibold text-gray-900">
-                    {comparison.property_a.property_name || "Property A"}
+                    {comparison.property_a.property_name || t("comparisonDetail.property.propertyA")}
                   </h3>
                   {comparison.property_a.price_yen && (
                     <p className="text-[#6A7FDB] font-medium">
@@ -417,7 +419,7 @@ const ComparisonDetail = () => {
                   <div className="mt-4 space-y-2">
                     {comparison.property_a.address && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Address:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.address")}</span>
                         <span className="font-medium">
                           {comparison.property_a.address}
                         </span>
@@ -425,7 +427,7 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_a.floor_plan && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Floor Plan:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.floorPlan")}</span>
                         <span className="font-medium">
                           {comparison.property_a.floor_plan}
                         </span>
@@ -433,15 +435,15 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_a.commute_minutes && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Commute Time:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.commuteTime")}</span>
                         <span className="font-medium">
-                          {comparison.property_a.commute_minutes} minutes
+                          {comparison.property_a.commute_minutes} {t("comparisonDetail.property.minutes")}
                         </span>
                       </div>
                     )}
                     {comparison.property_a.property_type && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Property Type:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.propertyType")}</span>
                         <span className="font-medium">
                           {comparison.property_a.property_type}
                         </span>
@@ -449,7 +451,7 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_a.notes && (
                       <div className="mt-2">
-                        <span className="text-gray-600 block">Notes:</span>
+                        <span className="text-gray-600 block">{t("comparisonDetail.property.notes")}</span>
                         <p className="mt-1 text-sm">{comparison.property_a.notes}</p>
                       </div>
                     )}
@@ -460,7 +462,7 @@ const ComparisonDetail = () => {
                 <div className="p-6">
                   <PropertyImageDisplay
                     imageUrls={comparison.property_b.image_urls}
-                    propertyName={comparison.property_b.property_name || "Property B"}
+                    propertyName={comparison.property_b.property_name || t("comparisonDetail.property.propertyB")}
                     imageExtractionStatus={comparison.image_extraction_status}
                     className="mb-4"
                     aspectRatio="video"
@@ -468,7 +470,7 @@ const ComparisonDetail = () => {
                     onRetryImageExtraction={handleRetryImageExtraction}
                   />
                   <h3 className="text-xl font-semibold text-gray-900">
-                    {comparison.property_b.property_name || "Property B"}
+                    {comparison.property_b.property_name || t("comparisonDetail.property.propertyB")}
                   </h3>
                   {comparison.property_b.price_yen && (
                     <p className="text-[#6A7FDB] font-medium">
@@ -478,7 +480,7 @@ const ComparisonDetail = () => {
                   <div className="mt-4 space-y-2">
                     {comparison.property_b.address && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Address:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.address")}</span>
                         <span className="font-medium">
                           {comparison.property_b.address}
                         </span>
@@ -486,7 +488,7 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_b.floor_plan && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Floor Plan:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.floorPlan")}</span>
                         <span className="font-medium">
                           {comparison.property_b.floor_plan}
                         </span>
@@ -494,15 +496,15 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_b.commute_minutes && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Commute Time:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.commuteTime")}</span>
                         <span className="font-medium">
-                          {comparison.property_b.commute_minutes} minutes
+                          {comparison.property_b.commute_minutes} {t("comparisonDetail.property.minutes")}
                         </span>
                       </div>
                     )}
                     {comparison.property_b.property_type && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Property Type:</span>
+                        <span className="text-gray-600">{t("comparisonDetail.property.propertyType")}</span>
                         <span className="font-medium">
                           {comparison.property_b.property_type}
                         </span>
@@ -510,7 +512,7 @@ const ComparisonDetail = () => {
                     )}
                     {comparison.property_b.notes && (
                       <div className="mt-2">
-                        <span className="text-gray-600 block">Notes:</span>
+                        <span className="text-gray-600 block">{t("comparisonDetail.property.notes")}</span>
                         <p className="mt-1 text-sm">{comparison.property_b.notes}</p>
                       </div>
                     )}
@@ -526,16 +528,16 @@ const ComparisonDetail = () => {
                 <Card>
                   <CardHeader className="bg-[#F7F7F8]">
                     <CardTitle className="text-xl">
-                      Property Comparison Summary
+                      {t("comparisonDetail.summary.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Feature</TableHead>
-                          <TableHead>Property A</TableHead>
-                          <TableHead>Property B</TableHead>
+                          <TableHead>{t("comparisonDetail.summary.feature")}</TableHead>
+                          <TableHead>{t("comparisonDetail.summary.propertyA")}</TableHead>
+                          <TableHead>{t("comparisonDetail.summary.propertyB")}</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -559,16 +561,16 @@ const ComparisonDetail = () => {
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle>
-                        {comparison.property_a.property_name || "Property A"}
+                        {comparison.property_a.property_name || t("comparisonDetail.property.propertyA")}
                       </CardTitle>
-                      <CardDescription>Pros and Cons</CardDescription>
+                      <CardDescription>{t("comparisonDetail.prosAndCons")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {/* Pros */}
                       <div>
                         <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
                           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-                          Pros
+                          {t("comparisonDetail.pros")}
                         </h4>
                         <ul className="space-y-1 pl-6 list-disc">
                           {recommendation.property_a_pros.map((pro, i) => (
@@ -580,7 +582,7 @@ const ComparisonDetail = () => {
                       <div>
                         <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
                           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
-                          Cons
+                          {t("comparisonDetail.cons")}
                         </h4>
                         <ul className="space-y-1 pl-6 list-disc">
                           {recommendation.property_a_cons.map((con, i) => (
@@ -595,16 +597,16 @@ const ComparisonDetail = () => {
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle>
-                        {comparison.property_b.property_name || "Property B"}
+                        {comparison.property_b.property_name || t("comparisonDetail.property.propertyB")}
                       </CardTitle>
-                      <CardDescription>Pros and Cons</CardDescription>
+                      <CardDescription>{t("comparisonDetail.prosAndCons")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {/* Pros */}
                       <div>
                         <h4 className="font-medium text-green-600 flex items-center gap-2 mb-2">
                           <ThumbsUp className="h-4 w-4" aria-hidden="true" />
-                          Pros
+                          {t("comparisonDetail.pros")}
                         </h4>
                         <ul className="space-y-1 pl-6 list-disc">
                           {recommendation.property_b_pros.map((pro, i) => (
@@ -616,7 +618,7 @@ const ComparisonDetail = () => {
                       <div>
                         <h4 className="font-medium text-red-500 flex items-center gap-2 mb-2">
                           <ThumbsDown className="h-4 w-4" aria-hidden="true" />
-                          Cons
+                          {t("comparisonDetail.cons")}
                         </h4>
                         <ul className="space-y-1 pl-6 list-disc">
                           {recommendation.property_b_cons.map((con, i) => (
@@ -632,7 +634,7 @@ const ComparisonDetail = () => {
                 <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-xl text-[#6A7FDB]">
-                      DuoHome's Recommendation
+                      {t("comparisonDetail.recommendation.title")}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -649,10 +651,10 @@ const ComparisonDetail = () => {
               <ExpertSection
                 comparisonId={comparison.id}
                 propertyAName={
-                  comparison.property_a.property_name || "Property A"
+                  comparison.property_a.property_name || t("comparisonDetail.property.propertyA")
                 }
                 propertyBName={
-                  comparison.property_b.property_name || "Property B"
+                  comparison.property_b.property_name || t("comparisonDetail.property.propertyB")
                 }
               />
             </div>
@@ -662,11 +664,11 @@ const ComparisonDetail = () => {
               {!recommendation && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-blue-800 mb-2">
-                    AI recommendation is not available for this comparison yet.
+                    {t("comparisonDetail.recommendation.notAvailable")}
                   </p>
                   <Button asChild>
                     <Link to="/compare">
-                      Create New Comparison with AI Analysis
+                      {t("comparisonDetail.recommendation.createNew")}
                     </Link>
                   </Button>
                 </div>
@@ -674,7 +676,7 @@ const ComparisonDetail = () => {
 
               <Button variant="outline" asChild>
                 <Link to="/compare">
-                  Compare Different Properties
+                  {t("comparisonDetail.actions.compareDifferent")}
                 </Link>
               </Button>
             </div>

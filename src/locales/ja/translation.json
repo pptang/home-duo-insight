@@ -360,5 +360,56 @@
       "errorDesc": "投票を送信できませんでした。もう一度お試しください。",
       "unexpected": "予期しないエラーが発生しました。もう一度お試しください。"
     }
+  },
+  "comparisonDetail": {
+    "title": "{{propertyA}} vs {{propertyB}}",
+    "created": "作成日: {{date}}",
+    "shareButton": "共有",
+    "backToFeed": "フィードに戻る",
+    "notFound": {
+      "title": "比較が見つかりません",
+      "description": "お探しの比較は存在しません。"
+    },
+    "property": {
+      "address": "住所:",
+      "floorPlan": "間取り:",
+      "commuteTime": "通勤時間:",
+      "propertyType": "物件タイプ:",
+      "notes": "備考:",
+      "minutes": "分",
+      "propertyA": "物件A",
+      "propertyB": "物件B"
+    },
+    "summary": {
+      "title": "物件比較サマリー",
+      "feature": "項目",
+      "propertyA": "物件A",
+      "propertyB": "物件B"
+    },
+    "prosAndCons": "メリット・デメリット",
+    "pros": "メリット",
+    "cons": "デメリット",
+    "recommendation": {
+      "title": "DuoHomeのおすすめ",
+      "notAvailable": "この比較にはまだAIのおすすめがありません。",
+      "createNew": "AI分析付きの新しい比較を作成"
+    },
+    "actions": {
+      "compareDifferent": "別の物件を比較"
+    },
+    "toast": {
+      "linkCopied": "リンクをコピーしました！",
+      "linkCopiedDesc": "比較リンクをクリップボードにコピーしました",
+      "linkCopyFailed": "リンクのコピーに失敗しました",
+      "linkCopyFailedDesc": "手動でURLをコピーしてください",
+      "retryFailed": "再試行に失敗しました",
+      "retryFailedDesc": "画像の抽出を再試行できませんでした。後でもう一度お試しください。",
+      "retryStarted": "再試行を開始しました",
+      "retryStartedDesc": "画像の抽出が再開されました。お待ちください...",
+      "retryError": "エラー",
+      "retryErrorDesc": "再試行中に予期しないエラーが発生しました。",
+      "imagesLoaded": "画像が読み込まれました！",
+      "imagesLoadedDesc": "物件の画像が正常に抽出されました。"
+    }
   }
 }

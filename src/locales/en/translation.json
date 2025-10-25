@@ -360,5 +360,56 @@
       "errorDesc": "Could not submit your vote. Please try again.",
       "unexpected": "An unexpected error occurred. Please try again."
     }
+  },
+  "comparisonDetail": {
+    "title": "{{propertyA}} vs {{propertyB}}",
+    "created": "Created {{date}}",
+    "shareButton": "Share",
+    "backToFeed": "Back to Feed",
+    "notFound": {
+      "title": "Comparison Not Found",
+      "description": "The comparison you're looking for doesn't exist."
+    },
+    "property": {
+      "address": "Address:",
+      "floorPlan": "Floor Plan:",
+      "commuteTime": "Commute Time:",
+      "propertyType": "Property Type:",
+      "notes": "Notes:",
+      "minutes": "minutes",
+      "propertyA": "Property A",
+      "propertyB": "Property B"
+    },
+    "summary": {
+      "title": "Property Comparison Summary",
+      "feature": "Feature",
+      "propertyA": "Property A",
+      "propertyB": "Property B"
+    },
+    "prosAndCons": "Pros and Cons",
+    "pros": "Pros",
+    "cons": "Cons",
+    "recommendation": {
+      "title": "DuoHome's Recommendation",
+      "notAvailable": "AI recommendation is not available for this comparison yet.",
+      "createNew": "Create New Comparison with AI Analysis"
+    },
+    "actions": {
+      "compareDifferent": "Compare Different Properties"
+    },
+    "toast": {
+      "linkCopied": "Link copied!",
+      "linkCopiedDesc": "Comparison link copied to clipboard",
+      "linkCopyFailed": "Failed to copy link",
+      "linkCopyFailedDesc": "Please copy the URL manually",
+      "retryFailed": "Retry failed",
+      "retryFailedDesc": "Could not retry image extraction. Please try again later.",
+      "retryStarted": "Retry started",
+      "retryStartedDesc": "Image extraction has been restarted. Please wait...",
+      "retryError": "Error",
+      "retryErrorDesc": "An unexpected error occurred while retrying.",
+      "imagesLoaded": "Images loaded!",
+      "imagesLoadedDesc": "Property images have been successfully extracted."
+    }
   }
 }
