@@ -522,5 +522,14 @@
     "heading": "Page Not Found",
     "description": "We couldn't find the page you were looking for. Perhaps you were trying to compare homes that don't exist?",
     "backToHome": "Return to Home"
+  },
+  "authButtons": {
+    "loading": "Loading...",
+    "signIn": "Sign In",
+    "expertBadge": "Expert",
+    "adminBadge": "Admin",
+    "myAccount": "My Account",
+    "myProfile": "My Public Profile",
+    "signOut": "Sign out"
   }
 }

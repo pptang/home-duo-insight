@@ -522,5 +522,14 @@
     "heading": "ページが見つかりません",
     "description": "お探しのページが見つかりませんでした。存在しない住まいを比較しようとしていませんか？",
     "backToHome": "ホームに戻る"
+  },
+  "authButtons": {
+    "loading": "読み込み中...",
+    "signIn": "ログイン",
+    "expertBadge": "専門家",
+    "adminBadge": "管理者",
+    "myAccount": "マイアカウント",
+    "myProfile": "公開プロフィール",
+    "signOut": "ログアウト"
   }
 }

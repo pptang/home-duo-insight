@@ -1,5 +1,6 @@
 
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { 
   DropdownMenu, 
@@ -15,16 +16,17 @@ import { LogOut, User, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export function AuthButtons() {
+  const { t } = useTranslation();
   const { user, profile, isLoading, isExpert, isAdmin, signOut } = useAuth();
 
   if (isLoading) {
-    return <Button variant="ghost" size="sm" disabled>Loading...</Button>;
+    return <Button variant="ghost" size="sm" disabled>{t("authButtons.loading")}</Button>;
   }
 
   if (!user) {
     return (
       <Button asChild size="sm" variant="outline">
-        <Link to="/auth">Sign In</Link>
+        <Link to="/auth">{t("authButtons.signIn")}</Link>
       </Button>
     );
   }
@@ -41,12 +43,12 @@ export function AuthButtons() {
     <div className="flex items-center gap-2">
       {isExpert && (
         <Badge variant="outline" className="bg-[#C2A9FF] text-white border-0">
-          Expert
+          {t("authButtons.expertBadge")}
         </Badge>
       )}
       {isAdmin && (
         <Badge variant="outline" className="bg-black text-white border-0">
-          Admin
+          {t("authButtons.adminBadge")}
         </Badge>
       )}
       <DropdownMenu>
@@ -59,7 +61,7 @@ export function AuthButtons() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{t("authButtons.myAccount")}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -72,7 +74,7 @@ export function AuthButtons() {
               <DropdownMenuItem asChild className="flex items-center gap-2">
                 <Link to={`/experts/${user.id}`}>
                   <UserRound className="h-4 w-4" />
-                  <span>My Public Profile</span>
+                  <span>{t("authButtons.myProfile")}</span>
                 </Link>
               </DropdownMenuItem>
             </>
@@ -84,7 +86,7 @@ export function AuthButtons() {
             onClick={signOut}
           >
             <LogOut className="h-4 w-4" />
-            <span>Sign out</span>
+            <span>{t("authButtons.signOut")}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
