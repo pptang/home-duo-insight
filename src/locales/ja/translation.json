@@ -50,8 +50,114 @@
     }
   },
   "compare": {
-    "title": "並べてわかる、暮らしの解像度",
-    "subtitle": "気になる物件をここに並べて、未来の暮らしをシミュレーションしてみましょう。"
+    "hero": {
+      "title": "物件を比較する",
+      "subtitle": "AIの洞察、専門家の意見を得て、AiSumai（愛住）で自信を持って決断しましょう",
+      "step1": "URLを解析",
+      "step2": "詳細を確認",
+      "step3": "洞察を得る"
+    },
+    "url_input": {
+      "title": "物件探しの旅を始めましょう",
+      "subtitle": "物件のURLを貼り付けて、AIにあなたの決断を導いてもらいましょう",
+      "property_a_label": "物件AのURL",
+      "property_b_label": "物件BのURL",
+      "placeholder_a": "https://suumo.jp/property/...",
+      "placeholder_b": "https://athome.co.jp/property/...",
+      "analyze_button": "🚀 物件を分析",
+      "analyzing": "物件を分析中...",
+      "loading_stage": "物件のウェブページを取得中..."
+    },
+    "property_details": {
+      "address": "住所",
+      "floor_plan": "間取り",
+      "private_area": "専有面積",
+      "commute_time": "通勤時間",
+      "building_age": "築年数",
+      "construction": "建築",
+      "property_type": "物件タイプ",
+      "notes": "備考",
+      "minutes": "分",
+      "years_old": "年",
+      "built_in": "築",
+      "na": "N/A"
+    },
+    "recommendation": {
+      "pros_cons": "メリット・デメリット",
+      "pros": "メリット",
+      "cons": "デメリット",
+      "title": "DuoHomeのおすすめ",
+      "get_recommendation": "おすすめを取得",
+      "generating": "おすすめを生成中...",
+      "compare_different": "別の物件を比較"
+    },
+    "personalization": {
+      "title": "あなたの好みを教えてください",
+      "subtitle": "いくつかの質問に答えて、物件のおすすめをパーソナライズしましょう。",
+      "submit": "おすすめを生成",
+      "not_important": "重要でない",
+      "very_important": "とても重要",
+      "lifestyle_fit": {
+        "title": "🌿 ライフスタイルフィット（日常生活）",
+        "proximity_to_cafes": "☕ 地元のカフェへの近さ",
+        "access_to_gym": "🏋️ ジムやウェルネススタジオへのアクセス",
+        "dog_walking_friendly": "🦶 犬の散歩に適した地域",
+        "quiet_at_night": "🎧 夜間の静けさ / 騒音への敏感さ",
+        "morning_vs_afternoon_sunlight": "🌅 朝日 vs 午後の日光",
+        "laundromat_access": "🧺 施設内または近くのコインランドリー",
+        "morning_sunlight": "朝の日光",
+        "afternoon_sunlight": "午後の日光",
+        "no_preference": "こだわりなし"
+      },
+      "emotional_desires": {
+        "title": "✨ 感情的な欲求 / 美的好み",
+        "open_view": "🪟 開放的な景色 / 遮る建物がない",
+        "feels_like_home": "🏡 「家のように感じる」/ 温かさ",
+        "creative_friendly": "🎨 創造性をサポート",
+        "reading_corner_space": "📚 読書コーナーのスペース",
+        "natural_surroundings": "🌳 自然な環境 / 緑"
+      },
+      "life_planning": {
+        "title": "🔮 人生設計 / 将来の目標",
+        "future_family_growth": "👨‍👩‍👧‍👦 将来の家族の成長の余地",
+        "work_from_home_support": "💻 在宅勤務のサポート",
+        "resale_potential": "💼 将来の転売の可能性",
+        "renovation_willingness": "🔨 リノベーションへの意欲",
+        "storage_capacity": "📦 収納容量のニーズ"
+      },
+      "sensory_comfort": {
+        "title": "🧘 感覚的または快適さのニーズ",
+        "natural_ventilation": "❄️ 自然換気 / 風通し",
+        "light_sensitivity": "☀️ 光への敏感さ",
+        "minimalist_vs_maximalist": "🧘‍♀️ ミニマリスト vs マキシマリスト",
+        "privacy_from_neighbors": "🚪 隣人からのプライバシー",
+        "minimalist": "ミニマリスト",
+        "maximalist": "マキシマリスト"
+      },
+      "cultural_routine": {
+        "title": "🧭 文化的 / ルーチンベースのニーズ",
+        "grocery_chain_access": "🍱 お気に入りのスーパーマーケットの近く",
+        "international_schools": "🏫 インターナショナルスクールへのアクセス",
+        "weekend_market_access": "🛍️ 週末の市場 / ショッピングへのアクセス",
+        "safe_for_biking": "🚴 自転車に安全",
+        "spiritual_space_access": "🛕 近くの寺院/神社またはスピリチュアルな空間"
+      },
+      "select_preference": "好みを選択"
+    },
+    "messages": {
+      "success_analyze": "物件の分析が完了しました！詳細を確認してください。",
+      "success_recommendation": "おすすめの生成が完了しました！",
+      "success_images": "物件の画像が正常に抽出されました。",
+      "retry_started": "画像の抽出を再開しました。お待ちください...",
+      "error_extract": "データを抽出できませんでした。URLを確認するか、別のURLを試してください。",
+      "error_recommendation": "おすすめを生成できませんでした。もう一度お試しください。",
+      "error_unexpected": "予期しないエラーが発生しました。もう一度お試しください。",
+      "error_retry": "画像の抽出を再試行できませんでした。後でもう一度お試しください。",
+      "error_title": "エラー",
+      "success_title": "成功",
+      "retry_title": "再試行に失敗しました",
+      "images_loaded": "画像が読み込まれました！"
+    }
   },
   "feed": {
     "title": "愛すまいマガジン",

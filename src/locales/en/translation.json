@@ -50,8 +50,114 @@
     }
   },
   "compare": {
-    "title": "Understand the resolution of your lifestyle by comparing",
-    "subtitle": "Line up the properties you're interested in here and let's simulate your future life."
+    "hero": {
+      "title": "Compare Properties",
+      "subtitle": "Get AI insights, expert opinions, and make confident decisions with AiSumai (愛住)",
+      "step1": "Parse URLs",
+      "step2": "Review Details",
+      "step3": "Get Insights"
+    },
+    "url_input": {
+      "title": "Start Your Property Journey",
+      "subtitle": "Paste property URLs and let AI guide your decision",
+      "property_a_label": "Property A URL",
+      "property_b_label": "Property B URL",
+      "placeholder_a": "https://suumo.jp/property/...",
+      "placeholder_b": "https://athome.co.jp/property/...",
+      "analyze_button": "🚀 Analyze Properties",
+      "analyzing": "Analyzing properties...",
+      "loading_stage": "Fetching property webpages..."
+    },
+    "property_details": {
+      "address": "Address",
+      "floor_plan": "Floor Plan",
+      "private_area": "Private Area",
+      "commute_time": "Commute Time",
+      "building_age": "Building Age",
+      "construction": "Construction",
+      "property_type": "Property Type",
+      "notes": "Notes",
+      "minutes": "minutes",
+      "years_old": "years old",
+      "built_in": "Built in",
+      "na": "N/A"
+    },
+    "recommendation": {
+      "pros_cons": "Pros and Cons",
+      "pros": "Pros",
+      "cons": "Cons",
+      "title": "DuoHome's Recommendation",
+      "get_recommendation": "Get My Recommendation",
+      "generating": "Generating your recommendation...",
+      "compare_different": "Compare Different Properties"
+    },
+    "personalization": {
+      "title": "Tell us about your preferences",
+      "subtitle": "Help us personalize your property recommendation by answering a few questions.",
+      "submit": "Generate Recommendation",
+      "not_important": "Not Important",
+      "very_important": "Very Important",
+      "lifestyle_fit": {
+        "title": "🌿 Lifestyle Fit (Day-to-Day Life)",
+        "proximity_to_cafes": "☕ Proximity to local cafés",
+        "access_to_gym": "🏋️ Access to gym or wellness studios",
+        "dog_walking_friendly": "🦶 Dog-walking friendly neighborhood",
+        "quiet_at_night": "🎧 Quiet at night / noise sensitivity",
+        "morning_vs_afternoon_sunlight": "🌅 Morning vs. afternoon sunlight",
+        "laundromat_access": "🧺 Onsite or nearby laundromat",
+        "morning_sunlight": "Morning sunlight",
+        "afternoon_sunlight": "Afternoon sunlight",
+        "no_preference": "No preference"
+      },
+      "emotional_desires": {
+        "title": "✨ Emotional Desires / Aesthetic Preferences",
+        "open_view": "🪟 Open view / no blocking buildings",
+        "feels_like_home": "🏡 \"Feels like home\" / warmth",
+        "creative_friendly": "🎨 Supports creativity",
+        "reading_corner_space": "📚 Space for reading corner",
+        "natural_surroundings": "🌳 Natural surroundings / greenery"
+      },
+      "life_planning": {
+        "title": "🔮 Life Planning / Forward-looking Goals",
+        "future_family_growth": "👨‍👩‍👧‍👦 Room for future family growth",
+        "work_from_home_support": "💻 Supports work-from-home",
+        "resale_potential": "💼 Potential for future resale",
+        "renovation_willingness": "🔨 Willingness to renovate",
+        "storage_capacity": "📦 Storage capacity needs"
+      },
+      "sensory_comfort": {
+        "title": "🧘 Sensory or Comfort Needs",
+        "natural_ventilation": "❄️ Natural ventilation / airiness",
+        "light_sensitivity": "☀️ Light sensitivity",
+        "minimalist_vs_maximalist": "🧘‍♀️ Minimalist vs. maximalist",
+        "privacy_from_neighbors": "🚪 Privacy from neighbors",
+        "minimalist": "Minimalist",
+        "maximalist": "Maximalist"
+      },
+      "cultural_routine": {
+        "title": "🧭 Cultural / Routine-Based Needs",
+        "grocery_chain_access": "🍱 Near favorite grocery chain",
+        "international_schools": "🏫 Access to international schools",
+        "weekend_market_access": "🛍️ Weekend market / shopping access",
+        "safe_for_biking": "🚴 Safe for biking",
+        "spiritual_space_access": "🛕 Nearby temples/shrines or spiritual space"
+      },
+      "select_preference": "Select preference"
+    },
+    "messages": {
+      "success_analyze": "Properties analyzed successfully! Please review the details.",
+      "success_recommendation": "Recommendation generated successfully!",
+      "success_images": "Property images have been successfully extracted.",
+      "retry_started": "Image extraction has been restarted. Please wait...",
+      "error_extract": "Could not extract data. Please check the URLs or try another.",
+      "error_recommendation": "Could not generate recommendation. Please try again.",
+      "error_unexpected": "An unexpected error occurred. Please try again.",
+      "error_retry": "Could not retry image extraction. Please try again later.",
+      "error_title": "Error",
+      "success_title": "Success",
+      "retry_title": "Retry failed",
+      "images_loaded": "Images loaded!"
+    }
   },
   "feed": {
     "title": "Aisum Magazine",

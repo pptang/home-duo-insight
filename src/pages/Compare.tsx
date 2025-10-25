@@ -63,6 +63,7 @@ import {
 } from "@/components/ui/dialog";
 import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
+import { useTranslation } from "react-i18next";
 
 interface PropertyData {
   id: string;
@@ -182,6 +183,7 @@ const extractUrlFromText = (text: string): string => {
 };
 
 const Compare = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState<string | null>(null);
   const [isGeneratingRecommendation, setIsGeneratingRecommendation] =
@@ -206,22 +208,22 @@ const Compare = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Retry failed",
-          description: "Could not retry image extraction. Please try again later.",
+          title: t("compare.messages.retry_title"),
+          description: t("compare.messages.error_retry"),
         });
         return;
       }
 
       toast({
-        title: "Retry started",
-        description: "Image extraction has been restarted. Please wait...",
+        title: t("compare.messages.retry_started"),
+        description: t("compare.messages.retry_started"),
       });
     } catch (error) {
       console.error('Retry image extraction error:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred while retrying.",
+        title: t("compare.messages.error_title"),
+        description: t("compare.messages.error_unexpected"),
       });
     }
   };
@@ -252,8 +254,8 @@ const Compare = () => {
             });
 
             toast({
-              title: "Images loaded!",
-              description: "Property images have been successfully extracted.",
+              title: t("compare.messages.images_loaded"),
+              description: t("compare.messages.success_images"),
             });
           }
         } catch (error) {
@@ -323,7 +325,7 @@ const Compare = () => {
     setIsLoading(true);
     try {
       // Show loading stages for better user feedback
-      setLoadingStage("Fetching property webpages...");
+      setLoadingStage(t("compare.url_input.loading_stage"));
 
       // Call the Supabase Edge Function with user_id
       const { data, error } = await supabase.functions.invoke(
@@ -341,9 +343,8 @@ const Compare = () => {
         console.error("Edge function error:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description:
-            "Could not extract data. Please check the URLs or try another.",
+          title: t("compare.messages.error_title"),
+          description: t("compare.messages.error_extract"),
         });
         return;
       }
@@ -362,15 +363,15 @@ const Compare = () => {
       setComparisonResult(data);
       setCurrentStage('metadata-review');
       toast({
-        title: "Success",
-        description: "Properties analyzed successfully! Please review the details.",
+        title: t("compare.messages.success_title"),
+        description: t("compare.messages.success_analyze"),
       });
     } catch (err) {
       console.error("Unexpected error:", err);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        title: t("compare.messages.error_title"),
+        description: t("compare.messages.error_unexpected"),
       });
     } finally {
       setIsLoading(false);
@@ -448,8 +449,8 @@ const Compare = () => {
         console.error("Recommendation error:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not generate recommendation. Please try again.",
+          title: t("compare.messages.error_title"),
+          description: t("compare.messages.error_recommendation"),
         });
         return;
       }
@@ -457,16 +458,15 @@ const Compare = () => {
       // Success - set AI recommendation
       setAiRecommendation(data);
       toast({
-        title: "Success",
-        description: "Recommendation generated successfully!",
+        title: t("compare.messages.success_title"),
+        description: t("compare.messages.success_recommendation"),
       });
     } catch (err) {
       console.error("Unexpected error:", err);
       toast({
         variant: "destructive",
-        title: "Error",
-        description:
-          "We couldn't generate your recommendation. Please try again.",
+        title: t("compare.messages.error_title"),
+        description: t("compare.messages.error_unexpected"),
       });
     } finally {
       setIsGeneratingRecommendation(false);
@@ -485,13 +485,12 @@ const Compare = () => {
           <div className="cinematic-heading text-white mb-6">
             <span className="text-5xl md:text-7xl font-black">🏠</span>
             <h1 className="text-4xl md:text-6xl font-bold leading-tight mt-4">
-              Compare Properties
+              {t("compare.hero.title")}
             </h1>
           </div>
 
           <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto leading-relaxed">
-            Get AI insights, expert opinions, and make confident decisions with
-            <span className="font-semibold text-accent"> AiSumai (愛住)</span>
+            {t("compare.hero.subtitle")}
           </p>
 
           {/* Dynamic Step Progress */}
@@ -501,7 +500,7 @@ const Compare = () => {
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'url-input' ? 'bg-accent text-primary animate-pulse' : 'bg-white/20'}`}>
                   1
                 </div>
-                <span className="hidden md:block font-medium">Parse URLs</span>
+                <span className="hidden md:block font-medium">{t("compare.hero.step1")}</span>
               </div>
 
               <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
@@ -512,7 +511,7 @@ const Compare = () => {
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'metadata-review' ? 'bg-accent text-primary animate-pulse' : currentStage === 'full-comparison' ? 'bg-white/20' : 'bg-white/10'}`}>
                   2
                 </div>
-                <span className="hidden md:block font-medium">Review Details</span>
+                <span className="hidden md:block font-medium">{t("compare.hero.step2")}</span>
               </div>
 
               <div className="w-8 h-1 bg-white/30 rounded-full overflow-hidden">
@@ -523,7 +522,7 @@ const Compare = () => {
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all duration-500 ${currentStage === 'full-comparison' ? 'bg-accent text-primary animate-pulse' : 'bg-white/10'}`}>
                   3
                 </div>
-                <span className="hidden md:block font-medium">Get Insights</span>
+                <span className="hidden md:block font-medium">{t("compare.hero.step3")}</span>
               </div>
             </div>
           </div>
@@ -590,6 +589,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
   isGeneratingRecommendation,
   handleRetryImageExtraction
 }) => {
+  const { t } = useTranslation();
   const { initializeProperties, setStage, state } = useMetadataEditing();
 
   // Get the most up-to-date property data (edited if available, original if not)
@@ -618,14 +618,14 @@ const CompareContent: React.FC<CompareContentProps> = ({
   };
 
   const formatBuildingAge = (age?: number): string => {
-    if (!age) return "N/A";
-    return `${Math.floor(age)} years old`;
+    if (!age) return t("compare.property_details.na");
+    return `${Math.floor(age)} ${t("compare.property_details.years_old")}`;
   };
 
   const formatConstructionDate = (year?: number, month?: number): string => {
-    if (!year) return "N/A";
-    if (!month) return `Built in ${year}`;
-    return `Built in ${year}年${month}月`;
+    if (!year) return t("compare.property_details.na");
+    if (!month) return `${t("compare.property_details.built_in")} ${year}`;
+    return `${t("compare.property_details.built_in")} ${year}年${month}月`;
   };
 
   // Initialize metadata editing when we get comparison results
@@ -662,10 +662,10 @@ const CompareContent: React.FC<CompareContentProps> = ({
                 <div className="text-center mb-8">
                   <div className="text-6xl mb-4 micro-animation">🏡</div>
                   <h2 className="text-2xl font-bold text-foreground mb-2">
-                    Start Your Property Journey
+                    {t("compare.url_input.title")}
                   </h2>
                   <p className="text-muted-foreground">
-                    Paste property URLs and let AI guide your decision
+                    {t("compare.url_input.subtitle")}
                   </p>
                 </div>
 
@@ -682,12 +682,12 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           <FormItem className="group">
                             <FormLabel className="flex items-center gap-2 font-medium text-foreground">
                               <span className="text-2xl">🏠</span>
-                              Property A URL
+                              {t("compare.url_input.property_a_label")}
                             </FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input
-                                  placeholder="https://suumo.jp/property/..."
+                                  placeholder={t("compare.url_input.placeholder_a")}
                                   {...field}
                                   className="pl-12 h-12 bg-background border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 group-hover:shadow-lg"
                                   disabled={isLoading}
@@ -719,12 +719,12 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           <FormItem className="group">
                             <FormLabel className="flex items-center gap-2 font-medium text-foreground">
                               <span className="text-2xl">🏘️</span>
-                              Property B URL
+                              {t("compare.url_input.property_b_label")}
                             </FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input
-                                  placeholder="https://athome.co.jp/property/..."
+                                  placeholder={t("compare.url_input.placeholder_b")}
                                   {...field}
                                   className="pl-12 h-12 bg-background border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300 group-hover:shadow-lg"
                                   disabled={isLoading}
@@ -762,12 +762,12 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           <div className="flex items-center gap-3">
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             <span className="animate-pulse">
-                              {loadingStage || "Analyzing properties..."}
+                              {loadingStage || t("compare.url_input.analyzing")}
                             </span>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <span>🚀 Analyze Properties</span>
+                            <span>{t("compare.url_input.analyze_button")}</span>
                           </div>
                         )}
                       </Button>
@@ -804,40 +804,40 @@ const CompareContent: React.FC<CompareContentProps> = ({
                       </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Address:</span>
+                          <span className="text-gray-600">{t("compare.property_details.address")}:</span>
                           <span className="font-medium text-right">
                             {getPropertyData('property_a').address}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Floor Plan:</span>
+                          <span className="text-gray-600">{t("compare.property_details.floor_plan")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_a').floor_plan}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Private Area:</span>
+                          <span className="text-gray-600">{t("compare.property_details.private_area")}:</span>
                           <span className="font-medium">
                             {formatArea(getPropertyData('property_a').private_area_sqm)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Commute Time:</span>
+                          <span className="text-gray-600">{t("compare.property_details.commute_time")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_a').commute_minutes ?
-                              `${getPropertyData('property_a').commute_minutes} minutes` :
-                              "N/A"
+                              `${getPropertyData('property_a').commute_minutes} ${t("compare.property_details.minutes")}` :
+                              t("compare.property_details.na")
                             }
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Building Age:</span>
+                          <span className="text-gray-600">{t("compare.property_details.building_age")}:</span>
                           <span className="font-medium">
                             {formatBuildingAge(getPropertyData('property_a').building_age_years)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Construction:</span>
+                          <span className="text-gray-600">{t("compare.property_details.construction")}:</span>
                           <span className="font-medium">
                             {formatConstructionDate(
                               getPropertyData('property_a').construction_year,
@@ -846,14 +846,14 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Property Type:</span>
+                          <span className="text-gray-600">{t("compare.property_details.property_type")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_a').property_type}
                           </span>
                         </div>
                         {comparisonResult.property_a.notes && (
                           <div className="mt-2">
-                            <span className="text-gray-600 block">Notes:</span>
+                            <span className="text-gray-600 block">{t("compare.property_details.notes")}:</span>
                             <p className="mt-1 text-sm">
                               {comparisonResult.property_a.notes}
                             </p>
@@ -881,40 +881,40 @@ const CompareContent: React.FC<CompareContentProps> = ({
                       </p>
                       <div className="mt-4 space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Address:</span>
+                          <span className="text-gray-600">{t("compare.property_details.address")}:</span>
                           <span className="font-medium text-right">
                             {getPropertyData('property_b').address}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Floor Plan:</span>
+                          <span className="text-gray-600">{t("compare.property_details.floor_plan")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_b').floor_plan}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Private Area:</span>
+                          <span className="text-gray-600">{t("compare.property_details.private_area")}:</span>
                           <span className="font-medium">
                             {formatArea(getPropertyData('property_b').private_area_sqm)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Commute Time:</span>
+                          <span className="text-gray-600">{t("compare.property_details.commute_time")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_b').commute_minutes ?
-                              `${getPropertyData('property_b').commute_minutes} minutes` :
-                              "N/A"
+                              `${getPropertyData('property_b').commute_minutes} ${t("compare.property_details.minutes")}` :
+                              t("compare.property_details.na")
                             }
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Building Age:</span>
+                          <span className="text-gray-600">{t("compare.property_details.building_age")}:</span>
                           <span className="font-medium">
                             {formatBuildingAge(getPropertyData('property_b').building_age_years)}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Construction:</span>
+                          <span className="text-gray-600">{t("compare.property_details.construction")}:</span>
                           <span className="font-medium">
                             {formatConstructionDate(
                               getPropertyData('property_b').construction_year,
@@ -923,14 +923,14 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-600">Property Type:</span>
+                          <span className="text-gray-600">{t("compare.property_details.property_type")}:</span>
                           <span className="font-medium">
                             {getPropertyData('property_b').property_type}
                           </span>
                         </div>
                         {comparisonResult.property_b.notes && (
                           <div className="mt-2">
-                            <span className="text-gray-600 block">Notes:</span>
+                            <span className="text-gray-600 block">{t("compare.property_details.notes")}:</span>
                             <p className="mt-1 text-sm">
                               {comparisonResult.property_b.notes}
                             </p>
@@ -1004,7 +1004,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           <CardTitle>
                             {getPropertyData('property_a').property_name}
                           </CardTitle>
-                          <CardDescription>Pros and Cons</CardDescription>
+                          <CardDescription>{t("compare.recommendation.pros_cons")}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {/* Pros */}
@@ -1014,7 +1014,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 className="h-4 w-4"
                                 aria-hidden="true"
                               />
-                              Pros
+                              {t("compare.recommendation.pros")}
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
                               {aiRecommendation.property_a_pros.map(
@@ -1031,7 +1031,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 className="h-4 w-4"
                                 aria-hidden="true"
                               />
-                              Cons
+                              {t("compare.recommendation.cons")}
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
                               {aiRecommendation.property_a_cons.map(
@@ -1050,7 +1050,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                           <CardTitle>
                             {getPropertyData('property_b').property_name}
                           </CardTitle>
-                          <CardDescription>Pros and Cons</CardDescription>
+                          <CardDescription>{t("compare.recommendation.pros_cons")}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                           {/* Pros */}
@@ -1060,7 +1060,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 className="h-4 w-4"
                                 aria-hidden="true"
                               />
-                              Pros
+                              {t("compare.recommendation.pros")}
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
                               {aiRecommendation.property_b_pros.map(
@@ -1077,7 +1077,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 className="h-4 w-4"
                                 aria-hidden="true"
                               />
-                              Cons
+                              {t("compare.recommendation.cons")}
                             </h4>
                             <ul className="space-y-1 pl-6 list-disc">
                               {aiRecommendation.property_b_cons.map(
@@ -1095,7 +1095,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
                       <CardHeader className="pb-2">
                         <CardTitle className="text-xl text-[#6A7FDB]">
-                          DuoHome's Recommendation
+                          {t("compare.recommendation.title")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -1130,7 +1130,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     onClick={resetForm}
                     className="bg-white"
                   >
-                    Compare Different Properties
+                    {t("compare.recommendation.compare_different")}
                   </Button>
                 </div>
           </div>
@@ -1144,10 +1144,9 @@ const CompareContent: React.FC<CompareContentProps> = ({
           >
             <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Tell us about your preferences</DialogTitle>
+                <DialogTitle>{t("compare.personalization.title")}</DialogTitle>
                 <DialogDescription>
-                  Help us personalize your property recommendation by answering a
-                  few questions.
+                  {t("compare.personalization.subtitle")}
                 </DialogDescription>
               </DialogHeader>
               <Form {...personalizationForm}>
@@ -1161,7 +1160,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Lifestyle Fit (Day-to-Day Life) */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        🌿 Lifestyle Fit (Day-to-Day Life)
+                        {t("compare.personalization.lifestyle_fit.title")}
                       </h3>
                       
                       <FormField
@@ -1170,7 +1169,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              ☕ Proximity to local cafés
+                              {t("compare.personalization.lifestyle_fit.proximity_to_cafes")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1183,8 +1182,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1196,7 +1195,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🏋️ Access to gym or wellness studios
+                              {t("compare.personalization.lifestyle_fit.access_to_gym")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1322,7 +1321,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Emotional Desires / Aesthetic Preferences */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        ✨ Emotional Desires / Aesthetic Preferences
+                        {t("compare.personalization.emotional_desires.title")}
                       </h3>
                       
                       <FormField
@@ -1596,7 +1595,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Sensory or Comfort Needs */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        🧘 Sensory or Comfort Needs
+                        {t("compare.personalization.sensory_comfort.title")}
                       </h3>
                       
                       <FormField
@@ -1705,7 +1704,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Cultural / Routine-Based Needs */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        🧭 Cultural / Routine-Based Needs
+                        {t("compare.personalization.cultural_routine.title")}
                       </h3>
                       
                       <FormField
@@ -1841,7 +1840,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                   </div>
 
                   <div className="flex justify-end">
-                    <Button type="submit">Generate Recommendation</Button>
+                    <Button type="submit">{t("compare.personalization.submit")}</Button>
                   </div>
                 </form>
               </Form>
