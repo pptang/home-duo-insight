@@ -289,5 +289,22 @@
     "login": "ログイン",
     "logout": "ログアウト",
     "signup": "新規登録"
+  },
+  "footer": {
+    "brand": "DuoHome",
+    "brand_suffix": "Advisor",
+    "tagline": "日本で賃貸や住宅購入を検討している方が、最終候補の2つの物件を比較し、自信を持って住まいを決定できるようサポートします。",
+    "platform": "プラットフォーム",
+    "company": "会社情報",
+    "links": {
+      "compare": "物件を比較",
+      "feed": "比較フィード",
+      "experts": "専門家を探す",
+      "about": "私たちについて",
+      "privacy": "プライバシーポリシー",
+      "terms": "利用規約",
+      "contact": "お問い合わせ"
+    },
+    "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
   }
 }

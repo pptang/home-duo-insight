@@ -289,5 +289,22 @@
     "login": "Login",
     "logout": "Logout",
     "signup": "Sign Up"
+  },
+  "footer": {
+    "brand": "DuoHome",
+    "brand_suffix": "Advisor",
+    "tagline": "Helping renters and home buyers in Japan make confident final housing decisions by comparing two shortlisted properties.",
+    "platform": "Platform",
+    "company": "Company",
+    "links": {
+      "compare": "Compare Properties",
+      "feed": "Comparison Feed",
+      "experts": "Find Experts",
+      "about": "About Us",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    },
+    "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
   }
 }
