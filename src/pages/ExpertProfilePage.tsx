@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -29,6 +30,7 @@ type ExpertProfileType = Database["public"]["Tables"]["expert_profiles"]["Row"];
 
 const ExpertProfilePage: React.FC = () => {
   const { expertId } = useParams<{ expertId: string }>();
+  const { t } = useTranslation();
   const [expertProfile, setExpertProfile] = useState<ExpertProfileType | null>(
     null
   );
@@ -126,8 +128,8 @@ const ExpertProfilePage: React.FC = () => {
     if (!expertProfile || !contactForm.name || !contactForm.email || !contactForm.message) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Please fill in all required fields.",
+        title: t("expertProfile.errors.fillFields"),
+        description: t("expertProfile.errors.fillFields"),
       });
       return;
     }
@@ -150,8 +152,8 @@ const ExpertProfilePage: React.FC = () => {
       });
 
       toast({
-        title: "Message sent successfully",
-        description: "Your message has been sent to the expert.",
+        title: t("expertProfile.toast.messageSent"),
+        description: t("expertProfile.toast.messageSentDesc"),
       });
 
       setContactForm({ name: "", email: "", subject: "", message: "" });
@@ -160,8 +162,8 @@ const ExpertProfilePage: React.FC = () => {
       console.error('Failed to send contact email:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to send message. Please try again.",
+        title: t("expertProfile.toast.sendFailed"),
+        description: t("expertProfile.toast.sendFailed"),
       });
     } finally {
       setSendingEmail(false);
@@ -174,7 +176,7 @@ const ExpertProfilePage: React.FC = () => {
         <Card>
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
-              Expert ID not provided
+              {t("expertProfile.errors.noId")}
             </p>
           </CardContent>
         </Card>
@@ -187,16 +189,16 @@ const ExpertProfilePage: React.FC = () => {
       <div className="mb-6 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            Expert Profile
+            {t("expertProfile.title")}
           </h1>
           <p className="text-muted-foreground">
-            Verified real estate expert on DuoHome Advisor
+            {t("expertProfile.description")}
           </p>
         </div>
 
         {isOwnProfile && !editMode && (
           <Button onClick={handleEditToggle} className="gap-2">
-            <Edit className="h-4 w-4" /> Edit Profile
+            <Edit className="h-4 w-4" /> {t("expertProfile.editButton")}
           </Button>
         )}
       </div>
@@ -208,9 +210,9 @@ const ExpertProfilePage: React.FC = () => {
           {editMode ? (
             <Card className="mb-6">
               <CardHeader>
-                <CardTitle>Edit Your Profile</CardTitle>
+                <CardTitle>{t("expertProfile.editTitle")}</CardTitle>
                 <CardDescription>
-                  Update your information and profile image
+                  {t("expertProfile.editDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -232,14 +234,14 @@ const ExpertProfilePage: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Building className="h-5 w-5 text-primary" />
-                    Expertise & Specialization
+                    {t("expertProfile.expertiseTitle")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {/* Bio section */}
                   {expertProfile?.bio && (
                     <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-2">About</h3>
+                      <h3 className="text-lg font-medium mb-2">{t("expertProfile.aboutHeading")}</h3>
                       <p className="text-muted-foreground">
                         {expertProfile.bio}
                       </p>
@@ -272,9 +274,9 @@ const ExpertProfilePage: React.FC = () => {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle>Activity Summary</CardTitle>
+              <CardTitle>{t("expertProfile.activityTitle")}</CardTitle>
               <CardDescription>
-                Expert's contribution on DuoHome
+                {t("expertProfile.activityDescription")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -290,7 +292,7 @@ const ExpertProfilePage: React.FC = () => {
                       {activity?.totalVotes || 0}
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      Total property comparisons evaluated
+                      {t("expertProfile.totalVotes")}
                     </span>
                   </div>
 
@@ -302,7 +304,7 @@ const ExpertProfilePage: React.FC = () => {
                         className="w-full"
                         onClick={() => setShowContactModal(true)}
                       >
-                        Contact Expert
+                        {t("expertProfile.contactButton")}
                       </Button>
                     )}
                   </div>
@@ -317,11 +319,11 @@ const ExpertProfilePage: React.FC = () => {
       <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Contact {expertProfile?.name}</DialogTitle>
+            <DialogTitle>{t("expertProfile.contactTitle", { name: expertProfile?.name })}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleContactSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="contact-name">Your Name *</Label>
+              <Label htmlFor="contact-name">{t("expertProfile.contactForm.yourName")}</Label>
               <Input
                 id="contact-name"
                 value={contactForm.name}
@@ -330,7 +332,7 @@ const ExpertProfilePage: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="contact-email">Your Email *</Label>
+              <Label htmlFor="contact-email">{t("expertProfile.contactForm.yourEmail")}</Label>
               <Input
                 id="contact-email"
                 type="email"
@@ -340,21 +342,21 @@ const ExpertProfilePage: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="contact-subject">Subject</Label>
+              <Label htmlFor="contact-subject">{t("expertProfile.contactForm.subject")}</Label>
               <Input
                 id="contact-subject"
                 value={contactForm.subject}
                 onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
-                placeholder="Property consultation"
+                placeholder={t("expertProfile.contactForm.subjectPlaceholder")}
               />
             </div>
             <div>
-              <Label htmlFor="contact-message">Message *</Label>
+              <Label htmlFor="contact-message">{t("expertProfile.contactForm.message")}</Label>
               <Textarea
                 id="contact-message"
                 value={contactForm.message}
                 onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
-                placeholder="Please share details about the property you'd like to discuss..."
+                placeholder={t("expertProfile.contactForm.messagePlaceholder")}
                 rows={4}
                 required
               />
@@ -366,14 +368,14 @@ const ExpertProfilePage: React.FC = () => {
                 onClick={() => setShowContactModal(false)}
                 className="flex-1"
               >
-                Cancel
+                {t("expertProfile.contactForm.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={sendingEmail}
                 className="flex-1"
               >
-                {sendingEmail ? "Sending..." : "Send Message"}
+                {sendingEmail ? t("expertProfile.contactForm.sending") : t("expertProfile.contactForm.send")}
               </Button>
             </div>
           </form>

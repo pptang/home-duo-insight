@@ -482,5 +482,45 @@
       "feature2": "Personalized Results",
       "feature3": "Expert Insights"
     }
+  },
+  "expertProfile": {
+    "title": "Expert Profile",
+    "description": "Verified real estate expert on DuoHome Advisor",
+    "editButton": "Edit Profile",
+    "editTitle": "Edit Your Profile",
+    "editDescription": "Update your information and profile image",
+    "expertiseTitle": "Expertise & Specialization",
+    "aboutHeading": "About",
+    "activityTitle": "Activity Summary",
+    "activityDescription": "Expert's contribution on DuoHome",
+    "totalVotes": "Total property comparisons evaluated",
+    "contactButton": "Contact Expert",
+    "contactTitle": "Contact {{name}}",
+    "contactForm": {
+      "yourName": "Your Name *",
+      "yourEmail": "Your Email *",
+      "subject": "Subject",
+      "message": "Message *",
+      "subjectPlaceholder": "Property consultation",
+      "messagePlaceholder": "Please share details about the property you'd like to discuss...",
+      "cancel": "Cancel",
+      "send": "Send Message",
+      "sending": "Sending..."
+    },
+    "errors": {
+      "noId": "Expert ID not provided",
+      "fillFields": "Please fill in all required fields."
+    },
+    "toast": {
+      "messageSent": "Message sent successfully",
+      "messageSentDesc": "Your message has been sent to the expert.",
+      "sendFailed": "Failed to send message. Please try again."
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Page Not Found",
+    "description": "We couldn't find the page you were looking for. Perhaps you were trying to compare homes that don't exist?",
+    "backToHome": "Return to Home"
   }
 }
