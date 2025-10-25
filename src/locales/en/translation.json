@@ -339,5 +339,26 @@
       "contact": "Contact"
     },
     "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
+  },
+  "expertVoting": {
+    "title": "Expert Voting",
+    "description": "Share your professional opinion on this property comparison",
+    "voteSubmitted": {
+      "title": "Vote Submitted",
+      "description": "You have already voted on this comparison"
+    },
+    "voteFor": "Vote for {{propertyName}}",
+    "commentLabel": "Comment (optional, max 280 chars)",
+    "commentPlaceholder": "Share your reasoning behind this vote...",
+    "characterCount": "{{count}}/280 characters",
+    "submitButton": "Submit Vote",
+    "submitting": "Submitting...",
+    "toast": {
+      "success": "Vote submitted",
+      "successDesc": "You voted for Property {{property}}",
+      "error": "Vote failed",
+      "errorDesc": "Could not submit your vote. Please try again.",
+      "unexpected": "An unexpected error occurred. Please try again."
+    }
   }
 }

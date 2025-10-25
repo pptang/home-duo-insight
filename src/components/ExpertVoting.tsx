@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -30,6 +30,7 @@ export function ExpertVoting({
   hasVoted,
   onVoteSubmitted,
 }: ExpertVotingProps) {
+  const { t } = useTranslation();
   const { user, isExpert } = useAuth();
   const { toast } = useToast();
   const [selectedProperty, setSelectedProperty] = useState<"A" | "B" | null>(
@@ -55,15 +56,15 @@ export function ExpertVoting({
         console.error("Error submitting vote:", error);
         toast({
           variant: "destructive",
-          title: "Vote failed",
-          description: "Could not submit your vote. Please try again.",
+          title: t("expertVoting.toast.error"),
+          description: t("expertVoting.toast.errorDesc"),
         });
         return;
       }
 
       toast({
-        title: "Vote submitted",
-        description: `You voted for Property ${selectedProperty}`,
+        title: t("expertVoting.toast.success"),
+        description: t("expertVoting.toast.successDesc", { property: selectedProperty }),
       });
 
       onVoteSubmitted();
@@ -73,8 +74,8 @@ export function ExpertVoting({
       console.error("Unexpected error submitting vote:", error);
       toast({
         variant: "destructive",
-        title: "Vote failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: t("expertVoting.toast.error"),
+        description: t("expertVoting.toast.unexpected"),
       });
     } finally {
       setIsSubmitting(false);
@@ -89,10 +90,10 @@ export function ExpertVoting({
         <CardHeader className="pb-2">
           <CardTitle className="text-xl flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            Vote Submitted
+            {t("expertVoting.voteSubmitted.title")}
           </CardTitle>
           <CardDescription>
-            You have already voted on this comparison
+            {t("expertVoting.voteSubmitted.description")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -102,9 +103,9 @@ export function ExpertVoting({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expert Voting</CardTitle>
+        <CardTitle>{t("expertVoting.title")}</CardTitle>
         <CardDescription>
-          Share your professional opinion on this property comparison
+          {t("expertVoting.description")}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -119,7 +120,7 @@ export function ExpertVoting({
               }
               onClick={() => setSelectedProperty("A")}
             >
-              Vote for {propertyAName}
+              {t("expertVoting.voteFor", { propertyName: propertyAName })}
             </Button>
             <Button
               variant={selectedProperty === "B" ? "default" : "outline"}
@@ -130,17 +131,17 @@ export function ExpertVoting({
               }
               onClick={() => setSelectedProperty("B")}
             >
-              Vote for {propertyBName}
+              {t("expertVoting.voteFor", { propertyName: propertyBName })}
             </Button>
           </div>
         </div>
         <div className="space-y-2">
           <label htmlFor="comment" className="text-sm font-medium">
-            Comment (optional, max 280 chars)
+            {t("expertVoting.commentLabel")}
           </label>
           <Textarea
             id="comment"
-            placeholder="Share your reasoning behind this vote..."
+            placeholder={t("expertVoting.commentPlaceholder")}
             value={comment}
             onChange={(e) => setComment(e.target.value.slice(0, 280))}
             maxLength={280}
@@ -148,7 +149,7 @@ export function ExpertVoting({
             rows={4}
           />
           <p className="text-xs text-gray-500 text-right">
-            {comment.length}/280 characters
+            {t("expertVoting.characterCount", { count: comment.length })}
           </p>
         </div>
       </CardContent>
@@ -158,7 +159,7 @@ export function ExpertVoting({
           disabled={!selectedProperty || isSubmitting}
           className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
         >
-          {isSubmitting ? "Submitting..." : "Submit Vote"}
+          {isSubmitting ? t("expertVoting.submitting") : t("expertVoting.submitButton")}
         </Button>
       </CardFooter>
     </Card>

@@ -339,5 +339,26 @@
       "contact": "お問い合わせ"
     },
     "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
+  },
+  "expertVoting": {
+    "title": "専門家の投票",
+    "description": "この物件比較についてあなたの専門的な意見を共有してください",
+    "voteSubmitted": {
+      "title": "投票済み",
+      "description": "この比較にはすでに投票済みです"
+    },
+    "voteFor": "{{propertyName}}に投票",
+    "commentLabel": "コメント（任意、最大280文字）",
+    "commentPlaceholder": "投票の理由を共有してください...",
+    "characterCount": "{{count}}/280 文字",
+    "submitButton": "投票を送信",
+    "submitting": "送信中...",
+    "toast": {
+      "success": "投票が送信されました",
+      "successDesc": "物件{{property}}に投票しました",
+      "error": "投票に失敗しました",
+      "errorDesc": "投票を送信できませんでした。もう一度お試しください。",
+      "unexpected": "予期しないエラーが発生しました。もう一度お試しください。"
+    }
   }
 }
