@@ -89,7 +89,11 @@
       "title": "DuoHome's Recommendation",
       "get_recommendation": "Get My Recommendation",
       "generating": "Generating your recommendation...",
-      "compare_different": "Compare Different Properties"
+      "compare_different": "Compare Different Properties",
+      "summary_title": "Property Comparison Summary",
+      "summary_feature": "Feature",
+      "summary_property_a": "Property A",
+      "summary_property_b": "Property B"
     },
     "personalization": {
       "title": "Tell us about your preferences",

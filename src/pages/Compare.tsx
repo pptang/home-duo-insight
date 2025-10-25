@@ -969,16 +969,16 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     <Card>
                       <CardHeader className="bg-[#F7F7F8]">
                         <CardTitle className="text-xl">
-                          Property Comparison Summary
+                          {t("compare.recommendation.summary_title")}
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="p-0">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Feature</TableHead>
-                              <TableHead>Property A</TableHead>
-                              <TableHead>Property B</TableHead>
+                              <TableHead>{t("compare.recommendation.summary_feature")}</TableHead>
+                              <TableHead>{t("compare.recommendation.summary_property_a")}</TableHead>
+                              <TableHead>{t("compare.recommendation.summary_property_b")}</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
