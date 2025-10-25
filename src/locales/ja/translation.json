@@ -207,7 +207,79 @@
     "subtitle": "彼らは不動産のプロであると同時に、理想の暮らしを実現するパートナーです。",
     "apply_title": "AiSumaiの専門家になりませんか？",
     "apply_button": "専門家に応募する",
-    "pending": "あなたの申請は審査中です。"
+    "pending": "あなたの申請は審査中です。",
+    "hero": {
+      "title": "専門家ネットワーク",
+      "subtitle": "不動産専門家のコミュニティに参加し、日本全国の人々がより良い住宅決定をするのを支援しましょう。"
+    },
+    "stats": {
+      "reviews": "専門家レビュー",
+      "active": "アクティブな専門家",
+      "decisions": "支援した決定"
+    },
+    "benefits": {
+      "title": "専門家としてできること：",
+      "review": "物件比較をレビューし、専門的な洞察を提供",
+      "share": "地域の市場知識と専門知識を共有",
+      "build": "プロフェッショナルなプロフィールを構築し、クライアントとつながる"
+    },
+    "status": {
+      "pending": "あなたの申請は審査中です",
+      "approved": "専門家ネットワークへようこそ！",
+      "rejected_message": "以前の申請は承認されませんでした。",
+      "apply_again": "再度応募する"
+    },
+    "application": {
+      "title": "専門家申請",
+      "subtitle": "専門家ネットワークに参加するために、あなたの専門情報を提供してください。",
+      "profile_image": "プロフィール画像",
+      "profile_image_note": "JPG、PNG、またはWEBP。最大5MB。",
+      "full_name": "氏名",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "region": "地域",
+      "select_prefecture": "都道府県を選択",
+      "company_website": "会社のウェブサイト",
+      "x_handle": "X（Twitter）ハンドル",
+      "instagram_url": "Instagram URL",
+      "line_url": "LINE プロフィール URL",
+      "bio": "専門家の経歴",
+      "bio_placeholder": "不動産の経験と専門知識について教えてください...",
+      "specialization": "専門タグ",
+      "specialization_note": "該当するものをすべて選択",
+      "submit": "申請を送信",
+      "submitting": "送信中..."
+    },
+    "signin": {
+      "title": "専門家として参加",
+      "subtitle": "AiSumaiの専門家として応募するにはサインインしてください",
+      "button": "サインイン"
+    },
+    "toast": {
+      "file_too_large": "ファイルが大きすぎます",
+      "file_too_large_desc": "5MB未満の画像を選択してください",
+      "invalid_file": "無効なファイルタイプ",
+      "invalid_file_desc": "JPG、PNG、またはWEBP画像を選択してください",
+      "success": "申請が送信されました！",
+      "success_desc": "専門家申請が審査のために送信されました。",
+      "error": "エラー"
+    },
+    "specialization_tags": {
+      "新築": "新築",
+      "中古": "中古",
+      "賃貸": "賃貸",
+      "売買": "売買",
+      "投資物件": "投資物件",
+      "一戸建て": "一戸建て",
+      "マンション": "マンション",
+      "土地": "土地",
+      "商業物件": "商業物件",
+      "リノベーション": "リノベーション",
+      "住宅ローン": "住宅ローン",
+      "査定": "査定",
+      "相続": "相続",
+      "税務": "税務"
+    }
   },
   "about": {
     "title": "私たちの原点",

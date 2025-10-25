@@ -207,7 +207,79 @@
     "subtitle": "They are not just real estate pros, but also partners in realizing your ideal lifestyle.",
     "apply_title": "Interested in becoming an expert on AiSumai?",
     "apply_button": "Apply to Become an Expert",
-    "pending": "Your application is under review."
+    "pending": "Your application is under review.",
+    "hero": {
+      "title": "Expert Network",
+      "subtitle": "Join our community of real estate professionals and help people make better housing decisions across Japan."
+    },
+    "stats": {
+      "reviews": "Expert Reviews",
+      "active": "Active Experts",
+      "decisions": "Helped Decisions"
+    },
+    "benefits": {
+      "title": "What you'll do as an expert:",
+      "review": "Review property comparisons and provide professional insights",
+      "share": "Share your local market knowledge and expertise",
+      "build": "Build your professional profile and connect with clients"
+    },
+    "status": {
+      "pending": "Your application is under review",
+      "approved": "Welcome to the expert network!",
+      "rejected_message": "Your previous application was not approved.",
+      "apply_again": "Apply Again"
+    },
+    "application": {
+      "title": "Expert Application",
+      "subtitle": "Please provide your professional information to join our expert network.",
+      "profile_image": "Profile Image",
+      "profile_image_note": "JPG, PNG, or WEBP. Max 5MB.",
+      "full_name": "Full Name",
+      "email": "Email",
+      "phone": "Phone",
+      "region": "Region",
+      "select_prefecture": "Select prefecture",
+      "company_website": "Company Website",
+      "x_handle": "X (Twitter) Handle",
+      "instagram_url": "Instagram URL",
+      "line_url": "LINE Profile URL",
+      "bio": "Professional Bio",
+      "bio_placeholder": "Tell us about your real estate experience and expertise...",
+      "specialization": "Specialization Tags",
+      "specialization_note": "Select all that apply",
+      "submit": "Submit Application",
+      "submitting": "Submitting..."
+    },
+    "signin": {
+      "title": "Join as an Expert",
+      "subtitle": "Please sign in to apply as an expert on AiSumai",
+      "button": "Sign In"
+    },
+    "toast": {
+      "file_too_large": "File too large",
+      "file_too_large_desc": "Please select an image smaller than 5MB",
+      "invalid_file": "Invalid file type",
+      "invalid_file_desc": "Please select a JPG, PNG, or WEBP image",
+      "success": "Application submitted!",
+      "success_desc": "Your expert application has been submitted for review.",
+      "error": "Error"
+    },
+    "specialization_tags": {
+      "新築": "New Construction",
+      "中古": "Used/Resale",
+      "賃貸": "Rental",
+      "売買": "Purchase/Sale",
+      "投資物件": "Investment Property",
+      "一戸建て": "Detached House",
+      "マンション": "Condo/Apartment",
+      "土地": "Land",
+      "商業物件": "Commercial Property",
+      "リノベーション": "Renovation",
+      "住宅ローン": "Home Loan",
+      "査定": "Appraisal",
+      "相続": "Inheritance",
+      "税務": "Tax Affairs"
+    }
   },
   "about": {
     "title": "Our Origin",
