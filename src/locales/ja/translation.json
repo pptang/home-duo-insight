@@ -616,5 +616,39 @@
     "moreExperts": "他{{count}}名の専門家",
     "moreExpertsPlural": "他{{count}}名の専門家",
     "viewProfile": "{{name}}のプロフィールを見る"
+  },
+  "fields": {
+    "address": {
+      "label": "📍 住所",
+      "placeholder": "物件の住所を入力してください..."
+    },
+    "floorPlan": {
+      "label": "🏠 間取り",
+      "placeholder": "例：1LDK、2DKなど..."
+    },
+    "price": {
+      "label": "💰 価格",
+      "placeholder": "価格を円で入力してください...",
+      "suffix": "円"
+    },
+    "area": {
+      "label": "📐 専有面積",
+      "placeholder": "面積を入力してください...",
+      "suffix": "㎡"
+    },
+    "commuteTime": {
+      "label": "🚇 通勤時間",
+      "placeholder": "通勤時間を入力してください...",
+      "suffix": "分"
+    },
+    "constructionYear": {
+      "label": "🏗️ 築年",
+      "placeholder": "例：2020"
+    },
+    "constructionMonth": {
+      "label": "📅 築月",
+      "placeholder": "例：3（3月）",
+      "suffix": "1-12"
+    }
   }
 }

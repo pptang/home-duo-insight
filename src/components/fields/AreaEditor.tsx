@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EditableField } from '../ui/EditableField';
 
 interface AreaEditorProps {
@@ -7,15 +8,17 @@ interface AreaEditorProps {
 }
 
 export const AreaEditor: React.FC<AreaEditorProps> = ({ value, propertyKey }) => {
+  const { t } = useTranslation();
+  
   return (
     <EditableField
-      label="📐 Private Area"
+      label={t('fields.area.label')}
       value={value}
       fieldName="private_area_sqm"
       propertyKey={propertyKey}
       type="number"
-      placeholder="Enter area..."
-      suffix="㎡"
+      placeholder={t('fields.area.placeholder')}
+      suffix={t('fields.area.suffix')}
     />
   );
 };

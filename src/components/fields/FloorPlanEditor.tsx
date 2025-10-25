@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EditableField } from '../ui/EditableField';
 
 interface FloorPlanEditorProps {
@@ -7,14 +8,16 @@ interface FloorPlanEditorProps {
 }
 
 export const FloorPlanEditor: React.FC<FloorPlanEditorProps> = ({ value, propertyKey }) => {
+  const { t } = useTranslation();
+  
   return (
     <EditableField
-      label="🏠 Floor Plan"
+      label={t('fields.floorPlan.label')}
       value={value}
       fieldName="floor_plan"
       propertyKey={propertyKey}
       type="text"
-      placeholder="e.g., 1LDK, 2DK..."
+      placeholder={t('fields.floorPlan.placeholder')}
     />
   );
 };

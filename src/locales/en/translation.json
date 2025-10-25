@@ -616,5 +616,39 @@
     "moreExperts": "{{count}} more expert",
     "moreExpertsPlural": "{{count}} more experts",
     "viewProfile": "View {{name}}'s profile"
+  },
+  "fields": {
+    "address": {
+      "label": "📍 Address",
+      "placeholder": "Enter property address..."
+    },
+    "floorPlan": {
+      "label": "🏠 Floor Plan",
+      "placeholder": "e.g., 1LDK, 2DK..."
+    },
+    "price": {
+      "label": "💰 Price",
+      "placeholder": "Enter price in yen...",
+      "suffix": "JPY"
+    },
+    "area": {
+      "label": "📐 Private Area",
+      "placeholder": "Enter area...",
+      "suffix": "㎡"
+    },
+    "commuteTime": {
+      "label": "🚇 Commute Time",
+      "placeholder": "Enter commute time...",
+      "suffix": "minutes"
+    },
+    "constructionYear": {
+      "label": "🏗️ Construction Year",
+      "placeholder": "e.g., 2020"
+    },
+    "constructionMonth": {
+      "label": "📅 Construction Month",
+      "placeholder": "e.g., 3 (March)",
+      "suffix": "1-12"
+    }
   }
 }

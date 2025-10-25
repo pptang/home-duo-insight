@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { EditableField } from '../ui/EditableField';
 
 interface ConstructionDateEditorProps {
@@ -12,24 +13,26 @@ export const ConstructionDateEditor: React.FC<ConstructionDateEditorProps> = ({
   month, 
   propertyKey 
 }) => {
+  const { t } = useTranslation();
+  
   return (
     <div className="space-y-2">
       <EditableField
-        label="🏗️ Construction Year"
+        label={t('fields.constructionYear.label')}
         value={year}
         fieldName="construction_year"
         propertyKey={propertyKey}
         type="number"
-        placeholder="e.g., 2020"
+        placeholder={t('fields.constructionYear.placeholder')}
       />
       <EditableField
-        label="📅 Construction Month"
+        label={t('fields.constructionMonth.label')}
         value={month}
         fieldName="construction_month"
         propertyKey={propertyKey}
         type="number"
-        placeholder="e.g., 3 (March)"
-        suffix="1-12"
+        placeholder={t('fields.constructionMonth.placeholder')}
+        suffix={t('fields.constructionMonth.suffix')}
       />
     </div>
   );
