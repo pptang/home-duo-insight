@@ -288,7 +288,40 @@
   "auth": {
     "login": "Login",
     "logout": "Logout",
-    "signup": "Sign Up"
+    "signup": "Sign Up",
+    "tabs": {
+      "signin": "Sign In",
+      "signup": "Sign Up"
+    },
+    "signin": {
+      "title": "Sign In",
+      "description": "Enter your credentials to access your account",
+      "button": "Sign In",
+      "loading": "Signing In..."
+    },
+    "signup": {
+      "title": "Sign Up",
+      "description": "Create an account to start using DuoHome Advisor",
+      "button": "Sign Up",
+      "loading": "Signing Up..."
+    },
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "fullName": "Full Name",
+      "email_placeholder": "your@email.com",
+      "password_placeholder": "********",
+      "name_placeholder": "John Doe"
+    },
+    "toast": {
+      "signup_failed": "Sign up failed",
+      "signup_success": "Sign up successful",
+      "signup_success_desc": "Please check your email for the confirmation link.",
+      "signin_failed": "Sign in failed",
+      "signin_success": "Sign in successful",
+      "signin_success_desc": "Welcome back!",
+      "unexpected_error": "An unexpected error occurred. Please try again."
+    }
   },
   "footer": {
     "brand": "DuoHome",

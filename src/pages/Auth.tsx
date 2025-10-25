@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +19,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 const Auth = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
@@ -44,13 +46,13 @@ const Auth = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Sign up failed",
+          title: t("auth.toast.signup_failed"),
           description: error.message,
         });
       } else {
         toast({
-          title: "Sign up successful",
-          description: "Please check your email for the confirmation link.",
+          title: t("auth.toast.signup_success"),
+          description: t("auth.toast.signup_success_desc"),
         });
         navigate("/");
       }
@@ -58,8 +60,8 @@ const Auth = () => {
       console.error("Error signing up:", error);
       toast({
         variant: "destructive",
-        title: "Sign up failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: t("auth.toast.signup_failed"),
+        description: t("auth.toast.unexpected_error"),
       });
     } finally {
       setLoading(false);
@@ -79,13 +81,13 @@ const Auth = () => {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Sign in failed",
+          title: t("auth.toast.signin_failed"),
           description: error.message,
         });
       } else {
         toast({
-          title: "Sign in successful",
-          description: "Welcome back!",
+          title: t("auth.toast.signin_success"),
+          description: t("auth.toast.signin_success_desc"),
         });
         navigate("/");
       }
@@ -93,8 +95,8 @@ const Auth = () => {
       console.error("Error signing in:", error);
       toast({
         variant: "destructive",
-        title: "Sign in failed",
-        description: "An unexpected error occurred. Please try again.",
+        title: t("auth.toast.signin_failed"),
+        description: t("auth.toast.unexpected_error"),
       });
     } finally {
       setLoading(false);
@@ -107,36 +109,36 @@ const Auth = () => {
         <div className="container max-w-md mx-auto px-4">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              <TabsTrigger value="signin">{t("auth.tabs.signin")}</TabsTrigger>
+              <TabsTrigger value="signup">{t("auth.tabs.signup")}</TabsTrigger>
             </TabsList>
             <TabsContent value="signin">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sign In</CardTitle>
+                  <CardTitle>{t("auth.signin.title")}</CardTitle>
                   <CardDescription>
-                    Enter your credentials to access your account
+                    {t("auth.signin.description")}
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignIn}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="signin-email">Email</Label>
+                      <Label htmlFor="signin-email">{t("auth.fields.email")}</Label>
                       <Input
                         id="signin-email"
                         type="email"
-                        placeholder="your@email.com"
+                        placeholder={t("auth.fields.email_placeholder")}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signin-password">Password</Label>
+                      <Label htmlFor="signin-password">{t("auth.fields.password")}</Label>
                       <Input
                         id="signin-password"
                         type="password"
-                        placeholder="********"
+                        placeholder={t("auth.fields.password_placeholder")}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -149,7 +151,7 @@ const Auth = () => {
                       className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
                       disabled={loading}
                     >
-                      {loading ? "Signing In..." : "Sign In"}
+                      {loading ? t("auth.signin.loading") : t("auth.signin.button")}
                     </Button>
                   </CardFooter>
                 </form>
@@ -158,40 +160,40 @@ const Auth = () => {
             <TabsContent value="signup">
               <Card>
                 <CardHeader>
-                  <CardTitle>Sign Up</CardTitle>
+                  <CardTitle>{t("auth.signup.title")}</CardTitle>
                   <CardDescription>
-                    Create an account to start using DuoHome Advisor
+                    {t("auth.signup.description")}
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSignUp}>
                   <CardContent className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="signup-name">Full Name</Label>
+                      <Label htmlFor="signup-name">{t("auth.fields.fullName")}</Label>
                       <Input
                         id="signup-name"
-                        placeholder="John Doe"
+                        placeholder={t("auth.fields.name_placeholder")}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-email">Email</Label>
+                      <Label htmlFor="signup-email">{t("auth.fields.email")}</Label>
                       <Input
                         id="signup-email"
                         type="email"
-                        placeholder="your@email.com"
+                        placeholder={t("auth.fields.email_placeholder")}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="signup-password">Password</Label>
+                      <Label htmlFor="signup-password">{t("auth.fields.password")}</Label>
                       <Input
                         id="signup-password"
                         type="password"
-                        placeholder="********"
+                        placeholder={t("auth.fields.password_placeholder")}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -204,7 +206,7 @@ const Auth = () => {
                       className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
                       disabled={loading}
                     >
-                      {loading ? "Signing Up..." : "Sign Up"}
+                      {loading ? t("auth.signup.loading") : t("auth.signup.button")}
                     </Button>
                   </CardFooter>
                 </form>

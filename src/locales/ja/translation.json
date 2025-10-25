@@ -288,7 +288,40 @@
   "auth": {
     "login": "ログイン",
     "logout": "ログアウト",
-    "signup": "新規登録"
+    "signup": "新規登録",
+    "tabs": {
+      "signin": "ログイン",
+      "signup": "新規登録"
+    },
+    "signin": {
+      "title": "ログイン",
+      "description": "アカウントにアクセスするには認証情報を入力してください",
+      "button": "ログイン",
+      "loading": "ログイン中..."
+    },
+    "signup": {
+      "title": "新規登録",
+      "description": "DuoHome Advisorを使い始めるためにアカウントを作成してください",
+      "button": "登録する",
+      "loading": "登録中..."
+    },
+    "fields": {
+      "email": "メールアドレス",
+      "password": "パスワード",
+      "fullName": "氏名",
+      "email_placeholder": "your@email.com",
+      "password_placeholder": "********",
+      "name_placeholder": "山田 太郎"
+    },
+    "toast": {
+      "signup_failed": "登録に失敗しました",
+      "signup_success": "登録が完了しました",
+      "signup_success_desc": "確認リンクが記載されたメールをご確認ください。",
+      "signin_failed": "ログインに失敗しました",
+      "signin_success": "ログインしました",
+      "signin_success_desc": "おかえりなさい！",
+      "unexpected_error": "予期しないエラーが発生しました。もう一度お試しください。"
+    }
   },
   "footer": {
     "brand": "DuoHome",
