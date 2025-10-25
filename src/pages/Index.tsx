@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Home, Users, Search, Sparkles, Heart, Brain } from "lucide-react";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 const Index = () => {
+  const { t } = useTranslation();
   const heroRef = useRef<HTMLElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
 
@@ -78,12 +80,11 @@ const Index = () => {
               </div>
               
               <h2 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6 animate-in-delayed">
-                Two homes. One perfect choice. 🏡
+                {t("home.hero.title")}
               </h2>
               
               <p className="text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-in-delayed leading-relaxed">
-                Make confident housing decisions in Japan with AI analysis, expert insights, 
-                and community wisdom — all in one beautiful comparison.
+                {t("home.hero.subtitle")}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-in-delayed">
@@ -94,7 +95,7 @@ const Index = () => {
                 >
                   <Link to="/compare">
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Start Comparing
+                    {t("home.hero.cta_primary")}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
@@ -106,7 +107,7 @@ const Index = () => {
                 >
                   <Link to="/feed">
                     <Heart className="mr-2 h-5 w-5" />
-                    Browse Stories
+                    {t("home.hero.cta_secondary")}
                   </Link>
                 </Button>
               </div>
@@ -126,10 +127,10 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-20 section-fade">
               <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
-                How the magic works ✨
+                {t("home.features.title")}
               </h2>
               <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                Three powerful layers of intelligence working together to guide your decision
+                {t("home.features.subtitle")}
               </p>
             </div>
 
@@ -142,14 +143,13 @@ const Index = () => {
                     <Brain className="h-10 w-10 text-primary" />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-4">
-                    🤖 AI Analysis
+                    {t("home.features.ai.title")}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-lg">
-                    Our AI examines every detail — from commute times to neighborhood vibes — 
-                    creating personalized insights tailored to your lifestyle.
+                    {t("home.features.ai.description")}
                   </p>
                   <div className="mt-6 flex items-center text-primary font-medium">
-                    <span>See AI in action</span>
+                    <span>{t("home.features.ai.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </div>
                 </div>
@@ -160,14 +160,13 @@ const Index = () => {
                     <Users className="h-10 w-10 text-accent-foreground" />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-4">
-                    👥 Expert Insights
+                    {t("home.features.expert.title")}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-lg">
-                    Real estate professionals vote and share insider knowledge — 
-                    from hidden costs to future development plans.
+                    {t("home.features.expert.description")}
                   </p>
                   <div className="mt-6 flex items-center text-accent-foreground font-medium">
-                    <span>Meet the experts</span>
+                    <span>{t("home.features.expert.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </div>
                 </div>
@@ -178,14 +177,13 @@ const Index = () => {
                     <Home className="h-10 w-10 text-primary" />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-4">
-                    🏠 Community Stories
+                    {t("home.features.community.title")}
                   </h3>
                   <p className="text-muted-foreground leading-relaxed text-lg">
-                    Learn from others who faced similar decisions — real experiences 
-                    from real people in your exact situation.
+                    {t("home.features.community.description")}
                   </p>
                   <div className="mt-6 flex items-center text-primary font-medium">
-                    <span>Read their stories</span>
+                    <span>{t("home.features.community.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </div>
                 </div>
@@ -199,10 +197,10 @@ const Index = () => {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16 section-fade">
               <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
-                See it in action 🎯
+                {t("home.sample.title")}
               </h2>
               <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                Hover over each property to discover the differences that matter
+                {t("home.sample.subtitle")}
               </p>
             </div>
 
@@ -220,7 +218,7 @@ const Index = () => {
                     <div className="comparison-overlay">
                       <div className="text-center text-primary-foreground">
                         <Sparkles className="h-12 w-12 mx-auto mb-2" />
-                        <p className="font-bold text-lg">Click to compare!</p>
+                        <p className="font-bold text-lg">{t("home.sample.click_to_compare")}</p>
                       </div>
                     </div>
                   </div>
@@ -229,15 +227,15 @@ const Index = () => {
                     <p className="text-primary font-bold text-xl mb-4">¥135,000/month</p>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Layout:</span>
+                        <span className="text-muted-foreground">{t("home.sample.layout")}:</span>
                         <span className="font-semibold text-foreground">1LDK (45m²)</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Station:</span>
+                        <span className="text-muted-foreground">{t("home.sample.station")}:</span>
                         <span className="font-semibold text-foreground">7 min walk</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Building:</span>
+                        <span className="text-muted-foreground">{t("home.sample.building")}:</span>
                         <span className="font-semibold text-foreground">10 years old</span>
                       </div>
                     </div>
@@ -256,7 +254,7 @@ const Index = () => {
                     <div className="comparison-overlay">
                       <div className="text-center text-primary-foreground">
                         <Sparkles className="h-12 w-12 mx-auto mb-2" />
-                        <p className="font-bold text-lg">Click to compare!</p>
+                        <p className="font-bold text-lg">{t("home.sample.click_to_compare")}</p>
                       </div>
                     </div>
                   </div>
@@ -265,15 +263,15 @@ const Index = () => {
                     <p className="text-primary font-bold text-xl mb-4">¥142,000/month</p>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Layout:</span>
+                        <span className="text-muted-foreground">{t("home.sample.layout")}:</span>
                         <span className="font-semibold text-foreground">1LDK (48m²)</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Station:</span>
+                        <span className="text-muted-foreground">{t("home.sample.station")}:</span>
                         <span className="font-semibold text-foreground">5 min walk</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Building:</span>
+                        <span className="text-muted-foreground">{t("home.sample.building")}:</span>
                         <span className="font-semibold text-foreground">5 years old</span>
                       </div>
                     </div>
@@ -288,12 +286,9 @@ const Index = () => {
                     <Brain className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-foreground mb-2">AI Recommendation</h4>
+                    <h4 className="text-xl font-bold text-foreground mb-2">{t("home.sample.ai_recommendation")}</h4>
                     <p className="text-muted-foreground leading-relaxed text-lg">
-                      For a young professional prioritizing nightlife and convenience, 
-                      <span className="font-semibold text-primary"> Shibuya Dream</span> offers 
-                      exceptional value with unmatched access to entertainment and dining, 
-                      despite being slightly older. The 7-minute walk keeps you in the heart of Tokyo's energy! ⚡
+                      {t("home.sample.recommendation_text")}
                     </p>
                   </div>
                 </div>
@@ -302,7 +297,7 @@ const Index = () => {
               <div className="text-center mt-12">
                 <Button asChild size="lg" className="text-lg px-12 py-4 hover-glow">
                   <Link to="/compare">
-                    Create Your Comparison
+                    {t("home.sample.create_comparison")}
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
@@ -374,10 +369,10 @@ const Index = () => {
           <div className="relative z-10 container mx-auto px-4 text-center">
             <div className="max-w-4xl mx-auto">
               <h2 className="cinematic-heading text-primary-foreground mb-8">
-                Your perfect home awaits 🌟
+                {t("home.cta.title")}
               </h2>
               <p className="text-2xl text-primary-foreground/90 mb-12 leading-relaxed max-w-3xl mx-auto">
-                Stop overthinking. Start comparing. Make the decision that changes everything.
+                {t("home.cta.subtitle")}
               </p>
               <Button 
                 asChild 
@@ -386,7 +381,7 @@ const Index = () => {
               >
                 <Link to="/compare">
                   <Sparkles className="mr-3 h-6 w-6" />
-                  Start Your Journey
+                  {t("home.cta.button")}
                   <ArrowRight className="ml-3 h-6 w-6" />
                 </Link>
               </Button>

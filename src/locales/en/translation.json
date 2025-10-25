@@ -8,25 +8,45 @@
   },
   "home": {
     "hero": {
-      "title": "No longer be overwhelmed by property searching. Let's find your ideal lifestyle with Aisum.ai.",
-      "subtitle": "Finding a home is a major life event. That's precisely why we want to deliver deep satisfaction and joy, not compromises and anxiety. AI uncovers possibilities from vast data, while experienced experts stay close to your feelings. Aisum is the new standard for finding a home.",
-      "cta_primary": "Search for your ideal lifestyle",
-      "cta_secondary": "What are Aisum's strengths?"
+      "title": "Two homes. One perfect choice. 🏡",
+      "subtitle": "Make confident housing decisions in Japan with AI analysis, expert insights, and community wisdom — all in one beautiful comparison.",
+      "cta_primary": "Start Comparing",
+      "cta_secondary": "Browse Stories"
     },
-    "approach": {
-      "title": "A satisfying choice, made surprisingly smooth.",
-      "step1": {
-        "title": "AI gives form to your \"feelings and thoughts\"",
-        "description": "A vague image like \"I want to live this kind of life\" is perfectly fine. Just by conveying your lifestyle and the values you hold dear, our AI instantly sketches out the perfect options for you from a vast amount of property information."
+    "features": {
+      "title": "How the magic works ✨",
+      "subtitle": "Three powerful layers of intelligence working together to guide your decision",
+      "ai": {
+        "title": "🤖 AI Analysis",
+        "description": "Our AI examines every detail — from commute times to neighborhood vibes — creating personalized insights tailored to your lifestyle.",
+        "cta": "See AI in action"
       },
-      "step2": {
-        "title": "With data, turn hesitation into conviction",
-        "description": "When you line up the properties you're interested in, you can see multifaceted data like the surrounding environment, asset value, and sun exposure at a glance. Objective facts will guide your intuitive \"like\" into unwavering \"conviction.\""
+      "expert": {
+        "title": "👥 Expert Insights",
+        "description": "Real estate professionals vote and share insider knowledge — from hidden costs to future development plans.",
+        "cta": "Meet the experts"
       },
-      "step3": {
-        "title": "Experts provide strong support for the final step",
-        "description": "When professional judgment is needed for things like contracts or loans, it's our turn. Experienced professionals will always be on your side, resolving any questions or concerns. We will run alongside you until the very end, so you can make your decision with peace of mind."
+      "community": {
+        "title": "🏠 Community Stories",
+        "description": "Learn from others who faced similar decisions — real experiences from real people in your exact situation.",
+        "cta": "Read their stories"
       }
+    },
+    "sample": {
+      "title": "See it in action 🎯",
+      "subtitle": "Hover over each property to discover the differences that matter",
+      "click_to_compare": "Click to compare!",
+      "layout": "Layout",
+      "station": "Station",
+      "building": "Building",
+      "ai_recommendation": "AI Recommendation",
+      "recommendation_text": "For a young professional prioritizing nightlife and convenience, Shibuya Dream offers exceptional value with unmatched access to entertainment and dining, despite being slightly older. The 7-minute walk keeps you in the heart of Tokyo's energy! ⚡",
+      "create_comparison": "Create Your Comparison"
+    },
+    "cta": {
+      "title": "Your perfect home awaits 🌟",
+      "subtitle": "Stop overthinking. Start comparing. Make the decision that changes everything.",
+      "button": "Start Your Journey"
     }
   },
   "compare": {
