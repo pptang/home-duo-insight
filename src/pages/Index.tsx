@@ -135,7 +135,7 @@ const Index = () => {
             </div>
 
             {/* Horizontal Scrolling Features */}
-            <div className="section-fade" ref={featuresRef}>
+            <div className="section-fade flex justify-center" ref={featuresRef}>
               <div className="feature-scroll-container max-w-none px-4 md:px-8">
                 {/* AI Analysis */}
                 <div className="flex-shrink-0 w-80 p-8 bg-gradient-to-br from-primary/10 to-primary/20 rounded-3xl hover-lift border border-primary/20">

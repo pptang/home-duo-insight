@@ -252,7 +252,7 @@ const About = () => {
         </section>
 
         {/* Team Section */}
-        <section className="py-16 bg-softgray">
+        {/* <section className="py-16 bg-softgray">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-3xl font-bold text-gray-900 text-center">
               {t("about.team.title")}
@@ -296,7 +296,7 @@ const About = () => {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Strong CTA Section */}
         <section className="py-20 bg-gradient-to-r from-primary via-secondary to-accent relative overflow-hidden">
