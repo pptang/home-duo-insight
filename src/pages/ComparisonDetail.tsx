@@ -369,7 +369,7 @@ const ComparisonDetail = () => {
   }
 
   return (
-    <div className="bg-[#F7F7F8] py-8">
+    <div className="bg-background py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
