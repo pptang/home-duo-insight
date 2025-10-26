@@ -135,7 +135,7 @@ export const FeedExpertInsights = ({ comparisonId, propertyAName, propertyBName 
                         <p className="text-xs text-gray-500">{vote.expert_profiles.profiles.area_specialization}</p>
                       )}
                     </div>
-                    <div className="bg-[#F7F7F8] text-sm py-1 px-2 rounded-full flex items-center gap-1">
+                    <div className="bg-muted text-sm py-1 px-2 rounded-full flex items-center gap-1">
                       <ThumbsUp className="h-3.5 w-3.5" />
                       <span>
                         {vote.voted_for === 'A' ? propertyAName || 'Property A' : propertyBName || 'Property B'}

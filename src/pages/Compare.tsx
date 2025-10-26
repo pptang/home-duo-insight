@@ -799,7 +799,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                       <h3 className="text-xl font-semibold text-gray-900">
                         {getPropertyData('property_a').property_name}
                       </h3>
-                      <p className="text-[#6A7FDB] font-medium">
+                      <p className="text-primary font-medium">
                         {formatPrice(getPropertyData('property_a').price_yen)}
                       </p>
                       <div className="mt-4 space-y-2">
@@ -876,7 +876,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                       <h3 className="text-xl font-semibold text-gray-900">
                         {getPropertyData('property_b').property_name}
                       </h3>
-                      <p className="text-[#6A7FDB] font-medium">
+                      <p className="text-primary font-medium">
                         {formatPrice(getPropertyData('property_b').price_yen)}
                       </p>
                       <div className="mt-4 space-y-2">
@@ -947,7 +947,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     size="lg"
                     onClick={() => setShowPersonalizationDialog(true)}
                     disabled={isGeneratingRecommendation}
-                    className="relative bg-[#6A7FDB] hover:bg-[#5A6DCB] text-white px-6 py-3 rounded-lg"
+                    className="relative bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg"
                   >
                     {isGeneratingRecommendation ? (
                       <>
@@ -967,7 +967,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                   <div className="animate-fade-in space-y-8">
                     {/* Summary Table */}
                     <Card>
-                      <CardHeader className="bg-[#F7F7F8]">
+                      <CardHeader className="bg-muted">
                         <CardTitle className="text-xl">
                           {t("compare.recommendation.summary_title")}
                         </CardTitle>
@@ -1092,9 +1092,9 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     </div>
 
                     {/* Final Recommendation */}
-                    <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
+                    <Card className="bg-accent/20 border-accent">
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-xl text-[#6A7FDB]">
+                        <CardTitle className="text-xl text-primary">
                           {t("compare.recommendation.title")}
                         </CardTitle>
                       </CardHeader>

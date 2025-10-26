@@ -91,7 +91,7 @@ export const FeedExpertVoting = ({
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
           variant={voteOption === "A" ? "default" : "outline"}
-          className={voteOption === "A" ? "bg-[#6A7FDB]" : ""}
+          className={voteOption === "A" ? "bg-primary" : ""}
           onClick={() => setVoteOption("A")}
           size="sm"
         >
@@ -99,7 +99,7 @@ export const FeedExpertVoting = ({
         </Button>
         <Button
           variant={voteOption === "B" ? "default" : "outline"}
-          className={voteOption === "B" ? "bg-[#6A7FDB]" : ""}
+          className={voteOption === "B" ? "bg-primary" : ""}
           onClick={() => setVoteOption("B")}
           size="sm"
         >

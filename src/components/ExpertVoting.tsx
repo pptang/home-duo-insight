@@ -115,7 +115,7 @@ export function ExpertVoting({
               variant={selectedProperty === "A" ? "default" : "outline"}
               className={
                 selectedProperty === "A"
-                  ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                  ? "bg-primary hover:bg-primary/90"
                   : ""
               }
               onClick={() => setSelectedProperty("A")}
@@ -126,7 +126,7 @@ export function ExpertVoting({
               variant={selectedProperty === "B" ? "default" : "outline"}
               className={
                 selectedProperty === "B"
-                  ? "bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                  ? "bg-primary hover:bg-primary/90"
                   : ""
               }
               onClick={() => setSelectedProperty("B")}
@@ -157,7 +157,7 @@ export function ExpertVoting({
         <Button
           onClick={handleVoteSubmit}
           disabled={!selectedProperty || isSubmitting}
-          className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+          className="w-full bg-primary hover:bg-primary/90"
         >
           {isSubmitting ? t("expertVoting.submitting") : t("expertVoting.submitButton")}
         </Button>

@@ -494,7 +494,7 @@ export default function AdminExpertPanel() {
                   <div className="flex justify-end">
                     <Button
                       type="submit"
-                      className="bg-[#6A7FDB]"
+                      className="bg-primary"
                       disabled={isLoading}
                     >
                       {isLoading ? "Creating..." : "Create Expert Account"}

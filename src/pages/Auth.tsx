@@ -105,7 +105,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-grow bg-[#F7F7F8] py-12">
+      <main className="flex-grow bg-muted py-12">
         <div className="container max-w-md mx-auto px-4">
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
@@ -148,7 +148,7 @@ const Auth = () => {
                   <CardFooter>
                     <Button
                       type="submit"
-                      className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                      className="w-full bg-primary hover:bg-primary/90"
                       disabled={loading}
                     >
                       {loading ? t("auth.signin.loading") : t("auth.signin.button")}
@@ -203,7 +203,7 @@ const Auth = () => {
                   <CardFooter>
                     <Button
                       type="submit"
-                      className="w-full bg-[#6A7FDB] hover:bg-[#5A6DCB]"
+                      className="w-full bg-primary hover:bg-primary/90"
                       disabled={loading}
                     >
                       {loading ? t("auth.signup.loading") : t("auth.signup.button")}

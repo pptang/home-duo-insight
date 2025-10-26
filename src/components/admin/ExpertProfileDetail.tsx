@@ -293,7 +293,7 @@ export function ExpertProfileDetail({
           <h2 className="text-xl font-bold">{expert.name}</h2>
           <p className="text-gray-500">{expert.email}</p>
           <div className="flex items-center gap-2 mt-1">
-            <Badge className="bg-[#6A7FDB]">Expert</Badge>
+            <Badge className="bg-primary">Expert</Badge>
             {expert.rating_count > 0 && (
               <Badge
                 variant="outline"
@@ -419,7 +419,7 @@ export function ExpertProfileDetail({
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" className="bg-[#6A7FDB]" disabled={isSaving}>
+            <Button type="submit" className="bg-primary" disabled={isSaving}>
               {isSaving ? "Saving..." : "Save Changes"}
             </Button>
           </div>

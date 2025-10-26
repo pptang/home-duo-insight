@@ -50,7 +50,7 @@ const ExpertAvatarGroup: React.FC<ExpertAvatarGroupProps> = ({
                       alt={expert.name}
                     />
                   ) : (
-                    <AvatarFallback className="bg-[#6A7FDB] text-white">
+                    <AvatarFallback className="bg-primary text-white">
                       {expert.name.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   )}

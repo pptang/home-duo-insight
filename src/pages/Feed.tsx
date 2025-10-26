@@ -462,7 +462,7 @@ const Feed = () => {
                               className="w-full h-full rounded-full object-cover"
                             />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-[#6A7FDB] flex items-center justify-center text-white font-medium">
+                            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-medium">
                               {comparison.userName?.charAt(0) || "U"}
                             </div>
                           )}

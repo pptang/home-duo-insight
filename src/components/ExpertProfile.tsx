@@ -130,7 +130,7 @@ export function ExpertProfile({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold">{expert.name}</h2>
-              <Badge className="bg-[#C2A9FF]">{t("expertProfile.expertBadge")}</Badge>
+              <Badge className="bg-accent">{t("expertProfile.expertBadge")}</Badge>
             </div>
 
             {expert.rating_count > 0 && (
@@ -161,7 +161,7 @@ export function ExpertProfile({
             <Mail className="h-4 w-4 text-gray-500" />
             <a
               href={`mailto:${expert.email}`}
-              className="text-[#6A7FDB] hover:underline"
+              className="text-primary hover:underline"
             >
               {expert.email}
             </a>
@@ -172,7 +172,7 @@ export function ExpertProfile({
               <Phone className="h-4 w-4 text-gray-500" />
               <a
                 href={`tel:${expert.phone}`}
-                className="text-[#6A7FDB] hover:underline"
+                className="text-primary hover:underline"
               >
                 {expert.phone}
               </a>
@@ -186,7 +186,7 @@ export function ExpertProfile({
                 href={expert.company_website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#6A7FDB] hover:underline"
+                className="text-primary hover:underline"
               >
                 {t("expertProfile.companyWebsite")}
               </a>

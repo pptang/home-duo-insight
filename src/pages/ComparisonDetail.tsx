@@ -309,7 +309,7 @@ const ComparisonDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-[#F7F7F8] py-8">
+      <div className="bg-muted py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
             <Skeleton className="h-8 w-64 mb-4" />
@@ -347,7 +347,7 @@ const ComparisonDetail = () => {
 
   if (error || !comparison) {
     return (
-      <div className="bg-[#F7F7F8] py-8">
+      <div className="bg-muted py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
@@ -369,7 +369,7 @@ const ComparisonDetail = () => {
   }
 
   return (
-    <div className="bg-[#F7F7F8] py-8">
+    <div className="bg-muted py-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {/* Header Section */}
@@ -412,7 +412,7 @@ const ComparisonDetail = () => {
                     {comparison.property_a.property_name || t("comparisonDetail.property.propertyA")}
                   </h3>
                   {comparison.property_a.price_yen && (
-                    <p className="text-[#6A7FDB] font-medium">
+                    <p className="text-primary font-medium">
                       {formatPrice(comparison.property_a.price_yen)}
                     </p>
                   )}
@@ -473,7 +473,7 @@ const ComparisonDetail = () => {
                     {comparison.property_b.property_name || t("comparisonDetail.property.propertyB")}
                   </h3>
                   {comparison.property_b.price_yen && (
-                    <p className="text-[#6A7FDB] font-medium">
+                    <p className="text-primary font-medium">
                       {formatPrice(comparison.property_b.price_yen)}
                     </p>
                   )}
@@ -526,7 +526,7 @@ const ComparisonDetail = () => {
               <div className="animate-fade-in space-y-8 mb-8">
                 {/* Summary Table */}
                 <Card>
-                  <CardHeader className="bg-[#F7F7F8]">
+                  <CardHeader className="bg-muted">
                     <CardTitle className="text-xl">
                       {t("comparisonDetail.summary.title")}
                     </CardTitle>
@@ -631,9 +631,9 @@ const ComparisonDetail = () => {
                 </div>
 
                 {/* Final Recommendation */}
-                <Card className="bg-[#E5DEFF] border-[#C2A9FF]">
+                <Card className="bg-accent/20 border-accent">
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-xl text-[#6A7FDB]">
+                    <CardTitle className="text-xl text-primary">
                       {t("comparisonDetail.recommendation.title")}
                     </CardTitle>
                   </CardHeader>

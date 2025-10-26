@@ -142,7 +142,7 @@ export function ExpertInsights({
           </div>
           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
-              className="h-full bg-[#6A7FDB]"
+              className="h-full bg-primary"
               style={{ width: `${propertyAPercentage}%` }}
             />
           </div>

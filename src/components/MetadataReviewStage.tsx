@@ -73,7 +73,7 @@ export const MetadataReviewStage: React.FC = () => {
         </Button>
         <Button 
           onClick={handleContinue}
-          className="bg-[#6A7FDB] hover:bg-[#5A6FCB] text-white px-8 py-2"
+          className="bg-primary hover:bg-primary/90 text-white px-8 py-2"
           disabled={state.savingFields.size > 0}
         >
           {state.savingFields.size > 0 ? (
