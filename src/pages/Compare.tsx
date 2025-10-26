@@ -951,13 +951,13 @@ const CompareContent: React.FC<CompareContentProps> = ({
                   >
                     {isGeneratingRecommendation ? (
                       <>
-                        <span className="opacity-0">Get My Recommendation</span>
+                        <span className="opacity-0">{t("compare.recommendation.get_recommendation")}</span>
                         <span className="absolute inset-0 flex items-center justify-center">
-                          Generating your recommendation...
+                          {t("compare.recommendation.generating")}...
                         </span>
                       </>
                     ) : (
-                      <>Get My Recommendation</>
+                      <>{t("compare.recommendation.get_recommendation")}</>
                     )}
                   </Button>
                 </div>
@@ -1208,8 +1208,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1221,7 +1221,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🦶 Dog-walking friendly neighborhood
+                              {t("compare.personalization.dog_walking_friendly")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1234,8 +1234,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1247,7 +1247,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🎧 Quiet at night / noise sensitivity
+                              {t("compare.personalization.quiet_at_night")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1260,8 +1260,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1273,18 +1273,18 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🌅 Morning vs. afternoon sunlight
+                              {t("compare.personalization.morning_vs_afternoon_sunlight")}
                             </FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select preference" />
+                                  <SelectValue placeholder={t("compare.personalization.select_preference")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="morning">Morning sunlight</SelectItem>
-                                <SelectItem value="afternoon">Afternoon sunlight</SelectItem>
-                                <SelectItem value="no_preference">No preference</SelectItem>
+                                    <SelectItem value="morning">{t("compare.personalization.morning_sunlight")}</SelectItem>
+                                <SelectItem value="afternoon">{t("compare.personalization.afternoon_sunlight")}</SelectItem>
+                                <SelectItem value="no_preference">{t("compare.personalization.no_preference")}</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -1297,7 +1297,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🧺 Onsite or nearby laundromat
+                              {t("compare.personalization.laundromat_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1310,8 +1310,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1330,7 +1330,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🪟 Open view / no blocking buildings
+                              {t("compare.personalization.open_view")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1343,8 +1343,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1356,7 +1356,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🏡 "Feels like home" / warmth
+                              {t("compare.personalization.feels_like_home")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1369,8 +1369,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1382,7 +1382,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🎨 Creative-friendly / artist-vibe
+                              {t("compare.personalization.creative_friendly")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1395,8 +1395,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1408,7 +1408,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              📚 Reading or quiet corner space
+                              {t("compare.personalization.reading_corner_space")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1421,8 +1421,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1434,7 +1434,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🌲 Natural surroundings
+                              {t("compare.personalization.natural_surroundings")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1447,8 +1447,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1458,7 +1458,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Life Planning / Forward-looking Goals */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        📈 Life Planning / Forward-looking Goals
+                        {t("compare.personalization.life_planning_forward_looking_goals")}
                       </h3>
                       
                       <FormField
@@ -1467,7 +1467,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              👶 Ready for future family growth
+                              {t("compare.personalization.future_family_growth")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1480,8 +1480,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1493,7 +1493,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🪑 Work-from-home support
+                              {t("compare.personalization.work_from_home_support")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1506,8 +1506,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1519,7 +1519,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              💼 Potential for future resale
+                              {t("compare.personalization.potential_for_future_resale")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1532,8 +1532,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1545,7 +1545,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🔨 Willingness to renovate
+                              {t("compare.personalization.willingness_to_renovate")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1558,8 +1558,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1571,7 +1571,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              📦 Storage capacity needs
+                              {t("compare.personalization.storage_capacity_needs")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1584,8 +1584,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1604,7 +1604,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              ❄️ Natural ventilation / airiness
+                              {t("compare.personalization.natural_ventilation")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1617,8 +1617,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1630,7 +1630,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              ☀️ Light sensitivity
+                              {t("compare.personalization.light_sensitivity")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1643,8 +1643,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1656,18 +1656,18 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🧘‍♀️ Minimalist vs. maximalist
+                              {t("compare.personalization.minimalist_vs_maximalist")}
                             </FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select preference" />
+                                  <SelectValue placeholder={t("compare.personalization.select_preference")} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="minimalist">Minimalist</SelectItem>
-                                <SelectItem value="maximalist">Maximalist</SelectItem>
-                                <SelectItem value="no_preference">No preference</SelectItem>
+                                <SelectItem value="minimalist">{t("compare.personalization.minimalist")}</SelectItem>
+                                <SelectItem value="maximalist">{t("compare.personalization.maximalist")}</SelectItem>
+                                <SelectItem value="no_preference">{t("compare.personalization.no_preference")}</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -1680,7 +1680,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🚪 Privacy from neighbors
+                              {t("compare.personalization.privacy_from_neighbors")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1693,8 +1693,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1713,7 +1713,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🍱 Near favorite grocery chain
+                              {t("compare.personalization.grocery_chain_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1726,8 +1726,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1739,7 +1739,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🏫 Access to international schools
+                              {t("compare.personalization.international_schools")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1752,8 +1752,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1765,7 +1765,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🛍️ Weekend market / shopping access
+                              {t("compare.personalization.weekend_market_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1778,8 +1778,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1791,7 +1791,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🚴 Safe for biking
+                              {t("compare.personalization.safe_for_biking")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1804,8 +1804,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
@@ -1817,7 +1817,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              🛕 Nearby temples/shrines or spiritual space
+                              {t("compare.personalization.spiritual_space_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1830,8 +1830,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               />
                             </FormControl>
                             <div className="flex justify-between text-xs text-gray-500">
-                              <span>Not Important</span>
-                              <span>Very Important</span>
+                              <span>{t("compare.personalization.not_important")}</span>
+                              <span>{t("compare.personalization.very_important")}</span>
                             </div>
                           </FormItem>
                         )}
