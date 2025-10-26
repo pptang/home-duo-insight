@@ -130,7 +130,7 @@ export function ExpertProfile({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold">{expert.name}</h2>
-              <Badge className="bg-accent">{t("expertProfile.expertBadge")}</Badge>
+              <Badge className="bg-primary">{t("expertProfile.expertBadge")}</Badge>
             </div>
 
             {expert.rating_count > 0 && (

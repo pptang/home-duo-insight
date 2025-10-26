@@ -42,7 +42,7 @@ export function AuthButtons() {
   return (
     <div className="flex items-center gap-2">
       {isExpert && (
-        <Badge variant="outline" className="bg-accent text-white border-0">
+        <Badge variant="outline" className="bg-primary text-white border-0">
           {t("authButtons.expertBadge")}
         </Badge>
       )}
