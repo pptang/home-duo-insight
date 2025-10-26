@@ -650,5 +650,15 @@
       "placeholder": "例：3（3月）",
       "suffix": "1-12"
     }
+  },
+  "metadataReview": {
+    "title": "物件情報の確認",
+    "description": "以下に抽出された物件情報を確認・編集してください（すべて任意）。",
+    "propertyA": "物件A",
+    "propertyB": "物件B",
+    "unsavedChanges": "未保存の変更が{{count}}件あります",
+    "startOver": "最初からやり直す",
+    "saving": "保存中…",
+    "continue": "比較画面へ進む →"
   }
 }

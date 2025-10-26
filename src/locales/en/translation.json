@@ -650,5 +650,15 @@
       "placeholder": "e.g., 3 (March)",
       "suffix": "1-12"
     }
+  },
+  "metadataReview": {
+    "title": "Review Property Details",
+    "description": "Please review and edit the extracted property information below. All fields are optional.",
+    "propertyA": "Property A",
+    "propertyB": "Property B",
+    "unsavedChanges": "{{count}} unsaved changes",
+    "startOver": "Start Over",
+    "saving": "Saving...",
+    "continue": "Continue to Comparison →"
   }
 }

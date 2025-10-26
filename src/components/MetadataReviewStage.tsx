@@ -3,8 +3,10 @@ import { PropertyMetadataEditor } from './PropertyMetadataEditor';
 import { useMetadataEditing } from '@/contexts/MetadataEditingContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 export const MetadataReviewStage: React.FC = () => {
+  const { t } = useTranslation();
   const { state, hasUnsavedChanges, saveAllChanges, proceedToComparison } = useMetadataEditing();
 
   const handleContinue = async () => {
@@ -18,10 +20,10 @@ export const MetadataReviewStage: React.FC = () => {
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-8 text-center">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Review Property Details
+          {t('metadataReview.title')}
         </h2>
         <p className="text-gray-600">
-          Please review and edit the extracted property information below. All fields are optional.
+          {t('metadataReview.description')}
         </p>
       </div>
 
@@ -30,10 +32,10 @@ export const MetadataReviewStage: React.FC = () => {
         <Card className="p-6">
           <div className="mb-4">
             <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              🏠 Property A
+              🏠 {t('metadataReview.propertyA')}
               {state.unsavedChanges.property_a.size > 0 && (
                 <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                  {state.unsavedChanges.property_a.size} unsaved changes
+                  {t('metadataReview.unsavedChanges', { count: state.unsavedChanges.property_a.size })}
                 </span>
               )}
             </h3>
@@ -48,10 +50,10 @@ export const MetadataReviewStage: React.FC = () => {
         <Card className="p-6">
           <div className="mb-4">
             <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              🏡 Property B
+              🏡 {t('metadataReview.propertyB')}
               {state.unsavedChanges.property_b.size > 0 && (
                 <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                  {state.unsavedChanges.property_b.size} unsaved changes
+                  {t('metadataReview.unsavedChanges', { count: state.unsavedChanges.property_b.size })}
                 </span>
               )}
             </h3>
@@ -69,7 +71,7 @@ export const MetadataReviewStage: React.FC = () => {
           variant="outline" 
           onClick={() => window.location.reload()}
         >
-          Start Over
+          {t('metadataReview.startOver')}
         </Button>
         <Button 
           onClick={handleContinue}
@@ -79,10 +81,10 @@ export const MetadataReviewStage: React.FC = () => {
           {state.savingFields.size > 0 ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              Saving...
+              {t('metadataReview.saving')}
             </div>
           ) : (
-            'Continue to Comparison →'
+            t('metadataReview.continue')
           )}
         </Button>
       </div>
