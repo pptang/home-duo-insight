@@ -56,8 +56,8 @@ echo "✅ Supabase functions are running"
 echo ""
 
 # Test data
-PROPERTY_URL_A="https://suumo.jp/chukoikkodate/nagano/sc_kitasakugun/nc_76216406/"
-PROPERTY_URL_B="https://suumo.jp/chukoikkodate/nagano/sc_kitasakugun/nc_73125861/"
+PROPERTY_URL_A="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78448509/"
+PROPERTY_URL_B="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78456719/"
 
 echo "Testing with properties:"
 echo "Property A: $PROPERTY_URL_A"

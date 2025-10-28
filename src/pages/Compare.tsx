@@ -64,6 +64,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
 import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 interface PropertyData {
   id: string;
@@ -441,6 +442,7 @@ const Compare = () => {
             property_b: comparisonResult.property_b,
             user_profile: categorizedPreferences,
             user_id: user?.id || null, // Include user_id if logged in
+            language: i18n.language || 'en', // Add detected language
           },
         }
       );

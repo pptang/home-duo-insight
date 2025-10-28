@@ -362,7 +362,7 @@ Return only this JSON format (no explanations):
     let geminiResponse;
     try {
       geminiResponse = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
         {
           method: "POST",
           headers: {

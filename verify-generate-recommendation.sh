@@ -12,12 +12,26 @@
 # - .env.local file with required API keys
 # - curl and jq installed
 #
-# Usage: ./verify-generate-recommendation.sh
+# Usage:
+#   ./verify-generate-recommendation.sh           # Defaults to English
+#   ./verify-generate-recommendation.sh en        # English
+#   ./verify-generate-recommendation.sh ja        # Japanese
 
 set -e
 
-echo "🏠 E2E Test: Property Analysis → AI Recommendation"
-echo "=================================================="
+# Parse language parameter (default to 'en')
+LANGUAGE="${1:-en}"
+
+# Validate language parameter
+if [[ ! "$LANGUAGE" =~ ^(en|ja)$ ]]; then
+    echo "❌ Invalid language: $LANGUAGE"
+    echo "Supported languages: en, ja"
+    echo "Usage: ./verify-generate-recommendation.sh [en|ja]"
+    exit 1
+fi
+
+echo "🏠 E2E Test: Property Analysis → AI Recommendation (Language: $LANGUAGE)"
+echo "=========================================================================="
 
 # Check if Supabase functions are running
 echo "Checking if Supabase functions are running..."
@@ -30,8 +44,8 @@ echo "✅ Supabase functions are running"
 echo ""
 
 # Test data - Property URLs
-PROPERTY_URL_A="https://suumo.jp/chukoikkodate/nagano/sc_kitasakugun/nc_78122447/"
-PROPERTY_URL_B="https://suumo.jp/chukoikkodate/nagano/sc_kitasakugun/nc_73125861/"
+PROPERTY_URL_A="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78456719/"
+PROPERTY_URL_B="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78448509/"
 
 echo "Testing with properties:"
 echo "Property A: $PROPERTY_URL_A"
@@ -129,6 +143,7 @@ echo "-------------------------------------------"
 # Build the request payload
 REQUEST_PAYLOAD=$(jq -n \
   --arg comparison_id "$COMPARISON_ID" \
+  --arg language "$LANGUAGE" \
   --argjson property_a "$PROPERTY_A_DATA" \
   --argjson property_b "$PROPERTY_B_DATA" \
   --argjson user_profile "$USER_PROFILE" \
@@ -154,11 +169,14 @@ REQUEST_PAYLOAD=$(jq -n \
       image_urls: $property_b.image_urls,
       notes: $property_b.notes
     },
-    user_profile: $user_profile
+    user_profile: $user_profile,
+    language: $language
   }')
 
 echo "📋 Request Payload (Input to generate-recommendation):"
 echo "======================================================"
+echo ""
+echo "Language: $LANGUAGE"
 echo ""
 echo "Property A Data:"
 echo "$PROPERTY_A_DATA" | jq '.'
