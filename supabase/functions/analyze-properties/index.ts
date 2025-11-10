@@ -357,12 +357,12 @@ Return only this JSON format (no explanations):
   }
 }`;
 
-    // Make request to Gemini API
+    // Make request to Gemini API using cheaper Flash-Lite model
     console.log("Calling Gemini API to extract data");
     let geminiResponse;
     try {
       geminiResponse = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
         {
           method: "POST",
           headers: {
