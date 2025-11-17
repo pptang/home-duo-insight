@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background -->
+  <rect width="64" height="64" fill="#2563eb" rx="12" ry="12" />
+
+  <!-- Roof -->
+  <polygon points="12,30 32,10 52,30" fill="#f97316" />
+
+  <!-- House body -->
+  <rect x="18" y="30" width="28" height="22" fill="#f9fafb" />
+
+  <!-- Door -->
+  <rect x="30" y="36" width="8" height="16" fill="#0f172a" rx="2" />
+
+  <!-- Window left -->
+  <rect x="20" y="34" width="8" height="8" fill="#bfdbfe" rx="1" />
+  <!-- Window right -->
+  <rect x="36" y="34" width="8" height="8" fill="#bfdbfe" rx="1" />
+</svg>
