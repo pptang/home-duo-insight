@@ -564,7 +564,7 @@ Return only this JSON format (no explanations):
 
             // Medium-high priority for large dimensions and first images
             if (decodedUrl.match(/(?:1200|1000|800|large|big|xl)/i)) priority += 25;
-            if (decodedUrl.match(/(?:01|001|_1\.|\/1\.)/i)) priority += 20;
+            if (decodedUrl.match(/(?:01|001|_1\.)/) || decodedUrl.includes('/1.')) priority += 20;
 
             // Medium priority for property-specific paths
             if (decodedUrl.match(/\/(?:gazo|bukken|img|images|photo|gallery)\//i)) priority += 15;
