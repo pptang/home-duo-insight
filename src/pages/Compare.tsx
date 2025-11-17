@@ -433,6 +433,11 @@ const Compare = () => {
         }
       };
 
+      // Normalize language to 'en' or 'ja' (strip locale variants like 'en-US', 'ja-JP')
+      const detectedLanguage = i18n.language || 'en';
+      const normalizedLanguage: 'en' | 'ja' = detectedLanguage.startsWith('ja') ? 'ja' : 'en';
+      console.log('Language detection:', { detectedLanguage, normalizedLanguage });
+
       const { data, error } = await supabase.functions.invoke(
         "generate-recommendation",
         {
@@ -442,7 +447,7 @@ const Compare = () => {
             property_b: comparisonResult.property_b,
             user_profile: categorizedPreferences,
             user_id: user?.id || null, // Include user_id if logged in
-            language: i18n.language || 'en', // Add detected language
+            language: normalizedLanguage, // Add normalized language
           },
         }
       );

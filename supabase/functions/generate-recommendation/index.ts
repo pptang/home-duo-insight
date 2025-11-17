@@ -455,6 +455,7 @@ serve(async (req) => {
     // Parse request
     const requestData: RequestData = await req.json();
     const language = requestData.language || 'en'; // Default to English
+    console.log('Language received:', language, 'Raw request language:', requestData.language);
 
     if (
       !requestData.property_a ||
