@@ -21,12 +21,12 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
   switch (template) {
     case 'expert-invite':
       return {
-        subject: 'You\'re invited to join DuoHome Advisor as an Expert',
+        subject: 'You\'re invited to join AiSumai (愛住) as an Expert',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #6A7FDB;">Welcome to DuoHome Advisor</h1>
+            <h1 style="color: #6A7FDB;">Welcome to AiSumai (愛住)</h1>
             <p>Hello ${data.name || 'there'},</p>
-            <p>You've been invited to join DuoHome Advisor as a verified real estate expert.</p>
+            <p>You've been invited to join AiSumai (愛住) as a verified real estate expert.</p>
             <p>As an expert, you'll be able to:</p>
             <ul>
               <li>Provide professional insights on property comparisons</li>
@@ -40,19 +40,19 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
             </div>
             <p><a href="${data.loginUrl || 'https://duohome-advisor.lovable.app/auth'}" style="background: #6A7FDB; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Login to Your Account</a></p>
             <p>Please change your password after logging in for the first time.</p>
-            <p>Best regards,<br>The DuoHome Advisor Team</p>
+            <p>Best regards,<br>The AiSumai (愛住) Team</p>
           </div>
         `
       }
     
     case 'contact-expert':
       return {
-        subject: `New message from ${data.userName} via DuoHome Advisor`,
+        subject: `New message from ${data.userName} via AiSumai (愛住)`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #6A7FDB;">New Message from DuoHome Advisor</h1>
+            <h1 style="color: #6A7FDB;">New Message from AiSumai (愛住)</h1>
             <p>Hello ${data.expertName},</p>
-            <p>You have received a new message through DuoHome Advisor:</p>
+            <p>You have received a new message through AiSumai (愛住):</p>
             <div style="background: #f7f7f8; padding: 16px; border-radius: 8px; margin: 16px 0;">
               <strong>From:</strong> ${data.userName} (${data.userEmail})<br>
               <strong>Subject:</strong> ${data.subject}<br>
@@ -60,7 +60,7 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
               ${data.message.replace(/\n/g, '<br>')}
             </div>
             <p>You can reply directly to this email to respond to ${data.userName}.</p>
-            <p>Best regards,<br>The DuoHome Advisor Team</p>
+            <p>Best regards,<br>The AiSumai (愛住) Team</p>
           </div>
         `
       }
@@ -68,7 +68,7 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
     
     case 'feedback':
       return {
-        subject: `Feedback from ${data.userName} - DuoHome Advisor`,
+        subject: `Feedback from ${data.userName} - AiSumai (愛住)`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #6A7FDB;">New Feedback</h1>
@@ -78,13 +78,13 @@ const getEmailTemplate = (template: string, data: Record<string, any>) => {
             <div style="background: #f7f7f8; padding: 16px; border-radius: 8px; margin: 16px 0;">
               ${data.message.replace(/\n/g, '<br>')}
             </div>
-            <p>Sent via DuoHome Advisor feedback form</p>
+            <p>Sent via AiSumai (愛住) feedback form</p>
           </div>
         `
       }
     
     default:
-      return { subject: 'DuoHome Advisor', html: data.html || data.text || '' }
+      return { subject: 'AiSumai (愛住)', html: data.html || data.text || '' }
   }
 }
 
@@ -116,14 +116,14 @@ serve(async (req) => {
       emailContent = getEmailTemplate(template, templateData)
     } else {
       emailContent = {
-        subject: subject || 'DuoHome Advisor',
+        subject: subject || 'AiSumai (愛住)',
         html: html || text || 'No content provided'
       }
     }
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: 'DuoHome Advisor <noreply@aisum.ai>',
+      from: 'AiSumai (愛住) <noreply@aisum.ai>',
       to: Array.isArray(to) ? to : [to],
       subject: emailContent.subject,
       html: emailContent.html,

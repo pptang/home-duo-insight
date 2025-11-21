@@ -1,6 +1,6 @@
 📄 masterplan.md
 App Overview and Objectives
-DuoHome Advisor is a web platform designed to help renters and home buyers in Japan make confident decisions when choosing between two final housing options. It blends AI-driven analysis, expert insight, and community wisdom to provide a clear, comparative view of shortlisted properties.
+AiSumai (愛住) is a web platform designed to help renters and home buyers in Japan make confident decisions when choosing between two final housing options. It blends AI-driven analysis, expert insight, and community wisdom to provide a clear, side-by-side comparison of shortlisted homes.
 
 Target Audience
 Renters comparing final property options

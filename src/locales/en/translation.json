@@ -86,7 +86,7 @@
       "pros_cons": "Pros and Cons",
       "pros": "Pros",
       "cons": "Cons",
-      "title": "DuoHome's Recommendation",
+      "title": "AiSumai Recommendation",
       "get_recommendation": "Get My Recommendation",
       "generating": "Generating your recommendation...",
       "compare_different": "Compare Different Properties",
@@ -304,7 +304,7 @@
     },
     "signup": {
       "title": "Sign Up",
-      "description": "Create an account to start using DuoHome Advisor",
+      "description": "Create an account to start using AiSumai (愛住) for smarter home comparisons in Japan.",
       "button": "Sign Up",
       "loading": "Signing Up..."
     },
@@ -327,8 +327,8 @@
     }
   },
   "footer": {
-    "brand": "DuoHome",
-    "brand_suffix": "Advisor",
+    "brand": "AiSumai",
+    "brand_suffix": "(愛住)",
     "tagline": "Helping renters and home buyers in Japan make confident final housing decisions by comparing two shortlisted properties.",
     "platform": "Platform",
     "company": "Company",
@@ -341,7 +341,7 @@
       "terms": "Terms of Service",
       "contact": "Contact"
     },
-    "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
+    "copyright": "© {{year}} AiSumai (愛住). All rights reserved."
   },
   "expertVoting": {
     "title": "Expert Voting",
@@ -393,7 +393,7 @@
     "pros": "Pros",
     "cons": "Cons",
     "recommendation": {
-      "title": "DuoHome's Recommendation",
+      "title": "AiSumai Recommendation",
       "notAvailable": "AI recommendation is not available for this comparison yet.",
       "createNew": "Create New Comparison with AI Analysis"
     },
@@ -447,8 +447,8 @@
       "title": "Frequently Asked Questions",
       "q1": "What types of properties can I compare?",
       "a1": "You can compare any two residential properties in Japan, including apartments, houses, condominiums, and more. The service works for both rentals and properties for sale.",
-      "q2": "How much does it cost to use DuoHome Advisor?",
-      "a2": "Basic property comparisons are free. Premium features, including detailed AI analysis and expert consultations, will be available through subscription plans (coming soon).",
+      "q2": "How much does it cost to use AiSumai (愛住)?",
+      "a2": "Basic home comparisons on AiSumai (愛住) are free. In the future, premium features such as deeper AI analysis and one-on-one expert consultations may be offered through paid plans.",
       "q3": "Which real estate websites are supported for URL importing?",
       "a3": "In the future, we plan to support automatic data importing from major Japanese real estate platforms including Suumo, at home, LIFULL HOME'S, and others. Currently, you can enter property information manually.",
       "q4": "How accurate is the AI recommendation?",
@@ -486,14 +486,14 @@
   },
   "expertProfile": {
     "title": "Expert Profile",
-    "description": "Verified real estate expert on DuoHome Advisor",
+    "description": "Verified real estate expert on AiSumai (愛住)",
     "editButton": "Edit Profile",
     "editTitle": "Edit Your Profile",
     "editDescription": "Update your information and profile image",
     "expertiseTitle": "Expertise & Specialization",
     "aboutHeading": "About",
     "activityTitle": "Activity Summary",
-    "activityDescription": "Expert's contribution on DuoHome",
+    "activityDescription": "Expert's contribution on AiSumai (愛住)",
     "totalVotes": "Total property comparisons evaluated",
     "contactButton": "Contact Expert",
     "contactTitle": "Contact {{name}}",

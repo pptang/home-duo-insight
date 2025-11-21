@@ -2,7 +2,7 @@
 # Expert Profile Page
 
 ## Overview
-The Expert Profile Page provides a public-facing view of real estate experts registered on DuoHome Advisor. It's accessible to all users, whether logged in or not. Experts can edit their own profiles when viewing their own profile page.
+The Expert Profile Page provides a public-facing view of real estate experts registered on AiSumai (愛住). It's accessible to all users, whether logged in or not. Experts can edit their own profiles when viewing their own profile page.
 
 ## Route
 - Path: `/experts/:expertId`
@@ -65,7 +65,7 @@ The page uses two primary data fetches:
 
 ## Styling
 
-The page follows DuoHome visual style:
+The page follows AiSumai visual style:
 - Font: Inter
 - Primary Color: #6A7FDB (calm blue)
 - Accent: #C2A9FF (soothing lavender)

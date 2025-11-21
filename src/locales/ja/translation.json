@@ -86,7 +86,7 @@
       "pros_cons": "メリット・デメリット",
       "pros": "メリット",
       "cons": "デメリット",
-      "title": "DuoHomeのおすすめ",
+      "title": "AiSumaiのおすすめ",
       "get_recommendation": "おすすめを取得",
       "generating": "おすすめを生成中...",
       "compare_different": "別の物件を比較",
@@ -304,7 +304,7 @@
     },
     "signup": {
       "title": "新規登録",
-      "description": "DuoHome Advisorを使い始めるためにアカウントを作成してください",
+      "description": "AiSumai（愛住）を使い始めるためにアカウントを作成してください",
       "button": "登録する",
       "loading": "登録中..."
     },
@@ -327,8 +327,8 @@
     }
   },
   "footer": {
-    "brand": "DuoHome",
-    "brand_suffix": "Advisor",
+    "brand": "AiSumai",
+    "brand_suffix": "（愛住）",
     "tagline": "日本で賃貸や住宅購入を検討している方が、最終候補の2つの物件を比較し、自信を持って住まいを決定できるようサポートします。",
     "platform": "プラットフォーム",
     "company": "会社情報",
@@ -341,7 +341,7 @@
       "terms": "利用規約",
       "contact": "お問い合わせ"
     },
-    "copyright": "© {{year}} DuoHome Advisor. All rights reserved."
+    "copyright": "© {{year}} AiSumai（愛住）. All rights reserved."
   },
   "expertVoting": {
     "title": "専門家の投票",
@@ -393,7 +393,7 @@
     "pros": "メリット",
     "cons": "デメリット",
     "recommendation": {
-      "title": "DuoHomeのおすすめ",
+      "title": "AiSumaiのおすすめ",
       "notAvailable": "この比較にはまだAIのおすすめがありません。",
       "createNew": "AI分析付きの新しい比較を作成"
     },
@@ -447,8 +447,8 @@
       "title": "よくある質問",
       "q1": "どのような種類の物件を比較できますか？",
       "a1": "日本国内のあらゆる2つの住宅物件を比較できます。アパート、一戸建て、マンションなど、賃貸物件と売買物件の両方に対応しています。",
-      "q2": "DuoHome Advisorの利用料金はいくらですか？",
-      "a2": "基本的な物件比較は無料です。詳細なAI分析や専門家相談を含むプレミアム機能は、サブスクリプションプランで利用可能になります（近日公開予定）。",
+      "q2": "AiSumai（愛住）の利用料金はいくらですか？",
+      "a2": "基本的な物件比較は無料です。詳細なAI分析や専門家との個別相談などのプレミアム機能は、将来的に有料プランとして提供される予定です。",
       "q3": "URLインポートに対応している不動産サイトはどれですか？",
       "a3": "将来的には、SUUMO、athome、LIFULL HOME'Sなど、日本の主要な不動産プラットフォームからの自動データインポートに対応する予定です。現在は、物件情報を手動で入力できます。",
       "q4": "AIのおすすめはどの程度正確ですか？",
@@ -486,14 +486,14 @@
   },
   "expertProfile": {
     "title": "専門家プロフィール",
-    "description": "DuoHome Advisorの認証済み不動産専門家",
+    "description": "AiSumai（愛住）の認証済み不動産専門家",
     "editButton": "プロフィールを編集",
     "editTitle": "プロフィールを編集",
     "editDescription": "情報とプロフィール画像を更新",
     "expertiseTitle": "専門知識と専門分野",
     "aboutHeading": "について",
     "activityTitle": "活動サマリー",
-    "activityDescription": "DuoHomeへの専門家の貢献",
+    "activityDescription": "AiSumai（愛住）への専門家の貢献",
     "totalVotes": "評価した物件比較の総数",
     "contactButton": "専門家に連絡",
     "contactTitle": "{{name}}に連絡",

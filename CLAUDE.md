@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-DuoHome Advisor is a React-based web application that helps users make informed decisions when choosing between two rental properties in Japan. The app provides AI-powered property analysis, expert voting, and community insights through a comparison interface.
+AiSumai (愛住) is a React-based web application that helps renters and home buyers in Japan make confident final housing decisions by comparing two shortlisted homes side by side. The app provides AI-powered property analysis, expert voting, and community insights through a clear comparison interface.
 
 ## Core Architecture
 

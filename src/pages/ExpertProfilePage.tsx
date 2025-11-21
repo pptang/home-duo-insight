@@ -145,7 +145,7 @@ const ExpertProfilePage: React.FC = () => {
             expertEmail: expertProfile.email,
             userName: contactForm.name,
             userEmail: contactForm.email,
-            subject: contactForm.subject || 'Message from DuoHome Advisor',
+              subject: contactForm.subject || 'Message from AiSumai (愛住)',
             message: contactForm.message
           }
         }

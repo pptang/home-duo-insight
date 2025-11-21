@@ -271,8 +271,8 @@ serve(async (req) => {
 
     const fullHtmlA = html_property_a;
     const fullHtmlB = html_property_b;
-
-    const prompt = `You are DuoHome Advisor AI. Extract structured property data from these Japanese real estate listing pages.
+    
+    const prompt = `You are AiSumai (愛住) AI. Extract structured property data from these Japanese real estate listing pages.
 
 Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Private Area, Building Age, Notes, and Image URLs.
 

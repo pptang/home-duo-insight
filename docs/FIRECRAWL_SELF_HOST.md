@@ -1,6 +1,6 @@
 # Firecrawl Self-Hosting Guide
 
-This guide explains how to self-host Firecrawl for use with the DuoHome Advisor project.
+This guide explains how to self-host Firecrawl for use with the AiSumai (愛住) project.
 
 ## Overview
 
@@ -81,7 +81,7 @@ curl -X POST http://localhost:3002/v1/scrape \
   }'
 ```
 
-## DuoHome Advisor Integration
+## AiSumai (愛住) Integration
 
 ### Environment Variables
 
@@ -255,5 +255,5 @@ LOG_LEVEL=debug
 
 For issues specific to:
 - **Firecrawl**: Check [Firecrawl GitHub Issues](https://github.com/mendableai/firecrawl/issues)
-- **DuoHome Integration**: Check project documentation
+- **AiSumai Integration**: Check project documentation
 - **Docker/Infrastructure**: Consult Docker and system documentation

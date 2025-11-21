@@ -21,20 +21,20 @@ const generateEmailHTML = (
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirm your DuoHome Advisor account</title>
+  <title>Confirm your AiSumai (愛住) account</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
   <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
     
     <!-- Header -->
     <div style="background: linear-gradient(135deg, #6A7FDB 0%, #5A6DCB 100%); padding: 40px 30px; text-align: center;">
-      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">DuoHome Advisor</h1>
-      <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Property Comparison Platform</p>
+      <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">AiSumai (愛住)</h1>
+      <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">AI-Powered Home Comparison Platform</p>
     </div>
     
     <!-- Content -->
     <div style="padding: 40px 30px;">
-      <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Welcome to DuoHome Advisor!</h2>
+      <h2 style="color: #1f2937; margin: 0 0 20px 0; font-size: 24px; font-weight: 600;">Welcome to AiSumai (愛住)!</h2>
       
       <p style="color: #4b5563; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">Thank you for signing up for our AI-powered property comparison platform.</p>
       
@@ -59,7 +59,7 @@ const generateEmailHTML = (
     
     <!-- Footer -->
     <div style="background-color: #f9fafb; padding: 30px; border-top: 1px solid #e5e7eb; text-align: center;">
-      <p style="color: #6b7280; margin: 0; font-size: 14px;">Best regards,<br>The DuoHome Advisor Team</p>
+      <p style="color: #6b7280; margin: 0; font-size: 14px;">Best regards,<br>The AiSumai (愛住) Team</p>
     </div>
     
   </div>
@@ -130,9 +130,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email via Resend
     const emailResponse = await resend.emails.send({
-      from: "DuoHome Advisor <noreply@aisum.ai>",
+      from: "AiSumai (愛住) <noreply@aisum.ai>",
       to: [email],
-      subject: "Confirm your DuoHome Advisor account",
+      subject: "Confirm your AiSumai (愛住) account",
       html: emailHTML,
     });
 

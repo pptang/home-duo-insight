@@ -1,5 +1,5 @@
 
-# DuoHome Advisor - Implementation Plan
+# AiSumai (愛住) - Implementation Plan
 
 ## Step-by-Step Action Plan
 
