@@ -544,6 +544,8 @@ Property B: ${requestData.property_b.property_name || "N/A"}
     // Prepare prompt for Gemini using the language-specific function
     const prompt = getPromptByLanguage(language, propertyAText, propertyBText, userProfileText);
 
+
+    console.log("Prompt:", prompt);
     // Make request to Gemini API using cheaper Flash-Lite model (2.0)
     const geminiResponse = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
