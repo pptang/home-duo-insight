@@ -134,11 +134,31 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 ### Edge Functions (supabase/.env.local)
+
+The Edge Functions run inside Docker containers and need to reach Firecrawl via the Docker gateway IP (not `localhost`).
+
 ```env
 # Use Docker gateway IP for container networking
+# ⚠️ The IP may vary - find yours with the command below
 FIRECRAWL_URL=http://172.23.0.1:3002
 FIRECRAWL_API_KEY=your_api_key
 GEMINI_API_KEY=your_gemini_key
+```
+
+**How to find your Docker gateway IP:**
+
+```bash
+# Find the gateway IP for Supabase network
+docker network inspect $(docker network ls | grep supabase | awk '{print $1}') | grep Gateway
+
+# Example output: "Gateway": "172.23.0.1"
+# Use this IP in FIRECRAWL_URL
+```
+
+After updating the IP, restart Supabase:
+
+```bash
+npm run supabase:stop && npm run supabase:start
 ```
 
 ## Switching to Remote Services
@@ -158,16 +178,35 @@ npm run dev
 
 ## Testing
 
+### Quick Verification Script
+
+Run the end-to-end verification script to test the complete flow (analyze properties → generate recommendation):
+
+```bash
+# Run with default language (English)
+./verify-generate-recommendation.sh
+
+# Run with Japanese
+./verify-generate-recommendation.sh ja
+```
+
+This script will:
+1. Call `analyze-properties` to parse two property URLs
+2. Use the parsed data to call `generate-recommendation`
+3. Display the AI-generated recommendation
+
+### Manual Testing
+
 ```bash
 # Test Firecrawl directly
-curl -X POST "http://localhost:3002/v1/scrape"
-  -H "Content-Type: application/json"
+curl -X POST "http://localhost:3002/v1/scrape" \
+  -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}'
 
 # Test Edge Functions
-curl -X POST "http://127.0.0.1:54321/functions/v1/analyze-properties"
-  -H "Authorization: Bearer eyJhbGci..."
-  -H "Content-Type: application/json"
+curl -X POST "http://127.0.0.1:54321/functions/v1/analyze-properties" \
+  -H "Authorization: Bearer eyJhbGci..." \
+  -H "Content-Type: application/json" \
   -d '{"property_url_a": "https://...", "property_url_b": "https://..."}'
 ```
 
