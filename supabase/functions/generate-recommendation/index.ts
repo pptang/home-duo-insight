@@ -255,7 +255,7 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
 - Maintain the SAME level of detail, nuance, and thoroughness as the English requirements above
 - Do NOT summarize or shorten the content - provide the same depth of analysis as you would in English
 - Write in a friendly, professional tone suitable for Japanese readers (です・ます調を使用)
-- Include all sections: 📍概要、🧠比較分析、⚖️メリット・デメリット、⚠️注意点、✅結論
+- Include all sections: 📍概要、🏘️周辺環境、🧠比較分析、⚖️メリット・デメリット、⚠️注意点、✅結論
 `;
   }
 
@@ -432,7 +432,7 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             temperature: 0.2,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 2048,
+            maxOutputTokens: 8192,
           },
         }),
       }
@@ -467,7 +467,16 @@ Property B: ${requestData.property_b.property_name || "N/A"}
       console.log("Extracted JSON string:", jsonString);
 
       // Parse the extracted JSON
-      const aiRecommendation: AIRecommendation = JSON.parse(jsonString);
+      let aiRecommendation: AIRecommendation;
+      try {
+        aiRecommendation = JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error("JSON parse error:", parseError);
+        console.error("JSON string length:", jsonString.length);
+        console.error("JSON string (first 500 chars):", jsonString.substring(0, 500));
+        console.error("JSON string (last 500 chars):", jsonString.substring(jsonString.length - 500));
+        throw parseError;
+      }
       console.log("Parsed recommendation data:", aiRecommendation);
 
       // Store the recommendation in Supabase database
