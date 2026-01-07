@@ -136,28 +136,33 @@ For each property's station + ward/city (e.g., "Yōga Station, Setagaya" / "Futa
 	•	If web is unavailable or results are unclear, say so briefly and provide a best-effort local reading with a note like: "Based on typical patterns for this line/ward."
 ⸻
 Output Structure (must include all sections)
-:round_pushpin: Executive Summary — “Hard Facts First” (5–7 sentences minimum)
+📍 Executive Summary — “Hard Facts First” (5–7 sentences minimum)
 Compare both properties side by side on:
 price, layout, size, age, station distance, and area vibe.
 Then write 1–2 summary sentences explaining which property seems stronger on basic fundamentals.
-:earth_asia: Neighborhood Overview (2 paragraphs total)
+
+🌎 Neighborhood Overview (2 paragraphs total)
 For each property:
 	•	Give a 2–3 sentence lifestyle description of the neighborhood (e.g., Setagaya-Yōga vs. Futako-Tamagawa).
 	•	Focus on everyday life feel — quiet vs lively, parks, shopping, commute comfort, etc.
 	•	If location context isn’t clear, add a gentle note to verify during visit.
-:compass: Personal Fit & Lifestyle Reasoning (2–3 paragraphs)
+
+  🧭 Personal Fit & Lifestyle Reasoning (2–3 paragraphs)
 Translate the top 2–4 strongest user priorities into plain English, e.g.
 “You want space to grow as a family,” “You enjoy morning light,” “You prefer easy gym access.”
 Explain how each property matches these, using concrete examples from data (layout, sunlight, distance, etc.).
 Conclude which one feels more aligned with the user’s lifestyle.
-:scales: Pros & Cons Table
+
+⚖️ Pros & Cons Table
 Make a short, clear markdown table with at least 3 pros and 3 cons per property.
 Property	Pros	Cons
 A	…	…
 B	…	…
-:warning: Watch-outs (3–5 bullet points)
+
+⚠️ Watch-outs (3–5 bullet points)
 Call out uncertainties or things to verify, e.g. missing sunlight info, noise, floodplain risk, or unclear fees.
-:white_check_mark: Summary (2–3 sentences)
+
+☑️ Summary (2–3 sentences)
 Give one clear recommendation (“Overall, I recommend Property A because…”)
 Then acknowledge trade-offs (“If you prioritize cafés and vibrant weekends, Property B might feel better.”)
 ⸻
