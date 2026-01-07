@@ -1146,7 +1146,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
         {/* Personalization Dialog - shown for any stage that has comparison results */}
         {(currentStage === 'metadata-review' || currentStage === 'full-comparison') && comparisonResult && (
           <Dialog
-            open={true}
+            open={showPersonalizationDialog}
             onOpenChange={setShowPersonalizationDialog}
           >
             <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
