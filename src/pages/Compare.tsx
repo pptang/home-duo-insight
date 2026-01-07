@@ -1289,8 +1289,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                    <SelectItem value="morning">{t("compare.personalization.morning_sunlight")}</SelectItem>
-                                <SelectItem value="afternoon">{t("compare.personalization.afternoon_sunlight")}</SelectItem>
+                                    <SelectItem value="morning">{t("compare.personalization.lifestyle_fit.morning_sunlight")}</SelectItem>
+                                <SelectItem value="afternoon">{t("compare.personalization.lifestyle_fit.afternoon_sunlight")}</SelectItem>
                                 <SelectItem value="no_preference">{t("compare.personalization.lifestyle_fit.no_preference")}</SelectItem>
                               </SelectContent>
                             </Select>
