@@ -148,10 +148,10 @@ const Index = () => {
                   <p className="text-muted-foreground leading-relaxed text-lg">
                     {t("home.features.ai.description")}
                   </p>
-                  <div className="mt-6 flex items-center text-primary font-medium">
+                  {/* <div className="mt-6 flex items-center text-primary font-medium">
                     <span>{t("home.features.ai.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Expert Insights */}
@@ -165,10 +165,10 @@ const Index = () => {
                   <p className="text-muted-foreground leading-relaxed text-lg">
                     {t("home.features.expert.description")}
                   </p>
-                  <div className="mt-6 flex items-center text-accent-foreground font-medium">
+                  {/* <div className="mt-6 flex items-center text-accent-foreground font-medium">
                     <span>{t("home.features.expert.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Community Wisdom */}
@@ -182,10 +182,10 @@ const Index = () => {
                   <p className="text-muted-foreground leading-relaxed text-lg">
                     {t("home.features.community.description")}
                   </p>
-                  <div className="mt-6 flex items-center text-primary font-medium">
+                  {/* <div className="mt-6 flex items-center text-primary font-medium">
                     <span>{t("home.features.community.cta")}</span>
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
