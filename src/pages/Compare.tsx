@@ -1146,7 +1146,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
         {/* Personalization Dialog - shown for any stage that has comparison results */}
         {(currentStage === 'metadata-review' || currentStage === 'full-comparison') && comparisonResult && (
           <Dialog
-            open={showPersonalizationDialog}
+            open={true}
             onOpenChange={setShowPersonalizationDialog}
           >
             <DialogContent className="sm:max-w-md max-h-[80vh] sm:max-h-[90vh] overflow-y-auto">
@@ -1228,7 +1228,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.dog_walking_friendly")}
+                              {t("compare.personalization.lifestyle_fit.dog_walking_friendly")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1254,7 +1254,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.quiet_at_night")}
+                              {t("compare.personalization.lifestyle_fit.quiet_at_night")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1280,7 +1280,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.morning_vs_afternoon_sunlight")}
+                              {t("compare.personalization.lifestyle_fit.morning_vs_afternoon_sunlight")}
                             </FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
@@ -1291,7 +1291,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                               <SelectContent>
                                     <SelectItem value="morning">{t("compare.personalization.morning_sunlight")}</SelectItem>
                                 <SelectItem value="afternoon">{t("compare.personalization.afternoon_sunlight")}</SelectItem>
-                                <SelectItem value="no_preference">{t("compare.personalization.no_preference")}</SelectItem>
+                                <SelectItem value="no_preference">{t("compare.personalization.lifestyle_fit.no_preference")}</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -1304,7 +1304,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.laundromat_access")}
+                              {t("compare.personalization.lifestyle_fit.laundromat_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1337,7 +1337,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.open_view")}
+                              {t("compare.personalization.emotional_desires.open_view")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1363,7 +1363,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.feels_like_home")}
+                              {t("compare.personalization.emotional_desires.feels_like_home")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1389,7 +1389,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.creative_friendly")}
+                              {t("compare.personalization.emotional_desires.creative_friendly")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1415,7 +1415,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.reading_corner_space")}
+                              {t("compare.personalization.emotional_desires.reading_corner_space")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1441,7 +1441,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.natural_surroundings")}
+                              {t("compare.personalization.emotional_desires.natural_surroundings")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1465,7 +1465,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                     {/* Life Planning / Forward-looking Goals */}
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold flex items-center gap-2">
-                        {t("compare.personalization.life_planning_forward_looking_goals")}
+                        {t("compare.personalization.life_planning.title")}
                       </h3>
                       
                       <FormField
@@ -1474,7 +1474,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.future_family_growth")}
+                              {t("compare.personalization.life_planning.future_family_growth")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1500,7 +1500,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.work_from_home_support")}
+                              {t("compare.personalization.life_planning.work_from_home_support")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1526,7 +1526,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.potential_for_future_resale")}
+                              {t("compare.personalization.life_planning.resale_potential")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1552,7 +1552,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.willingness_to_renovate")}
+                              {t("compare.personalization.life_planning.renovation_willingness")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1578,7 +1578,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.storage_capacity_needs")}
+                              {t("compare.personalization.life_planning.storage_capacity")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1611,7 +1611,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.natural_ventilation")}
+                              {t("compare.personalization.sensory_comfort.natural_ventilation")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1637,7 +1637,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.light_sensitivity")}
+                              {t("compare.personalization.sensory_comfort.light_sensitivity")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1663,7 +1663,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.minimalist_vs_maximalist")}
+                              {t("compare.personalization.sensory_comfort.minimalist_vs_maximalist")}
                             </FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
@@ -1672,8 +1672,8 @@ const CompareContent: React.FC<CompareContentProps> = ({
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="minimalist">{t("compare.personalization.minimalist")}</SelectItem>
-                                <SelectItem value="maximalist">{t("compare.personalization.maximalist")}</SelectItem>
+                                <SelectItem value="minimalist">{t("compare.personalization.sensory_comfort.minimalist")}</SelectItem>
+                                <SelectItem value="maximalist">{t("compare.personalization.sensory_comfort.maximalist")}</SelectItem>
                                 <SelectItem value="no_preference">{t("compare.personalization.no_preference")}</SelectItem>
                               </SelectContent>
                             </Select>
@@ -1687,7 +1687,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.privacy_from_neighbors")}
+                              {t("compare.personalization.sensory_comfort.privacy_from_neighbors")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1720,7 +1720,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.grocery_chain_access")}
+                              {t("compare.personalization.cultural_routine.grocery_chain_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1746,7 +1746,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.international_schools")}
+                              {t("compare.personalization.cultural_routine.international_schools")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1772,7 +1772,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.weekend_market_access")}
+                              {t("compare.personalization.cultural_routine.weekend_market_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1798,7 +1798,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.safe_for_biking")}
+                              {t("compare.personalization.cultural_routine.safe_for_biking")}
                             </FormLabel>
                             <FormControl>
                               <Slider
@@ -1824,7 +1824,7 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         render={({ field }) => (
                           <FormItem className="space-y-2">
                             <FormLabel className="flex items-center gap-2">
-                              {t("compare.personalization.spiritual_space_access")}
+                              {t("compare.personalization.cultural_routine.spiritual_space_access")}
                             </FormLabel>
                             <FormControl>
                               <Slider

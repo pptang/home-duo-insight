@@ -101,6 +101,7 @@
       "submit": "おすすめを生成",
       "not_important": "重要でない",
       "very_important": "とても重要",
+      "no_preference": "こだわりなし",
       "lifestyle_fit": {
         "title": "🌿 ライフスタイルフィット（日常生活）",
         "proximity_to_cafes": "☕ 地元のカフェへの近さ",

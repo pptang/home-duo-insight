@@ -101,6 +101,7 @@
       "submit": "Generate Recommendation",
       "not_important": "Not Important",
       "very_important": "Very Important",
+      "no_preference": "こだわりなし",
       "lifestyle_fit": {
         "title": "🌿 Lifestyle Fit (Day-to-Day Life)",
         "proximity_to_cafes": "☕ Proximity to local cafés",
