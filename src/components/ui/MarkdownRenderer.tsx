@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkEmoji from 'remark-emoji';
+import remarkBreaks from 'remark-breaks';
 import { cn } from '@/lib/utils';
 
 interface MarkdownRendererProps {
@@ -20,7 +21,7 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
       "[&>*:first-child]:mt-0",
       className
     )}>
-      <ReactMarkdown remarkPlugins={[remarkEmoji]}>
+      <ReactMarkdown remarkPlugins={[remarkEmoji, remarkBreaks]}>
         {content}
       </ReactMarkdown>
     </div>
