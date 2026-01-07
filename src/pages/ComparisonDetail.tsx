@@ -13,6 +13,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
+import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import {
   Card,
@@ -638,9 +639,7 @@ const ComparisonDetail = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-gray-800 whitespace-pre-line">
-                      {recommendation.final_recommendation}
-                    </p>
+                    <MarkdownRenderer content={recommendation.final_recommendation} />
                   </CardContent>
                 </Card>
               </div>
