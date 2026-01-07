@@ -88,7 +88,7 @@
       "cons": "デメリット",
       "title": "AiSumaiのおすすめ",
       "get_recommendation": "おすすめを取得",
-      "generating": "おすすめを生成中...",
+      "generating": "生成中...",
       "compare_different": "別の物件を比較",
       "summary_title": "物件比較サマリー",
       "summary_feature": "項目",
