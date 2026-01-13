@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
@@ -17,14 +16,28 @@ import AdminExpertPanel from "./pages/AdminExpertPanel";
 import AdminExpertReview from "./pages/AdminExpertReview";
 import ExpertProfilePage from "./pages/ExpertProfilePage";
 import ComparisonDetail from "./pages/ComparisonDetail";
+import { usePageTracking } from '@/hooks/usePageTracking';
+import { initGA } from '@/lib/analytics';
+
+// Component to handle page tracking inside BrowserRouter
+function PageTracker() {
+  usePageTracking();
+  return null;
+}
 
 function App() {
   const queryClient = new QueryClient();
+
+  // Initialize Google Analytics on mount
+  useEffect(() => {
+    initGA();
+  }, []);
 
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
+          <PageTracker />
           <div className="min-h-screen bg-background flex flex-col">
             <Header />
             <main className="flex-1">
