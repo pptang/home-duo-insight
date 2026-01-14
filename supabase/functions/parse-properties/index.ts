@@ -164,7 +164,7 @@ function extractImageUrls(html: string): string[] {
   const images: Array<{ url: string; priority: number }> = [];
 
   try {
-    // Enhanced regex for comprehensive image extraction with SUUMO-specific patterns
+    // Enhanced regex for comprehensive image extraction with SUUMO and athome.co.jp patterns
     const imgPatterns = [
       // Standard img tags with src - preserve full URLs with query parameters
       /<img[^>]+src=['"']([^'"]+)['"']/gi,
@@ -181,7 +181,11 @@ function extractImageUrls(html: string): string[] {
       // Direct SUUMO image paths with query parameters
       /(https?:\/\/img01\.suumo\.com[^'")\s]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'")\s]*)?)/gi,
       // SUUMO front gazo paths with query parameters
-      /(https?:\/\/[^'")\s]*front\/gazo\/bukken\/[^'")\s]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'")\s]*)?)/gi
+      /(https?:\/\/[^'")\s]*front\/gazo\/bukken\/[^'")\s]*\.(?:jpg|jpeg|png|webp|gif)(?:\?[^'")\s]*)?)/gi,
+      // athome.co.jp image_files/path URLs (base64-encoded paths, no file extension)
+      /(https?:\/\/www\.athome\.co\.jp\/image_files\/path\/[A-Za-z0-9+/=_-]+(?:\?[^'")\s]*)?)/gi,
+      // athome.co.jp quoted URLs with HTML entities
+      /["'](https?:\/\/www\.athome\.co\.jp\/image_files\/path\/[A-Za-z0-9+/=_-]+[^"']*)['"]/gi
     ];
 
     for (const pattern of imgPatterns) {
@@ -192,6 +196,9 @@ function extractImageUrls(html: string): string[] {
 
         // Clean and validate URL
         url = url.trim();
+
+        // Decode HTML entities (athome uses &amp; for &)
+        url = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
 
         // Handle URL encoding for SUUMO resizeImage URLs
         if (url.includes('%2F')) {
@@ -205,6 +212,8 @@ function extractImageUrls(html: string): string[] {
           // For SUUMO relative paths, prepend the base domain
           if (url.includes('gazo') || url.includes('bukken')) {
             url = 'https://img01.suumo.com' + url;
+          } else if (url.includes('image_files')) {
+            url = 'https://www.athome.co.jp' + url;
           } else {
             continue;
           }
@@ -212,22 +221,39 @@ function extractImageUrls(html: string): string[] {
           // Handle protocol-relative or domain-relative URLs
           if (url.includes('img01.suumo.com')) {
             url = 'https://' + url;
+          } else if (url.includes('athome.co.jp')) {
+            url = 'https://' + url;
           }
         }
 
-        // Only include image file extensions
-        if (url.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i)) {
+        // Check if URL is a valid property image
+        const hasImageExtension = url.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i);
+        const isAthomeImage = url.includes('athome.co.jp/image_files/path/') && url.match(/\/path\/[A-Za-z0-9+/=_-]{10,}/);
+        const isSuumoImage = url.includes('suumo.com') && url.match(/\.(jpg|jpeg|png|webp|gif)/i);
+
+        if (hasImageExtension || isAthomeImage || isSuumoImage) {
+          // Filter out placeholder and static asset images
+          const isPlaceholder = url.includes('/no_image') || url.includes('no-image') || url.includes('placeholder');
+          const isStaticAsset = url.includes('/static_app_contents/') || url.includes('/assets/common/') || url.includes('/assets/pc/');
+          const isMapImage = url.includes('maps.gstatic.com') || url.includes('maps.google.com') || url.includes('mapfiles');
+          const isTransparent = url.includes('transparent.png') || url.includes('pixel.gif');
+
           // Filter out obvious non-property images
-          if (!url.match(/(icon|logo|btn|nav|menu|header|footer|ui|thumb|spacer)/i)) {
+          if (!isPlaceholder && !isStaticAsset && !isMapImage && !isTransparent && !url.match(/(icon|logo|btn|nav|menu|header|footer|ui|thumb|spacer|loading)/i)) {
             // Log URL before processing
             console.log("PARSE-PROPERTIES: Processing URL:", url);
-            console.log("PARSE-PROPERTIES: URL has w param:", url.includes('&w='));
-            console.log("PARSE-PROPERTIES: URL has h param:", url.includes('&h='));
 
-            // Enhanced prioritization for SUUMO images
+            // Enhanced prioritization for property images
             let priority = 0;
 
-            // Highest priority: Main property images with low numbers
+            // athome.co.jp images - high base priority
+            if (isAthomeImage) {
+              priority += 90;
+              // Higher priority for images with size parameters (likely main images)
+              if (url.includes('width=') && url.includes('height=')) priority += 20;
+            }
+
+            // Highest priority: Main property images with low numbers (SUUMO)
             if (url.match(/_000[1-5]\.jpg|_00[0-5][0-9]\.jpg/i)) priority += 100;
 
             // High priority: SUUMO-specific keywords
@@ -244,7 +270,7 @@ function extractImageUrls(html: string): string[] {
 
             // Add image with priority
             images.push({ url, priority });
-            console.log("PARSE-PROPERTIES: Added to images array:", url);
+            console.log("PARSE-PROPERTIES: Added to images array:", url, "priority:", priority);
           }
         }
       }

@@ -297,25 +297,34 @@ SEARCH PATTERNS:
 - For building age: Look for numbers followed by 年, 月, combined with 築, 建築, 竣工
 - Check both visible text AND data attributes, meta tags, JSON-LD structured data
 
-CRITICAL FOR MAIN PROPERTY IMAGE EXTRACTION (SUUMO-OPTIMIZED):
-- PRIORITIZE main/hero/primary property images first - these are the most important
-- SUUMO-SPECIFIC IMAGE PATTERNS to look for:
-  1. HIGHEST PRIORITY: URLs with pattern like "73125861_0001.jpg", "76216406_0095.jpg" (property ID + sequential numbers)
-  2. SUUMO resizeImage URLs: "resizeImage?src=gazo%2Fbukken%2F040%2FN010000%2Fimg%2F861%2F73125861%2F73125861_0001.jpg"
-  3. Direct SUUMO paths: "img01.suumo.com/front/gazo/bukken/" or "img01.suumo.com/jj/resizeImage"
-  4. Japanese text context: 現地外観写真, 浴室, 間取り図, リビング, キッチン, 寝室, 玄関
-- IMAGE NUMBERING PRIORITY for SUUMO:
-  1. _0001, _0002, _0003 (first few images are usually main property photos)
-  2. _01, _02, _03 (alternative numbering)
-  3. Lower numbers generally = more important property images
-- SUUMO ROOM TYPES to prioritize:
-  - 現地外観写真 (exterior photos) - HIGHEST priority
-  - 間取り図 (floor plan) - HIGH priority
-  - リビング (living room), キッチン (kitchen), 浴室 (bathroom), 寝室 (bedroom)
-- EXCLUDE completely: spacer.gif, icons, logos, buttons, navigation, thumbnails, UI elements
-- Look for images in <img> tags, data-src attributes, markdown image syntax like [![alt](url)]
-- Return 5-10 highest quality MAIN property images per property, prioritizing low-numbered SUUMO images
-- If no main images found, return empty array []
+CRITICAL FOR MAIN PROPERTY IMAGE EXTRACTION:
+Extract 3-5 main property images per property. Prioritize exterior photos, floor plans, and interior shots.
+
+SUPPORTED SITE IMAGE PATTERNS:
+1. ATHOME.CO.JP - Dynamic image URLs (NO file extension):
+   Pattern: https://www.athome.co.jp/image_files/path/{base64_id}?width={w}&height={h}
+   Example: https://www.athome.co.jp/image_files/path/ZWdy1QwQ4PVAEKLOVELGXg==?width=572&height=418&margin=false
+   Note: These URLs use base64-encoded path IDs, prefer larger width/height values
+
+2. SUUMO - Standard image URLs (with .jpg extension):
+   Pattern: img01.suumo.com/.../propertyId_0001.jpg or resizeImage?src=...
+   Lower image numbers (_0001, _0002) = main property photos
+
+3. OTHER SITES - Standard image URLs ending in .jpg, .png, .webp
+
+IMAGE PRIORITIZATION (by Japanese property context):
+- 現地外観写真/外観 (exterior) - HIGHEST priority
+- 間取り図/間取 (floor plan) - HIGH priority
+- リビング/居間 (living room), キッチン (kitchen), 浴室/風呂 (bathroom), 寝室 (bedroom)
+
+EXTRACTION RULES:
+- EXCLUDE: icons, logos, buttons, navigation, UI elements, spacer images
+- EXCLUDE: Placeholder images (URLs containing "no_image", "no-image", "placeholder")
+- EXCLUDE: Static assets (URLs containing "/static_app_contents/", "/assets/common/", "/assets/pc/")
+- EXCLUDE: Loading spinners, map pins, help icons
+- INCLUDE: Full URLs with all query parameters (width, height, w, h, etc.)
+- INCLUDE ONLY: Actual property photos with valid base64 IDs or image file extensions
+- Return empty array [] if no main property images found
 
 FOR PROPERTY A:
 ${fullHtmlA}
@@ -379,7 +388,7 @@ Return only this JSON format (no explanations):
               temperature: 0.2,
               topK: 40,
               topP: 0.95,
-              maxOutputTokens: 4096, // Increased from 2048 to allow full response
+              maxOutputTokens: 8192, // Increased from 4096 to handle properties with many image URLs
             },
           }),
         }
@@ -438,11 +447,18 @@ Return only this JSON format (no explanations):
     }
 
     try {
+      // Check if response was truncated due to token limit
+      const finishReason = geminiData.candidates[0]?.finishReason;
+      if (finishReason === 'MAX_TOKENS') {
+        console.warn('Gemini response was truncated due to token limit (MAX_TOKENS)');
+      }
+
       // Extract the JSON from Gemini's response
       const responseText =
         geminiData.candidates[0]?.content?.parts?.[0]?.text || "";
 
       console.log("Raw Gemini response text:", responseText.substring(0, 500) + "...");
+      console.log("Gemini finish reason:", finishReason);
 
       // Extract the JSON part from the response
       const jsonMatch =
@@ -459,6 +475,14 @@ Return only this JSON format (no explanations):
         .replace(/&#39;/g, "'");
 
       console.log("Extracted and cleaned JSON string:", jsonString.substring(0, 500) + "...");
+
+      // Check for truncation - validate JSON contains both properties before parsing
+      if (!jsonString.includes('"property_b"')) {
+        const truncationError = 'Response appears truncated - missing property_b data. This usually indicates the Gemini output token limit was exceeded.';
+        console.error(truncationError);
+        console.error("Truncated JSON string:", jsonString.substring(0, 2000) + "...");
+        throw new Error(truncationError);
+      }
 
       // Parse the extracted JSON
       let extractedData;
@@ -534,12 +558,35 @@ Return only this JSON format (no explanations):
             const decodedUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
             new URL(decodedUrl);
 
+            // Exclude placeholder and static asset images
+            if (decodedUrl.includes('/no_image') || decodedUrl.includes('no-image') || decodedUrl.includes('placeholder')) {
+              return false;
+            }
+            if (decodedUrl.includes('/static_app_contents/') || decodedUrl.includes('/assets/common/') || decodedUrl.includes('/assets/pc/')) {
+              return false;
+            }
+            if (decodedUrl.match(/(icon|logo|btn|nav|menu|header|footer|ui|thumb|spacer|loading)/i)) {
+              return false;
+            }
+            // Exclude Google Maps and other map-related images
+            if (decodedUrl.includes('maps.gstatic.com') || decodedUrl.includes('maps.google.com') || decodedUrl.includes('mapfiles')) {
+              return false;
+            }
+            // Exclude transparent pixels and tracking images
+            if (decodedUrl.includes('transparent.png') || decodedUrl.includes('pixel.gif')) {
+              return false;
+            }
+
             // Check for image extensions, including URL-encoded ones in query parameters
             const hasDirectExtension = decodedUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?.*)?$/i) !== null;
             const hasEncodedExtension = decodedUrl.match(/\.(jpg|jpeg|png|webp|gif)/i) !== null ||
                                       decodedUrl.includes('%2F') && decodedUrl.match(/(jpg|jpeg|png|webp|gif)/i) !== null;
 
-            return hasDirectExtension || hasEncodedExtension;
+            // athome.co.jp uses dynamic image URLs without file extensions (but must have valid base64 path)
+            const isAthomeImage = decodedUrl.includes('athome.co.jp/image_files/path/') &&
+                                  decodedUrl.match(/\/path\/[A-Za-z0-9+/=_-]{10,}/) !== null;
+
+            return hasDirectExtension || hasEncodedExtension || isAthomeImage;
           } catch {
             return false;
           }
@@ -551,6 +598,13 @@ Return only this JSON format (no explanations):
             const decodedUrl = url.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
 
             let priority = 50; // Base priority
+
+            // athome.co.jp images - high base priority
+            if (decodedUrl.includes('athome.co.jp/image_files/path/')) {
+              priority += 80; // High priority for athome images
+              // Higher priority for images with size parameters (larger = better quality)
+              if (decodedUrl.includes('width=') && decodedUrl.includes('height=')) priority += 20;
+            }
 
             // High priority for main/hero/primary images
             if (decodedUrl.match(/(?:main|hero|primary|first|top|default)/i)) priority += 40;

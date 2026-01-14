@@ -55,9 +55,9 @@ fi
 echo "✅ Supabase functions are running"
 echo ""
 
-# Test data
-PROPERTY_URL_A="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78448509/"
-PROPERTY_URL_B="https://suumo.jp/ikkodate/tokyo/sc_shinjuku/nc_78456719/"
+# Test data - Using athome.co.jp URLs to test with properties that have many images
+PROPERTY_URL_A="https://www.athome.co.jp/mansion/1025793782/?DOWN=2&BKLISTID=002LPC&SEARCHDIV=1&sref=list_simple"
+PROPERTY_URL_B="https://www.athome.co.jp/mansion/6984350048/?DOWN=2&BKLISTID=002LPC&SEARCHDIV=1&sref=list_simple"
 
 echo "Testing with properties:"
 echo "Property A: $PROPERTY_URL_A"
