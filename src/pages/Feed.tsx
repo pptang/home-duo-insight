@@ -147,7 +147,7 @@ const Feed = () => {
               user_id: comparison.user_id,
               propertyA: comparison.propertyA as Property,
               propertyB: comparison.propertyB as Property,
-              userName: authorProfile?.full_name || "Anonymous User",
+              userName: authorProfile?.full_name || "Guest",
               userAvatar: authorProfile?.avatar_url || undefined,
               expertVotes: 0, // Will be updated with aggregation later
               communityVotes: 0, // Will be updated with aggregation later
