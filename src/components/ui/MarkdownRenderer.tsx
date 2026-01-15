@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkEmoji from 'remark-emoji';
 import remarkBreaks from 'remark-breaks';
+import remarkGfm from 'remark-gfm';
 import { cn } from '@/lib/utils';
 
 // Map unsupported shortcodes to Unicode emojis
@@ -46,10 +47,13 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
       "prose-ul:my-3 prose-ul:pl-5 prose-li:my-1 prose-li:text-foreground",
       "prose-strong:text-foreground prose-strong:font-semibold",
       "prose-hr:border-border prose-hr:my-6",
+      "prose-table:border-collapse prose-table:w-full",
+      "prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-th:text-left",
+      "prose-td:border prose-td:border-border prose-td:px-3 prose-td:py-2",
       "[&>*:first-child]:mt-0",
       className
     )}>
-      <ReactMarkdown remarkPlugins={[remarkEmoji, remarkBreaks]}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkEmoji, remarkBreaks]}>
         {processedContent}
       </ReactMarkdown>
     </div>
