@@ -350,7 +350,6 @@ const About = () => {
         </section>
       </main>
 
-      <Footer />
     </div>
   );
 };
