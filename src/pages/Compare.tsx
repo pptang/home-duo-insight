@@ -1113,6 +1113,13 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         </p>
                       </CardContent>
                     </Card>
+
+                    {/* Recommendation Feedback */}
+                    {aiRecommendation.recommendation_id && (
+                      <RecommendationFeedback
+                        recommendationId={aiRecommendation.recommendation_id}
+                      />
+                    )}
                   </div>
                 )}
 

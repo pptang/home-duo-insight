@@ -643,6 +643,11 @@ const ComparisonDetail = () => {
                     <MarkdownRenderer content={recommendation.final_recommendation} />
                   </CardContent>
                 </Card>
+
+                {/* Recommendation Feedback */}
+                <RecommendationFeedback
+                  recommendationId={recommendation.id}
+                />
               </div>
             )}
 
