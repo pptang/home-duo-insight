@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExpertSection } from "@/components/ExpertSection";
+import { RecommendationFeedback } from "@/components/RecommendationFeedback";
 
 interface PropertyData {
   id: string;
@@ -642,6 +643,11 @@ const ComparisonDetail = () => {
                     <MarkdownRenderer content={recommendation.final_recommendation} />
                   </CardContent>
                 </Card>
+
+                {/* Recommendation Feedback */}
+                <RecommendationFeedback
+                  recommendationId={recommendation.id}
+                />
               </div>
             )}
 

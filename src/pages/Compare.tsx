@@ -65,6 +65,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
+import { RecommendationFeedback } from "@/components/RecommendationFeedback";
 
 interface PropertyData {
   id: string;
@@ -91,6 +92,7 @@ interface ComparisonResult {
 }
 
 interface AIRecommendation {
+  recommendation_id?: string;
   property_a_pros: string[];
   property_a_cons: string[];
   property_b_pros: string[];
@@ -1111,6 +1113,13 @@ const CompareContent: React.FC<CompareContentProps> = ({
                         </p>
                       </CardContent>
                     </Card>
+
+                    {/* Recommendation Feedback */}
+                    {aiRecommendation.recommendation_id && (
+                      <RecommendationFeedback
+                        recommendationId={aiRecommendation.recommendation_id}
+                      />
+                    )}
                   </div>
                 )}
 
