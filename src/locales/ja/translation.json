@@ -95,6 +95,20 @@
       "summary_property_a": "物件A",
       "summary_property_b": "物件B"
     },
+    "feedback": {
+      "title": "この情報は役に立ちましたか？",
+      "thanks": "フィードバックありがとうございます！",
+      "thumbs_up": "はい、役立った",
+      "thumbs_down": "いいえ"
+    }
+  },
+  "recommendation": {
+    "feedback": {
+      "title": "この情報は役に立ちましたか？",
+      "thanks": "フィードバックありがとうございます！",
+      "thumbs_up": "はい、役立った",
+      "thumbs_down": "いいえ"
+    }
     "personalization": {
       "title": "あなたの好みを教えてください",
       "subtitle": "いくつかの質問に答えて、物件のおすすめをパーソナライズしましょう。",

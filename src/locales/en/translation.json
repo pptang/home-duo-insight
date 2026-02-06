@@ -95,6 +95,20 @@
       "summary_property_a": "Property A",
       "summary_property_b": "Property B"
     },
+    "feedback": {
+      "title": "Was this helpful?",
+      "thanks": "Thank you for your feedback!",
+      "thumbs_up": "Yes, helpful",
+      "thumbs_down": "Not helpful"
+    }
+  },
+  "recommendation": {
+    "feedback": {
+      "title": "Was this helpful?",
+      "thanks": "Thank you for your feedback!",
+      "thumbs_up": "Yes, helpful",
+      "thumbs_down": "Not helpful"
+    }
     "personalization": {
       "title": "Tell us about your preferences",
       "subtitle": "Help us personalize your property recommendation by answering a few questions.",
