@@ -65,6 +65,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { ExpertSection } from "@/components/ExpertSection";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
+import { RecommendationFeedback } from "@/components/RecommendationFeedback";
 
 interface PropertyData {
   id: string;
