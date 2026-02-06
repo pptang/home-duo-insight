@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ExpertSection } from "@/components/ExpertSection";
+import { RecommendationFeedback } from "@/components/RecommendationFeedback";
 
 interface PropertyData {
   id: string;
