@@ -91,6 +91,7 @@ interface ComparisonResult {
 }
 
 interface AIRecommendation {
+  recommendation_id?: string;
   property_a_pros: string[];
   property_a_cons: string[];
   property_b_pros: string[];
