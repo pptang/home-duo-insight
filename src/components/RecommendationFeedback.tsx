@@ -112,7 +112,7 @@ export const RecommendationFeedback = ({ recommendationId, className }: Recommen
           variant="outline"
           onClick={() => handleFeedback('positive')}
           disabled={isSubmitting}
-          className="gap-2 hover:bg-green-50 hover:border-green-300 hover:text-green-700"
+          className="gap-2 hover:bg-accent hover:border-primary/30 hover:text-primary"
         >
           <ThumbsUp className="h-4 w-4" />
           {t('recommendation.feedback.thumbs_up')}
@@ -121,7 +121,7 @@ export const RecommendationFeedback = ({ recommendationId, className }: Recommen
           variant="outline"
           onClick={() => handleFeedback('negative')}
           disabled={isSubmitting}
-          className="gap-2 hover:bg-red-50 hover:border-red-300 hover:text-red-700"
+          className="gap-2 hover:bg-muted hover:border-destructive/30 hover:text-destructive"
         >
           <ThumbsDown className="h-4 w-4" />
           {t('recommendation.feedback.thumbs_down')}
