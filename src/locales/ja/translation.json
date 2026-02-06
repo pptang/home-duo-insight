@@ -1,4 +1,12 @@
 {
+  "recommendation": {
+    "feedback": {
+      "title": "この情報は役に立ちましたか？",
+      "thanks": "フィードバックありがとうございます！",
+      "thumbs_up": "はい、役立った",
+      "thumbs_down": "いいえ"
+    }
+  },
   "nav": {
     "home": "ホーム",
     "compare": "比較",

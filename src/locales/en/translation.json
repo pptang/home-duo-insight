@@ -1,4 +1,12 @@
 {
+  "recommendation": {
+    "feedback": {
+      "title": "Was this helpful?",
+      "thanks": "Thank you for your feedback!",
+      "thumbs_up": "Yes, helpful",
+      "thumbs_down": "Not helpful"
+    }
+  },
   "nav": {
     "home": "Home",
     "compare": "Compare",
