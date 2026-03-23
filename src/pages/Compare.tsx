@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { trackComparisonCreated, trackRecommendationViewed } from "@/lib/analytics";
 import {
   ArrowDown,
   CheckCircle,
@@ -364,6 +365,7 @@ const Compare = () => {
 
       // Success - set comparison result and move to metadata review stage
       setComparisonResult(data);
+      if (data.comparison_id) trackComparisonCreated(data.comparison_id);
       setCurrentStage('metadata-review');
       toast({
         title: t("compare.messages.success_title"),
@@ -466,6 +468,7 @@ const Compare = () => {
 
       // Success - set AI recommendation
       setAiRecommendation(data);
+      if (data.comparison_id) trackRecommendationViewed(data.comparison_id);
       toast({
         title: t("compare.messages.success_title"),
         description: t("compare.messages.success_recommendation"),

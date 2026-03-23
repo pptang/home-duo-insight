@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { trackSignUp } from "@/lib/analytics";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -50,6 +51,7 @@ const Auth = () => {
           description: error.message,
         });
       } else {
+        trackSignUp();
         toast({
           title: t("auth.toast.signup_success"),
           description: t("auth.toast.signup_success_desc"),

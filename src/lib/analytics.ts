@@ -51,12 +51,20 @@ export const trackEvent = (
 };
 
 // Common event helpers
+export const trackSignUp = () => {
+  trackEvent('sign_up', { method: 'email' });
+};
+
 export const trackComparisonCreated = (comparisonId: string) => {
   trackEvent('comparison_created', { comparison_id: comparisonId });
 };
 
 export const trackComparisonViewed = (comparisonId: string) => {
   trackEvent('comparison_viewed', { comparison_id: comparisonId });
+};
+
+export const trackRecommendationViewed = (comparisonId: string) => {
+  trackEvent('recommendation_viewed', { comparison_id: comparisonId });
 };
 
 export const trackExpertVote = (comparisonId: string, votedFor: string) => {
