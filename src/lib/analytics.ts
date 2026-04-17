@@ -62,3 +62,25 @@ export const trackComparisonViewed = (comparisonId: string) => {
 export const trackExpertVote = (comparisonId: string, votedFor: string) => {
   trackEvent('expert_vote', { comparison_id: comparisonId, voted_for: votedFor });
 };
+
+export const trackRecommendationGenerated = (
+  comparisonId: string,
+  recommendationId?: string,
+  language?: string,
+) => {
+  trackEvent('recommendation_generated', {
+    comparison_id: comparisonId,
+    recommendation_id: recommendationId,
+    language,
+  });
+};
+
+export const trackRecommendationFeedback = (
+  recommendationId: string,
+  feedback: 'positive' | 'negative',
+) => {
+  trackEvent('recommendation_feedback', {
+    recommendation_id: recommendationId,
+    feedback,
+  });
+};

@@ -365,6 +365,9 @@ const Compare = () => {
       // Success - set comparison result and move to metadata review stage
       setComparisonResult(data);
       setCurrentStage('metadata-review');
+      if (data?.comparison_id) {
+        trackComparisonCreated(data.comparison_id);
+      }
       toast({
         title: t("compare.messages.success_title"),
         description: t("compare.messages.success_analyze"),
@@ -466,6 +469,11 @@ const Compare = () => {
 
       // Success - set AI recommendation
       setAiRecommendation(data);
+      trackRecommendationGenerated(
+        comparisonResult.comparison_id,
+        data?.recommendation_id,
+        normalizedLanguage,
+      );
       toast({
         title: t("compare.messages.success_title"),
         description: t("compare.messages.success_recommendation"),
