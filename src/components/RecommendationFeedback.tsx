@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import { trackRecommendationFeedback } from '@/lib/analytics';
 
 interface RecommendationFeedbackProps {
   recommendationId: string;
@@ -81,6 +82,7 @@ export const RecommendationFeedback = ({ recommendationId, className }: Recommen
       // Store in localStorage and update state
       storeFeedback(recommendationId, feedback);
       setSubmittedFeedback(feedback);
+      trackRecommendationFeedback(recommendationId, feedback);
     } catch (err) {
       console.error('Unexpected error submitting feedback:', err);
     } finally {

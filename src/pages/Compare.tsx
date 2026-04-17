@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { trackComparisonCreated, trackRecommendationGenerated } from "@/lib/analytics";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import { Input } from "@/components/ui/input";
