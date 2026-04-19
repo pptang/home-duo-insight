@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — UX 重設計簡報 · 團隊版</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0a0a; --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.06);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.1);
+  --red:#b04040; --green:#3a6b4a; --yellow:#8a6520;
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans TC','Noto Sans JP',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(249,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.logo{font-family:var(--fd);font-size:18px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.logo em{font-family:var(--fm);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 7px;border-radius:3px;}
+.toc-nav{display:flex;gap:0;}
+.toc-nav a{font-size:12px;color:var(--ink-60);text-decoration:none;padding:5px 12px;border-radius:4px;transition:all .15s;}
+.toc-nav a:hover{background:var(--ink-10);color:var(--ink);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;padding-top:52px;}
+
+/* ── SIDEBAR TOC ── */
+.sidebar{border-right:1px solid var(--rule);padding:28px 20px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--rule);}
+.toc-section{margin-bottom:20px;}
+.toc-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule);}
+.toc-item{display:block;font-size:12px;color:var(--ink-60);text-decoration:none;padding:4px 0;transition:color .15s;line-height:1.4;}
+.toc-item:hover{color:var(--ink);}
+.toc-item.active{color:var(--ink);font-weight:500;}
+.toc-sub{font-size:11px;color:var(--ink-30);padding:2px 0 2px 10px;display:block;text-decoration:none;}
+.toc-sub:hover{color:var(--ink-60);}
+
+/* ── MAIN ── */
+.main{padding:40px 56px 80px;}
+.doc-header{border-bottom:1px solid var(--rule);padding-bottom:32px;margin-bottom:40px;}
+.doc-eyebrow{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;}
+.doc-title{font-family:var(--fd);font-size:clamp(32px,4vw,52px);line-height:1.1;letter-spacing:-.5px;margin-bottom:10px;}
+.doc-title em{font-style:italic;color:var(--ink-60);}
+.doc-meta{display:flex;gap:20px;flex-wrap:wrap;}
+.doc-meta-item{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);display:flex;align-items:center;gap:5px;}
+
+/* ── SECTION ── */
+.section{margin-bottom:56px;scroll-margin-top:72px;}
+.section-num{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30);margin-bottom:6px;}
+.section-title{font-family:var(--fd);font-size:clamp(22px,2.5vw,30px);letter-spacing:-.3px;margin-bottom:6px;line-height:1.2;}
+.section-sub{font-size:14px;color:var(--ink-60);margin-bottom:24px;line-height:1.7;max-width:640px;}
+.section-divider{height:1px;background:var(--rule);margin:40px 0;}
+
+/* ── PROSE ── */
+.prose{font-size:14px;line-height:1.85;color:var(--ink-60);max-width:680px;}
+.prose p{margin-bottom:14px;}
+.prose strong{color:var(--ink);font-weight:500;}
+.prose a{color:var(--ink);text-decoration:underline;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:16px;}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:13px;font-weight:500;}
+.card-body{padding:18px;}
+
+/* ── PROBLEM / SOLUTION GRIDS ── */
+.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.ps-item{padding:16px;border-radius:6px;font-size:13px;line-height:1.65;}
+.ps-item.problem{background:rgba(176,64,64,.05);border-left:3px solid var(--red);}
+.ps-item.solution{background:rgba(58,107,74,.05);border-left:3px solid var(--green);}
+.ps-item-label{font-family:var(--fm);font-size:8px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;}
+.ps-item.problem .ps-item-label{color:var(--red);}
+.ps-item.solution .ps-item-label{color:var(--green);}
+.ps-item-title{font-weight:500;color:var(--ink);margin-bottom:4px;}
+
+/* ── CHANGE TABLE ── */
+.change-table{width:100%;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:24px;font-size:13px;}
+.ct-row{display:grid;grid-template-columns:140px 1fr 1fr;border-bottom:1px solid var(--rule);}
+.ct-row:last-child{border-bottom:none;}
+.ct-row.header{background:var(--paper-dark);}
+.ct-cell{padding:12px 14px;}
+.ct-cell.key{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);border-right:1px solid var(--rule);}
+.ct-cell.before{color:var(--red);border-right:1px solid var(--rule);}
+.ct-cell.after{color:var(--green);}
+.ct-cell.header-cell{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);border-right:1px solid var(--rule);}
+.ct-cell.header-cell:last-child{border-right:none;}
+.strikethrough{text-decoration:line-through;opacity:.5;}
+
+/* ── IA DIAGRAM ── */
+.ia-wrap{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:24px;margin-bottom:24px;overflow-x:auto;}
+.ia-title{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:16px;}
+.ia-tree{display:flex;flex-direction:column;gap:0;}
+.ia-row{display:flex;align-items:stretch;gap:0;}
+.ia-node{padding:8px 14px;border:1px solid var(--rule);border-radius:4px;font-size:12px;background:var(--white);white-space:nowrap;}
+.ia-node.root{background:var(--ink);color:var(--paper);font-weight:500;font-size:13px;}
+.ia-node.page{background:var(--paper-dark);}
+.ia-node.feature{background:var(--white);font-size:11px;color:var(--ink-60);}
+.ia-node.removed{background:rgba(176,64,64,.06);border-color:rgba(176,64,64,.2);color:var(--red);text-decoration:line-through;}
+.ia-node.new{background:rgba(58,107,74,.06);border-color:rgba(58,107,74,.2);color:var(--green);}
+.ia-connector{width:24px;display:flex;align-items:center;justify-content:center;color:var(--ink-30);font-size:12px;flex-shrink:0;}
+.ia-branch{display:flex;flex-direction:column;gap:6px;padding-left:24px;border-left:1px solid var(--rule);margin:6px 0 6px 12px;}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:20px;}
+.flow-step{padding:10px 16px;background:var(--white);border:1px solid var(--rule);border-radius:6px;font-size:12px;text-align:center;min-width:100px;}
+.flow-step.highlight{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.flow-step.new{background:rgba(58,107,74,.06);border-color:rgba(58,107,74,.2);color:var(--green);}
+.flow-arrow{padding:0 8px;color:var(--ink-30);font-size:14px;flex-shrink:0;}
+.flow-label{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);text-align:center;display:block;margin-top:3px;}
+
+/* ── PROTOTYPE LINKS ── */
+.proto-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;}
+.proto-card{background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden;text-decoration:none;color:var(--ink);transition:box-shadow .2s;}
+.proto-card:hover{box-shadow:0 4px 20px rgba(10,10,10,.08);}
+.proto-thumb{height:100px;background:var(--paper-dark);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--rule);position:relative;}
+.proto-thumb-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);}
+.proto-status{position:absolute;top:8px;right:8px;font-family:var(--fm);font-size:7px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border-radius:2px;}
+.proto-status.new{background:rgba(58,107,74,.12);color:var(--green);}
+.proto-status.updated{background:rgba(138,101,32,.1);color:var(--yellow);}
+.proto-info{padding:14px 16px;}
+.proto-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.proto-desc{font-size:11px;color:var(--ink-60);line-height:1.5;}
+.proto-file{font-family:var(--fm);font-size:9px;color:var(--ink-30);margin-top:6px;}
+
+/* ── DESIGN TOKENS ── */
+.token-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule);font-size:12px;}
+.token-row:last-child{border-bottom:none;}
+.token-swatch{width:20px;height:20px;border-radius:3px;flex-shrink:0;border:1px solid var(--rule);}
+.token-name{font-family:var(--fm);font-size:10px;letter-spacing:.06em;color:var(--ink-60);width:140px;flex-shrink:0;}
+.token-val{font-family:var(--fm);font-size:10px;color:var(--ink-30);}
+.font-sample{font-size:18px;line-height:1.2;}
+
+/* ── METRIC CARD ── */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+.metric{background:var(--white);padding:18px 16px;}
+.metric-val{font-family:var(--fd);font-size:28px;letter-spacing:-.5px;line-height:1;margin-bottom:4px;}
+.metric-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);}
+.metric-sub{font-size:11px;color:var(--ink-30);margin-top:3px;}
+
+/* ── PHASE TABLE ── */
+.phase-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:24px;}
+.phase-table th{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);padding:8px 14px;text-align:left;border-bottom:2px solid var(--rule);}
+.phase-table td{padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top;}
+.phase-table tr:last-child td{border-bottom:none;}
+.tag{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.tag.done{background:rgba(58,107,74,.1);color:var(--green);}
+.tag.next{background:rgba(138,101,32,.1);color:var(--yellow);}
+.tag.later{background:var(--paper-dark);color:var(--ink-30);}
+
+/* ── INSIGHT BOX ── */
+.insight{background:var(--ink);color:var(--paper);border-radius:8px;padding:20px 24px;margin-bottom:20px;}
+.insight-label{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;opacity:.4;margin-bottom:6px;}
+.insight-text{font-size:14px;line-height:1.75;opacity:.85;}
+.insight-text strong{opacity:1;font-weight:600;}
+
+/* ── ANNOTATIONS ── */
+.annotation{display:flex;gap:10px;padding:12px 14px;border-radius:5px;font-size:13px;line-height:1.6;margin-bottom:8px;}
+.annotation.why{background:rgba(10,10,10,.04);border-left:2px solid var(--ink);}
+.annotation.warn{background:rgba(176,64,64,.05);border-left:2px solid var(--red);}
+.annotation.tip{background:rgba(58,107,74,.05);border-left:2px solid var(--green);}
+.annotation-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .main{padding:28px 24px 60px;}
+  .ps-grid{grid-template-columns:1fr;}
+  .proto-grid{grid-template-columns:1fr;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .ct-row{grid-template-columns:100px 1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo">愛住 AiSumai <em>UX Brief</em></div>
+  <div class="toc-nav">
+    <a href="#s1">問題分析</a>
+    <a href="#s2">商業邏輯</a>
+    <a href="#s3">架構</a>
+    <a href="#s4">設計改動</a>
+    <a href="#s5">原型檔案</a>
+    <a href="#s6">下一步</a>
+  </div>
+</nav>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="toc-section">
+    <div class="toc-label">目錄</div>
+    <a href="#s0" class="toc-item">執行摘要</a>
+    <a href="#s1" class="toc-item">01 · 現狀問題診斷</a>
+    <a href="#s2" class="toc-item">02 · 商業邏輯釐清</a>
+    <a href="#s3" class="toc-item">03 · 資訊架構重組</a>
+    <a href="#s4" class="toc-item">04 · 逐頁設計改動</a>
+    <a class="toc-sub" href="#s4-landing">→ Landing Page</a>
+    <a class="toc-sub" href="#s4-feed">→ Feed 頁面</a>
+    <a class="toc-sub" href="#s4-result">→ 比較結果頁</a>
+    <a class="toc-sub" href="#s4-expert">→ 專家 Profile</a>
+    <a class="toc-sub" href="#s4-auth">→ 登入 / 註冊</a>
+    <a href="#s5" class="toc-item">05 · 設計系統</a>
+    <a href="#s6" class="toc-item">06 · 原型檔案</a>
+    <a href="#s7" class="toc-item">07 · 下一步計畫</a>
+  </div>
+  <div class="toc-section">
+    <div class="toc-label">原型檔案</div>
+    <a href="aisumai-redesign.html" class="toc-item" target="_blank">Landing Page</a>
+    <a href="aisumai-feed.html" class="toc-item" target="_blank">Feed</a>
+    <a href="aisumai-compare-result.html" class="toc-item" target="_blank">比較結果頁</a>
+    <a href="aisumai-expert-profile.html" class="toc-item" target="_blank">專家 Profile</a>
+    <a href="aisumai-auth.html" class="toc-item" target="_blank">登入 / 註冊</a>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- HEADER -->
+  <div class="doc-header" id="s0">
+    <div class="doc-eyebrow">UX 重設計簡報 · 2026年4月</div>
+    <div class="doc-title">AiSumai (愛住)<br><em>全站 UX 重設計</em></div>
+    <div class="doc-meta">
+      <span class="doc-meta-item">📄 版本 1.1</span>
+      <span class="doc-meta-item">📅 2026年4月19日</span>
+      <span class="doc-meta-item">✅ 設計側交付完畢</span>
+      <span class="doc-meta-item">📁 8 個交付檔案</span>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="insight" style="margin-bottom:40px;">
+    <div class="insight-label">執行摘要 Executive Summary</div>
+    <div class="insight-text">
+      本次重設計的核心目標是解決三個根本問題：<strong>流量無法轉換（使用者停在首頁就離開）</strong>、<strong>核心功能被埋沒（Compare 功能使用率極低）</strong>、以及<strong>商業模式在 UI 上完全沒有體現（專家介入是最大差異化，卻完全不可見）</strong>。重設計後，Landing Page 直接就是 Compare 工具，Feed 改成比較報告列表，專家介入功能成為比較結果頁的核心模組。
+    </div>
+  </div>
+
+  <!-- S1: 問題診斷 -->
+  <div class="section" id="s1">
+    <div class="section-num">01</div>
+    <div class="section-title">現狀問題診斷</div>
+    <div class="section-sub">根據使用者行為描述與現有設計審查，識別出以下根本性問題。</div>
+
+    <div class="ps-grid">
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 1 · UX</div>
+        <div class="ps-item-title">首頁目的不明確</div>
+        首頁同時承載產品介紹與 Compare 功能，使用者進入後不知道該做什麼。缺乏清晰的唯一行動呼籲（Single CTA）。結果：大部分人停在首頁就離開。
+      </div>
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 2 · 功能埋沒</div>
+        <div class="ps-item-title">核心功能藏在深處</div>
+        Compare 是整個產品的核心價值，卻需要使用者主動尋找才能到達。使用率極低，核心功能無法驗證。
+      </div>
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 3 · 商業邏輯</div>
+        <div class="ps-item-title">Feed 方向完全錯誤</div>
+        舊 Feed 是「物件列表」，但平台的資料來源是「使用者比較後的報告」，不是獨立物件。Feed 設計和商業模式完全脫鉤。
+      </div>
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 4 · 差異化</div>
+        <div class="ps-item-title">專家價值完全不可見</div>
+        「AI + 專家雙重審核」是最大的差異化，但在整個使用者旅程中完全沒有體現。使用者不知道有這個功能。
+      </div>
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 5 · 設計風格</div>
+        <div class="ps-item-title">過度 AI 感，缺乏信任</div>
+        大量漸層、圓角、對稱排版，像是 AI 批量生成的 UI，缺乏個性與成熟感。不動產是高金額決策，信任感至關重要。
+      </div>
+      <div class="ps-item problem">
+        <div class="ps-item-label">問題 6 · 架構</div>
+        <div class="ps-item-title">Nav 資訊過多造成認知負擔</div>
+        「物件一覧 / エリア / AIとは / About」五個 Nav 項目，分散了使用者的注意力，沒有清晰的主要路徑。
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S2: 商業邏輯 -->
+  <div class="section" id="s2">
+    <div class="section-num">02</div>
+    <div class="section-title">商業邏輯釐清</div>
+    <div class="section-sub">這是本次重設計最關鍵的前提，決定了所有設計方向。</div>
+
+    <div class="insight" style="margin-bottom:20px;">
+      <div class="insight-label">核心商業模式</div>
+      <div class="insight-text">
+        AiSumai 的資料來源是<strong>使用者輸入的物件比較 URL</strong>，不是平台自行收集的物件。因此 Feed 的內容是「比較報告」，不是「物件列表」。專家主動認領報告、加入評論，並透過平台媒合潛在買家。<strong>Phase 1 收入來源：媒合後佣金。</strong>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:14px;">Phase 1 核心流程</div>
+      <div class="flow">
+        <div class="flow-step highlight">使用者輸入<br>兩個物件 URL<span class="flow-label">入口</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">AI 生成<br>比較報告<span class="flow-label">核心功能</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step new">報告公開進入<br>Feed<span class="flow-label">新方向</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step new">專家主動<br>認領 + 評論<span class="flow-label">差異化</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step new">使用者登入<br>聯絡專家<span class="flow-label">轉換</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">媒合成交<br>佣金收入<span class="flow-label">商業化</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Phase 1 vs Phase 2 界線</div></div>
+      <div class="card-body">
+        <table class="phase-table">
+          <thead>
+            <tr><th>功能</th><th>Phase 1（現在）</th><th>Phase 2（之後）</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Feed 內容</td><td>使用者比較報告</td><td>比較報告 + 專家刊登物件</td></tr>
+            <tr><td>物件詳細頁</td><td>❌ 不做</td><td>✅ 專家刊登後需要</td></tr>
+            <tr><td>獨立 Feed 頁面</td><td>❌ Landing 下方即可</td><td>✅ 內容量增加後需要</td></tr>
+            <tr><td>專家收費模式</td><td>媒合後佣金</td><td>物件刊登費 + 佣金</td></tr>
+            <tr><td>SEO 內容頁</td><td>比較報告固定 URL</td><td>物件詳細頁 + 比較報告</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S3: 資訊架構 -->
+  <div class="section" id="s3">
+    <div class="section-num">03</div>
+    <div class="section-title">資訊架構重組</div>
+    <div class="section-sub">從 6 個 Nav 項目精簡到 3 個，每個頁面有清晰的單一目的。</div>
+
+    <div class="ia-wrap">
+      <div class="ia-title">新 Navigation 架構（Phase 1）</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <div class="ia-node root">aisum.ai</div>
+        <div style="color:var(--ink-30);font-size:18px;">→</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div>
+            <div class="ia-node page">/ 比較する（首頁）</div>
+            <div style="padding-left:16px;margin-top:6px;display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--rule);">
+              <div class="ia-node feature">Compare Widget</div>
+              <div class="ia-node feature new">↓ 比較報告 Feed</div>
+            </div>
+          </div>
+          <div style="color:var(--ink-30);font-size:18px;margin-top:10px;">|</div>
+          <div>
+            <div class="ia-node page">/result 比較結果</div>
+            <div style="padding-left:16px;margin-top:6px;display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--rule);">
+              <div class="ia-node feature">Score Duel</div>
+              <div class="ia-node feature">比較表 (5 tabs)</div>
+              <div class="ia-node feature new">專家介入模組</div>
+            </div>
+          </div>
+          <div style="color:var(--ink-30);font-size:18px;margin-top:10px;">|</div>
+          <div>
+            <div class="ia-node page">/expert 専門家を探す</div>
+            <div style="padding-left:16px;margin-top:6px;display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--rule);">
+              <div class="ia-node feature new">専門家 Profile</div>
+              <div class="ia-node feature new">認領報告列表</div>
+            </div>
+          </div>
+          <div style="color:var(--ink-30);font-size:18px;margin-top:10px;">|</div>
+          <div>
+            <div class="ia-node page">/auth 登入 / 註冊</div>
+            <div style="padding-left:16px;margin-top:6px;display:flex;flex-direction:column;gap:4px;border-left:1px solid var(--rule);">
+              <div class="ia-node feature new">使用者路徑</div>
+              <div class="ia-node feature new">専門家路徑</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--rule);display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-60);">
+          <div class="ia-node removed" style="font-size:11px;padding:4px 8px;">物件一覧</div> 移除（Phase 1 不需要獨立頁）
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-60);">
+          <div class="ia-node removed" style="font-size:11px;padding:4px 8px;">エリア / AIとは</div> 整合進 About
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation why">
+      <span class="annotation-icon">💡</span>
+      <span><strong>為什麼移除物件一覧？</strong> Landing Page 下方已有完整的比較報告 Feed，獨立的 Feed 頁面只是同樣內容的另一個入口，Phase 1 對使用者沒有額外價值，反而分散流量。Phase 2 內容量增加後再加入。</span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S4: 逐頁改動 -->
+  <div class="section" id="s4">
+    <div class="section-num">04</div>
+    <div class="section-title">逐頁設計改動</div>
+    <div class="section-sub">每個頁面的改動原因、設計決策與前後對比。</div>
+
+    <!-- Landing -->
+    <div id="s4-landing" style="margin-bottom:36px;scroll-margin-top:72px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:3px;">頁面 1</div>
+        <div style="font-size:16px;font-weight:500;">Landing Page（首頁）</div>
+        <div class="tag updated">重大改動</div>
+      </div>
+
+      <div class="change-table">
+        <div class="ct-row header">
+          <div class="ct-cell header-cell">項目</div>
+          <div class="ct-cell header-cell">改動前</div>
+          <div class="ct-cell header-cell">改動後</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">頁面目的</div>
+          <div class="ct-cell before">產品介紹 + Compare 混合</div>
+          <div class="ct-cell after">Compare 工具本身 = Landing</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Nav</div>
+          <div class="ct-cell before">比較 / 物件一覧 / エリア / AIとは / About（5項）</div>
+          <div class="ct-cell after">比較する / 専門家を探す / About（3項）</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Hero 內容</div>
+          <div class="ct-cell before">行銷文案 + 滾動才到 Compare</div>
+          <div class="ct-cell after">Compare Widget 就是 Hero，無需滾動</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Feed 內容</div>
+          <div class="ct-cell before">物件卡片（單一物件、圖片、價格）</div>
+          <div class="ct-cell after">比較報告卡（A vs B、分數、專家狀態）</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">手機版</div>
+          <div class="ct-cell before">Nav 消失，無替代方案</div>
+          <div class="ct-cell after">Hamburger Menu + 全螢幕 Nav overlay</div>
+        </div>
+      </div>
+
+      <div class="annotation why">
+        <span class="annotation-icon">💡</span>
+        <span><strong>Google 型 Landing 的邏輯：</strong>使用者到 Google.com 不需要看任何說明就知道要做什麼——搜尋框就是整個產品。AiSumai 應該一樣，Compare 框就是整個產品，零認知成本。</span>
+      </div>
+    </div>
+
+    <!-- Feed -->
+    <div id="s4-feed" style="margin-bottom:36px;scroll-margin-top:72px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:3px;">頁面 2</div>
+        <div style="font-size:16px;font-weight:500;">Feed / 比較報告列表</div>
+        <div class="tag updated">根本性重做</div>
+      </div>
+
+      <div class="change-table">
+        <div class="ct-row header">
+          <div class="ct-cell header-cell">項目</div>
+          <div class="ct-cell header-cell">改動前</div>
+          <div class="ct-cell header-cell">改動後</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">卡片內容</div>
+          <div class="ct-cell before">單一物件（圖片 + 名稱 + 價格 + 標籤）</div>
+          <div class="ct-cell after">比較報告（A vs B 名稱 + 各自價格 + 比較亮點 + 分數 + 專家狀態）</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">專家狀態</div>
+          <div class="ct-cell before">無</div>
+          <div class="ct-cell after">已認領（顯示專家姓名）/ 未認領（顯示「認領する」CTA）</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">專家招募</div>
+          <div class="ct-cell before">無</div>
+          <div class="ct-cell after">頂部 Expert Claim Banner + 側欄說明</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">篩選邏輯</div>
+          <div class="ct-cell before">物件屬性（間取り、築年、エリア）</div>
+          <div class="ct-cell after">報告屬性（専門家コメント済み、エリア、価格帯）</div>
+        </div>
+      </div>
+
+      <div class="annotation warn">
+        <span class="annotation-icon">⚠️</span>
+        <span><strong>重要：</strong>舊 Feed 的設計方向是建立在「平台自行收集物件」的假設上，與實際商業模式完全不符。這不是 UI 微調問題，是根本性的方向錯誤，必須整個重做。</span>
+      </div>
+    </div>
+
+    <!-- Compare Result -->
+    <div id="s4-result" style="margin-bottom:36px;scroll-margin-top:72px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:3px;">頁面 3</div>
+        <div style="font-size:16px;font-weight:500;">比較結果頁</div>
+        <div class="tag updated">多項改動</div>
+      </div>
+
+      <div class="change-table">
+        <div class="ct-row header">
+          <div class="ct-cell header-cell">項目</div>
+          <div class="ct-cell header-cell">改動前</div>
+          <div class="ct-cell header-cell">改動後</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Winner 顯示</div>
+          <div class="ct-cell before">只顯示獲勝物件名稱 + 一個大分數，使用者看不出這是比較</div>
+          <div class="ct-cell after">Score Duel：A/B 並排，左（暗）= 落敗，右（亮）= 推薦，分數對比一眼明確</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">專家介入</div>
+          <div class="ct-cell before">僅有一個「専門家に相談」按鈕</div>
+          <div class="ct-cell after">完整模組：未認領狀態（招募專家）/ 已認領狀態（專家 Profile + 評論 + 聯絡 CTA）</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">登入門檻</div>
+          <div class="ct-cell before">無（任何人都能聯絡）</div>
+          <div class="ct-cell after">「聯絡専家」需要登入，觸發 Modal，製造帳號創建動機</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Tab 結構</div>
+          <div class="ct-cell before">基本比較表</div>
+          <div class="ct-cell after">5 tabs：概要 / 詳細データ / 写真 / 地図・交通 / リスク分析</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expert Profile -->
+    <div id="s4-expert" style="margin-bottom:36px;scroll-margin-top:72px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:3px;">頁面 4</div>
+        <div style="font-size:16px;font-weight:500;">專家 Profile 頁</div>
+        <div class="tag done">全新頁面</div>
+      </div>
+
+      <div class="prose">
+        <p>此頁面同時服務三種使用者：<strong>一般使用者</strong>（評估專家可信度）、<strong>潛在買家</strong>（決定是否聯絡）、<strong>其他專家</strong>（了解競爭者）。</p>
+      </div>
+
+      <div class="change-table" style="margin-top:14px;">
+        <div class="ct-row header">
+          <div class="ct-cell header-cell">模組</div>
+          <div class="ct-cell header-cell">設計決策</div>
+          <div class="ct-cell header-cell">原因</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Profile Hero</div>
+          <div class="ct-cell after">姓名、公司、認證 badge、語言、專門區域</div>
+          <div class="ct-cell after">建立第一印象信任感，讓使用者在3秒內判斷是否相關</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">社群連結</div>
+          <div class="ct-cell after">純 icon（網站、LinkedIn、IG、X、LINE），無文字標籤</div>
+          <div class="ct-cell after">讓使用者自行查核背景，增加信任；icon 不佔視覺空間</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">認領報告列表</div>
+          <div class="ct-cell after">前3筆可見，其餘需登入</div>
+          <div class="ct-cell after">製造登入動機，不強迫但給予誘因</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Sticky 聯絡卡</div>
+          <div class="ct-cell after">右側固定，隨滾動保持可見</div>
+          <div class="ct-cell after">任何時候決定聯絡都能立即行動，不需滾回頂部</div>
+        </div>
+        <div class="ct-row">
+          <div class="ct-cell key">Stats</div>
+          <div class="ct-cell after">取引実績 / レポート認領數 / 評價分數</div>
+          <div class="ct-cell after">量化信任感，讓使用者做出有根據的選擇</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth -->
+    <div id="s4-auth" style="margin-bottom:36px;scroll-margin-top:72px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 9px;border-radius:3px;">頁面 5</div>
+        <div style="font-size:16px;font-weight:500;">登入 / 註冊流程</div>
+        <div class="tag done">全新頁面</div>
+      </div>
+
+      <div class="prose" style="margin-bottom:16px;">
+        <p>兩條路徑，共用同一個畫面框架。<strong>使用者路徑（3步）</strong>和<strong>專家路徑（4步）</strong>在角色選擇後分叉。</p>
+      </div>
+
+      <div class="change-table">
+        <div class="ct-row header">
+          <div class="ct-cell header-cell">流程步驟</div>
+          <div class="ct-cell header-cell">一般使用者</div>
+          <div class="ct-cell header-cell">専門家</div>
+        </div>
+        <div class="ct-row"><div class="ct-cell key">Step 1</div><div class="ct-cell after">選擇角色：「物件を探している」</div><div class="ct-cell after">選擇角色：「不動産の専門家」</div></div>
+        <div class="ct-row"><div class="ct-cell key">Step 2</div><div class="ct-cell after">姓名 + Email + 密碼</div><div class="ct-cell after">姓名 + 公司 + 役職 + Email + 密碼</div></div>
+        <div class="ct-row"><div class="ct-cell key">Step 3</div><div class="ct-cell after">✅ 完成，引導到比較首頁</div><div class="ct-cell after">専門エリア + 語言 + 専門分野選擇</div></div>
+        <div class="ct-row"><div class="ct-cell key">Step 4</div><div class="ct-cell after">—</div><div class="ct-cell after">✅ 審査中（1〜2 工作天）</div></div>
+      </div>
+
+      <div class="annotation tip">
+        <span class="annotation-icon">✅</span>
+        <span><strong>專家需要審查：</strong>防止未認證的人以「專家」身份提供建議，保護平台公信力。這是平台差異化的核心，品質控制比快速上線更重要。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S5: 設計系統 -->
+  <div class="section" id="s5">
+    <div class="section-num">05</div>
+    <div class="section-title">設計系統</div>
+    <div class="section-sub">Notion 風格黑白設計語言，三層字體系統建立清晰的視覺層次。</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">顏色系統</div></div>
+        <div class="card-body" style="padding:14px 16px;">
+          <div class="token-row"><div class="token-swatch" style="background:#0a0a0a;"></div><div class="token-name">--ink (100%)</div><div class="token-val">#0a0a0a</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:rgba(10,10,10,.6);"></div><div class="token-name">--ink-60</div><div class="token-val">rgba(10,10,10,.6)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:rgba(10,10,10,.3);"></div><div class="token-name">--ink-30</div><div class="token-val">rgba(10,10,10,.3)</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#f9f8f5;border:1px solid #e0ddd6;"></div><div class="token-name">--paper</div><div class="token-val">#f9f8f5（暖白）</div></div>
+          <div class="token-row"><div class="token-swatch" style="background:#f0ede6;border:1px solid #e0ddd6;"></div><div class="token-name">--paper-dark</div><div class="token-val">#f0ede6（凹陷面）</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">字體系統（三層）</div></div>
+        <div class="card-body" style="padding:14px 16px;">
+          <div class="token-row">
+            <div style="flex-shrink:0;width:140px;">
+              <div style="font-family:'DM Serif Display',serif;font-size:20px;line-height:1;">標題</div>
+            </div>
+            <div class="token-val">DM Serif Display — 物件名稱、Hero、價格、分數</div>
+          </div>
+          <div class="token-row">
+            <div style="flex-shrink:0;width:140px;">
+              <div style="font-size:14px;line-height:1;">本文</div>
+            </div>
+            <div class="token-val">Noto Sans JP — 正文、說明、按鈕</div>
+          </div>
+          <div class="token-row">
+            <div style="flex-shrink:0;width:140px;">
+              <div style="font-family:'DM Mono',monospace;font-size:12px;line-height:1;">標籤 #01</div>
+            </div>
+            <div class="token-val">DM Mono — Badge、Label、數字、Meta</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="annotation why">
+      <span class="annotation-icon">💡</span>
+      <span><strong>為什麼用 Notion 風格？</strong>不動產是高金額、高風險的決策。過度設計（漸層、陰影、圓角）在這個情境下傳達的是「不成熟」和「不可信任」。黑白 + 精確間距 + 字體層次傳達的是：嚴肅、中立、有根據的分析。這和 Notion、Bloomberg、Financial Times 的設計邏輯相同。</span>
+    </div>
+
+    <div class="annotation tip" style="margin-top:8px;">
+      <span class="annotation-icon">🔧</span>
+      <span><strong>Figma 匯入：</strong>設計 Token 已輸出為 <code style="font-family:var(--fm);font-size:11px;background:var(--paper-dark);padding:1px 5px;border-radius:2px;">aisumai-figma-tokens.json</code>，透過 Token Studio 插件匯入即可取得完整色彩、字體、間距規格。</span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S6: 原型檔案 -->
+  <div class="section" id="s6">
+    <div class="section-num">06</div>
+    <div class="section-title">原型檔案</div>
+    <div class="section-sub">所有頁面均為可互動的 HTML 原型，點擊可直接預覽。</div>
+
+    <div class="proto-grid">
+      <a class="proto-card" href="aisumai-redesign.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">Landing · Compare Widget + Feed</div>
+          <div class="proto-status updated">重大改動</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">Landing Page（首頁）</div>
+          <div class="proto-desc">Compare Widget 為 Hero。下方 Discover Feed 已改為比較報告卡。Nav 精簡為 3 項。Hamburger Menu 手機版。</div>
+          <div class="proto-file">aisumai-redesign.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-compare-result.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">Score Duel + 5 Tabs + 専門家モジュール</div>
+          <div class="proto-status updated">多項改動</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">比較結果頁</div>
+          <div class="proto-desc">Score Duel（A vs B 並排清晰對比）。專家介入模組（未認領 / 已認領兩種狀態）。聯絡專家需登入 Modal。</div>
+          <div class="proto-file">aisumai-compare-result.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-feed.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">比較報告列表 · Expert Claim Banner</div>
+          <div class="proto-status done">全新頁面</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">Feed（Phase 2 備用）</div>
+          <div class="proto-desc">比較報告卡列表，顯示 A vs B + 分數 + 專家狀態。頂部 Expert Claim Banner 吸引專家認領。Phase 1 可作備用，Phase 2 啟用。</div>
+          <div class="proto-file">aisumai-feed.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-expert-profile.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">専門家 Profile · Sticky Contact Card</div>
+          <div class="proto-status done">全新頁面</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">専門家 Profile 頁</div>
+          <div class="proto-desc">専門家公信力展示（Stats、認領報告、評價）。社群 icon 連結。右側 Sticky 聯絡卡。部分內容需登入查看以製造帳號動機。</div>
+          <div class="proto-file">aisumai-expert-profile.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-auth.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">使用者路徑 3步 · 専門家路徑 4步</div>
+          <div class="proto-status done">全新頁面</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">登入 / 註冊流程</div>
+          <div class="proto-desc">角色選擇後分叉：一般使用者（3步）vs 専門家（4步 + 審查）。Google 登入。品牌左欄說明服務價值。</div>
+          <div class="proto-file">aisumai-auth.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-states.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">Empty · Error · Loading · Rate Limit</div>
+          <div class="proto-status done">全新文件</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">UI States — Empty & Error</div>
+          <div class="proto-desc">所有畫面的空白狀態、錯誤狀態、載入骨架屏。Compare Widget 6種狀態、Feed 3種、結果頁 3種、Auth 4種驗證錯誤、通用 404/網路錯誤。</div>
+          <div class="proto-file">aisumai-states.html</div>
+        </div>
+      </a>
+
+      <a class="proto-card" href="aisumai-dev-handoff.html" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">API · Schema · States · Checklist</div>
+          <div class="proto-status done">全新文件</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">開發交接文件</div>
+          <div class="proto-desc">Tech Stack 建議、URL Schema、API 規格（比較/Feed/専家/Auth）、TypeScript 資料結構、組件狀態矩陣、Phase 1 實作清單、成效指標定義。</div>
+          <div class="proto-file">aisumai-dev-handoff.html</div>
+        </div>
+      </a>
+      <a class="proto-card" href="aisumai-figma-tokens.json" target="_blank">
+        <div class="proto-thumb">
+          <div class="proto-thumb-label">Color · Typography · Spacing · Components</div>
+          <div class="proto-status done">設計資源</div>
+        </div>
+        <div class="proto-info">
+          <div class="proto-name">Figma Design Tokens</div>
+          <div class="proto-desc">完整設計 Token JSON。透過 Token Studio 插件匯入 Figma。包含所有顏色、字體、間距、組件規格與 Prototype Flow 說明。</div>
+          <div class="proto-file">aisumai-figma-tokens.json</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- S7: 下一步 -->
+  <div class="section" id="s7">
+    <div class="section-num">07</div>
+    <div class="section-title">下一步計畫</div>
+    <div class="section-sub">設計側已完成的部分以綠色標示。剩餘的開發實作項目與 Phase 2 規劃。</div>
+
+    <table class="phase-table">
+      <thead>
+        <tr><th>優先</th><th>項目</th><th>說明</th><th>狀態</th></tr>
+      </thead>
+      <tbody>
+        <tr style="opacity:.7;">
+          <td>✅</td>
+          <td>Empty State 設計</td>
+          <td>Compare Widget 6 種、Feed 3 種、結果頁 3 種，含預填示範物件、骨架屏、Rate Limit 攔截</td>
+          <td><span class="tag done">設計完成</span></td>
+        </tr>
+        <tr style="opacity:.7;">
+          <td>✅</td>
+          <td>Error State 設計</td>
+          <td>URL 無效、物件讀取失敗、網路斷線、500、404、Auth 驗證錯誤 — 全部已定義</td>
+          <td><span class="tag done">設計完成</span></td>
+        </tr>
+        <tr style="opacity:.7;">
+          <td>✅</td>
+          <td>開發交接文件</td>
+          <td>Tech Stack、URL Schema、API 規格、TypeScript Schema、組件狀態矩陣、實作清單、成效指標</td>
+          <td><span class="tag done">設計完成</span></td>
+        </tr>
+        <tr style="opacity:.7;">
+          <td>✅</td>
+          <td>SEO URL 結構設計</td>
+          <td>比較報告固定 URL（/compare/[slug]）、各頁面 Index/NoIndex 規則，已在開發文件中定義</td>
+          <td><span class="tag done">設計完成</span></td>
+        </tr>
+        <tr>
+          <td>🔴 高</td>
+          <td>實際開發實作</td>
+          <td>將所有原型與文件交給工程師開始實作。所有設計資源已齊備，可立即開始。</td>
+          <td><span class="tag next">下一步</span></td>
+        </tr>
+        <tr>
+          <td>🟡 中</td>
+          <td>専門家 Dashboard</td>
+          <td>専家登入後的後台：管理認領報告、查看評論狀態、接收聯絡請求通知</td>
+          <td><span class="tag next">設計待做</span></td>
+        </tr>
+        <tr>
+          <td>🟡 中</td>
+          <td>使用者 Dashboard</td>
+          <td>已保存的比較報告、聯絡過的専家列表、比較歷史記錄</td>
+          <td><span class="tag next">設計待做</span></td>
+        </tr>
+        <tr>
+          <td>🟢 低</td>
+          <td>OGP 分享圖</td>
+          <td>比較結果的 Score Duel 自動生成分享圖，提升 Twitter/LINE 自然擴散</td>
+          <td><span class="tag later">Phase 2</span></td>
+        </tr>
+        <tr>
+          <td>🟢 低</td>
+          <td>英語版 UI</td>
+          <td>目標外國買家，英文版是必要的，但建議等核心日文流程穩定後再做</td>
+          <td><span class="tag later">Phase 2</span></td>
+        </tr>
+        <tr>
+          <td>🟢 低</td>
+          <td>物件詳細頁</td>
+          <td>Phase 2 専家刊登物件後才需要，目前比較功能不依賴此頁</td>
+          <td><span class="tag later">Phase 2</span></td>
+        </tr>
+        <tr>
+          <td>🟢 低</td>
+          <td>獨立 Feed 頁面啟用</td>
+          <td>原型已完成（aisumai-feed.html）備用，Phase 2 內容量增加後啟用</td>
+          <td><span class="tag later">Phase 2</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- What's ready summary -->
+    <div style="background:rgba(58,107,74,.05);border:1px solid rgba(58,107,74,.2);border-radius:8px;padding:18px 20px;margin-top:8px;">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px;">✅ 設計側交付完畢 — 可移交開發</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:13px;color:var(--ink-60);">
+        <span>· 5 個可互動 HTML 原型</span>
+        <span>· UI States（Empty + Error）文件</span>
+        <span>· 完整開發交接文件（API / Schema）</span>
+        <span>· Figma Design Tokens JSON</span>
+        <span>· UX 分析與決策說明</span>
+        <span>· Phase 1 實作清單（含成效指標）</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding-top:32px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);">AiSumai UX Brief · 2026年4月 · Version 1.0</div>
+    <div style="display:flex;gap:8px;">
+      <a href="aisumai-redesign.html" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">Landing →</a>
+      <a href="aisumai-compare-result.html" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">比較結果 →</a>
+      <a href="aisumai-expert-profile.html" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">専門家 →</a>
+      <a href="aisumai-auth.html" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">登入 →</a>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+// Highlight active TOC item on scroll
+const sections = document.querySelectorAll('.section[id]');
+const tocItems = document.querySelectorAll('.toc-item');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => { if (window.scrollY >= s.offsetTop - 80) current = s.id; });
+  tocItems.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+}, { passive: true });
+</script>
+</body>
+</html>

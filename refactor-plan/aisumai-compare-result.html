@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — 比較結果</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0a0a0a;
+  --ink-60: rgba(10,10,10,0.6);
+  --ink-30: rgba(10,10,10,0.3);
+  --ink-10: rgba(10,10,10,0.08);
+  --paper: #f9f8f5;
+  --paper-dark: #f0ede6;
+  --rule: rgba(10,10,10,0.12);
+  --tag-bg: #edece9;
+  --win: #0a0a0a;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Noto Sans JP', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;background:rgba(249,248,245,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.topbar-logo{font-family:var(--font-display);font-size:18px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.topbar-logo span{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;color:var(--ink-60);text-transform:uppercase;border:1px solid var(--rule);padding:2px 6px;border-radius:3px;}
+.topbar-nav{display:flex;align-items:center;gap:0;}
+.topbar-nav a{font-size:13px;color:var(--ink-60);text-decoration:none;padding:6px 14px;border-radius:4px;transition:background 0.15s,color 0.15s;}
+.topbar-nav a:hover{background:var(--ink-10);color:var(--ink);}
+.topbar-nav a.active{color:var(--ink);font-weight:500;}
+.topbar-actions{display:flex;align-items:center;gap:8px;}
+.btn-ghost{font-size:13px;color:var(--ink);text-decoration:none;padding:6px 14px;border:1px solid var(--rule);border-radius:4px;transition:background 0.15s;cursor:pointer;background:none;}
+.btn-ghost:hover{background:var(--ink-10);}
+.btn-solid{font-size:13px;color:var(--paper);background:var(--ink);text-decoration:none;padding:6px 16px;border-radius:4px;transition:opacity 0.15s;border:none;cursor:pointer;}
+.btn-solid:hover{opacity:0.8;}
+
+/* PAGE LAYOUT */
+.page{padding-top:52px;}
+.container{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+/* BREADCRUMB */
+.breadcrumb{padding:20px 0 0;display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);}
+.breadcrumb a{color:var(--ink-60);text-decoration:none;}
+.breadcrumb a:hover{color:var(--ink);}
+.breadcrumb .sep{opacity:0.3;}
+
+/* RESULT HEADER */
+.result-header{padding:24px 0 32px;border-bottom:1px solid var(--rule);}
+.result-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.result-badge{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:3px 10px;border-radius:3px;}
+.result-date{font-family:var(--font-mono);font-size:10px;color:var(--ink-60);}
+.result-title-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;}
+.result-prop-name{font-family:var(--font-display);font-size:clamp(18px,3vw,26px);line-height:1.2;letter-spacing:-0.3px;}
+.result-prop-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);margin-top:4px;}
+.result-vs-badge{width:48px;height:48px;border:1px solid var(--rule);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;color:var(--ink-60);background:var(--paper-dark);flex-shrink:0;}
+.result-prop-b{text-align:right;}
+
+/* SCORE DUEL — replaces old winner banner */
+.score-duel{margin:24px 0;display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--ink);border-radius:8px;overflow:hidden;}
+/* Loser side — muted */
+.duel-loser{background:#fff;padding:24px 28px;display:flex;flex-direction:column;gap:6px;border-right:1px solid var(--ink);}
+/* Winner side — dark */
+.duel-winner{background:var(--ink);color:var(--paper);padding:24px 28px;display:flex;flex-direction:column;gap:6px;position:relative;}
+/* Shared label */
+.duel-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:2px;}
+.duel-loser .duel-tag{color:var(--ink-30);}
+.duel-winner .duel-tag{color:rgba(255,255,255,0.45);}
+/* Property name */
+.duel-prop-name{font-family:var(--font-display);font-size:clamp(16px,2vw,21px);line-height:1.2;letter-spacing:-0.3px;}
+.duel-loser .duel-prop-name{color:var(--ink-60);}
+.duel-winner .duel-prop-name{color:#fff;}
+/* Score number */
+.duel-score{font-family:var(--font-display);font-size:64px;line-height:1;letter-spacing:-3px;margin:8px 0 2px;}
+.duel-loser .duel-score{color:var(--ink-30);}
+.duel-winner .duel-score{color:#fff;}
+.duel-score-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;}
+.duel-loser .duel-score-label{color:var(--ink-30);}
+.duel-winner .duel-score-label{color:rgba(255,255,255,0.4);}
+/* Reason (winner side only) */
+.duel-reason{font-size:12px;line-height:1.65;margin-top:6px;color:rgba(255,255,255,0.65);max-width:340px;}
+/* AI推奨 crown badge */
+.duel-crown{position:absolute;top:20px;right:20px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);padding:4px 10px;border-radius:3px;}
+/* Score bar inside duel-winner */
+.duel-bar-row{display:flex;align-items:center;gap:8px;margin-top:2px;}
+.duel-bar-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;width:44px;flex-shrink:0;}
+.duel-loser .duel-bar-label{color:var(--ink-30);}
+.duel-winner .duel-bar-label{color:rgba(255,255,255,0.4);}
+.duel-bar-track{flex:1;height:3px;border-radius:2px;}
+.duel-loser .duel-bar-track{background:var(--paper-dark);}
+.duel-winner .duel-bar-track{background:rgba(255,255,255,0.15);}
+.duel-bar-fill{height:100%;border-radius:2px;transition:width 1s ease;}
+.duel-loser .duel-bar-fill{background:var(--ink-30);}
+.duel-winner .duel-bar-fill{background:#fff;}
+.duel-bar-num{font-family:var(--font-mono);font-size:10px;font-weight:500;width:24px;text-align:right;flex-shrink:0;}
+.duel-loser .duel-bar-num{color:var(--ink-30);}
+.duel-winner .duel-bar-num{color:rgba(255,255,255,0.8);}
+
+/* TABS */
+.compare-tabs-row{display:flex;border-bottom:1px solid var(--rule);margin:32px 0 0;gap:0;}
+.ctab{font-family:var(--font-mono);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);padding:12px 20px;border-bottom:2px solid transparent;cursor:pointer;transition:color 0.15s,border-color 0.15s;user-select:none;}
+.ctab.active{color:var(--ink);border-bottom-color:var(--ink);}
+.ctab:hover{color:var(--ink);}
+
+/* TAB CONTENT */
+.tab-content{display:none;padding:28px 0;}
+.tab-content.active{display:block;}
+
+/* COMPARISON TABLE */
+.comp-table{width:100%;border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
+.comp-row{display:grid;grid-template-columns:180px 1fr 1fr;border-bottom:1px solid var(--rule);}
+.comp-row:last-child{border-bottom:none;}
+.comp-row.header{background:var(--paper-dark);}
+.comp-cell{padding:14px 18px;font-size:13px;}
+.comp-cell.key{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);border-right:1px solid var(--rule);display:flex;align-items:center;}
+.comp-cell.val{border-right:1px solid var(--rule);display:flex;align-items:center;gap:8px;}
+.comp-cell.val:last-child{border-right:none;}
+.comp-cell.header-cell{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);font-weight:500;border-right:1px solid var(--rule);}
+.comp-cell.header-cell:last-child{border-right:none;}
+.win-badge{background:var(--ink);color:var(--paper);font-family:var(--font-mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px;flex-shrink:0;}
+.draw-badge{background:var(--paper-dark);color:var(--ink-60);font-family:var(--font-mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 6px;border-radius:2px;flex-shrink:0;}
+.comp-row.highlight{background:rgba(10,10,10,0.02);}
+
+/* ══════════════════════════════════
+   EXPERT SECTION
+   ══════════════════════════════════ */
+
+/* --- State A: Unclaimed (visible to experts) --- */
+.expert-unclaimed{border:1px dashed rgba(10,10,10,.2);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.eu-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.eu-left{display:flex;align-items:flex-start;gap:14px;}
+.eu-icon{width:40px;height:40px;border:1px solid var(--rule);border-radius:6px;background:var(--paper-dark);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.eu-text-wrap{}
+.eu-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:3px;}
+.eu-title{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px;}
+.eu-sub{font-size:12px;color:var(--ink-60);line-height:1.6;}
+.eu-cta{flex-shrink:0;}
+.btn-claim{background:var(--ink);color:var(--paper);border:none;padding:10px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.btn-claim:hover{opacity:.8;}
+.eu-footer{padding:12px 24px;background:var(--paper-dark);border-top:1px dashed rgba(10,10,10,.1);display:flex;align-items:center;gap:20px;}
+.eu-stat{font-family:var(--font-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);display:flex;align-items:center;gap:4px;}
+
+/* --- State B: Claimed (expert comment visible) --- */
+.expert-claimed{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+
+/* expert profile header */
+.ec-profile{padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--rule);}
+.ec-avatar{width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:18px;flex-shrink:0;}
+.ec-info{flex:1;}
+.ec-name{font-size:15px;font-weight:600;color:var(--ink);}
+.ec-role{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);margin-top:2px;}
+.ec-badges{display:flex;gap:6px;margin-top:6px;}
+.ec-badge{font-family:var(--font-mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);color:var(--ink-60);padding:2px 8px;border-radius:2px;}
+.ec-badge.verified{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.ec-meta{text-align:right;flex-shrink:0;}
+.ec-meta-date{font-family:var(--font-mono);font-size:9px;color:var(--ink-30);}
+.ec-meta-deals{font-family:var(--font-mono);font-size:9px;color:var(--ink-60);margin-top:3px;}
+
+/* expert comment body */
+.ec-comment{padding:20px 24px;background:var(--white);}
+.ec-comment-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ec-comment-label::after{content:'';flex:1;height:1px;background:var(--rule);}
+.ec-verdict{font-family:var(--font-display);font-size:19px;letter-spacing:-.3px;line-height:1.3;color:var(--ink);margin-bottom:14px;}
+.ec-para{font-size:13px;line-height:1.85;color:var(--ink-60);margin-bottom:10px;}
+.ec-points{display:flex;flex-direction:column;gap:7px;margin:14px 0;}
+.ec-point{padding:10px 14px;font-size:13px;line-height:1.6;border-radius:4px;display:flex;gap:9px;align-items:flex-start;}
+.ec-point.rec-b{background:rgba(10,10,10,.03);border-left:2px solid var(--ink);}
+.ec-point.caution{background:rgba(180,140,60,.05);border-left:2px solid rgba(180,140,60,.4);}
+.ec-point-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:7px;}
+.ec-point.rec-b .ec-point-dot{background:var(--ink);}
+.ec-point.caution .ec-point-dot{background:rgba(180,140,60,.7);}
+
+/* contact CTA — login gate */
+.ec-contact{padding:18px 24px;background:var(--paper-dark);border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.ec-contact-left{}
+.ec-contact-title{font-size:14px;font-weight:500;margin-bottom:3px;}
+.ec-contact-sub{font-size:12px;color:var(--ink-60);}
+.ec-contact-btns{display:flex;gap:8px;flex-shrink:0;}
+
+/* ── LOGIN MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal{background:var(--white);border-radius:10px;width:100%;max-width:400px;overflow:hidden;transform:translateY(12px);transition:transform .25s ease;box-shadow:0 8px 40px rgba(10,10,10,.15);}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.modal-title{font-family:var(--font-display);font-size:22px;letter-spacing:-.3px;}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink-60);padding:0;line-height:1;}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:12px 24px 24px;}
+.modal-sub{font-size:13px;color:var(--ink-60);margin-bottom:20px;line-height:1.6;}
+.modal-input{width:100%;padding:11px 14px;font-size:14px;font-family:var(--font-body);border:1px solid var(--rule);border-radius:6px;background:var(--paper);outline:none;margin-bottom:10px;transition:border-color .15s,box-shadow .15s;}
+.modal-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(10,10,10,.06);}
+.modal-submit{width:100%;padding:12px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:4px;}
+.modal-submit:hover{opacity:.8;}
+.modal-divider{display:flex;align-items:center;gap:10px;margin:14px 0;font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--rule);}
+.modal-google{width:100%;padding:10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;cursor:pointer;background:var(--white);display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;}
+.modal-google:hover{background:var(--paper-dark);}
+.modal-footer{font-size:12px;color:var(--ink-60);text-align:center;margin-top:14px;}
+.modal-footer a{color:var(--ink);text-decoration:underline;cursor:pointer;}
+
+/* demo toggle */
+.demo-toggle{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:10px 14px;background:var(--paper-dark);border-radius:4px;border:1px solid var(--rule);}
+.demo-toggle-label{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);}
+.demo-btn{font-family:var(--font-mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;color:var(--ink-60);transition:all .15s;}
+.demo-btn.on{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* RADAR / SCORE CARDS */
+.score-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.score-card{background:#fff;padding:20px;}
+.sc-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px;}
+.sc-bars{display:flex;flex-direction:column;gap:8px;}
+.sc-bar-row{display:flex;flex-direction:column;gap:4px;}
+.sc-bar-name{font-size:11px;color:var(--ink-60);display:flex;justify-content:space-between;}
+.sc-bar-track{height:5px;background:var(--paper-dark);border-radius:3px;overflow:hidden;position:relative;}
+.sc-bar-a{height:100%;background:var(--ink);border-radius:3px;transition:width 1.2s ease;}
+.sc-bar-b{height:100%;background:rgba(10,10,10,0.25);border-radius:3px;transition:width 1.2s ease;}
+.sc-legend{display:flex;gap:12px;margin-top:10px;}
+.sc-leg-item{display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:9px;color:var(--ink-60);}
+.sc-leg-dot{width:8px;height:8px;border-radius:2px;}
+.sc-leg-dot.a{background:var(--ink);}
+.sc-leg-dot.b{background:rgba(10,10,10,0.25);}
+
+/* PHOTO STRIP */
+.photo-strip{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.photo-col{background:#fff;padding:16px;}
+.photo-col-header{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.photo-thumb{aspect-ratio:4/3;background:var(--paper-dark);border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.photo-thumb.large{grid-column:span 2;aspect-ratio:16/7;}
+.photo-thumb svg{width:24px;height:24px;opacity:0.15;}
+
+/* MAP SECTION */
+.map-section{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.map-header{padding:14px 18px;background:var(--paper-dark);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;}
+.map-title{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);}
+.map-toggle{display:flex;gap:2px;}
+.map-btn{font-family:var(--font-mono);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:3px;cursor:pointer;border:1px solid var(--rule);background:none;color:var(--ink-60);transition:all 0.15s;}
+.map-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.map-placeholder{height:280px;background:linear-gradient(135deg,#e8e5de 0%,#dedad1 100%);display:flex;align-items:center;justify-content:center;position:relative;}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;}
+.map-pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.map-pin-dot.a{background:var(--ink);}
+.map-pin-dot.b{background:#555;}
+.map-pin-label{font-family:var(--font-mono);font-size:9px;background:#fff;padding:2px 6px;border-radius:2px;box-shadow:0 1px 4px rgba(0,0,0,0.1);}
+.map-station{position:absolute;font-family:var(--font-mono);font-size:8px;color:var(--ink-60);background:rgba(255,255,255,0.8);padding:2px 5px;border-radius:2px;}
+.map-info{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--rule);}
+.map-info-col{padding:14px 18px;border-right:1px solid var(--rule);}
+.map-info-col:last-child{border-right:none;}
+.map-info-title{font-family:var(--font-mono);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-60);margin-bottom:8px;}
+.transit-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);font-size:12px;}
+.transit-row:last-child{border-bottom:none;}
+.transit-time{font-family:var(--font-mono);font-size:11px;font-weight:500;}
+.transit-time.good{color:var(--ink);}
+
+/* AI ANALYSIS */
+.ai-analysis{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.ai-header{padding:14px 18px;background:var(--ink);display:flex;align-items:center;gap:10px;}
+.ai-header-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.ai-header-title{font-size:13px;color:#fff;font-weight:500;}
+.ai-badge{margin-left:auto;font-family:var(--font-mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,0.2);padding:2px 8px;border-radius:2px;color:rgba(255,255,255,0.6);}
+.ai-body{padding:24px;background:#fff;}
+.ai-verdict{font-family:var(--font-display);font-size:20px;letter-spacing:-0.3px;line-height:1.3;margin-bottom:16px;color:var(--ink);}
+.ai-para{font-size:13px;line-height:1.8;color:var(--ink-60);margin-bottom:12px;}
+.ai-points{display:flex;flex-direction:column;gap:8px;margin:20px 0;}
+.ai-point{padding:12px 16px;border-radius:5px;font-size:13px;line-height:1.6;display:flex;gap:10px;align-items:flex-start;}
+.ai-point.pro-a{background:rgba(10,10,10,0.04);border-left:3px solid var(--ink);}
+.ai-point.pro-b{background:rgba(10,10,10,0.02);border-left:3px solid rgba(10,10,10,0.2);}
+.ai-point.warn{background:rgba(180,140,60,0.06);border-left:3px solid rgba(180,140,60,0.4);}
+.ai-point-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.ai-disclaimer{font-family:var(--font-mono);font-size:9px;letter-spacing:0.06em;color:var(--ink-30);margin-top:16px;padding-top:16px;border-top:1px solid var(--rule);}
+.expert-cta{background:var(--paper-dark);border-top:1px solid var(--rule);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.expert-text{font-size:13px;color:var(--ink-60);}
+.expert-text strong{color:var(--ink);}
+
+/* RISK SECTION */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.risk-col{background:#fff;padding:20px;}
+.risk-col-header{font-family:var(--font-mono);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--rule);}
+.risk-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--rule);font-size:12px;}
+.risk-item:last-child{border-bottom:none;}
+.risk-label{color:var(--ink-60);}
+.risk-val{display:flex;align-items:center;gap:6px;}
+.risk-dot{width:8px;height:8px;border-radius:50%;}
+.risk-dot.green{background:#4a7c59;}
+.risk-dot.yellow{background:#c4942a;}
+.risk-dot.red{background:#b04040;}
+
+/* SIMILAR PROPERTIES */
+.similar-section{margin-bottom:40px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-title{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);}
+.section-link{font-family:var(--font-mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);text-decoration:none;border-bottom:1px solid var(--rule);}
+.similar-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
+.sim-card{background:#fff;padding:14px;cursor:pointer;transition:background 0.15s;}
+.sim-card:hover{background:var(--paper);}
+.sim-img{aspect-ratio:4/3;background:var(--paper-dark);border-radius:3px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;}
+.sim-img svg{width:20px;height:20px;opacity:0.15;}
+.sim-loc{font-family:var(--font-mono);font-size:8px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:3px;}
+.sim-name{font-size:12px;font-weight:500;line-height:1.3;margin-bottom:6px;}
+.sim-price{font-family:var(--font-display);font-size:15px;}
+.sim-price span{font-family:var(--font-mono);font-size:9px;color:var(--ink-60);}
+
+/* STICKY ACTION BAR */
+.sticky-actions{position:fixed;bottom:0;left:0;right:0;background:rgba(249,248,245,0.95);backdrop-filter:blur(12px);border-top:1px solid var(--rule);z-index:50;padding:12px 24px;}
+.sticky-inner{max-width:1040px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.sticky-props{display:flex;align-items:center;gap:8px;font-size:13px;}
+.sticky-prop{font-weight:500;}
+.sticky-sep{color:var(--ink-30);font-size:10px;}
+.sticky-btns{display:flex;gap:8px;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeIn 0.5s ease both;}
+.fade-in-2{animation:fadeIn 0.5s 0.1s ease both;}
+.fade-in-3{animation:fadeIn 0.5s 0.2s ease both;}
+
+@media(max-width:768px){
+  .result-title-row{grid-template-columns:1fr;text-align:center;}
+  .result-vs-badge{margin:0 auto;}
+  .result-prop-b{text-align:left;}
+  .score-cards{grid-template-columns:1fr;}
+  .similar-grid{grid-template-columns:repeat(2,1fr);}
+  .comp-row{grid-template-columns:120px 1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <a class="topbar-logo" href="index.html">愛住 AiSumai <span>Beta</span></a>
+  <div class="topbar-nav">
+    <a href="index.html">比較</a>
+    <a href="feed.html">物件一覧</a>
+    <a href="#">エリア</a>
+    <a href="#">About</a>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-ghost" onclick="shareResult()">↑ シェア</button>
+    <button class="btn-solid" onclick="savePDF()">PDF保存</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="container">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb fade-in">
+      <a href="index.html">Home</a>
+      <span class="sep">/</span>
+      <a href="#">比較</a>
+      <span class="sep">/</span>
+      <span>渋谷区 vs 目黒区</span>
+    </div>
+
+    <!-- RESULT HEADER -->
+    <div class="result-header fade-in">
+      <div class="result-meta">
+        <div class="result-badge">AI 比較レポート</div>
+        <div class="result-date">2026年4月19日 生成</div>
+      </div>
+    </div>
+
+    <!-- SCORE DUEL: A vs B 両物件スコア並列表示 -->
+    <div class="score-duel fade-in-2">
+
+      <!-- 物件 A loser side -->
+      <div class="duel-loser">
+        <div class="duel-tag">物件 A</div>
+        <div class="duel-prop-name">パークコート渋谷<br>ザ タワー</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:var(--ink-30);letter-spacing:0.06em;margin-top:2px;">渋谷区 · 65m² · 8F · 築8年</div>
+        <div class="duel-score" id="scoreA">—</div>
+        <div class="duel-score-label">/ 100 総合スコア</div>
+        <div class="duel-bar-row" style="margin-top:10px;">
+          <span class="duel-bar-label">価格</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bA1" style="width:0%"></div></div>
+          <span class="duel-bar-num">82</span>
+        </div>
+        <div class="duel-bar-row">
+          <span class="duel-bar-label">立地</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bA2" style="width:0%"></div></div>
+          <span class="duel-bar-num">68</span>
+        </div>
+        <div class="duel-bar-row">
+          <span class="duel-bar-label">建物</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bA3" style="width:0%"></div></div>
+          <span class="duel-bar-num">64</span>
+        </div>
+      </div>
+
+      <!-- 物件 B winner side -->
+      <div class="duel-winner">
+        <div class="duel-crown">AI 推奨</div>
+        <div class="duel-tag">物件 B</div>
+        <div class="duel-prop-name">ザ・パークハウス<br>中目黒タワー</div>
+        <div style="font-family:var(--font-mono);font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:0.06em;margin-top:2px;">目黒区 · 72m² · 12F · 築3年</div>
+        <div class="duel-score" id="scoreB">—</div>
+        <div class="duel-score-label">/ 100 総合スコア</div>
+        <div class="duel-bar-row" style="margin-top:10px;">
+          <span class="duel-bar-label">価格</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bB1" style="width:0%"></div></div>
+          <span class="duel-bar-num">79</span>
+        </div>
+        <div class="duel-bar-row">
+          <span class="duel-bar-label">立地</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bB2" style="width:0%"></div></div>
+          <span class="duel-bar-num">91</span>
+        </div>
+        <div class="duel-bar-row">
+          <span class="duel-bar-label">建物</span>
+          <div class="duel-bar-track"><div class="duel-bar-fill" id="bB3" style="width:0%"></div></div>
+          <span class="duel-bar-num">88</span>
+        </div>
+        <div class="duel-reason">面積・立地・管理品質の総合バランスで優位。長期保有では資産価値の維持期待値が高い。</div>
+      </div>
+
+    </div>
+
+    <!-- TABS -->
+    <div class="compare-tabs-row fade-in-3">
+      <div class="ctab active" onclick="switchTab('overview',this)">概要比較</div>
+      <div class="ctab" onclick="switchTab('detail',this)">詳細データ</div>
+      <div class="ctab" onclick="switchTab('photos',this)">写真</div>
+      <div class="ctab" onclick="switchTab('map',this)">地図・交通</div>
+      <div class="ctab" onclick="switchTab('risk',this)">リスク分析</div>
+    </div>
+
+    <!-- TAB: OVERVIEW -->
+    <div class="tab-content active" id="tab-overview">
+
+      <!-- SCORE CARDS -->
+      <div class="score-cards">
+        <div class="score-card">
+          <div class="sc-label">価格・コスト</div>
+          <div class="sc-bars">
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>坪単価</span><span>A: 431 vs B: 422万</span></div>
+              <div class="sc-bar-track"><div class="sc-bar-a" data-w="82"></div></div>
+            </div>
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>管理費</span><span>A: 18,000 vs B: 14,500</span></div>
+              <div class="sc-bar-track">
+                <div class="sc-bar-a" data-w="60" style="width:60%;"></div>
+                <div class="sc-bar-b" data-w="78" style="width:78%;position:absolute;top:0;left:0;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sc-legend"><div class="sc-leg-item"><div class="sc-leg-dot a"></div>物件 A</div><div class="sc-leg-item"><div class="sc-leg-dot b"></div>物件 B</div></div>
+        </div>
+        <div class="score-card">
+          <div class="sc-label">立地・交通</div>
+          <div class="sc-bars">
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>駅徒歩</span><span>A: 7分 / B: 4分</span></div>
+              <div class="sc-bar-track" style="position:relative;height:5px;">
+                <div class="sc-bar-a" style="position:absolute;top:0;left:0;height:100%;width:65%;background:var(--ink);border-radius:3px;"></div>
+                <div class="sc-bar-b" style="position:absolute;top:0;left:0;height:100%;width:88%;background:rgba(10,10,10,0.25);border-radius:3px;z-index:1;"></div>
+              </div>
+            </div>
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>路線数</span><span>A: 3線 / B: 2線</span></div>
+              <div class="sc-bar-track" style="position:relative;height:5px;">
+                <div class="sc-bar-a" style="position:absolute;top:0;left:0;height:100%;width:85%;background:var(--ink);border-radius:3px;"></div>
+                <div class="sc-bar-b" style="position:absolute;top:0;left:0;height:100%;width:60%;background:rgba(10,10,10,0.25);border-radius:3px;z-index:1;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sc-legend"><div class="sc-leg-item"><div class="sc-leg-dot a"></div>物件 A</div><div class="sc-leg-item"><div class="sc-leg-dot b"></div>物件 B</div></div>
+        </div>
+        <div class="score-card">
+          <div class="sc-label">建物・設備</div>
+          <div class="sc-bars">
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>築年数</span><span>A: 8年 / B: 3年</span></div>
+              <div class="sc-bar-track" style="position:relative;height:5px;">
+                <div class="sc-bar-a" style="position:absolute;top:0;left:0;height:100%;width:55%;background:var(--ink);border-radius:3px;"></div>
+                <div class="sc-bar-b" style="position:absolute;top:0;left:0;height:100%;width:90%;background:rgba(10,10,10,0.25);border-radius:3px;z-index:1;"></div>
+              </div>
+            </div>
+            <div class="sc-bar-row">
+              <div class="sc-bar-name"><span>専有面積</span><span>A: 65m² / B: 72m²</span></div>
+              <div class="sc-bar-track" style="position:relative;height:5px;">
+                <div class="sc-bar-a" style="position:absolute;top:0;left:0;height:100%;width:72%;background:var(--ink);border-radius:3px;"></div>
+                <div class="sc-bar-b" style="position:absolute;top:0;left:0;height:100%;width:80%;background:rgba(10,10,10,0.25);border-radius:3px;z-index:1;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="sc-legend"><div class="sc-leg-item"><div class="sc-leg-dot a"></div>物件 A</div><div class="sc-leg-item"><div class="sc-leg-dot b"></div>物件 B</div></div>
+        </div>
+      </div>
+
+      <!-- COMPARISON TABLE -->
+      <div class="comp-table" style="margin-bottom:28px;">
+        <div class="comp-row header">
+          <div class="comp-cell key"></div>
+          <div class="comp-cell header-cell">物件 A — 渋谷区</div>
+          <div class="comp-cell header-cell">物件 B — 目黒区</div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">価格</div>
+          <div class="comp-cell val">¥85,000,000 <span class="win-badge">安</span></div>
+          <div class="comp-cell val">¥92,000,000</div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">専有面積</div>
+          <div class="comp-cell val">65 m²</div>
+          <div class="comp-cell val">72 m² <span class="win-badge">広</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">坪単価</div>
+          <div class="comp-cell val">431万円 <span class="win-badge">割安</span></div>
+          <div class="comp-cell val">422万円</div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">最寄り駅</div>
+          <div class="comp-cell val">渋谷 徒歩7分</div>
+          <div class="comp-cell val">中目黒 徒歩4分 <span class="win-badge">近</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">路線</div>
+          <div class="comp-cell val">JR・東急・京王 3線 <span class="win-badge">多</span></div>
+          <div class="comp-cell val">東急東横・日比谷 2線</div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">築年数</div>
+          <div class="comp-cell val">8年</div>
+          <div class="comp-cell val">3年 <span class="win-badge">新</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">階数</div>
+          <div class="comp-cell val">8F / 42F</div>
+          <div class="comp-cell val">12F / 38F</div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">管理費</div>
+          <div class="comp-cell val">¥18,000 / 月</div>
+          <div class="comp-cell val">¥14,500 / 月 <span class="win-badge">安</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">修繕積立金</div>
+          <div class="comp-cell val">¥9,800 / 月</div>
+          <div class="comp-cell val">¥11,200 / 月</div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">間取り</div>
+          <div class="comp-cell val">2LDK</div>
+          <div class="comp-cell val">3LDK <span class="win-badge">広</span></div>
+        </div>
+        <div class="comp-row">
+          <div class="comp-cell key">向き</div>
+          <div class="comp-cell val">南東</div>
+          <div class="comp-cell val">南西 <span class="win-badge">日当り</span></div>
+        </div>
+        <div class="comp-row highlight">
+          <div class="comp-cell key">総合勝敗</div>
+          <div class="comp-cell val"><span class="win-badge">3勝</span></div>
+          <div class="comp-cell val"><span class="win-badge">6勝</span></div>
+        </div>
+      </div>
+
+      <!-- AI ANALYSIS -->
+      <div class="ai-analysis">
+        <div class="ai-header">
+          <div>
+            <div class="ai-header-label">AI Analysis</div>
+            <div class="ai-header-title">総合比較・投資判断アドバイス</div>
+          </div>
+          <div class="ai-badge">Claude Sonnet 4</div>
+        </div>
+        <div class="ai-body">
+          <div class="ai-verdict">物件Bの方が「住む・貸す・売る」<br>いずれの目的にも対応しやすい。</div>
+          <p class="ai-para">価格差約700万円に対し、物件Bは面積7m²増・築年差5年・駅近3分・管理費月3,500円安という4つの優位点を持ちます。長期保有の観点では、中目黒エリアの人気高騰が継続しており、流動性リスクも低い。</p>
+          <div class="ai-points">
+            <div class="ai-point pro-b">
+              <span class="ai-point-icon">◆</span>
+              <span><strong>物件B 推奨ポイント：</strong>管理費の安さは35年ローンで計算すると約147万円の差。築3年という新しさは大規模修繕前の安心感があり、購入後10年間のランニングコストが読みやすい。</span>
+            </div>
+            <div class="ai-point pro-a">
+              <span class="ai-point-icon">◇</span>
+              <span><strong>物件A が有利なケース：</strong>短期（5年以内）の居住・転売を想定する場合、坪単価の割安感から売却益が出やすい。また渋谷の3路線アクセスは通勤利便性が高く、テナント付けも容易。</span>
+            </div>
+            <div class="ai-point warn">
+              <span class="ai-point-icon">⚠</span>
+              <span><strong>注意点：</strong>物件Aの修繕積立金は現時点で低めに設定されている可能性があります。管理組合の長期修繕計画の確認を推奨します。</span>
+            </div>
+          </div>
+          <p class="ai-disclaimer">※ このレポートは公開情報をもとに AI が生成した参考情報です。最終的な投資判断は専門家への相談をお勧めします。</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════
+           EXPERT SECTION
+           ══════════════════════════════════ -->
+
+      <!-- Demo switcher (prototype only) -->
+      <div class="demo-toggle">
+        <span class="demo-toggle-label">プロトタイプ切替：専門家状態</span>
+        <button class="demo-btn" id="demoUnclaimed" onclick="setExpertState('unclaimed',this)">未認領</button>
+        <button class="demo-btn on" id="demoClaimed" onclick="setExpertState('claimed',this)">認領済み</button>
+      </div>
+
+      <!-- STATE A: Unclaimed -->
+      <div class="expert-unclaimed" id="stateUnclaimed" style="display:none;">
+        <div class="eu-header">
+          <div class="eu-left">
+            <div class="eu-icon">🏠</div>
+            <div class="eu-text-wrap">
+              <div class="eu-label">不動産専門家の方へ</div>
+              <div class="eu-title">このレポートにあなたの見解を加えませんか？</div>
+              <div class="eu-sub">渋谷区・目黒区エリアの専門家として、AI分析に現場の知見を追加できます。<br>コメントにより潜在買主・借主と直接繋がる機会が生まれます。</div>
+            </div>
+          </div>
+          <div class="eu-cta">
+            <button class="btn-claim" onclick="openLoginModal('expert')">このレポートを認領する →</button>
+          </div>
+        </div>
+        <div class="eu-footer">
+          <span class="eu-stat">👁 284 閲覧</span>
+          <span class="eu-stat">🔖 12 人が保存</span>
+          <span class="eu-stat">📍 渋谷区・目黒区エリア</span>
+          <span style="margin-left:auto;font-family:var(--font-mono);font-size:9px;color:var(--ink-30);">認領した専門家には閲覧者から直接問い合わせが届きます</span>
+        </div>
+      </div>
+
+      <!-- STATE B: Claimed — expert comment visible -->
+      <div class="expert-claimed" id="stateClaimed">
+
+        <!-- Expert profile -->
+        <div class="ec-profile">
+          <div class="ec-avatar">田</div>
+          <div class="ec-info">
+            <div class="ec-name">田中 誠一</div>
+            <div class="ec-role">東急リバブル株式会社 · 渋谷支店 シニアエージェント</div>
+            <div class="ec-badges">
+              <span class="ec-badge verified">✓ 認証済み専門家</span>
+              <span class="ec-badge">渋谷区 専門</span>
+              <span class="ec-badge">目黒区 専門</span>
+              <span class="ec-badge">外国人対応可</span>
+            </div>
+          </div>
+          <div class="ec-meta">
+            <div class="ec-meta-date">2026年4月17日 コメント</div>
+            <div class="ec-meta-deals">取引実績 142件</div>
+          </div>
+        </div>
+
+        <!-- Expert comment -->
+        <div class="ec-comment">
+          <div class="ec-comment-label">専門家コメント</div>
+          <div class="ec-verdict">AI の判断は概ね正確ですが、<br>現場目線でいくつか補足します。</div>
+          <p class="ec-para">中目黒エリアはここ2〜3年で投資家の流入が加速しており、物件Bのような築浅タワーマンションは売却時の買い手が多く、流動性は渋谷区を上回るケースも出てきています。特に外国人購入者からの需要が強い。</p>
+          <div class="ec-points">
+            <div class="ec-point rec-b">
+              <div class="ec-point-dot"></div>
+              <span><strong>物件B について：</strong>管理組合が非常に健全で、修繕積立金の計画もしっかりしています。長期保有には特に安心感があります。南西向きは午後の日照が良く、ファミリー層・外国人バイヤーともに人気が高い。</span>
+            </div>
+            <div class="ec-point caution">
+              <div class="ec-point-dot"></div>
+              <span><strong>物件A の注意点：</strong>AI の指摘通り、修繕積立金の水準が気になります。直近の管理組合総会議事録を確認したところ、来年度に値上げ予定があることが分かっています。購入前に必ず確認してください。</span>
+            </div>
+          </div>
+          <p class="ec-para">どちらの物件も内覧調整が可能です。特に物件Bは売主側と良い関係があり、価格交渉の余地があります。</p>
+        </div>
+
+        <!-- Contact CTA (login gate) -->
+        <div class="ec-contact">
+          <div class="ec-contact-left">
+            <div class="ec-contact-title">田中さんに直接相談する</div>
+            <div class="ec-contact-sub">無料・ログインして問い合わせ。内覧調整・価格交渉サポートも対応。</div>
+          </div>
+          <div class="ec-contact-btns">
+            <button class="btn-solid" onclick="openLoginModal('user')">ログインして相談する →</button>
+          </div>
+        </div>
+
+      </div><!-- /expert-claimed -->
+    </div>
+
+    <!-- TAB: DETAIL -->
+    <div class="tab-content" id="tab-detail">
+      <div class="comp-table">
+        <div class="comp-row header">
+          <div class="comp-cell key">詳細項目</div>
+          <div class="comp-cell header-cell">物件 A</div>
+          <div class="comp-cell header-cell">物件 B</div>
+        </div>
+        <div class="comp-row"><div class="comp-cell key">建物構造</div><div class="comp-cell val">RC造（鉄筋コンクリート）</div><div class="comp-cell val">RC造（鉄筋コンクリート）</div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">総戸数</div><div class="comp-cell val">420戸</div><div class="comp-cell val">280戸</div></div>
+        <div class="comp-row"><div class="comp-cell key">管理形態</div><div class="comp-cell val">全部委託（三井不動産）<span class="win-badge">大手</span></div><div class="comp-cell val">全部委託（三菱地所）<span class="win-badge">大手</span></div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">駐車場</div><div class="comp-cell val">有（¥30,000〜/月）</div><div class="comp-cell val">有（¥25,000〜/月）<span class="win-badge">安</span></div></div>
+        <div class="comp-row"><div class="comp-cell key">宅配ボックス</div><div class="comp-cell val">◯ あり</div><div class="comp-cell val">◯ あり</div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">コンシェルジュ</div><div class="comp-cell val">◯ 24時間</div><div class="comp-cell val">◯ 24時間</div></div>
+        <div class="comp-row"><div class="comp-cell key">ペット</div><div class="comp-cell val">✕ 不可</div><div class="comp-cell val">◯ 可（小型犬・猫）<span class="win-badge">可</span></div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">外国人購入</div><div class="comp-cell val">◯ 可</div><div class="comp-cell val">◯ 可</div></div>
+        <div class="comp-row"><div class="comp-cell key">投資・賃貸利用</div><div class="comp-cell val">◯ 可</div><div class="comp-cell val">◯ 可</div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">想定賃料</div><div class="comp-cell val">¥280,000〜/月</div><div class="comp-cell val">¥310,000〜/月<span class="win-badge">高</span></div></div>
+        <div class="comp-row"><div class="comp-cell key">想定表面利回り</div><div class="comp-cell val">3.95%</div><div class="comp-cell val">4.04%<span class="win-badge">高</span></div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">耐震基準</div><div class="comp-cell val">新耐震（2000年基準）</div><div class="comp-cell val">新耐震（2000年基準）</div></div>
+        <div class="comp-row"><div class="comp-cell key">ハザードマップ</div><div class="comp-cell val">洪水：低リスク</div><div class="comp-cell val">洪水：低リスク</div></div>
+        <div class="comp-row highlight"><div class="comp-cell key">小学校区</div><div class="comp-cell val">渋谷区立 常盤松小</div><div class="comp-cell val">目黒区立 中目黒小<span class="draw-badge">人気校</span></div></div>
+      </div>
+    </div>
+
+    <!-- TAB: PHOTOS -->
+    <div class="tab-content" id="tab-photos">
+      <div class="photo-strip">
+        <div class="photo-col">
+          <div class="photo-col-header">物件 A — パークコート渋谷</div>
+          <div class="photo-grid">
+            <div class="photo-thumb large"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="1"/><path d="M2 8h20M8 8v14"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+          </div>
+        </div>
+        <div class="photo-col">
+          <div class="photo-col-header">物件 B — ザ・パークハウス中目黒</div>
+          <div class="photo-grid">
+            <div class="photo-thumb large"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="2" width="20" height="20" rx="1"/><path d="M2 8h20M8 8v14"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="7" width="20" height="14" rx="1"/></svg></div>
+            <div class="photo-thumb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <p style="font-family:var(--font-mono);font-size:10px;color:var(--ink-30);text-align:center;margin-top:12px;">実際の物件画像は各ポータルサイト経由で確認できます</p>
+    </div>
+
+    <!-- TAB: MAP -->
+    <div class="tab-content" id="tab-map">
+      <div class="map-section">
+        <div class="map-header">
+          <div class="map-title">2物件の位置関係</div>
+          <div class="map-toggle">
+            <button class="map-btn active">地図</button>
+            <button class="map-btn">衛星</button>
+          </div>
+        </div>
+        <div class="map-placeholder">
+          <!-- Stylized map background -->
+          <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.08" viewBox="0 0 800 280" fill="none">
+            <line x1="0" y1="70" x2="800" y2="70" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="0" y1="140" x2="800" y2="140" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="0" y1="210" x2="800" y2="210" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="100" y1="0" x2="100" y2="280" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="250" y1="0" x2="250" y2="280" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="400" y1="0" x2="400" y2="280" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="550" y1="0" x2="550" y2="280" stroke="#0a0a0a" stroke-width="1"/>
+            <line x1="700" y1="0" x2="700" y2="280" stroke="#0a0a0a" stroke-width="1"/>
+            <path d="M50 90 Q200 60 350 100 Q480 130 600 110 Q700 95 800 115" stroke="#0a0a0a" stroke-width="2" fill="none"/>
+            <path d="M0 160 Q150 140 300 155 Q420 168 520 150 Q650 132 800 160" stroke="#0a0a0a" stroke-width="1.5" fill="none"/>
+          </svg>
+          <!-- Pin A -->
+          <div class="map-pin" style="top:35%;left:38%;">
+            <div class="map-pin-dot a"></div>
+            <div class="map-pin-label">物件 A</div>
+          </div>
+          <!-- Pin B -->
+          <div class="map-pin" style="top:52%;left:58%;">
+            <div class="map-pin-dot b"></div>
+            <div class="map-pin-label">物件 B</div>
+          </div>
+          <!-- Stations -->
+          <div class="map-station" style="top:28%;left:34%;">渋谷駅</div>
+          <div class="map-station" style="top:48%;left:54%;">中目黒駅</div>
+          <div class="map-station" style="top:65%;left:45%;">代官山駅</div>
+        </div>
+        <div class="map-info">
+          <div class="map-info-col">
+            <div class="map-info-title">物件 A — 交通アクセス</div>
+            <div class="transit-row"><span>渋谷駅 (JR・東急・京王)</span><span class="transit-time good">徒歩 7分</span></div>
+            <div class="transit-row"><span>渋谷 → 新宿</span><span class="transit-time">7分</span></div>
+            <div class="transit-row"><span>渋谷 → 東京</span><span class="transit-time">27分</span></div>
+            <div class="transit-row"><span>渋谷 → 品川</span><span class="transit-time">10分</span></div>
+          </div>
+          <div class="map-info-col">
+            <div class="map-info-title">物件 B — 交通アクセス</div>
+            <div class="transit-row"><span>中目黒駅 (東横・日比谷)</span><span class="transit-time good">徒歩 4分</span></div>
+            <div class="transit-row"><span>中目黒 → 渋谷</span><span class="transit-time">4分</span></div>
+            <div class="transit-row"><span>中目黒 → 東京</span><span class="transit-time">24分</span></div>
+            <div class="transit-row"><span>中目黒 → 横浜</span><span class="transit-time">28分</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: RISK -->
+    <div class="tab-content" id="tab-risk">
+      <div class="risk-grid">
+        <div class="risk-col">
+          <div class="risk-col-header">物件 A — リスク評価</div>
+          <div class="risk-item"><span class="risk-label">耐震性</span><span class="risk-val"><div class="risk-dot green"></div>新耐震基準適合</span></div>
+          <div class="risk-item"><span class="risk-label">洪水リスク</span><span class="risk-val"><div class="risk-dot green"></div>低リスク</span></div>
+          <div class="risk-item"><span class="risk-label">液状化リスク</span><span class="risk-val"><div class="risk-dot yellow"></div>中程度</span></div>
+          <div class="risk-item"><span class="risk-label">管理積立金</span><span class="risk-val"><div class="risk-dot yellow"></div>やや低め</span></div>
+          <div class="risk-item"><span class="risk-label">大規模修繕予定</span><span class="risk-val"><div class="risk-dot yellow"></div>2〜3年以内</span></div>
+          <div class="risk-item"><span class="risk-label">空室リスク</span><span class="risk-val"><div class="risk-dot green"></div>低（渋谷人気エリア）</span></div>
+        </div>
+        <div class="risk-col">
+          <div class="risk-col-header">物件 B — リスク評価</div>
+          <div class="risk-item"><span class="risk-label">耐震性</span><span class="risk-val"><div class="risk-dot green"></div>新耐震基準適合</span></div>
+          <div class="risk-item"><span class="risk-label">洪水リスク</span><span class="risk-val"><div class="risk-dot green"></div>低リスク</span></div>
+          <div class="risk-item"><span class="risk-label">液状化リスク</span><span class="risk-val"><div class="risk-dot green"></div>低リスク</span></div>
+          <div class="risk-item"><span class="risk-label">管理積立金</span><span class="risk-val"><div class="risk-dot green"></div>適正水準</span></div>
+          <div class="risk-item"><span class="risk-label">大規模修繕予定</span><span class="risk-val"><div class="risk-dot green"></div>10年以上先</span></div>
+          <div class="risk-item"><span class="risk-label">空室リスク</span><span class="risk-val"><div class="risk-dot green"></div>低（中目黒人気）</span></div>
+        </div>
+      </div>
+      <div class="ai-analysis">
+        <div class="ai-header">
+          <div><div class="ai-header-label">Risk Summary</div><div class="ai-header-title">リスク総評</div></div>
+          <div class="ai-badge">Claude Sonnet 4</div>
+        </div>
+        <div class="ai-body">
+          <p class="ai-para">物件Aで特に注意すべきは修繕積立金の水準です。現在の設定は管理組合の長期計画に対して不足している可能性があり、将来的な一時金徴収リスクがあります。購入前に管理組合の議事録と長期修繕計画書の開示を依頼することを強く推奨します。物件Bは全項目において標準的または良好なリスクプロファイルを示しており、初期購入者にとって安心感の高い選択肢です。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMILAR PROPERTIES -->
+    <div class="similar-section">
+      <div class="section-header">
+        <div class="section-title">似た条件の物件</div>
+        <a href="feed.html" class="section-link">すべて見る →</a>
+      </div>
+      <div class="similar-grid">
+        <div class="sim-card"><div class="sim-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div><div class="sim-loc">東京 · 港区</div><div class="sim-name">白金ザ・スカイ</div><div class="sim-price">¥7,800万<span>万円</span></div></div>
+        <div class="sim-card"><div class="sim-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div><div class="sim-loc">東京 · 世田谷区</div><div class="sim-name">プラウド三軒茶屋</div><div class="sim-price">¥6,500万<span>万円</span></div></div>
+        <div class="sim-card"><div class="sim-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div><div class="sim-loc">東京 · 新宿区</div><div class="sim-name">ブリリア代々木公園</div><div class="sim-price">¥8,200万<span>万円</span></div></div>
+        <div class="sim-card"><div class="sim-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 9l9-7 9 7v11H3z"/></svg></div><div class="sim-loc">東京 · 渋谷区</div><div class="sim-name">代官山アドレス</div><div class="sim-price">¥10,500万<span>万円</span></div></div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /page -->
+
+<!-- STICKY ACTION BAR -->
+<div class="sticky-actions">
+  <div class="sticky-inner">
+    <div class="sticky-props">
+      <span class="sticky-prop">渋谷区 A</span>
+      <span class="sticky-sep">vs</span>
+      <span class="sticky-prop">目黒区 B</span>
+      <span style="margin-left:8px;font-family:var(--font-mono);font-size:10px;color:var(--ink-60);">— AI推奨: 物件B</span>
+    </div>
+    <div class="sticky-btns">
+      <button class="btn-ghost" onclick="newCompare()">← 新しく比較</button>
+      <button class="btn-ghost">↑ シェア</button>
+      <button class="btn-solid">専門家に相談</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── LOGIN MODAL ── -->
+<div class="modal-overlay" id="loginModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--font-mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:4px;" id="modalContext">ログインして続ける</div>
+        <div class="modal-title" id="modalTitle">専門家に相談する</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-sub" id="modalSub">田中 誠一 さんへの問い合わせにはログインが必要です。アカウントは無料で作成できます。</p>
+      <input class="modal-input" type="email" placeholder="メールアドレス">
+      <input class="modal-input" type="password" placeholder="パスワード">
+      <button class="modal-submit" onclick="closeModal()">ログイン</button>
+      <div class="modal-divider">または</div>
+      <button class="modal-google" onclick="closeModal()">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path fill="#4285F4" d="M15.5 8.2c0-.6-.1-1.1-.2-1.7H8v3.2h4.2c-.2 1-.8 1.8-1.6 2.4v2h2.6c1.5-1.4 2.3-3.5 2.3-5.9z"/><path fill="#34A853" d="M8 16c2.2 0 4-.7 5.3-2l-2.6-2c-.7.5-1.6.8-2.7.8-2.1 0-3.8-1.4-4.5-3.3H.9v2c1.3 2.6 4 4.5 7.1 4.5z"/><path fill="#FBBC05" d="M3.5 9.5c-.2-.5-.3-1-.3-1.5s.1-1 .3-1.5v-2H.9C.3 5.6 0 6.8 0 8s.3 2.4.9 3.5l2.6-2z"/><path fill="#EA4335" d="M8 3.2c1.2 0 2.2.4 3 1.2l2.2-2.2C11.9.8 10.1 0 8 0 4.9 0 2.2 1.9.9 4.5l2.6 2C4.2 4.6 5.9 3.2 8 3.2z"/></svg>
+        Google でログイン
+      </button>
+      <p class="modal-footer">アカウントをお持ちでない方は <a onclick="closeModal()">無料登録</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(id, el) {
+  document.querySelectorAll('.ctab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + id).classList.add('active');
+}
+
+// Expert state toggle (prototype demo)
+function setExpertState(state, btn) {
+  document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  if (state === 'unclaimed') {
+    document.getElementById('stateUnclaimed').style.display = 'block';
+    document.getElementById('stateClaimed').style.display = 'none';
+  } else {
+    document.getElementById('stateUnclaimed').style.display = 'none';
+    document.getElementById('stateClaimed').style.display = 'block';
+  }
+}
+
+// Login modal
+function openLoginModal(role) {
+  const modal = document.getElementById('loginModal');
+  const title = document.getElementById('modalTitle');
+  const sub   = document.getElementById('modalSub');
+  const ctx   = document.getElementById('modalContext');
+  if (role === 'expert') {
+    ctx.textContent   = '専門家として登録';
+    title.textContent = 'レポートを認領する';
+    sub.textContent   = '専門家アカウントでログイン、またはご登録ください。認証後すぐにコメントを追加できます。';
+  } else {
+    ctx.textContent   = 'ログインして続ける';
+    title.textContent = '専門家に相談する';
+    sub.textContent   = '田中 誠一 さんへの問い合わせにはログインが必要です。アカウントは無料で作成できます。';
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('loginModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('loginModal')) closeModal();
+}
+
+function shareResult() { alert('URLをコピーしました（デモ）'); }
+function savePDF()     { alert('PDF生成中…（デモ）'); }
+function newCompare()  { window.location.href = 'index.html'; }
+
+// Animate scores on load
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('bA1').style.width = '82%';
+    document.getElementById('bA2').style.width = '68%';
+    document.getElementById('bA3').style.width = '64%';
+    document.getElementById('bB1').style.width = '79%';
+    document.getElementById('bB2').style.width = '91%';
+    document.getElementById('bB3').style.width = '88%';
+    let a = 0, b = 0;
+    const elA = document.getElementById('scoreA');
+    const elB = document.getElementById('scoreB');
+    const t = setInterval(() => {
+      a = Math.min(a + 2, 74);
+      b = Math.min(b + 3, 88);
+      elA.textContent = a;
+      elB.textContent = b;
+      if (a >= 74 && b >= 88) clearInterval(t);
+    }, 18);
+  }, 400);
+});
+</script>
+</body>
+</html>

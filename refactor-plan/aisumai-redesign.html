@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai (愛住) — UX Redesign Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0a0a0a;
+    --ink-60: rgba(10,10,10,0.6);
+    --ink-30: rgba(10,10,10,0.3);
+    --ink-10: rgba(10,10,10,0.08);
+    --paper: #f9f8f5;
+    --paper-dark: #f0ede6;
+    --accent: #0a0a0a;
+    --rule: rgba(10,10,10,0.12);
+    --tag-bg: #edece9;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'Noto Sans JP', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── TOPBAR ──────────────────────────────────────────── */
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    height: 52px;
+    background: rgba(249,248,245,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .topbar-logo {
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: -0.3px;
+    color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .topbar-logo span {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--ink-60);
+    text-transform: uppercase;
+    border: 1px solid var(--rule);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .topbar-nav {
+    display: flex; align-items: center; gap: 0;
+  }
+  .topbar-nav a {
+    font-size: 13px;
+    color: var(--ink-60);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    transition: background 0.15s, color 0.15s;
+    font-weight: 400;
+  }
+  .topbar-nav a:hover { background: var(--ink-10); color: var(--ink); }
+  .topbar-nav a.active { color: var(--ink); font-weight: 500; }
+  .topbar-cta {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-ghost {
+    font-size: 13px; color: var(--ink); text-decoration: none;
+    padding: 6px 14px; border: 1px solid var(--rule);
+    border-radius: 4px; transition: background 0.15s;
+  }
+  .btn-ghost:hover { background: var(--ink-10); }
+  .btn-solid {
+    font-size: 13px; color: var(--paper); background: var(--ink);
+    text-decoration: none; padding: 6px 16px; border-radius: 4px;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.8; }
+
+  /* ─── HERO / COMPARE SECTION ──────────────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 24px 60px;
+    text-align: center;
+    position: relative;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 20%, rgba(10,10,10,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before, .hero-eyebrow::after {
+    content: ''; display: block;
+    width: 28px; height: 1px; background: var(--ink-30);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.1;
+    letter-spacing: -1px;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--ink-60);
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--ink-60);
+    margin-bottom: 48px;
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  /* ─── COMPARE WIDGET ──────────────────────────────────── */
+  .compare-widget {
+    width: 100%;
+    max-width: 860px;
+    background: #fff;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 2px 24px rgba(10,10,10,0.06), 0 0 0 1px rgba(10,10,10,0.04);
+    overflow: hidden;
+    animation: slideUp 0.6s ease both;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .compare-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--rule);
+    background: var(--paper-dark);
+    padding: 0 20px;
+    gap: 2px;
+  }
+  .compare-tab {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    user-select: none;
+  }
+  .compare-tab.active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  .compare-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: end;
+  }
+  .compare-col { display: flex; flex-direction: column; gap: 8px; }
+  .compare-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+    padding-left: 2px;
+  }
+  .compare-input-wrap {
+    position: relative;
+  }
+  .compare-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-family: var(--font-body);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .compare-input:focus {
+    border-color: var(--ink);
+    box-shadow: 0 0 0 3px rgba(10,10,10,0.06);
+  }
+  .compare-input::placeholder { color: var(--ink-30); }
+
+  .compare-vs {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--rule);
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-60);
+    background: var(--paper-dark);
+    flex-shrink: 0;
+    margin-bottom: 4px;
+  }
+
+  .compare-actions {
+    padding: 0 20px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .compare-filters {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .filter-chip {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-60);
+    border: 1px solid var(--rule);
+    padding: 4px 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    background: var(--paper-dark);
+    user-select: none;
+  }
+  .filter-chip:hover, .filter-chip.active {
+    background: var(--ink); color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .btn-compare {
+    background: var(--ink); color: var(--paper);
+    border: none; cursor: pointer;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    display: flex; align-items: center; gap: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-compare:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-compare svg { width: 14px; height: 14px; }
+
+  /* hint */
+  .compare-hint {
+    padding: 10px 20px 16px;
+    display: flex; gap: 16px; justify-content: center;
+  }
+  .hint-item {
+    font-size: 12px; color: var(--ink-60);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .hint-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-30); }
+
+  /* ─── DIVIDER ──────────────────────────────────────────── */
+  .section-divider {
+    display: flex; align-items: center; gap: 16px;
+    max-width: 860px; margin: 0 auto; padding: 0 24px;
+  }
+  .section-divider .rule { flex: 1; height: 1px; background: var(--rule); }
+  .section-divider .label {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--ink-30);
+    white-space: nowrap;
+  }
+
+  /* ─── FEED (比較レポート) ──────────────────────────────── */
+  .feed { max-width: 860px; margin: 40px auto 0; padding: 0 24px 100px; }
+  .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .feed-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-60); }
+  .feed-filters { display: flex; gap: 6px; }
+  .feed-filter { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-60); padding: 3px 10px; border-radius: 20px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+  .feed-filter:hover { color: var(--ink); border-color: var(--rule); }
+  .feed-filter.active { color: var(--ink); border-color: var(--ink); font-weight: 500; }
+
+  /* Report card list */
+  .feed-grid { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+
+  .rcard { background: #fff; cursor: pointer; transition: background 0.15s; }
+  .rcard:hover { background: #fdfcf9; }
+  .rcard-inner { display: grid; grid-template-columns: 1fr 220px; min-height: 120px; }
+
+  .rcard-left { padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--rule); }
+  .rcard-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+  .rcard-num { font-family: var(--font-mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-30); }
+  .rcard-area { font-family: var(--font-mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-60); background: var(--paper-dark); padding: 2px 7px; border-radius: 2px; }
+  .rcard-date { font-family: var(--font-mono); font-size: 9px; color: var(--ink-30); margin-left: auto; }
+
+  .rcard-versus { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+  .rcard-prop { flex: 1; min-width: 0; }
+  .rcard-prop-name { font-family: var(--font-display); font-size: 13px; line-height: 1.25; letter-spacing: -.2px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rcard-prop-price { font-family: var(--font-display); font-size: 14px; letter-spacing: -.3px; margin-top: 2px; }
+  .rcard-vs-sep { flex-shrink: 0; width: 22px; height: 22px; border: 1px solid var(--rule); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 8px; color: var(--ink-30); margin-top: 2px; }
+
+  .rcard-highlights { display: flex; gap: 5px; flex-wrap: wrap; }
+  .rcard-hl { font-size: 11px; color: var(--ink-60); background: var(--paper-dark); padding: 2px 7px; border-radius: 3px; }
+  .rcard-hl strong { color: var(--ink); font-weight: 500; }
+
+  /* Scores */
+  .rcard-right { display: flex; flex-direction: column; }
+  .rcard-scores { display: grid; grid-template-columns: 1fr 1fr; flex: 1; }
+  .rscore { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; border-bottom: 1px solid var(--rule); }
+  .rscore.winner { background: var(--ink); }
+  .rscore.loser { background: var(--paper-dark); }
+  .rscore-tag { font-family: var(--font-mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+  .rscore.winner .rscore-tag { color: rgba(255,255,255,.4); }
+  .rscore.loser .rscore-tag { color: var(--ink-30); }
+  .rscore-num { font-family: var(--font-display); font-size: 26px; line-height: 1; letter-spacing: -1px; }
+  .rscore.winner .rscore-num { color: #fff; }
+  .rscore.loser .rscore-num { color: var(--ink-30); }
+  .rscore-win-badge { font-family: var(--font-mono); font-size: 7px; letter-spacing: .1em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.25); color: rgba(255,255,255,.7); padding: 2px 5px; border-radius: 2px; width: fit-content; margin-top: 3px; }
+  .rscore-label { font-family: var(--font-mono); font-size: 8px; }
+  .rscore.winner .rscore-label { color: rgba(255,255,255,.3); }
+  .rscore.loser .rscore-label { color: var(--ink-30); }
+
+  /* Expert */
+  .rcard-expert { padding: 7px 10px; display: flex; align-items: center; gap: 7px; }
+  .exp-avatar { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 8px; }
+  .exp-avatar.filled { background: var(--ink); color: var(--paper); }
+  .exp-avatar.empty { background: var(--paper-dark); border: 1px solid var(--rule); color: var(--ink-30); }
+  .exp-name { font-size: 11px; font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .exp-empty { font-family: var(--font-mono); font-size: 8px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-30); flex: 1; }
+  .exp-badge { font-family: var(--font-mono); font-size: 7px; letter-spacing: .08em; text-transform: uppercase; border: 1px solid var(--rule); color: var(--ink-60); padding: 2px 5px; border-radius: 2px; flex-shrink: 0; }
+
+  /* Footer */
+  .rcard-footer { padding: 5px 16px; background: var(--paper-dark); display: flex; align-items: center; gap: 10px; border-top: 1px solid var(--rule); }
+  .rcard-stat { font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; color: var(--ink-30); }
+  .rcard-share { margin-left: auto; font-family: var(--font-mono); font-size: 9px; text-transform: uppercase; color: var(--ink-60); background: none; border: none; cursor: pointer; }
+  .rcard-share:hover { color: var(--ink); }
+
+  /* ─── ANNOTATION OVERLAY ─────────────────────────────── */
+  .annotation-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--ink); color: var(--paper);
+    padding: 0; z-index: 200;
+    font-size: 12px;
+    transform: translateY(100%);
+    transition: transform 0.3s;
+  }
+  .annotation-bar.visible { transform: translateY(0); }
+  .annotation-inner {
+    max-width: 860px; margin: 0 auto;
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .ann-label {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.5; white-space: nowrap;
+  }
+  .ann-text { flex: 1; opacity: 0.85; }
+  .ann-close {
+    cursor: pointer; opacity: 0.5;
+    font-size: 16px; line-height: 1;
+  }
+  .ann-close:hover { opacity: 1; }
+
+  /* ─── DESIGN NOTES PANEL ─────────────────────────────── */
+  .notes-panel {
+    position: fixed; top: 52px; right: 0; bottom: 0;
+    width: 300px;
+    background: #fff;
+    border-left: 1px solid var(--rule);
+    overflow-y: auto;
+    z-index: 90;
+    transform: translateX(100%);
+    transition: transform 0.3s;
+    padding: 24px 20px;
+  }
+  .notes-panel.open { transform: translateX(0); }
+  .notes-toggle {
+    position: fixed; top: 50%; right: 16px;
+    transform: translateY(-50%);
+    z-index: 91;
+    background: var(--ink); color: var(--paper);
+    border: none; cursor: pointer;
+    padding: 10px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    writing-mode: vertical-lr;
+    transition: opacity 0.15s;
+  }
+  .notes-toggle:hover { opacity: 0.8; }
+
+  .notes-section { margin-bottom: 28px; }
+  .notes-section-title {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-60); margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .notes-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: var(--paper);
+    border-radius: 4px;
+    border-left: 2px solid var(--ink);
+  }
+  .notes-item p { font-size: 12px; line-height: 1.55; color: var(--ink); }
+  .notes-item .ni-label {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--ink-60); margin-bottom: 4px;
+  }
+  .notes-item.warn { border-left-color: #888; }
+  .notes-item.good { border-left-color: var(--ink); }
+
+  /* ─── COMPARE RESULT (hidden demo) ───────────────────── */
+  .compare-result {
+    max-width: 860px; margin: 48px auto 0;
+    padding: 0 24px;
+    display: none;
+  }
+  .compare-result.show { display: block; }
+  .cr-header {
+    display: flex; align-items: center;
+    gap: 10px; margin-bottom: 24px;
+  }
+  .cr-title {
+    font-family: var(--font-display);
+    font-size: 24px; letter-spacing: -0.3px;
+  }
+  .cr-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1px; background: var(--rule);
+    border: 1px solid var(--rule); border-radius: 8px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+  .cr-col { background: #fff; padding: 20px; }
+  .cr-col-header {
+    font-weight: 600; margin-bottom: 14px;
+    font-size: 15px; padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cr-row {
+    display: flex; justify-content: space-between;
+    padding: 7px 0; border-bottom: 1px solid var(--rule);
+    font-size: 13px;
+  }
+  .cr-row:last-child { border-bottom: none; }
+  .cr-key { color: var(--ink-60); }
+  .cr-val { font-weight: 500; }
+  .cr-val.better { background: var(--ink); color: var(--paper); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+  .cr-ai-summary {
+    background: var(--ink); color: var(--paper);
+    border-radius: 8px; padding: 20px 24px;
+    font-size: 13px; line-height: 1.7;
+  }
+  .cr-ai-label {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    opacity: 0.5; margin-bottom: 8px;
+  }
+
+  /* ─── HAMBURGER ─────────────────────────────────────────── */
+  .hamburger {
+    display: none;
+    background: none; border: none; cursor: pointer;
+    padding: 6px; color: var(--ink);
+  }
+  .hamburger svg { width: 20px; height: 20px; }
+
+  /* ─── RESPONSIVE ────────────────────────────────────────── */
+
+  /* Tablet — 768px */
+  @media (max-width: 768px) {
+    .topbar { padding: 0 20px; }
+    .topbar-nav { display: none; }
+    .topbar-cta .btn-ghost { display: none; }
+    .hamburger { display: block; }
+
+    .hero { padding: 80px 20px 48px; }
+    .hero-title { font-size: 36px; }
+
+    .compare-body { grid-template-columns: 1fr; gap: 10px; }
+    .compare-vs { display: none; }
+    .compare-widget { border-radius: 8px; }
+
+    .feed { padding: 0 16px 80px; }
+    .feed-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .feed-filters { flex-wrap: wrap; }
+
+    .rcard-inner { grid-template-columns: 1fr; }
+    .rcard-right { border-top: 1px solid var(--rule); }
+    .rcard-scores { grid-template-columns: 1fr 1fr; }
+
+    .section-divider { padding: 0 16px; }
+  }
+
+  /* Mobile — 480px */
+  @media (max-width: 480px) {
+    .topbar { padding: 0 16px; }
+    .topbar-logo { font-size: 16px; }
+
+    .hero { padding: 72px 16px 40px; }
+    .hero-title { font-size: 30px; letter-spacing: -.5px; }
+    .hero-sub { font-size: 13px; }
+    .hero-eyebrow { font-size: 10px; }
+    .hero-eyebrow::before, .hero-eyebrow::after { width: 18px; }
+
+    .compare-tabs { overflow-x: auto; white-space: nowrap; padding: 0 14px; }
+    .compare-body { padding: 14px; }
+    .compare-actions { flex-direction: column; align-items: stretch; gap: 10px; padding: 0 14px 14px; }
+    .compare-filters { flex-wrap: wrap; }
+    .btn-compare { justify-content: center; }
+    .compare-hint { flex-direction: column; align-items: center; gap: 4px; padding: 8px 14px 12px; }
+
+    .rcard-left { padding: 12px 14px; }
+    .rcard-versus { gap: 6px; }
+    .rcard-prop-name { font-size: 12px; }
+    .rcard-prop-price { font-size: 13px; }
+    .rscore-num { font-size: 22px; }
+    .rcard-highlights { gap: 4px; }
+    .rcard-hl { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a class="topbar-logo" href="#">
+    愛住 AiSumai
+    <span>Beta</span>
+  </a>
+  <div class="topbar-nav">
+    <a href="#" class="active">比較する</a>
+    <a href="aisumai-expert-profile.html">専門家を探す</a>
+    <a href="#">About</a>
+  </div>
+  <div class="topbar-cta">
+    <a href="aisumai-auth.html" class="btn-ghost">ログイン</a>
+    <a href="aisumai-auth.html" class="btn-solid">無料で始める</a>
+    <button class="hamburger" onclick="toggleMenu()">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 5h14M3 10h14M3 15h14"/>
+      </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">日本の不動産を、正直に比べる</div>
+  <h1 class="hero-title">
+    Compare homes,<br><em>not brochures.</em>
+  </h1>
+  <p class="hero-sub">2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。</p>
+
+  <!-- COMPARE WIDGET -->
+  <div class="compare-widget" id="compareWidget">
+    <div class="compare-tabs">
+      <div class="compare-tab active" onclick="setTab(this)">物件URL</div>
+      <div class="compare-tab" onclick="setTab(this)">物件番号</div>
+      <div class="compare-tab" onclick="setTab(this)">エリア名で検索</div>
+    </div>
+    <div class="compare-body">
+      <div class="compare-col">
+        <div class="compare-label">物件 A</div>
+        <div class="compare-input-wrap">
+          <input class="compare-input" type="text" placeholder="例：SUUMO の URL または 物件名" id="propA">
+        </div>
+      </div>
+      <div class="compare-vs">vs</div>
+      <div class="compare-col">
+        <div class="compare-label">物件 B</div>
+        <div class="compare-input-wrap">
+          <input class="compare-input" type="text" placeholder="例：HOME'S の URL または 物件名" id="propB">
+        </div>
+      </div>
+    </div>
+    <div class="compare-actions">
+      <div class="compare-filters">
+        <div class="filter-chip active" onclick="toggleChip(this)">価格</div>
+        <div class="filter-chip" onclick="toggleChip(this)">交通</div>
+        <div class="filter-chip" onclick="toggleChip(this)">築年数</div>
+        <div class="filter-chip" onclick="toggleChip(this)">間取り</div>
+        <div class="filter-chip" onclick="toggleChip(this)">学区</div>
+        <div class="filter-chip" onclick="toggleChip(this)">リスク</div>
+      </div>
+      <button class="btn-compare" onclick="showCompare()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+        比較する
+      </button>
+    </div>
+    <div class="compare-hint">
+      <div class="hint-item"><div class="hint-dot"></div>SUUMO / HOME'S / LIFULL 対応</div>
+      <div class="hint-item"><div class="hint-dot"></div>無料で3比較/月</div>
+      <div class="hint-item"><div class="hint-dot"></div>AI + 専門家のダブルチェック</div>
+    </div>
+  </div>
+
+  <!-- COMPARE RESULT (demo) -->
+  <div class="compare-result" id="compareResult">
+    <div class="cr-header">
+      <div class="cr-title">比較結果</div>
+      <div class="filter-chip active">PDF保存</div>
+      <div class="filter-chip" style="margin-left:auto; cursor:pointer;" onclick="hideCompare()">✕ 閉じる</div>
+    </div>
+    <div class="cr-grid">
+      <div class="cr-col">
+        <div class="cr-col-header">物件 A — 渋谷区 パークコート</div>
+        <div class="cr-row"><span class="cr-key">価格</span><span class="cr-val">¥85,000,000</span></div>
+        <div class="cr-row"><span class="cr-key">面積</span><span class="cr-val">65m²</span></div>
+        <div class="cr-row"><span class="cr-key">最寄り駅</span><span class="cr-val">渋谷 徒歩7分</span></div>
+        <div class="cr-row"><span class="cr-key">築年数</span><span class="cr-val">8年</span></div>
+        <div class="cr-row"><span class="cr-key">管理費</span><span class="cr-val">¥18,000/月</span></div>
+        <div class="cr-row"><span class="cr-key">坪単価</span><span class="cr-val better">¥431万</span></div>
+      </div>
+      <div class="cr-col">
+        <div class="cr-col-header">物件 B — 目黒区 ザ・パークハウス</div>
+        <div class="cr-row"><span class="cr-key">価格</span><span class="cr-val">¥92,000,000</span></div>
+        <div class="cr-row"><span class="cr-key">面積</span><span class="cr-val">72m²</span></div>
+        <div class="cr-row"><span class="cr-key">最寄り駅</span><span class="cr-val">中目黒 徒歩4分</span></div>
+        <div class="cr-row"><span class="cr-key">築年数</span><span class="cr-val">3年</span></div>
+        <div class="cr-row"><span class="cr-key">管理費</span><span class="cr-val better">¥14,500/月</span></div>
+        <div class="cr-row"><span class="cr-key">坪単価</span><span class="cr-val">¥422万</span></div>
+      </div>
+    </div>
+    <div class="cr-ai-summary">
+      <div class="cr-ai-label">AI サマリー</div>
+      物件Bは価格は高いものの、面積・築年・管理費の総合バランスが優れています。特に中目黒駅徒歩4分という立地は、将来の資産価値維持の面で有利です。ただし、物件Aの坪単価は割安感があり、短期保有には向いています。リスク指標：双方とも耐震基準を満たしています。
+    </div>
+  </div>
+</section>
+
+<!-- DIVIDER -->
+<div class="section-divider" style="margin-top: -20px;">
+  <div class="rule"></div>
+  <div class="label">Discover — 最新比較レポート</div>
+  <div class="rule"></div>
+</div>
+
+<!-- FEED -->
+<section class="feed">
+  <div class="feed-header">
+    <div class="feed-title">新着比較レポート</div>
+    <div class="feed-filters">
+      <div class="feed-filter active" onclick="setFeedFilter(this)">すべて</div>
+      <div class="feed-filter" onclick="setFeedFilter(this)">東京</div>
+      <div class="feed-filter" onclick="setFeedFilter(this)">大阪</div>
+      <div class="feed-filter" onclick="setFeedFilter(this)">専門家コメント済み</div>
+    </div>
+  </div>
+  <div class="feed-grid">
+
+    <!-- Report 1: expert commented -->
+    <div class="rcard" onclick="window.location.href='aisumai-compare-result.html'">
+      <div class="rcard-inner">
+        <div class="rcard-left">
+          <div>
+            <div class="rcard-meta">
+              <span class="rcard-num">#0142</span>
+              <span class="rcard-area">渋谷区 · 目黒区</span>
+              <span class="rcard-date">2日前</span>
+            </div>
+            <div class="rcard-versus">
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">パークコート渋谷 ザ タワー</div>
+                <div class="rcard-prop-price">¥8,500万</div>
+              </div>
+              <div class="rcard-vs-sep">vs</div>
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">ザ・パークハウス中目黒</div>
+                <div class="rcard-prop-price">¥9,200万</div>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-highlights">
+            <span class="rcard-hl">B が<strong>700万円高い</strong></span>
+            <span class="rcard-hl">B の駅距離<strong>3分短い</strong></span>
+            <span class="rcard-hl">B の面積<strong>+7m²</strong></span>
+          </div>
+        </div>
+        <div class="rcard-right">
+          <div class="rcard-scores">
+            <div class="rscore loser">
+              <div class="rscore-tag">物件 A</div>
+              <div class="rscore-num">74</div>
+              <div class="rscore-label">/ 100</div>
+            </div>
+            <div class="rscore winner">
+              <div class="rscore-tag">物件 B</div>
+              <div class="rscore-num">88</div>
+              <div class="rscore-label">/ 100</div>
+              <div class="rscore-win-badge">AI 推奨</div>
+            </div>
+          </div>
+          <div class="rcard-expert">
+            <div class="exp-avatar filled">田</div>
+            <span class="exp-name">田中 誠一</span>
+            <span class="exp-badge">コメントあり</span>
+          </div>
+        </div>
+      </div>
+      <div class="rcard-footer">
+        <span class="rcard-stat">👁 284</span>
+        <span class="rcard-stat">🔖 12</span>
+        <button class="rcard-share" onclick="event.stopPropagation()">↑ シェア</button>
+      </div>
+    </div>
+
+    <!-- Report 2: no expert -->
+    <div class="rcard" onclick="window.location.href='aisumai-compare-result.html'">
+      <div class="rcard-inner">
+        <div class="rcard-left">
+          <div>
+            <div class="rcard-meta">
+              <span class="rcard-num">#0141</span>
+              <span class="rcard-area">港区</span>
+              <span class="rcard-date">3日前</span>
+            </div>
+            <div class="rcard-versus">
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">虎ノ門ヒルズ レジデンス</div>
+                <div class="rcard-prop-price">¥18,000万</div>
+              </div>
+              <div class="rcard-vs-sep">vs</div>
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">アークヒルズ仙石山森タワー</div>
+                <div class="rcard-prop-price">¥15,500万</div>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-highlights">
+            <span class="rcard-hl">A が<strong>2,500万円高い</strong></span>
+            <span class="rcard-hl">A の面積<strong>+12m²</strong></span>
+          </div>
+        </div>
+        <div class="rcard-right">
+          <div class="rcard-scores">
+            <div class="rscore winner">
+              <div class="rscore-tag">物件 A</div>
+              <div class="rscore-num">91</div>
+              <div class="rscore-label">/ 100</div>
+              <div class="rscore-win-badge">AI 推奨</div>
+            </div>
+            <div class="rscore loser">
+              <div class="rscore-tag">物件 B</div>
+              <div class="rscore-num">79</div>
+              <div class="rscore-label">/ 100</div>
+            </div>
+          </div>
+          <div class="rcard-expert">
+            <div class="exp-avatar empty">?</div>
+            <span class="exp-empty">専門家コメント待ち</span>
+          </div>
+        </div>
+      </div>
+      <div class="rcard-footer">
+        <span class="rcard-stat">👁 521</span>
+        <span class="rcard-stat">🔖 31</span>
+        <button class="rcard-share" onclick="event.stopPropagation()">↑ シェア</button>
+      </div>
+    </div>
+
+    <!-- Report 3: expert commented -->
+    <div class="rcard" onclick="window.location.href='aisumai-compare-result.html'">
+      <div class="rcard-inner">
+        <div class="rcard-left">
+          <div>
+            <div class="rcard-meta">
+              <span class="rcard-num">#0139</span>
+              <span class="rcard-area">大阪市 北区</span>
+              <span class="rcard-date">5日前</span>
+            </div>
+            <div class="rcard-versus">
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">ブランズタワー梅田 North</div>
+                <div class="rcard-prop-price">¥6,800万</div>
+              </div>
+              <div class="rcard-vs-sep">vs</div>
+              <div class="rcard-prop">
+                <div class="rcard-prop-name">グランドメゾン新梅田タワー</div>
+                <div class="rcard-prop-price">¥7,200万</div>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-highlights">
+            <span class="rcard-hl">B が<strong>400万円高い</strong></span>
+            <span class="rcard-hl">A は<strong>即入居可</strong></span>
+          </div>
+        </div>
+        <div class="rcard-right">
+          <div class="rcard-scores">
+            <div class="rscore loser">
+              <div class="rscore-tag">物件 A</div>
+              <div class="rscore-num">71</div>
+              <div class="rscore-label">/ 100</div>
+            </div>
+            <div class="rscore winner">
+              <div class="rscore-tag">物件 B</div>
+              <div class="rscore-num">83</div>
+              <div class="rscore-label">/ 100</div>
+              <div class="rscore-win-badge">AI 推奨</div>
+            </div>
+          </div>
+          <div class="rcard-expert">
+            <div class="exp-avatar filled">山</div>
+            <span class="exp-name">山本 健太郎</span>
+            <span class="exp-badge">コメントあり</span>
+          </div>
+        </div>
+      </div>
+      <div class="rcard-footer">
+        <span class="rcard-stat">👁 198</span>
+        <span class="rcard-stat">🔖 9</span>
+        <button class="rcard-share" onclick="event.stopPropagation()">↑ シェア</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ANNOTATION BAR -->
+<div class="annotation-bar" id="annBar">
+  <div class="annotation-inner">
+    <span class="ann-label">Prototype</span>
+    <span class="ann-text" id="annText">比較ボタンをクリックするとデモ結果が表示されます。レポートカードをクリックすると比較結果ページへ移動します。</span>
+    <span class="ann-close" onclick="document.getElementById('annBar').classList.remove('visible')">×</span>
+  </div>
+</div>
+
+<!-- MOBILE NAV OVERLAY -->
+<div id="mobileNav" style="display:none;position:fixed;inset:0;background:rgba(249,248,245,.98);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+  <button onclick="toggleMenu()" style="position:absolute;top:16px;right:20px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--ink);">×</button>
+  <a href="#" style="font-family:var(--font-display);font-size:28px;color:var(--ink);text-decoration:none;" onclick="toggleMenu()">比較する</a>
+  <a href="aisumai-expert-profile.html" style="font-family:var(--font-display);font-size:28px;color:var(--ink);text-decoration:none;" onclick="toggleMenu()">専門家を探す</a>
+  <a href="#" style="font-family:var(--font-display);font-size:28px;color:var(--ink);text-decoration:none;" onclick="toggleMenu()">About</a>
+  <div style="display:flex;flex-direction:column;gap:10px;width:260px;margin-top:8px;">
+    <a href="aisumai-auth.html" style="padding:12px;text-align:center;border:1px solid var(--rule);border-radius:6px;font-size:14px;color:var(--ink);text-decoration:none;">ログイン</a>
+    <a href="aisumai-auth.html" style="padding:12px;text-align:center;background:var(--ink);border-radius:6px;font-size:14px;color:var(--paper);text-decoration:none;">無料で始める</a>
+  </div>
+</div>
+
+<script>
+  setTimeout(() => document.getElementById('annBar').classList.add('visible'), 800);
+  function setTab(el) { document.querySelectorAll('.compare-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); }
+  function toggleChip(el) { el.classList.toggle('active'); }
+  function setFeedFilter(el) { document.querySelectorAll('.feed-filter').forEach(f => f.classList.remove('active')); el.classList.add('active'); }
+  function showCompare() {
+    document.getElementById('compareResult').classList.add('show');
+    document.getElementById('compareResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function hideCompare() {
+    document.getElementById('compareResult').classList.remove('show');
+    document.getElementById('compareWidget').scrollIntoView({ behavior: 'smooth' });
+  }
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+  }
+</script>
+</body>
+</html>

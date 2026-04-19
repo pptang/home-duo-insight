@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — 開發交接文件</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0a0a; --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.06);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.12);
+  --red:#b04040; --green:#3a6b4a; --yellow:#8a6520;
+  --code-bg:#1a1a1a; --code-text:#e8e4d9;
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans TC',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(249,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.logo{font-family:var(--fd);font-size:18px;color:var(--ink);display:flex;align-items:center;gap:6px;}
+.logo em{font-family:var(--fm);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 7px;border-radius:3px;}
+
+.layout{display:grid;grid-template-columns:200px 1fr;padding-top:52px;min-height:100vh;}
+.sidebar{border-right:1px solid var(--rule);padding:24px 16px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--rule);}
+.sb-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule);margin-top:16px;}
+.sb-label:first-child{margin-top:0;}
+.sb-link{display:block;font-size:12px;color:var(--ink-60);text-decoration:none;padding:4px 6px;border-radius:3px;line-height:1.4;}
+.sb-link:hover{color:var(--ink);background:var(--ink-10);}
+
+.main{padding:36px 48px 80px;}
+.sec{margin-bottom:52px;scroll-margin-top:72px;}
+.sec-num{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30);margin-bottom:4px;}
+.sec-title{font-family:var(--fd);font-size:26px;letter-spacing:-.3px;margin-bottom:8px;}
+.sec-sub{font-size:13px;color:var(--ink-60);margin-bottom:24px;line-height:1.7;max-width:680px;}
+.divider{height:1px;background:var(--rule);margin:40px 0;}
+
+/* Code block */
+.code{background:var(--code-bg);color:var(--code-text);border-radius:8px;padding:20px 22px;font-family:var(--fm);font-size:12px;line-height:1.85;margin:12px 0;overflow-x:auto;}
+.code .cm{color:#6b7280;}
+.code .ck{color:#93c5fd;}
+.code .cv{color:#86efac;}
+.code .cs{color:#fde68a;}
+.code .ct{color:#c4b5fd;}
+.code .cn{color:#f9a8d4;}
+pre{white-space:pre-wrap;word-break:break-word;}
+
+/* Tables */
+.spec-table{width:100%;border:1px solid var(--rule);border-radius:8px;overflow:hidden;font-size:13px;margin-bottom:20px;}
+.spec-table th{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);padding:9px 14px;text-align:left;border-bottom:1px solid var(--rule);background:var(--paper-dark);}
+.spec-table td{padding:10px 14px;border-bottom:1px solid var(--rule);vertical-align:top;}
+.spec-table tr:last-child td{border-bottom:none;}
+.spec-table tr:nth-child(even) td{background:rgba(10,10,10,.015);}
+.mono{font-family:var(--fm);font-size:11px;background:var(--paper-dark);padding:1px 5px;border-radius:2px;color:var(--ink);}
+
+/* Tags */
+.tag{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;}
+.tag.req{background:rgba(176,64,64,.1);color:var(--red);}
+.tag.opt{background:rgba(10,10,10,.06);color:var(--ink-60);}
+.tag.get{background:rgba(58,107,74,.1);color:var(--green);}
+.tag.post{background:rgba(138,101,32,.1);color:var(--yellow);}
+.tag.p1{background:var(--ink);color:var(--paper);}
+.tag.p2{background:var(--paper-dark);color:var(--ink-60);}
+
+/* State matrix */
+.state-matrix{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:20px;}
+.sm-row{display:grid;grid-template-columns:160px 1fr 1fr 1fr;border-bottom:1px solid var(--rule);font-size:12px;}
+.sm-row:last-child{border-bottom:none;}
+.sm-row.header{background:var(--paper-dark);}
+.sm-cell{padding:10px 14px;border-right:1px solid var(--rule);}
+.sm-cell:last-child{border-right:none;}
+.sm-cell.key{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);}
+
+/* Breakpoint visual */
+.bp-row{display:flex;gap:8px;margin-bottom:20px;align-items:stretch;flex-wrap:wrap;}
+.bp-item{border:1px solid var(--rule);border-radius:6px;padding:12px 14px;flex:1;min-width:120px;}
+.bp-size{font-family:var(--fm);font-size:14px;font-weight:500;margin-bottom:4px;}
+.bp-name{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);margin-bottom:8px;}
+.bp-rule{font-size:11px;color:var(--ink-60);line-height:1.55;}
+
+/* Flow */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-bottom:16px;}
+.flow-step{padding:8px 14px;background:var(--white);border:1px solid var(--rule);border-radius:5px;font-size:12px;text-align:center;}
+.flow-step.api{background:var(--paper-dark);}
+.flow-step.user{background:var(--ink);color:var(--paper);}
+.flow-arr{padding:0 8px;color:var(--ink-30);font-size:13px;}
+
+/* Animation spec */
+.anim-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--rule);font-size:13px;}
+.anim-row:last-child{border-bottom:none;}
+.anim-name{font-weight:500;width:200px;flex-shrink:0;}
+.anim-val{font-family:var(--fm);font-size:11px;color:var(--ink-60);}
+
+/* Checklist */
+.checklist{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.check-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;}
+.check-box{width:16px;height:16px;border:1px solid var(--rule);border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;}
+.check-box.done{background:var(--ink);border-color:var(--ink);}
+.check-box.done::after{content:'';width:6px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+.check-text{line-height:1.55;}
+.check-text span{font-family:var(--fm);font-size:10px;color:var(--ink-60);}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr;}.sidebar{display:none;}.main{padding:24px 20px 60px;}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo">愛住 AiSumai <em>Dev Handoff</em></div>
+  <div style="display:flex;gap:8px;">
+    <a href="aisumai-ux-brief.html" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">UX Brief</a>
+    <a href="aisumai-states.html" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 12px;border-radius:3px;">UI States</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-label">技術規格</div>
+  <a class="sb-link" href="#tech-stack">Tech Stack 建議</a>
+  <a class="sb-link" href="#url-schema">URL Schema</a>
+  <a class="sb-link" href="#responsive">Responsive Breakpoints</a>
+  <a class="sb-link" href="#animations">動畫規格</a>
+
+  <div class="sb-label">API 規格</div>
+  <a class="sb-link" href="#api-compare">比較 API</a>
+  <a class="sb-link" href="#api-feed">Feed API</a>
+  <a class="sb-link" href="#api-expert">専家 API</a>
+  <a class="sb-link" href="#api-auth">Auth API</a>
+
+  <div class="sb-label">資料結構</div>
+  <a class="sb-link" href="#schema-report">比較報告</a>
+  <a class="sb-link" href="#schema-expert">専家</a>
+  <a class="sb-link" href="#schema-user">使用者</a>
+
+  <div class="sb-label">元件狀態</div>
+  <a class="sb-link" href="#comp-widget">Compare Widget</a>
+  <a class="sb-link" href="#comp-feed-card">Feed Card</a>
+  <a class="sb-link" href="#comp-expert-section">Expert Section</a>
+
+  <div class="sb-label">交接清單</div>
+  <a class="sb-link" href="#checklist">Phase 1 清單</a>
+</aside>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <div style="border-bottom:1px solid var(--rule);padding-bottom:28px;margin-bottom:36px;">
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-60);margin-bottom:8px;">開發交接文件 · Phase 1</div>
+    <div style="font-family:var(--fd);font-size:40px;letter-spacing:-.5px;line-height:1.1;margin-bottom:8px;">AiSumai<br><span style="color:var(--ink-60);font-style:italic;">Developer Handoff</span></div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);">
+      <span>📅 2026年4月</span>
+      <span>📄 Version 1.0</span>
+      <span>🎯 Phase 1</span>
+      <span>🔗 設計原型 5頁完成</span>
+    </div>
+  </div>
+
+  <!-- ── TECH STACK ── -->
+  <div class="sec" id="tech-stack">
+    <div class="sec-num">01</div>
+    <div class="sec-title">Tech Stack 建議</div>
+    <div class="sec-sub">設計時考慮的技術限制與建議。最終決策由工程師確認。</div>
+
+    <table class="spec-table">
+      <thead><tr><th>層</th><th>建議</th><th>原因</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Frontend</strong></td><td>Next.js (App Router) + TypeScript</td><td>SSR 對 SEO 至關重要（比較結果頁需要被 Google 收錄）</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>Styling</strong></td><td>Tailwind CSS</td><td>設計系統已輸出 Token，可直接對應 Tailwind 變數</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>Auth</strong></td><td>NextAuth.js 或 Supabase Auth</td><td>Google OAuth + Email/Password，需要角色系統（user/expert）</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>Database</strong></td><td>PostgreSQL (via Supabase)</td><td>比較報告、専家評論、使用者的關聯查詢</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>AI</strong></td><td>Anthropic Claude API</td><td>比較報告生成、AI 分析文字</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>Web Scraping</strong></td><td>Playwright + Puppeteer</td><td>從 SUUMO/HOME'S URL 抓取物件資料</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>Queue</strong></td><td>Inngest 或 BullMQ</td><td>比較報告生成是非同步任務（10〜30秒），需要 job queue</td><td><span class="tag p1">Phase 1</span></td></tr>
+        <tr><td><strong>OGP 圖片</strong></td><td>Vercel OG (satori)</td><td>比較結果頁分享圖自動生成</td><td><span class="tag p2">Phase 2</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── URL SCHEMA ── -->
+  <div class="sec" id="url-schema">
+    <div class="sec-num">02</div>
+    <div class="sec-title">URL Schema</div>
+    <div class="sec-sub">SEO と共有性を考慮した URL 設計。比較レポートは固定 URL で Google にインデックスされる。</div>
+
+    <table class="spec-table">
+      <thead><tr><th>Path</th><th>頁面</th><th>SEO</th><th>Auth</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">/</span></td><td>Landing (Compare Widget + Feed)</td><td>✅ Index</td><td>Public</td></tr>
+        <tr><td><span class="mono">/compare</span></td><td>Compare Widget（standalone）</td><td>✅ Index</td><td>Public</td></tr>
+        <tr><td><span class="mono">/compare/[id]</span></td><td>比較結果頁（固定 URL）</td><td>✅ Index <strong>重要</strong></td><td>Public（聯絡需登入）</td></tr>
+        <tr><td><span class="mono">/expert</span></td><td>専家列表</td><td>✅ Index</td><td>Public</td></tr>
+        <tr><td><span class="mono">/expert/[id]</span></td><td>専家 Profile</td><td>✅ Index</td><td>Public（聯絡需登入）</td></tr>
+        <tr><td><span class="mono">/auth/login</span></td><td>登入</td><td>❌ NoIndex</td><td>Public（redirect if authed）</td></tr>
+        <tr><td><span class="mono">/auth/register</span></td><td>註冊</td><td>❌ NoIndex</td><td>Public</td></tr>
+        <tr><td><span class="mono">/dashboard</span></td><td>使用者儀表板</td><td>❌ NoIndex</td><td>Protected</td></tr>
+        <tr><td><span class="mono">/expert/dashboard</span></td><td>専家儀表板</td><td>❌ NoIndex</td><td>Protected + Expert role</td></tr>
+        <tr><td><span class="mono">/about</span></td><td>About</td><td>✅ Index</td><td>Public</td></tr>
+      </tbody>
+    </table>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;">比較報告 ID 命名規則</div>
+    <div class="code"><pre><span class="cm">// 比較報告 URL は SEO フレンドリーな slug を使う</span>
+<span class="cm">// 例: /compare/parkhouse-meguro-vs-parkcourt-shibuya-2024</span>
+
+<span class="ck">function</span> <span class="cv">generateReportSlug</span>(propA: <span class="cs">string</span>, propB: <span class="cs">string</span>): <span class="cs">string</span> {
+  <span class="ck">const</span> slugA = propA.toLowerCase().replace(<span class="cs">/[^a-z0-9\u3040-\u9fff]+/g</span>, <span class="cs">'-'</span>)
+  <span class="ck">const</span> slugB = propB.toLowerCase().replace(<span class="cs">/[^a-z0-9\u3040-\u9fff]+/g</span>, <span class="cs">'-'</span>)
+  <span class="ck">const</span> year = new Date().getFullYear()
+  <span class="ck">return</span> <span class="cs">`${slugA}-vs-${slugB}-${year}`</span>
+}
+
+<span class="cm">// Fallback: UUID を使う場合</span>
+<span class="cm">// /compare/a1b2c3d4-e5f6-7890-abcd-ef1234567890</span></pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── RESPONSIVE ── -->
+  <div class="sec" id="responsive">
+    <div class="sec-num">03</div>
+    <div class="sec-title">Responsive Breakpoints</div>
+
+    <div class="bp-row">
+      <div class="bp-item">
+        <div class="bp-size">≥ 1280px</div>
+        <div class="bp-name">Desktop Large</div>
+        <div class="bp-rule">Max-width 1040px centered container. Full sidebar on Feed/Expert pages.</div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-size">1024px</div>
+        <div class="bp-name">Desktop</div>
+        <div class="bp-rule">Main layout. Compare Widget max-width 860px. Feed sidebar 240px.</div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-size">768px</div>
+        <div class="bp-name">Tablet</div>
+        <div class="bp-rule">Sidebar hidden. Nav hidden → Hamburger. Compare Widget 單欄. Feed card 上下堆疊.</div>
+      </div>
+      <div class="bp-item">
+        <div class="bp-size">480px</div>
+        <div class="bp-name">Mobile</div>
+        <div class="bp-rule">全部 padding 縮為 16px. 字體縮小. Compare actions 垂直排列. Score Duel 保持兩欄但縮小.</div>
+      </div>
+    </div>
+
+    <table class="spec-table">
+      <thead><tr><th>組件</th><th>Desktop</th><th>Tablet (768px)</th><th>Mobile (480px)</th></tr></thead>
+      <tbody>
+        <tr><td>Topbar</td><td>Logo + Nav + CTA</td><td>Logo + Hamburger</td><td>Logo + Hamburger</td></tr>
+        <tr><td>Compare Widget</td><td>2-col grid (A / vs / B)</td><td>1-col stacked</td><td>1-col + filters wrap</td></tr>
+        <tr><td>Feed Card</td><td>左右 grid (content / scores)</td><td>上下 stacked</td><td>上下 stacked + 縮小字</td></tr>
+        <tr><td>Score Duel</td><td>2-col (A / B)</td><td>2-col 縮小</td><td>2-col 更小字體</td></tr>
+        <tr><td>Expert Profile</td><td>2-col (content / contact card)</td><td>1-col, contact card static</td><td>1-col</td></tr>
+        <tr><td>Auth Split</td><td>2-col (brand / form)</td><td>Brand hidden, form only</td><td>Form only, padding 16px</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── ANIMATIONS ── -->
+  <div class="sec" id="animations">
+    <div class="sec-num">04</div>
+    <div class="sec-title">動畫・Transition 規格</div>
+
+    <div style="border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:20px;">
+      <div style="padding:12px 16px;background:var(--paper-dark);border-bottom:1px solid var(--rule);font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);">全域 Transition 定義</div>
+      <div style="padding:16px;">
+        <div class="anim-row"><div class="anim-name">Hover state（buttons, cards）</div><div class="anim-val">150ms ease</div></div>
+        <div class="anim-row"><div class="anim-name">Modal open/close</div><div class="anim-val">opacity + translateY(12px→0)・200ms ease</div></div>
+        <div class="anim-row"><div class="anim-name">Page fade in（sections）</div><div class="anim-val">opacity 0→1 + translateY(8px→0)・400ms ease・staggered delay</div></div>
+        <div class="anim-row"><div class="anim-name">Score count-up</div><div class="anim-val">0→N・18ms interval・requestAnimationFrame</div></div>
+        <div class="anim-row"><div class="anim-name">Score bar fill</div><div class="anim-val">width 0→N%・1200ms ease・triggered on mount</div></div>
+        <div class="anim-row"><div class="anim-name">Compare Drawer slide</div><div class="anim-val">translateY(100%→0)・300ms ease</div></div>
+        <div class="anim-row"><div class="anim-name">Auth screen transition</div><div class="anim-val">opacity + translateX(10px→0)・300ms ease・back: translateX(-10px→0)</div></div>
+        <div class="anim-row"><div class="anim-name">Skeleton shimmer</div><div class="anim-val">linear-gradient background-position・1500ms infinite linear</div></div>
+        <div class="anim-row"><div class="anim-name">Loading spinner</div><div class="anim-val">rotate(0→360deg)・800ms linear infinite</div></div>
+      </div>
+    </div>
+
+    <div style="background:var(--paper-dark);border-radius:6px;padding:12px 14px;font-size:12px;color:var(--ink-60);">
+      ⚠️ <strong style="color:var(--ink);">注意：</strong>prefers-reduced-motion が有効な場合、すべての transition と animation を無効化する。<span class="mono">@media (prefers-reduced-motion: reduce)</span> で対応必須。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── API: COMPARE ── -->
+  <div class="sec" id="api-compare">
+    <div class="sec-num">05</div>
+    <div class="sec-title">API 規格 — 比較</div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;">比較開始（非同期）</div>
+    <div class="code"><pre><span class="cm">// POST /api/compare/create</span>
+<span class="cm">// レート制限: 無料ユーザー 3回/月, ログイン済み 無制限</span>
+
+<span class="cm">// Request</span>
+{
+  <span class="ck">"urlA"</span>: <span class="cs">"https://suumo.jp/ms/mansion/..."</span>,   <span class="cm">// required</span>
+  <span class="ck">"urlB"</span>: <span class="cs">"https://homes.co.jp/mansion/..."</span>,   <span class="cm">// required</span>
+  <span class="ck">"criteria"</span>: [<span class="cs">"price"</span>, <span class="cs">"access"</span>, <span class="cs">"building"</span>, <span class="cs">"risk"</span>]  <span class="cm">// optional, default: all</span>
+}
+
+<span class="cm">// Response (202 Accepted — job queued)</span>
+{
+  <span class="ck">"reportId"</span>: <span class="cs">"rpt_abc123"</span>,
+  <span class="ck">"status"</span>: <span class="cs">"processing"</span>,
+  <span class="ck">"estimatedSeconds"</span>: <span class="cv">20</span>,
+  <span class="ck">"pollUrl"</span>: <span class="cs">"/api/compare/rpt_abc123/status"</span>
+}</pre></div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin:16px 0 10px;">進度ポーリング</div>
+    <div class="code"><pre><span class="cm">// GET /api/compare/[reportId]/status</span>
+<span class="cm">// Frontend は 2秒ごとにポーリング</span>
+
+<span class="cm">// Response</span>
+{
+  <span class="ck">"status"</span>: <span class="cs">"processing"</span> | <span class="cs">"complete"</span> | <span class="cs">"failed"</span>,
+  <span class="ck">"progress"</span>: <span class="cv">65</span>,  <span class="cm">// 0-100</span>
+  <span class="ck">"step"</span>: <span class="cs">"AI分析中"</span>,
+  <span class="ck">"reportUrl"</span>: <span class="cs">"/compare/rpt_abc123"</span>  <span class="cm">// status が complete の時のみ</span>
+}
+
+<span class="cm">// Error response</span>
+{
+  <span class="ck">"status"</span>: <span class="cs">"failed"</span>,
+  <span class="ck">"errorCode"</span>: <span class="cs">"PARSE_FAILED_A"</span> | <span class="cs">"URL_UNSUPPORTED"</span> | <span class="cs">"RATE_LIMIT"</span> | <span class="cs">"SERVER_ERROR"</span>,
+  <span class="ck">"message"</span>: <span class="cs">"物件Aの情報を読み取れませんでした"</span>
+}</pre></div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin:16px 0 10px;">対応サイト一覧取得</div>
+    <div class="code"><pre><span class="cm">// GET /api/sites/supported</span>
+{
+  <span class="ck">"sites"</span>: [
+    { <span class="ck">"name"</span>: <span class="cs">"SUUMO"</span>, <span class="ck">"domain"</span>: <span class="cs">"suumo.jp"</span>, <span class="ck">"urlPattern"</span>: <span class="cs">"suumo.jp/ms/..."</span> },
+    { <span class="ck">"name"</span>: <span class="cs">"HOME'S"</span>, <span class="ck">"domain"</span>: <span class="cs">"homes.co.jp"</span>, <span class="ck">"urlPattern"</span>: <span class="cs">"homes.co.jp/mansion/..."</span> },
+    { <span class="ck">"name"</span>: <span class="cs">"LIFULL"</span>, <span class="ck">"domain"</span>: <span class="cs">"lifull.com"</span>, <span class="ck">"urlPattern"</span>: <span class="cs">"lifull.com/homes/..."</span> }
+  ]
+}</pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── API: FEED ── -->
+  <div class="sec" id="api-feed">
+    <div class="sec-num">06</div>
+    <div class="sec-title">API 規格 — Feed</div>
+
+    <div class="code"><pre><span class="cm">// GET /api/feed</span>
+<span class="cm">// Query params:</span>
+<span class="cm">//   page: number (default: 1)</span>
+<span class="cm">//   limit: number (default: 20)</span>
+<span class="cm">//   area: string[] (e.g., "shibuya,meguro")</span>
+<span class="cm">//   hasExpert: boolean</span>
+<span class="cm">//   priceMin: number (万円)</span>
+<span class="cm">//   priceMax: number (万円)</span>
+<span class="cm">//   sort: "newest" | "popular" | "expert_first"</span>
+
+<span class="cm">// Response</span>
+{
+  <span class="ck">"reports"</span>: [
+    {
+      <span class="ck">"id"</span>: <span class="cs">"rpt_abc123"</span>,
+      <span class="ck">"slug"</span>: <span class="cs">"parkhouse-meguro-vs-parkcourt-shibuya-2026"</span>,
+      <span class="ck">"propA"</span>: { <span class="ck">"name"</span>: <span class="cs">"パークコート渋谷"</span>, <span class="ck">"area"</span>: <span class="cs">"渋谷区"</span>, <span class="ck">"price"</span>: <span class="cv">85000000</span> },
+      <span class="ck">"propB"</span>: { <span class="ck">"name"</span>: <span class="cs">"ザ・パークハウス中目黒"</span>, <span class="ck">"area"</span>: <span class="cs">"目黒区"</span>, <span class="ck">"price"</span>: <span class="cv">92000000</span> },
+      <span class="ck">"scoreA"</span>: <span class="cv">74</span>,
+      <span class="ck">"scoreB"</span>: <span class="cv">88</span>,
+      <span class="ck">"winner"</span>: <span class="cs">"B"</span>,
+      <span class="ck">"highlights"</span>: [<span class="cs">"Bが700万円高い"</span>, <span class="cs">"B駅距離3分短い"</span>],
+      <span class="ck">"expert"</span>: {            <span class="cm">// null if unclaimed</span>
+        <span class="ck">"id"</span>: <span class="cs">"exp_xyz"</span>,
+        <span class="ck">"name"</span>: <span class="cs">"田中 誠一"</span>,
+        <span class="ck">"company"</span>: <span class="cs">"東急リバブル"</span>
+      },
+      <span class="ck">"viewCount"</span>: <span class="cv">284</span>,
+      <span class="ck">"saveCount"</span>: <span class="cv">12</span>,
+      <span class="ck">"createdAt"</span>: <span class="cs">"2026-04-17T10:30:00Z"</span>
+    }
+  ],
+  <span class="ck">"pagination"</span>: { <span class="ck">"total"</span>: <span class="cv">142</span>, <span class="ck">"page"</span>: <span class="cv">1</span>, <span class="ck">"limit"</span>: <span class="cv">20</span>, <span class="ck">"hasMore"</span>: <span class="cv">true</span> }
+}</pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── API: EXPERT ── -->
+  <div class="sec" id="api-expert">
+    <div class="sec-num">07</div>
+    <div class="sec-title">API 規格 — 専家</div>
+
+    <div class="code"><pre><span class="cm">// POST /api/expert/claim   (Protected: Expert role only)</span>
+{ <span class="ck">"reportId"</span>: <span class="cs">"rpt_abc123"</span> }
+
+<span class="cm">// POST /api/expert/comment  (Protected: Expert role only)</span>
+{
+  <span class="ck">"reportId"</span>: <span class="cs">"rpt_abc123"</span>,
+  <span class="ck">"verdict"</span>: <span class="cs">"AI分析を補足しつつ物件Bを推奨します"</span>,
+  <span class="ck">"body"</span>: <span class="cs">"詳細な評論テキスト..."</span>,
+  <span class="ck">"recommendation"</span>: <span class="cs">"B"</span> | <span class="cs">"A"</span> | <span class="cs">"neutral"</span>
+}
+
+<span class="cm">// POST /api/expert/contact  (Protected: User role)</span>
+<span class="cm">// ログインユーザーが専家に問い合わせ</span>
+{
+  <span class="ck">"expertId"</span>: <span class="cs">"exp_xyz"</span>,
+  <span class="ck">"reportId"</span>: <span class="cs">"rpt_abc123"</span>,  <span class="cm">// optional - context</span>
+  <span class="ck">"message"</span>: <span class="cs">"内覧について相談したいです..."</span>
+}
+
+<span class="cm">// GET /api/expert/[expertId]  (Public)</span>
+<span class="cm">// Profile 詳細 + 認領レポート一覧</span>
+<span class="cm">// ログイン状態により response フィールド数が変わる</span>
+<span class="cm">// Anonymous: reports[:3], reviews[:2]</span>
+<span class="cm">// Authenticated: reports (all), reviews (all)</span></pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── API: AUTH ── -->
+  <div class="sec" id="api-auth">
+    <div class="sec-num">08</div>
+    <div class="sec-title">API 規格 — Auth</div>
+
+    <table class="spec-table">
+      <thead><tr><th>Endpoint</th><th>Method</th><th>説明</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mono">/api/auth/register</span></td><td><span class="tag post">POST</span></td><td>Email/Password 新規登録。role: "user" | "expert"</td><td>Public</td></tr>
+        <tr><td><span class="mono">/api/auth/login</span></td><td><span class="tag post">POST</span></td><td>Email + Password ログイン</td><td>Public</td></tr>
+        <tr><td><span class="mono">/api/auth/google</span></td><td><span class="tag post">POST</span></td><td>Google OAuth callback</td><td>Public</td></tr>
+        <tr><td><span class="mono">/api/auth/me</span></td><td><span class="tag get">GET</span></td><td>現在のユーザー情報取得</td><td>Protected</td></tr>
+        <tr><td><span class="mono">/api/auth/expert/verify</span></td><td><span class="tag post">POST</span></td><td>専家アカウントの審査承認（Admin only）</td><td>Admin</td></tr>
+      </tbody>
+    </table>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;">ユーザー ロール定義</div>
+    <div class="code"><pre><span class="ck">enum</span> <span class="ct">UserRole</span> {
+  <span class="cv">ANONYMOUS</span>   = <span class="cs">'anonymous'</span>,    <span class="cm">// 未ログイン: 比較3回/月, 閲覧制限</span>
+  <span class="cv">USER</span>        = <span class="cs">'user'</span>,         <span class="cm">// ログイン済み: 比較無制限, 保存, 問い合わせ</span>
+  <span class="cv">EXPERT</span>      = <span class="cs">'expert'</span>,       <span class="cm">// 審査済み専家: 認領, コメント, 問い合わせ受信</span>
+  <span class="cv">EXPERT_PENDING</span> = <span class="cs">'expert_pending'</span>, <span class="cm">// 審査中</span>
+  <span class="cv">ADMIN</span>       = <span class="cs">'admin'</span>          <span class="cm">// 管理者</span>
+}</pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── DATA SCHEMA ── -->
+  <div class="sec" id="schema-report">
+    <div class="sec-num">09</div>
+    <div class="sec-title">データスキーマ</div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:10px;">CompareReport（比較報告）</div>
+    <div class="code"><pre><span class="ck">interface</span> <span class="ct">CompareReport</span> {
+  id: <span class="cs">string</span>                    <span class="cm">// "rpt_" prefix</span>
+  slug: <span class="cs">string</span>                  <span class="cm">// SEO URL slug</span>
+  status: <span class="cs">'processing'</span> | <span class="cs">'complete'</span> | <span class="cs">'failed'</span>
+  propA: <span class="ct">PropertyData</span>
+  propB: <span class="ct">PropertyData</span>
+  scoreA: <span class="cs">number</span>               <span class="cm">// 0-100</span>
+  scoreB: <span class="cs">number</span>               <span class="cm">// 0-100</span>
+  winner: <span class="cs">'A'</span> | <span class="cs">'B'</span> | <span class="cs">'draw'</span>
+  aiSummary: <span class="cs">string</span>
+  aiVerdict: <span class="cs">string</span>
+  aiPoints: <span class="ct">AiPoint</span>[]
+  highlights: <span class="cs">string</span>[]          <span class="cm">// Feed card に表示する比較亮點</span>
+  subScores: {
+    price: { a: <span class="cs">number</span>, b: <span class="cs">number</span> }
+    access: { a: <span class="cs">number</span>, b: <span class="cs">number</span> }
+    building: { a: <span class="cs">number</span>, b: <span class="cs">number</span> }
+    risk: { a: <span class="cs">number</span>, b: <span class="cs">number</span> }
+  }
+  expertId: <span class="cs">string</span> | <span class="cs">null</span>      <span class="cm">// null = unclaimed</span>
+  expertComment: <span class="ct">ExpertComment</span> | <span class="cs">null</span>
+  viewCount: <span class="cs">number</span>
+  saveCount: <span class="cs">number</span>
+  isPublic: <span class="cs">boolean</span>            <span class="cm">// Phase 1: always true</span>
+  createdBy: <span class="cs">string</span> | <span class="cs">null</span>     <span class="cm">// userId, null if anonymous</span>
+  createdAt: <span class="cs">Date</span>
+}
+
+<span class="ck">interface</span> <span class="ct">PropertyData</span> {
+  name: <span class="cs">string</span>
+  sourceUrl: <span class="cs">string</span>
+  area: <span class="cs">string</span>                  <span class="cm">// e.g., "渋谷区"</span>
+  prefecture: <span class="cs">string</span>
+  price: <span class="cs">number</span>                 <span class="cm">// 円</span>
+  area_sqm: <span class="cs">number</span>
+  floor_plan: <span class="cs">string</span>           <span class="cm">// e.g., "2LDK"</span>
+  age_years: <span class="cs">number</span>
+  floor: <span class="cs">number</span>
+  station_walk_min: <span class="cs">number</span>
+  management_fee: <span class="cs">number</span>       <span class="cm">// 月額</span>
+  repair_reserve: <span class="cs">number</span>       <span class="cm">// 修繕積立金 月額</span>
+  images: <span class="cs">string</span>[]
+  rawData: <span class="ct">Record</span>&lt;<span class="cs">string</span>, <span class="cn">unknown</span>&gt;  <span class="cm">// スクレイプした生データ</span>
+  parseError?: <span class="cs">string</span>          <span class="cm">// 部分取得失敗の場合</span>
+}</pre></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── COMPONENT STATES ── -->
+  <div class="sec" id="comp-widget">
+    <div class="sec-num">10</div>
+    <div class="sec-title">コンポーネント状態マトリックス</div>
+
+    <div style="font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);margin:0 0 10px;">Compare Widget</div>
+    <div class="state-matrix">
+      <div class="sm-row header">
+        <div class="sm-cell key">状態</div>
+        <div class="sm-cell key">入力 A</div>
+        <div class="sm-cell key">入力 B</div>
+        <div class="sm-cell key">ボタン</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Default (Prefilled)</div>
+        <div class="sm-cell">サンプル URL（italic, muted）</div>
+        <div class="sm-cell">サンプル URL（italic, muted）</div>
+        <div class="sm-cell">「試してみる」enabled</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Typing</div>
+        <div class="sm-cell">ユーザー入力中</div>
+        <div class="sm-cell">空</div>
+        <div class="sm-cell">「比較する」disabled</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Both filled</div>
+        <div class="sm-cell">有効 URL（border: green）</div>
+        <div class="sm-cell">有効 URL（border: green）</div>
+        <div class="sm-cell">「比較する」enabled</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">URL invalid A</div>
+        <div class="sm-cell">border: red + error msg</div>
+        <div class="sm-cell">—</div>
+        <div class="sm-cell">disabled</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Loading</div>
+        <div class="sm-cell">物件名表示（readonly）</div>
+        <div class="sm-cell">物件名表示（readonly）</div>
+        <div class="sm-cell">Progress bar + % 表示</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Rate limited</div>
+        <div class="sm-cell">—</div>
+        <div class="sm-cell">—</div>
+        <div class="sm-cell">Rate limit banner 表示</div>
+      </div>
+    </div>
+
+    <div style="font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);margin:16px 0 10px;">Expert Section（比較結果ページ）</div>
+    <div class="state-matrix">
+      <div class="sm-row header">
+        <div class="sm-cell key">状態</div>
+        <div class="sm-cell key">表示内容</div>
+        <div class="sm-cell key">CTA（専家向け）</div>
+        <div class="sm-cell key">CTA（ユーザー向け）</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Unclaimed</div>
+        <div class="sm-cell">「専家コメント待ち」+ 閲覧数</div>
+        <div class="sm-cell">「このレポートを認領する」</div>
+        <div class="sm-cell">「専家の方はこちら」</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Claimed (no comment)</div>
+        <div class="sm-cell">専家名 + 「コメント作成中」</div>
+        <div class="sm-cell">「コメントを追加する」</div>
+        <div class="sm-cell">「コメントが届いたら通知」</div>
+      </div>
+      <div class="sm-row">
+        <div class="sm-cell key">Comment published</div>
+        <div class="sm-cell">専家 Profile + 評論全文</div>
+        <div class="sm-cell">—</div>
+        <div class="sm-cell">「ログインして相談する」</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── CHECKLIST ── -->
+  <div class="sec" id="checklist">
+    <div class="sec-num">11</div>
+    <div class="sec-title">Phase 1 開発交接チェックリスト</div>
+    <div class="sec-sub">設計側で確認済みの項目と、開発で実装が必要な項目。</div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px;">✅ 設計完了（原型あり）</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">Landing Page / Compare Widget <span>aisumai-redesign.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">比較結果ページ（5 tabs + Score Duel） <span>aisumai-compare-result.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">専家 Profile ページ <span>aisumai-expert-profile.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">登入 / 註冊フロー（2役割 × 全ステップ） <span>aisumai-auth.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">Feed（比較報告カード） <span>aisumai-feed.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">全 Empty State / Error State <span>aisumai-states.html</span></div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">Responsive（768px / 480px）</div></div>
+      <div class="check-item"><div class="check-box done"></div><div class="check-text">Figma Design Tokens <span>aisumai-figma-tokens.json</span></div></div>
+    </div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin:20px 0 12px;">🔧 開発実装が必要</div>
+    <div class="checklist">
+      <div class="check-item"><div class="check-box"></div><div class="check-text">SUUMO / HOME'S / LIFULL スクレイピング実装</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">AI 比較レポート生成（Claude API 連携）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">非同期ジョブキュー（Inngest / BullMQ）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">PostgreSQL スキーマ作成・マイグレーション</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">Auth（NextAuth.js + Google OAuth + Email）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">ロール別 API ミドルウェア（user / expert / admin）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">レート制限実装（匿名: 3回/月）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">SEO メタデータ（各ページの OGP / title / description）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">専家審査 Admin フロー（メール通知 + 承認 API）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">メール通知（専家認領通知、コメント完了通知）</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">prefers-reduced-motion 対応</div></div>
+      <div class="check-item"><div class="check-box"></div><div class="check-text">Analytics 実装（compare 開始率、結果ページ滞在時間、専家聯絡 CV 率）</div></div>
+    </div>
+
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin:20px 0 12px;">📊 実装後に確認すべき指標</div>
+    <table class="spec-table">
+      <thead><tr><th>指標</th><th>測定方法</th><th>目標値</th></tr></thead>
+      <tbody>
+        <tr><td>Compare 開始率</td><td>Landing 訪問 → 比較ボタンクリック</td><td>> 40%</td></tr>
+        <tr><td>Compare 完了率</td><td>比較開始 → 結果ページ到達</td><td>> 70%</td></tr>
+        <tr><td>専家 CV 率</td><td>結果ページ → 「相談する」クリック</td><td>> 10%</td></tr>
+        <tr><td>登録 CV 率</td><td>「相談する」クリック → 登録完了</td><td>> 50%</td></tr>
+        <tr><td>Feed スクロール深度</td><td>Landing の Feed セクションの表示率</td><td>> 60%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="padding-top:28px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);">AiSumai Dev Handoff · Phase 1 · 2026年4月</div>
+    <div style="display:flex;gap:8px;">
+      <a href="aisumai-ux-brief.html" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 10px;border-radius:3px;">UX Brief</a>
+      <a href="aisumai-states.html" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 10px;border-radius:3px;">UI States</a>
+      <a href="aisumai-redesign.html" style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:5px 10px;border-radius:3px;">Landing</a>
+    </div>
+  </div>
+
+</main>
+</div>
+</body>
+</html>

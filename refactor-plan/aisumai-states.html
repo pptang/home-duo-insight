@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — UI States: Empty & Error</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0a0a; --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.06);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.12);
+  --red:#b04040; --red-bg:rgba(176,64,64,.05); --red-rule:rgba(176,64,64,.2);
+  --yellow:#8a6520; --yellow-bg:rgba(138,101,32,.06); --yellow-rule:rgba(138,101,32,.25);
+  --green:#3a6b4a; --green-bg:rgba(58,107,74,.05); --green-rule:rgba(58,107,74,.2);
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans JP',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(249,248,245,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.logo{font-family:var(--fd);font-size:18px;color:var(--ink);display:flex;align-items:center;gap:6px;}
+.logo em{font-family:var(--fm);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 7px;border-radius:3px;}
+.tnav a{font-size:12px;color:var(--ink-60);text-decoration:none;padding:5px 12px;border-radius:4px;transition:all .15s;}
+.tnav a:hover{background:var(--ink-10);color:var(--ink);}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:200px 1fr;padding-top:52px;min-height:100vh;}
+.sidebar{border-right:1px solid var(--rule);padding:24px 16px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--rule);}
+.sb-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-30);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--rule);margin-top:16px;}
+.sb-label:first-child{margin-top:0;}
+.sb-link{display:block;font-size:12px;color:var(--ink-60);text-decoration:none;padding:4px 6px;border-radius:3px;transition:all .15s;line-height:1.4;}
+.sb-link:hover{color:var(--ink);background:var(--ink-10);}
+.main{padding:36px 48px 80px;}
+
+/* ── SECTION ── */
+.sec{margin-bottom:56px;scroll-margin-top:72px;}
+.sec-label{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-30);margin-bottom:4px;}
+.sec-title{font-family:var(--fd);font-size:26px;letter-spacing:-.3px;margin-bottom:6px;}
+.sec-sub{font-size:13px;color:var(--ink-60);margin-bottom:28px;line-height:1.7;}
+.divider{height:1px;background:var(--rule);margin:40px 0;}
+
+/* ── STATE TAG ── */
+.state-tag{font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;display:inline-flex;align-items:center;gap:4px;}
+.state-tag.empty{background:var(--yellow-bg);color:var(--yellow);}
+.state-tag.error{background:var(--red-bg);color:var(--red);}
+.state-tag.loading{background:var(--ink-10);color:var(--ink-60);}
+.state-tag.success{background:var(--green-bg);color:var(--green);}
+
+/* ── CARD FRAME ── */
+.state-frame{border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+.state-frame-header{padding:10px 16px;background:var(--paper-dark);border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;}
+.state-frame-title{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);}
+.state-frame-body{background:var(--white);padding:0;}
+.state-row{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);}
+.state-col{background:var(--white);padding:24px;}
+.state-col-label{font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+
+/* ── COMPARE WIDGET STATES ── */
+.cw{background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden;box-shadow:0 2px 16px rgba(10,10,10,.06);}
+.cw-tabs{display:flex;border-bottom:1px solid var(--rule);background:var(--paper-dark);padding:0 16px;gap:2px;}
+.cw-tab{font-family:var(--fm);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);padding:9px 12px;border-bottom:2px solid transparent;}
+.cw-tab.active{color:var(--ink);border-bottom-color:var(--ink);}
+.cw-body{padding:16px;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:end;}
+.cw-col{display:flex;flex-direction:column;gap:5px;}
+.cw-label{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);}
+.cw-input{padding:10px 14px;font-size:13px;font-family:var(--fb);border:1px solid var(--rule);border-radius:6px;color:var(--ink);background:var(--paper);outline:none;}
+.cw-input.prefilled{color:var(--ink-60);font-style:italic;}
+.cw-input.error{border-color:var(--red);background:var(--red-bg);}
+.cw-input.success{border-color:var(--green);}
+.cw-vs{width:32px;height:32px;border:1px solid var(--rule);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:10px;color:var(--ink-60);background:var(--paper-dark);}
+.cw-actions{padding:0 16px 16px;display:flex;align-items:center;justify-content:space-between;}
+.cw-btn{background:var(--ink);color:var(--paper);border:none;padding:9px 20px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.cw-btn:disabled{opacity:.35;cursor:default;}
+.cw-hint{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);}
+.cw-hint.error-text{color:var(--red);}
+
+/* ── FEED EMPTY ── */
+.feed-empty{padding:56px 24px;text-align:center;background:var(--white);}
+.feed-empty-icon{width:48px;height:48px;background:var(--paper-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:20px;}
+.feed-empty-title{font-family:var(--fd);font-size:20px;letter-spacing:-.3px;margin-bottom:6px;}
+.feed-empty-sub{font-size:13px;color:var(--ink-60);margin-bottom:18px;line-height:1.7;max-width:320px;margin-left:auto;margin-right:auto;}
+.feed-empty-btn{display:inline-flex;align-items:center;gap:6px;background:var(--ink);color:var(--paper);border:none;padding:9px 18px;border-radius:6px;font-size:13px;cursor:pointer;}
+
+/* ── ERROR BANNER ── */
+.err-banner{border-radius:6px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font-size:13px;line-height:1.6;}
+.err-banner.critical{background:var(--red-bg);border:1px solid var(--red-rule);}
+.err-banner.warn{background:var(--yellow-bg);border:1px solid var(--yellow-rule);}
+.err-banner.info{background:var(--ink-10);border:1px solid var(--rule);}
+.err-banner-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+.err-banner-body{}
+.err-banner-title{font-weight:500;color:var(--ink);margin-bottom:2px;}
+.err-banner-sub{color:var(--ink-60);}
+.err-banner-action{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin-top:8px;}
+.err-banner.critical .err-banner-action{color:var(--red);}
+.err-banner.warn .err-banner-action{color:var(--yellow);}
+.err-banner.info .err-banner-action a{color:var(--ink);text-decoration:underline;cursor:pointer;}
+
+/* ── INLINE FIELD ERROR ── */
+.field-err{font-size:11px;color:var(--red);margin-top:4px;display:flex;align-items:center;gap:4px;}
+.field-err svg{width:11px;height:11px;flex-shrink:0;}
+
+/* ── LOADING SKELETON ── */
+.skel{background:linear-gradient(90deg,var(--paper-dark) 25%,var(--paper) 50%,var(--paper-dark) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:3px;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+
+/* ── RATE LIMIT ── */
+.rate-limit{background:var(--ink);color:var(--paper);border-radius:8px;padding:20px 24px;}
+.rl-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.4;margin-bottom:4px;}
+.rl-title{font-family:var(--fd);font-size:18px;letter-spacing:-.3px;margin-bottom:6px;}
+.rl-sub{font-size:13px;opacity:.65;margin-bottom:14px;line-height:1.65;}
+.rl-bar{height:4px;background:rgba(255,255,255,.15);border-radius:2px;margin-bottom:14px;overflow:hidden;}
+.rl-fill{height:100%;background:#fff;border-radius:2px;width:100%;}
+.rl-btn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);padding:8px 16px;border-radius:5px;font-size:13px;cursor:pointer;transition:background .15s;}
+.rl-btn:hover{background:rgba(255,255,255,.2);}
+
+/* ── RESULT SKELETON / LOADING ── */
+.result-loading{padding:28px 24px;}
+.skel-duel{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:20px;}
+.skel-half{padding:20px;}
+.skel-line{height:10px;border-radius:2px;margin-bottom:8px;}
+.skel-big{height:48px;border-radius:3px;margin-bottom:8px;width:60%;}
+
+/* ── EXPERT UNCLAIMED IN RESULT ── */
+.exp-unclaimed-mini{border:1px dashed rgba(10,10,10,.15);border-radius:6px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--paper);}
+.exp-unclaimed-mini-text{font-size:12px;color:var(--ink-60);line-height:1.55;}
+.exp-unclaimed-mini-text strong{color:var(--ink);}
+.exp-btn{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;background:var(--ink);color:var(--paper);border:none;padding:7px 14px;border-radius:4px;cursor:pointer;white-space:nowrap;}
+
+/* ── GRID ── */
+.states-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.states-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}.sidebar{display:none;}
+  .main{padding:24px 20px 60px;}
+  .state-row{grid-template-columns:1fr;}
+  .states-grid,.states-grid-3{grid-template-columns:1fr;}
+  .skel-duel{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo">愛住 AiSumai <em>UI States</em></div>
+  <div class="tnav" style="display:flex;">
+    <a href="#compare-states">Compare</a>
+    <a href="#feed-states">Feed</a>
+    <a href="#result-states">Result</a>
+    <a href="#auth-states">Auth</a>
+    <a href="#errors">Errors</a>
+  </div>
+</nav>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-label">Compare Widget</div>
+  <a class="sb-link" href="#cw-empty">空白初始狀態</a>
+  <a class="sb-link" href="#cw-prefilled">預填示範物件</a>
+  <a class="sb-link" href="#cw-loading">分析中</a>
+  <a class="sb-link" href="#cw-url-error">URL 無效</a>
+  <a class="sb-link" href="#cw-parse-error">物件讀取失敗</a>
+  <a class="sb-link" href="#cw-ratelimit">免費次數用完</a>
+
+  <div class="sb-label">Feed</div>
+  <a class="sb-link" href="#feed-empty-filter">篩選無結果</a>
+  <a class="sb-link" href="#feed-empty-new">平台初期無資料</a>
+  <a class="sb-link" href="#feed-loading">載入中</a>
+
+  <div class="sb-label">比較結果頁</div>
+  <a class="sb-link" href="#result-loading">生成中</a>
+  <a class="sb-link" href="#result-expert-empty">專家未認領</a>
+  <a class="sb-link" href="#result-partial">單一物件無效</a>
+
+  <div class="sb-label">登入 / 通用</div>
+  <a class="sb-link" href="#auth-errors">表單驗證錯誤</a>
+  <a class="sb-link" href="#network-error">網路/伺服器錯誤</a>
+  <a class="sb-link" href="#not-found">404 頁面</a>
+</aside>
+
+<main class="main">
+
+  <!-- ══════════ COMPARE WIDGET STATES ══════════ -->
+  <div class="sec" id="compare-states">
+    <div class="sec-label">Compare Widget</div>
+    <div class="sec-title">比較框的所有狀態</div>
+    <div class="sec-sub">使用者從進入頁面到取得比較結果的完整狀態流程。</div>
+
+    <!-- State 1: 空白 -->
+    <div class="state-frame" id="cw-empty">
+      <div class="state-frame-header">
+        <span class="state-frame-title">狀態 1 — 初始空白（Default Empty）</span>
+        <span class="state-tag empty">Empty</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div style="font-size:12px;color:var(--ink-60);margin-bottom:14px;line-height:1.65;">❌ 問題：空白輸入框讓第一次進來的使用者不知道要填什麼。比較按鈕是 disabled 狀態。</div>
+        <div class="cw">
+          <div class="cw-tabs"><div class="cw-tab active">物件URL</div><div class="cw-tab">物件番号</div><div class="cw-tab">エリアで検索</div></div>
+          <div class="cw-body">
+            <div class="cw-col"><div class="cw-label">物件 A</div><input class="cw-input" placeholder="例：SUUMO の URL" readonly></div>
+            <div class="cw-vs">vs</div>
+            <div class="cw-col"><div class="cw-label">物件 B</div><input class="cw-input" placeholder="例：HOME'S の URL" readonly></div>
+          </div>
+          <div class="cw-actions">
+            <span class="cw-hint">SUUMO / HOME'S / LIFULL 対応 · 無料3回/月</span>
+            <button class="cw-btn" disabled>比較する →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 2: 預填示範 -->
+    <div class="state-frame" id="cw-prefilled">
+      <div class="state-frame-header">
+        <span class="state-frame-title">狀態 2 — 預填示範（Prefilled Demo）✅ 推薦</span>
+        <span class="state-tag success">推薦做法</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div style="font-size:12px;color:var(--green);margin-bottom:14px;line-height:1.65;">✅ 解法：預填真實物件示範，讓使用者一秒就懂怎麼用。點擊「試してみる」直接執行示範比較。</div>
+        <div class="cw">
+          <div class="cw-tabs"><div class="cw-tab active">物件URL</div><div class="cw-tab">物件番号</div><div class="cw-tab">エリアで検索</div></div>
+          <div class="cw-body">
+            <div class="cw-col">
+              <div class="cw-label">物件 A <span style="font-family:var(--fm);font-size:8px;letter-spacing:.06em;background:var(--yellow-bg);color:var(--yellow);padding:1px 5px;border-radius:2px;margin-left:4px;">サンプル</span></div>
+              <input class="cw-input prefilled" value="suumo.jp/ms/mansion/tokyo/sc_shibuya/...（渋谷区）" readonly>
+            </div>
+            <div class="cw-vs">vs</div>
+            <div class="cw-col">
+              <div class="cw-label">物件 B <span style="font-family:var(--fm);font-size:8px;letter-spacing:.06em;background:var(--yellow-bg);color:var(--yellow);padding:1px 5px;border-radius:2px;margin-left:4px;">サンプル</span></div>
+              <input class="cw-input prefilled" value="homes.co.jp/mansion/meguro/...（目黒区）" readonly>
+            </div>
+          </div>
+          <div class="cw-actions">
+            <span class="cw-hint">↑ サンプルです。URLを書き換えてください</span>
+            <button class="cw-btn" onclick="window.location.href='aisumai-compare-result.html'">試してみる →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 3: 分析中 -->
+    <div class="state-frame" id="cw-loading">
+      <div class="state-frame-header">
+        <span class="state-frame-title">狀態 3 — AI 分析中（Loading）</span>
+        <span class="state-tag loading">Loading</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="cw">
+          <div class="cw-tabs"><div class="cw-tab active">物件URL</div></div>
+          <div class="cw-body">
+            <div class="cw-col">
+              <div class="cw-label">物件 A <span style="font-family:var(--fm);font-size:8px;color:var(--green);margin-left:4px;">✓ 読み取り完了</span></div>
+              <input class="cw-input success" value="パークコート渋谷 ザ タワー" readonly>
+            </div>
+            <div class="cw-vs" style="border-color:var(--ink);color:var(--ink);font-weight:600;">vs</div>
+            <div class="cw-col">
+              <div class="cw-label">物件 B <span style="font-family:var(--fm);font-size:8px;color:var(--green);margin-left:4px;">✓ 読み取り完了</span></div>
+              <input class="cw-input success" value="ザ・パークハウス中目黒タワー" readonly>
+            </div>
+          </div>
+          <div style="padding:0 16px 16px;">
+            <div style="background:var(--paper-dark);border-radius:6px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+              <div style="width:16px;height:16px;border:2px solid var(--ink);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+              <div>
+                <div style="font-size:13px;font-weight:500;margin-bottom:2px;">AI が比較レポートを生成中...</div>
+                <div style="font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);" id="loadStep">物件データを解析しています</div>
+              </div>
+              <div style="margin-left:auto;font-family:var(--fm);font-size:11px;color:var(--ink-60);" id="loadPct">42%</div>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-30);text-align:center;margin-top:8px;">通常10〜30秒で完了します</div>
+      </div>
+    </div>
+
+    <!-- State 4: URL エラー -->
+    <div class="state-frame" id="cw-url-error">
+      <div class="state-frame-header">
+        <span class="state-frame-title">状態 4 — URL 無効（Invalid URL）</span>
+        <span class="state-tag error">Error</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="cw">
+          <div class="cw-tabs"><div class="cw-tab active">物件URL</div></div>
+          <div class="cw-body">
+            <div class="cw-col">
+              <div class="cw-label">物件 A</div>
+              <input class="cw-input error" value="suumo.jp/bukken/12345" readonly>
+              <div class="field-err">
+                <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.3"/></svg>
+                対応しているURLではありません。SUUMO物件ページのURLを入力してください。
+              </div>
+            </div>
+            <div class="cw-vs">vs</div>
+            <div class="cw-col"><div class="cw-label">物件 B</div><input class="cw-input" placeholder="例：HOME'S の URL" readonly></div>
+          </div>
+          <div class="cw-actions">
+            <a style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:underline;cursor:pointer;">対応サイト一覧を見る</a>
+            <button class="cw-btn" disabled>比較する →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 5: 読み取り失敗 -->
+    <div class="state-frame" id="cw-parse-error">
+      <div class="state-frame-header">
+        <span class="state-frame-title">状態 5 — 物件情報の読み取り失敗（Parse Error）</span>
+        <span class="state-tag error">Error</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="err-banner critical" style="margin-bottom:16px;">
+          <div class="err-banner-icon">⚠</div>
+          <div class="err-banner-body">
+            <div class="err-banner-title">物件Aの情報を読み取れませんでした</div>
+            <div class="err-banner-sub">ページが非公開になったか、対応していない形式の可能性があります。URLを確認するか、別の物件で試してください。</div>
+            <div class="err-banner-action">
+              <a style="color:var(--red);text-decoration:underline;cursor:pointer;">別のURLを試す</a>　·　
+              <a style="color:var(--red);text-decoration:underline;cursor:pointer;">問題を報告する</a>
+            </div>
+          </div>
+        </div>
+        <div class="cw" style="opacity:.6;pointer-events:none;">
+          <div class="cw-body">
+            <div class="cw-col"><div class="cw-label">物件 A</div><input class="cw-input error" value="suumo.jp/ms/condo/rm/..." readonly></div>
+            <div class="cw-vs">vs</div>
+            <div class="cw-col"><div class="cw-label">物件 B</div><input class="cw-input success" value="ザ・パークハウス中目黒" readonly></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- State 6: レート制限 -->
+    <div class="state-frame" id="cw-ratelimit">
+      <div class="state-frame-header">
+        <span class="state-frame-title">状態 6 — 無料比較回数の上限（Rate Limit）</span>
+        <span class="state-tag error">Limit</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="rate-limit">
+          <div class="rl-label">無料プラン制限</div>
+          <div class="rl-title">今月の無料比較を<br>3回使い切りました</div>
+          <div class="rl-sub">無料プランは月3回まで比較できます。続けて使用するにはアカウント登録が必要です。登録は無料です。</div>
+          <div class="rl-bar"><div class="rl-fill"></div></div>
+          <div style="display:flex;gap:8px;">
+            <button class="rl-btn" onclick="window.location.href='aisumai-auth.html'">無料登録して続ける →</button>
+            <button class="rl-btn" style="opacity:.6;">来月まで待つ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════ FEED STATES ══════════ -->
+  <div class="sec" id="feed-states">
+    <div class="sec-label">Feed</div>
+    <div class="sec-title">Feed の空状態・読み込み</div>
+    <div class="sec-sub">フィルター結果なし、初期データなし、ロード中の3パターン。</div>
+
+    <div class="states-grid">
+
+      <!-- Filter Empty -->
+      <div class="state-frame" id="feed-empty-filter">
+        <div class="state-frame-header">
+          <span class="state-frame-title">フィルター結果なし</span>
+          <span class="state-tag empty">Empty</span>
+        </div>
+        <div class="feed-empty">
+          <div class="feed-empty-icon">🔍</div>
+          <div class="feed-empty-title">条件に合うレポートが<br>見つかりませんでした</div>
+          <div class="feed-empty-sub">「専門家コメント済み」×「港区」の組み合わせには現在レポートがありません。フィルターを変えてみてください。</div>
+          <button class="feed-empty-btn" style="margin:0 auto;">フィルターをリセット</button>
+        </div>
+      </div>
+
+      <!-- Platform New -->
+      <div class="state-frame" id="feed-empty-new">
+        <div class="state-frame-header">
+          <span class="state-frame-title">初期状態（データなし）</span>
+          <span class="state-tag empty">Empty</span>
+        </div>
+        <div class="feed-empty">
+          <div class="feed-empty-icon">📊</div>
+          <div class="feed-empty-title">まだ比較レポートが<br>ありません</div>
+          <div class="feed-empty-sub">最初のレポートを作りましょう。2つの物件URLを入力するだけで、AIが比較レポートを生成します。</div>
+          <button class="feed-empty-btn" style="margin:0 auto;" onclick="window.location.href='aisumai-redesign.html'">最初の比較をする →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed Loading -->
+    <div class="state-frame" id="feed-loading">
+      <div class="state-frame-header">
+        <span class="state-frame-title">読み込み中（Loading Skeleton）</span>
+        <span class="state-tag loading">Loading</span>
+      </div>
+      <div class="state-frame-body">
+        <!-- 3 skeleton cards -->
+        <div style="display:flex;flex-direction:column;gap:1px;background:var(--rule);">
+          <div style="background:var(--white);padding:16px 18px;display:grid;grid-template-columns:1fr 220px;min-height:110px;gap:1px;">
+            <div style="padding:14px;border-right:1px solid var(--rule);">
+              <div class="skel skel-line" style="width:120px;margin-bottom:12px;"></div>
+              <div class="skel skel-line" style="width:90%;margin-bottom:6px;"></div>
+              <div class="skel skel-line" style="width:80%;margin-bottom:14px;"></div>
+              <div style="display:flex;gap:6px;">
+                <div class="skel skel-line" style="width:80px;height:20px;border-radius:20px;"></div>
+                <div class="skel skel-line" style="width:100px;height:20px;border-radius:20px;"></div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);">
+              <div style="background:var(--paper-dark);padding:14px;"><div class="skel skel-big" style="width:50%;height:32px;"></div></div>
+              <div style="background:var(--paper-dark);padding:14px;"><div class="skel skel-big" style="width:50%;height:32px;"></div></div>
+            </div>
+          </div>
+          <div style="background:var(--white);padding:16px 18px;display:grid;grid-template-columns:1fr 220px;min-height:110px;gap:1px;opacity:.6;">
+            <div style="padding:14px;border-right:1px solid var(--rule);">
+              <div class="skel skel-line" style="width:100px;margin-bottom:12px;"></div>
+              <div class="skel skel-line" style="width:85%;margin-bottom:6px;"></div>
+              <div class="skel skel-line" style="width:70%;margin-bottom:14px;"></div>
+            </div>
+            <div style="background:var(--paper-dark);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════ RESULT PAGE STATES ══════════ -->
+  <div class="sec" id="result-states">
+    <div class="sec-label">比較結果ページ</div>
+    <div class="sec-title">結果ページの状態</div>
+    <div class="sec-sub">AIレポート生成中、専家未認領、片方の物件が無効な場合。</div>
+
+    <!-- Result Loading -->
+    <div class="state-frame" id="result-loading">
+      <div class="state-frame-header">
+        <span class="state-frame-title">AIレポート生成中（Full Page Loading）</span>
+        <span class="state-tag loading">Loading</span>
+      </div>
+      <div class="result-loading">
+        <div style="margin-bottom:16px;padding:14px 16px;background:var(--paper-dark);border-radius:6px;display:flex;align-items:center;gap:12px;">
+          <div style="width:14px;height:14px;border:2px solid var(--ink);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;flex-shrink:0;"></div>
+          <div style="font-size:13px;font-weight:500;">AIが2つの物件を比較しています <span id="dotAnim">...</span></div>
+          <div style="margin-left:auto;font-family:var(--fm);font-size:10px;color:var(--ink-60);">約20秒</div>
+        </div>
+        <div class="skel-duel">
+          <div class="skel-half" style="background:var(--paper-dark);">
+            <div class="skel skel-line" style="width:60px;margin-bottom:8px;"></div>
+            <div class="skel skel-big"></div>
+            <div class="skel skel-line" style="width:40%;"></div>
+          </div>
+          <div class="skel-half" style="background:rgba(10,10,10,.04);">
+            <div class="skel skel-line" style="width:60px;margin-bottom:8px;"></div>
+            <div class="skel skel-big"></div>
+            <div class="skel skel-line" style="width:40%;"></div>
+          </div>
+        </div>
+        <div style="background:var(--paper-dark);border-radius:6px;padding:16px;margin-bottom:12px;">
+          <div class="skel skel-line" style="width:200px;margin-bottom:10px;"></div>
+          <div class="skel skel-line" style="width:95%;margin-bottom:6px;"></div>
+          <div class="skel skel-line" style="width:90%;margin-bottom:6px;"></div>
+          <div class="skel skel-line" style="width:85%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expert unclaimed in result -->
+    <div class="state-frame" id="result-expert-empty">
+      <div class="state-frame-header">
+        <span class="state-frame-title">専門家未認領状態（Expert Section — Empty）</span>
+        <span class="state-tag empty">Empty</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div style="font-size:12px;color:var(--ink-60);margin-bottom:14px;">このレポートはまだ専門家にコメントされていない状態。ユーザーには「待ち」を伝え、専門家には認領を促す。</div>
+        <div class="exp-unclaimed-mini">
+          <div>
+            <div style="font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);margin-bottom:4px;">専門家コメント</div>
+            <div class="exp-unclaimed-mini-text"><strong>このレポートはまだ専門家にレビューされていません。</strong><br>渋谷区・目黒区の専門家からのコメントをお待ちください。</div>
+          </div>
+          <button class="exp-btn" onclick="window.location.href='aisumai-auth.html'">専門家の方はこちら</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink-30);margin-top:8px;text-align:center;">通常1〜3営業日以内に専門家のコメントが届きます</div>
+      </div>
+    </div>
+
+    <!-- Partial failure -->
+    <div class="state-frame" id="result-partial">
+      <div class="state-frame-header">
+        <span class="state-frame-title">片方の物件が取得できない（Partial Failure）</span>
+        <span class="state-tag error">Error</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="err-banner warn" style="margin-bottom:0;">
+          <div class="err-banner-icon">⚡</div>
+          <div class="err-banner-body">
+            <div class="err-banner-title">物件Aのデータを完全に取得できませんでした</div>
+            <div class="err-banner-sub">一部の項目（管理費、修繕積立金）が取得できなかったため、比較結果が不完全な場合があります。</div>
+            <div class="err-banner-action" style="color:var(--yellow);">
+              <a style="color:var(--yellow);text-decoration:underline;cursor:pointer;">物件Aを更新する</a>　·　
+              <a style="color:var(--yellow);text-decoration:underline;cursor:pointer;">このまま表示する</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════ AUTH STATES ══════════ -->
+  <div class="sec" id="auth-states">
+    <div class="sec-label">登入 / 表單</div>
+    <div class="sec-title">フォームのエラー状態</div>
+    <div class="sec-sub">ログイン・登録フォームのバリデーションエラーパターン。</div>
+
+    <div class="states-grid">
+      <div class="state-frame">
+        <div class="state-frame-header"><span class="state-frame-title">メール形式エラー</span><span class="state-tag error">Validation</span></div>
+        <div class="state-frame-body" style="padding:18px;">
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+            <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);">メールアドレス</div>
+            <input class="cw-input error" value="tanaka@@company" readonly style="font-size:13px;padding:10px 14px;">
+            <div class="field-err"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.3"/></svg>有効なメールアドレスを入力してください</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-frame">
+        <div class="state-frame-header"><span class="state-frame-title">パスワード不一致</span><span class="state-tag error">Validation</span></div>
+        <div class="state-frame-body" style="padding:18px;">
+          <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+            <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);">パスワード（確認）</div>
+            <input class="cw-input error" value="••••••••" type="password" readonly style="font-size:13px;padding:10px 14px;">
+            <div class="field-err"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="5"/><path d="M6 3.5v3M6 8.5v.3"/></svg>パスワードが一致しません</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-frame">
+        <div class="state-frame-header"><span class="state-frame-title">既存メール重複</span><span class="state-tag error">Server Error</span></div>
+        <div class="state-frame-body" style="padding:18px;">
+          <div class="err-banner critical" style="margin-bottom:0;">
+            <div class="err-banner-icon">⚠</div>
+            <div class="err-banner-body">
+              <div class="err-banner-title">このメールアドレスは登録済みです</div>
+              <div class="err-banner-sub">代わりにログインするか、パスワードをリセットしてください。</div>
+              <div class="err-banner-action"><a style="color:var(--red);text-decoration:underline;cursor:pointer;">ログインする</a>　·　<a style="color:var(--red);text-decoration:underline;cursor:pointer;">パスワードを忘れた</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="state-frame">
+        <div class="state-frame-header"><span class="state-frame-title">ログイン失敗</span><span class="state-tag error">Auth Error</span></div>
+        <div class="state-frame-body" style="padding:18px;">
+          <div class="err-banner critical" style="margin-bottom:0;">
+            <div class="err-banner-icon">🔒</div>
+            <div class="err-banner-body">
+              <div class="err-banner-title">メールアドレスまたはパスワードが違います</div>
+              <div class="err-banner-sub">あと2回失敗するとアカウントが一時ロックされます。</div>
+              <div class="err-banner-action"><a style="color:var(--red);text-decoration:underline;cursor:pointer;">パスワードをリセット</a></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ══════════ NETWORK / GLOBAL ERRORS ══════════ -->
+  <div class="sec" id="errors">
+    <div class="sec-label">通用エラー</div>
+    <div class="sec-title">ネットワーク・システムエラー</div>
+    <div class="sec-sub">ネットワーク断絶、サーバーエラー、404 のパターン。</div>
+
+    <!-- Network error -->
+    <div class="state-frame" id="network-error">
+      <div class="state-frame-header">
+        <span class="state-frame-title">ネットワークエラー（Offline / Timeout）</span>
+        <span class="state-tag error">Network</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="err-banner critical">
+          <div class="err-banner-icon">📡</div>
+          <div class="err-banner-body">
+            <div class="err-banner-title">接続に失敗しました</div>
+            <div class="err-banner-sub">インターネット接続を確認してから再度お試しください。入力した内容は保存されています。</div>
+            <div class="err-banner-action"><a style="color:var(--red);text-decoration:underline;cursor:pointer;">再試行する</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server error -->
+    <div class="state-frame">
+      <div class="state-frame-header">
+        <span class="state-frame-title">サーバーエラー（500）</span>
+        <span class="state-tag error">Server</span>
+      </div>
+      <div class="state-frame-body" style="padding:20px;">
+        <div class="err-banner warn">
+          <div class="err-banner-icon">🔧</div>
+          <div class="err-banner-body">
+            <div class="err-banner-title">現在サービスに障害が発生しています</div>
+            <div class="err-banner-sub">エンジニアが対応中です。しばらく経ってから再度お試しください。ご不便をおかけして申し訳ありません。</div>
+            <div class="err-banner-action"><a style="color:var(--yellow);text-decoration:underline;cursor:pointer;">ステータスページを確認</a>　·　<a style="color:var(--yellow);text-decoration:underline;cursor:pointer;">再試行する</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 404 -->
+    <div class="state-frame" id="not-found">
+      <div class="state-frame-header">
+        <span class="state-frame-title">ページが存在しない（404）</span>
+        <span class="state-tag error">404</span>
+      </div>
+      <div class="state-frame-body">
+        <div style="padding:56px 24px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:72px;letter-spacing:-4px;color:var(--ink-10);line-height:1;margin-bottom:16px;">404</div>
+          <div style="font-family:var(--fd);font-size:22px;letter-spacing:-.3px;margin-bottom:8px;">このページは見つかりませんでした</div>
+          <div style="font-size:13px;color:var(--ink-60);margin-bottom:20px;line-height:1.7;">URLが間違っているか、レポートが削除された可能性があります。</div>
+          <div style="display:flex;gap:8px;justify-content:center;">
+            <button class="feed-empty-btn" onclick="window.location.href='aisumai-redesign.html'">比較をはじめる →</button>
+            <button style="padding:9px 18px;border:1px solid var(--rule);border-radius:6px;background:none;cursor:pointer;font-size:13px;">レポート一覧</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<style>
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+<script>
+// Animate loading step text
+const steps = ['物件データを解析しています','価格・面積を比較中','交通アクセスを計算中','リスク指標を評価中','AIサマリーを生成中'];
+let si = 0, pct = 42;
+setInterval(() => {
+  si = (si+1) % steps.length;
+  pct = Math.min(pct + Math.floor(Math.random()*8+2), 95);
+  const el = document.getElementById('loadStep');
+  const pe = document.getElementById('loadPct');
+  if(el) el.textContent = steps[si];
+  if(pe) pe.textContent = pct + '%';
+}, 2200);
+// Dot animation
+let dots = 0;
+setInterval(() => {
+  dots = (dots+1)%4;
+  const el = document.getElementById('dotAnim');
+  if(el) el.textContent = '.'.repeat(dots+1);
+}, 500);
+</script>
+</body>
+</html>

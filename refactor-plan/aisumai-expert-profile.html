@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — 田中 誠一 · 専門家プロフィール</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0a0a; --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.08);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.12);
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans JP',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(249,248,245,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.logo{font-family:var(--fd);font-size:18px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo em{font-family:var(--fm);font-style:normal;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 6px;border-radius:3px;}
+.nav{display:flex;}
+.nav a{font-size:13px;color:var(--ink-60);text-decoration:none;padding:6px 14px;border-radius:4px;transition:background .15s,color .15s;}
+.nav a:hover{background:var(--ink-10);color:var(--ink);}
+.nav a.active{color:var(--ink);font-weight:500;}
+.tbtn{font-size:13px;padding:6px 14px;border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:none;color:var(--ink);transition:background .15s;}
+.tbtn:hover{background:var(--ink-10);}
+.tbtn.solid{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.tbtn.solid:hover{opacity:.8;}
+
+/* ── PAGE ── */
+.page{padding-top:52px;}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+/* ── BREADCRUMB ── */
+.crumb{padding:18px 0 0;display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);}
+.crumb a{color:var(--ink-60);text-decoration:none;}
+.crumb a:hover{color:var(--ink);}
+.crumb-sep{opacity:.3;}
+
+/* ══════════════════════════════════════
+   PROFILE HERO
+   ══════════════════════════════════════ */
+.profile-hero{padding:28px 0 32px;border-bottom:1px solid var(--rule);}
+.profile-hero-inner{display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:start;}
+
+/* Avatar */
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:32px;flex-shrink:0;border:3px solid var(--white);box-shadow:0 0 0 1px var(--rule);}
+
+/* Identity */
+.profile-identity{}
+.profile-name{font-family:var(--fd);font-size:clamp(22px,3vw,32px);letter-spacing:-.5px;line-height:1.1;margin-bottom:5px;}
+.profile-role{font-size:14px;color:var(--ink-60);margin-bottom:10px;}
+.profile-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.pbadge{font-family:var(--fm);font-size:8px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:2px;border:1px solid var(--rule);color:var(--ink-60);}
+.pbadge.verified{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.pbadge.area{background:var(--paper-dark);}
+.profile-bio{font-size:13px;color:var(--ink-60);line-height:1.75;max-width:560px;}
+
+/* Stats */
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;min-width:240px;}
+.pstat{background:var(--white);padding:14px 16px;text-align:center;}
+.pstat-num{font-family:var(--fd);font-size:28px;letter-spacing:-.5px;line-height:1;}
+.pstat-label{font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-top:3px;}
+
+/* ── PROFILE BODY LAYOUT ── */
+.profile-body{display:grid;grid-template-columns:1fr 300px;gap:24px;padding:28px 0 60px;align-items:start;}
+
+/* ── LEFT COLUMN ── */
+.profile-left{}
+
+/* Section header */
+.sec-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.sec-title{font-family:var(--fm);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);}
+.sec-link{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border-bottom:1px solid var(--rule);}
+.sec-link:hover{color:var(--ink);}
+
+/* ── SPECIALTY AREAS ── */
+.areas-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.area-card{background:var(--white);padding:14px 16px;}
+.area-name{font-size:13px;font-weight:500;margin-bottom:3px;}
+.area-stat{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);}
+.area-bar{height:3px;background:var(--paper-dark);border-radius:2px;margin-top:8px;overflow:hidden;}
+.area-fill{height:100%;background:var(--ink);border-radius:2px;}
+
+/* ── CLAIMED REPORTS ── */
+.reports-list{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+
+.report-row{background:var(--white);padding:16px 18px;cursor:pointer;transition:background .15s;display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;}
+.report-row:hover{background:var(--paper);}
+.report-row-left{}
+.report-versus{display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.report-prop{font-size:13px;font-weight:500;line-height:1.2;}
+.report-vs{font-family:var(--fm);font-size:9px;color:var(--ink-30);padding:0 2px;}
+.report-meta{display:flex;align-items:center;gap:10px;}
+.report-meta-item{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);}
+.report-excerpt{font-size:12px;color:var(--ink-60);margin-top:5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.report-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.report-scores{display:flex;gap:4px;align-items:center;}
+.rscore-mini{font-family:var(--fm);font-size:10px;padding:2px 7px;border-radius:2px;}
+.rscore-mini.win{background:var(--ink);color:var(--paper);}
+.rscore-mini.lose{background:var(--paper-dark);color:var(--ink-60);}
+.report-views{font-family:var(--fm);font-size:9px;color:var(--ink-30);}
+
+/* ── REVIEWS ── */
+.reviews-list{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:28px;}
+.review-item{background:var(--white);padding:18px 20px;}
+.review-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.review-author{font-size:13px;font-weight:500;}
+.review-date{font-family:var(--fm);font-size:9px;color:var(--ink-30);}
+.review-stars{display:flex;gap:2px;margin-bottom:6px;}
+.star{font-size:12px;}
+.star.on{color:var(--ink);}
+.star.off{color:var(--ink-30);}
+.review-text{font-size:13px;color:var(--ink-60);line-height:1.7;}
+.review-tag{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);background:var(--paper-dark);padding:2px 7px;border-radius:2px;display:inline-block;margin-top:7px;}
+
+/* ── RIGHT COLUMN: Contact Card ── */
+.contact-card{background:var(--white);border:1px solid var(--rule);border-radius:8px;overflow:hidden;position:sticky;top:72px;}
+.cc-header{padding:18px 20px;border-bottom:1px solid var(--rule);}
+.cc-title{font-family:var(--fd);font-size:18px;letter-spacing:-.3px;margin-bottom:3px;}
+.cc-sub{font-size:12px;color:var(--ink-60);}
+.cc-body{padding:18px 20px;}
+.cc-points{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+.cc-point{display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--ink-60);line-height:1.55;}
+.cc-point-dot{width:4px;height:4px;border-radius:50%;background:var(--ink-30);flex-shrink:0;margin-top:7px;}
+.cc-btn{width:100%;padding:12px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-bottom:8px;}
+.cc-btn:hover{opacity:.8;}
+.cc-btn-ghost{width:100%;padding:10px;background:none;color:var(--ink);border:1px solid var(--rule);border-radius:6px;font-size:13px;cursor:pointer;transition:background .15s;}
+.cc-btn-ghost:hover{background:var(--ink-10);}
+.cc-note{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);text-align:center;margin-top:12px;line-height:1.6;}
+.cc-divider{height:1px;background:var(--rule);margin:16px 0;}
+.cc-avail{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-60);}
+.cc-avail-dot{width:7px;height:7px;border-radius:50%;background:#4a7c59;flex-shrink:0;}
+
+/* ── LOGIN MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal{background:var(--white);border-radius:10px;width:100%;max-width:400px;overflow:hidden;transform:translateY(12px);transition:transform .25s ease;box-shadow:0 8px 40px rgba(10,10,10,.15);}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;}
+.modal-title{font-family:var(--fd);font-size:22px;letter-spacing:-.3px;}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--ink-60);line-height:1;}
+.modal-close:hover{color:var(--ink);}
+.modal-body{padding:12px 24px 24px;}
+.modal-sub{font-size:13px;color:var(--ink-60);margin-bottom:20px;line-height:1.6;}
+.modal-input{width:100%;padding:11px 14px;font-size:14px;font-family:var(--fb);border:1px solid var(--rule);border-radius:6px;background:var(--paper);outline:none;margin-bottom:10px;transition:border-color .15s,box-shadow .15s;}
+.modal-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(10,10,10,.06);}
+.modal-submit{width:100%;padding:12px;background:var(--ink);color:var(--paper);border:none;border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;margin-top:4px;}
+.modal-submit:hover{opacity:.8;}
+.modal-divider{display:flex;align-items:center;gap:10px;margin:14px 0;font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;height:1px;background:var(--rule);}
+.modal-google{width:100%;padding:10px;border:1px solid var(--rule);border-radius:6px;font-size:13px;cursor:pointer;background:var(--white);display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s;}
+.modal-google:hover{background:var(--paper-dark);}
+.modal-footer-note{font-size:12px;color:var(--ink-60);text-align:center;margin-top:14px;}
+.modal-footer-note a{color:var(--ink);text-decoration:underline;cursor:pointer;}
+
+/* Social / website links — icon only */
+.profile-links{display:flex;align-items:center;gap:4px;margin-top:14px;}
+.plink{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:4px;color:var(--ink-30);text-decoration:none;transition:color .15s,background .15s;}
+.plink:hover{color:var(--ink);background:var(--ink-10);}
+.plink svg{width:16px;height:16px;flex-shrink:0;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.profile-hero{animation:fadeIn .5s ease both;}
+.profile-body{animation:fadeIn .5s .1s ease both;}
+
+@media(max-width:860px){
+  .profile-hero-inner{grid-template-columns:auto 1fr;}.profile-stats{grid-column:span 2;}
+  .profile-body{grid-template-columns:1fr;}.contact-card{position:static;}
+  .areas-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:520px){
+  .profile-hero-inner{grid-template-columns:1fr;}.profile-avatar{width:60px;height:60px;font-size:24px;}
+  .areas-grid{grid-template-columns:1fr;}
+  .topbar .nav{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a class="logo" href="index.html">愛住 AiSumai <em>Beta</em></a>
+  <div class="nav">
+    <a href="index.html">比較する</a>
+    <a href="aisumai-feed.html">レポート一覧</a>
+    <a href="#" class="active">専門家を探す</a>
+    <a href="#">About</a>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="tbtn">ログイン</button>
+    <button class="tbtn solid">無料で始める</button>
+  </div>
+</nav>
+
+<div class="page">
+<div class="wrap">
+
+  <!-- BREADCRUMB -->
+  <div class="crumb">
+    <a href="index.html">Home</a><span class="crumb-sep">/</span>
+    <a href="#">専門家を探す</a><span class="crumb-sep">/</span>
+    <span>田中 誠一</span>
+  </div>
+
+  <!-- ── PROFILE HERO ── -->
+  <div class="profile-hero">
+    <div class="profile-hero-inner">
+
+      <!-- Avatar -->
+      <div class="profile-avatar">田</div>
+
+      <!-- Identity -->
+      <div class="profile-identity">
+        <div class="profile-name">田中 誠一</div>
+        <div class="profile-role">東急リバブル株式会社 · 渋谷支店 シニアエージェント</div>
+        <div class="profile-badges">
+          <span class="pbadge verified">✓ AiSumai 認証済み専門家</span>
+          <span class="pbadge area">渋谷区</span>
+          <span class="pbadge area">目黒区</span>
+          <span class="pbadge area">港区</span>
+          <span class="pbadge area">世田谷区</span>
+          <span class="pbadge">日本語</span>
+          <span class="pbadge">English</span>
+          <span class="pbadge">外国人対応可</span>
+        </div>
+        <div class="profile-bio">
+          東京都心部の居住用・投資用マンションを専門に14年のキャリア。外国人バイヤーへの対応実績が豊富で、英語での対応も可能です。AI分析では見えてこない管理組合の実態や将来リスクの見極めを得意としています。
+        </div>
+
+        <!-- Social / Web links -->
+        <div class="profile-links">
+          <a href="#" class="plink" target="_blank" title="ウェブサイト">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+          </a>
+          <a href="#" class="plink" target="_blank" title="LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+          <a href="#" class="plink" target="_blank" title="Instagram">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="#" class="plink" target="_blank" title="X (Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </a>
+          <a href="#" class="plink" target="_blank" title="LINE">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.627-.63.349 0 .631.285.631.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.281.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="profile-stats">
+        <div class="pstat">
+          <div class="pstat-num">142</div>
+          <div class="pstat-label">取引実績</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-num">38</div>
+          <div class="pstat-label">レポート認領</div>
+        </div>
+        <div class="pstat">
+          <div class="pstat-num">4.9</div>
+          <div class="pstat-label">評価 / 5.0</div>
+        </div>
+        <div class="pstat" style="grid-column:span 3;border-top:1px solid var(--rule);">
+          <div style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);display:flex;align-items:center;justify-content:center;gap:6px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:#4a7c59;display:inline-block;"></span>
+            通常 2時間以内に返信
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── PROFILE BODY ── -->
+  <div class="profile-body">
+
+    <!-- ── LEFT ── -->
+    <div class="profile-left">
+
+      <!-- Specialty Areas -->
+      <div style="margin-bottom:28px;">
+        <div class="sec-hd">
+          <div class="sec-title">専門エリア実績</div>
+        </div>
+        <div class="areas-grid">
+          <div class="area-card">
+            <div class="area-name">渋谷区</div>
+            <div class="area-stat">52件 · 主力エリア</div>
+            <div class="area-bar"><div class="area-fill" style="width:90%"></div></div>
+          </div>
+          <div class="area-card">
+            <div class="area-name">目黒区</div>
+            <div class="area-stat">38件</div>
+            <div class="area-bar"><div class="area-fill" style="width:65%"></div></div>
+          </div>
+          <div class="area-card">
+            <div class="area-name">港区</div>
+            <div class="area-stat">28件</div>
+            <div class="area-bar"><div class="area-fill" style="width:48%"></div></div>
+          </div>
+          <div class="area-card">
+            <div class="area-name">世田谷区</div>
+            <div class="area-stat">16件</div>
+            <div class="area-bar"><div class="area-fill" style="width:28%"></div></div>
+          </div>
+          <div class="area-card">
+            <div class="area-name">新宿区</div>
+            <div class="area-stat">8件</div>
+            <div class="area-bar"><div class="area-fill" style="width:14%"></div></div>
+          </div>
+          <div class="area-card" style="background:var(--paper-dark);display:flex;align-items:center;justify-content:center;">
+            <div style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);">合計 142件</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Claimed Reports -->
+      <div style="margin-bottom:28px;">
+        <div class="sec-hd">
+          <div class="sec-title">認領済みレポート（38件）</div>
+          <a href="aisumai-feed.html" class="sec-link">すべて見る →</a>
+        </div>
+        <div class="reports-list">
+
+          <div class="report-row" onclick="window.location.href='aisumai-compare-result.html'">
+            <div class="report-row-left">
+              <div class="report-versus">
+                <span class="report-prop">パークコート渋谷 ザ タワー</span>
+                <span class="report-vs">vs</span>
+                <span class="report-prop">ザ・パークハウス中目黒</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-meta-item">渋谷区 · 目黒区</span>
+                <span class="report-meta-item">2日前</span>
+                <span class="report-meta-item">👁 284</span>
+              </div>
+              <div class="report-excerpt">AI分析を補足しつつ、物件Aの修繕積立金問題と物件Bの管理組合の健全性について現場目線で解説。購入前に確認すべき具体的な事項を指摘。</div>
+            </div>
+            <div class="report-row-right">
+              <div class="report-scores">
+                <span class="rscore-mini lose">A · 74</span>
+                <span class="rscore-mini win">B · 88</span>
+              </div>
+              <div class="report-views">12 保存</div>
+            </div>
+          </div>
+
+          <div class="report-row" onclick="window.location.href='aisumai-compare-result.html'">
+            <div class="report-row-left">
+              <div class="report-versus">
+                <span class="report-prop">虎ノ門ヒルズ レジデンス</span>
+                <span class="report-vs">vs</span>
+                <span class="report-prop">白金ザ・スカイ</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-meta-item">港区</span>
+                <span class="report-meta-item">1週間前</span>
+                <span class="report-meta-item">👁 412</span>
+              </div>
+              <div class="report-excerpt">外国人バイヤー視点での補足。両物件の外国人購入制限の実態と、管理規約で注意すべき点を具体的に解説。</div>
+            </div>
+            <div class="report-row-right">
+              <div class="report-scores">
+                <span class="rscore-mini win">A · 91</span>
+                <span class="rscore-mini lose">B · 82</span>
+              </div>
+              <div class="report-views">31 保存</div>
+            </div>
+          </div>
+
+          <div class="report-row" onclick="window.location.href='aisumai-compare-result.html'">
+            <div class="report-row-left">
+              <div class="report-versus">
+                <span class="report-prop">代官山アドレス ザ・タワー</span>
+                <span class="report-vs">vs</span>
+                <span class="report-prop">プラウドタワー渋谷</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-meta-item">渋谷区</span>
+                <span class="report-meta-item">2週間前</span>
+                <span class="report-meta-item">👁 189</span>
+              </div>
+              <div class="report-excerpt">両物件とも内覧経験あり。実際の眺望と共用部の使い勝手、近隣開発計画による将来価値への影響を解説。</div>
+            </div>
+            <div class="report-row-right">
+              <div class="report-scores">
+                <span class="rscore-mini win">A · 81</span>
+                <span class="rscore-mini lose">B · 73</span>
+              </div>
+              <div class="report-views">8 保存</div>
+            </div>
+          </div>
+
+          <!-- Locked row -->
+          <div class="report-row" style="opacity:.45;pointer-events:none;">
+            <div class="report-row-left">
+              <div class="report-versus">
+                <span class="report-prop">ブリリア代々木公園</span>
+                <span class="report-vs">vs</span>
+                <span class="report-prop">オープンレジデンシア神宮前</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-meta-item">渋谷区</span>
+                <span class="report-meta-item">3週間前</span>
+              </div>
+            </div>
+            <div class="report-row-right">
+              <div style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);">ログインで閲覧</div>
+            </div>
+          </div>
+
+          <div class="report-row" style="opacity:.45;pointer-events:none;">
+            <div class="report-row-left">
+              <div class="report-versus">
+                <span class="report-prop">パークホームズ渋谷</span>
+                <span class="report-vs">vs</span>
+                <span class="report-prop">ジオ恵比寿</span>
+              </div>
+              <div class="report-meta">
+                <span class="report-meta-item">渋谷区</span>
+                <span class="report-meta-item">1ヶ月前</span>
+              </div>
+            </div>
+            <div class="report-row-right">
+              <div style="font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-30);">ログインで閲覧</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Login gate hint -->
+        <div style="text-align:center;padding:14px 0 0;">
+          <span style="font-size:12px;color:var(--ink-60);">残り 33件は </span>
+          <button onclick="openModal()" style="font-size:12px;color:var(--ink);background:none;border:none;cursor:pointer;text-decoration:underline;">ログイン後に閲覧できます</button>
+        </div>
+      </div>
+
+      <!-- Reviews -->
+      <div>
+        <div class="sec-hd">
+          <div class="sec-title">クライアントレビュー（24件）</div>
+          <span style="font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);">★ 4.9 / 5.0</span>
+        </div>
+        <div class="reviews-list">
+
+          <div class="review-item">
+            <div class="review-header">
+              <div class="review-author">M.T. さん（台湾）</div>
+              <div class="review-date">2026年2月</div>
+            </div>
+            <div class="review-stars">
+              <span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span>
+            </div>
+            <div class="review-text">外国人として日本で初めて不動産を購入しましたが、田中さんのサポートなしでは絶対に無理でした。AiSumaiのレポートを見て問い合わせ、そのレポートで比較した物件Bを実際に購入。管理組合の資料まで細かく確認してくれて安心できました。</div>
+            <span class="review-tag">外国人購入サポート</span>
+          </div>
+
+          <div class="review-item">
+            <div class="review-header">
+              <div class="review-author">K.S. さん（東京）</div>
+              <div class="review-date">2025年11月</div>
+            </div>
+            <div class="review-stars">
+              <span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span><span class="star on">★</span>
+            </div>
+            <div class="review-text">AiSumaiで比較レポートを見つけ、田中さんのコメントが非常に的確だったので相談しました。価格交渉も助けていただき、希望より200万円安く購入できました。</div>
+            <span class="review-tag">価格交渉</span>
+          </div>
+
+          <div class="review-item" style="opacity:.5;">
+            <div style="font-size:12px;color:var(--ink-60);text-align:center;padding:4px 0;">残り 22件のレビューはログイン後に閲覧できます</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /profile-left -->
+
+    <!-- ── RIGHT: Contact Card ── -->
+    <div class="profile-right">
+      <div class="contact-card">
+        <div class="cc-header">
+          <div class="cc-title">田中さんに相談する</div>
+          <div class="cc-sub">無料・返信まで通常2時間以内</div>
+        </div>
+        <div class="cc-body">
+          <div class="cc-points">
+            <div class="cc-point">
+              <div class="cc-point-dot"></div>
+              <span>内覧の調整・同行サポート</span>
+            </div>
+            <div class="cc-point">
+              <div class="cc-point-dot"></div>
+              <span>価格交渉・契約書の確認</span>
+            </div>
+            <div class="cc-point">
+              <div class="cc-point-dot"></div>
+              <span>ローン・税務のご紹介</span>
+            </div>
+            <div class="cc-point">
+              <div class="cc-point-dot"></div>
+              <span>英語対応可（外国人バイヤー歓迎）</span>
+            </div>
+          </div>
+          <button class="cc-btn" onclick="openModal()">ログインして相談する →</button>
+          <button class="cc-btn-ghost" onclick="openModal()">レポートについて質問する</button>
+          <div class="cc-divider"></div>
+          <div class="cc-avail">
+            <div class="cc-avail-dot"></div>
+            <span style="font-size:12px;color:var(--ink-60);">現在オンライン · 今日対応可</span>
+          </div>
+          <div class="cc-note">成約時のみ費用が発生します。<br>相談・問い合わせは完全無料です。</div>
+        </div>
+      </div>
+
+      <!-- Similar experts -->
+      <div style="margin-top:16px;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--white);">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);">同エリアの専門家</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0;">
+
+          <div style="padding:12px 16px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--paper)'" onmouseout="this.style.background=''">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--paper-dark);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--ink-60);flex-shrink:0;">鈴</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;">鈴木 陽子</div>
+              <div style="font-family:var(--fm);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);">三井不動産リアルティ · 目黒</div>
+            </div>
+            <div style="font-family:var(--fm);font-size:9px;color:var(--ink-30);">★ 4.8</div>
+          </div>
+
+          <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--paper)'" onmouseout="this.style.background=''">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--paper-dark);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:11px;color:var(--ink-60);flex-shrink:0;">佐</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;">佐藤 健</div>
+              <div style="font-family:var(--fm);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);">野村不動産アーバンネット · 渋谷</div>
+            </div>
+            <div style="font-family:var(--fm);font-size:9px;color:var(--ink-30);">★ 4.7</div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /profile-right -->
+
+  </div><!-- /profile-body -->
+
+</div><!-- /wrap -->
+</div><!-- /page -->
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:4px;">ログインして続ける</div>
+        <div class="modal-title">田中さんに相談する</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-sub">問い合わせにはログインが必要です。アカウントは無料で作成できます。成約時のみ費用が発生します。</p>
+      <input class="modal-input" type="email" placeholder="メールアドレス">
+      <input class="modal-input" type="password" placeholder="パスワード">
+      <button class="modal-submit" onclick="closeModal()">ログイン</button>
+      <div class="modal-divider">または</div>
+      <button class="modal-google" onclick="closeModal()">
+        <svg width="16" height="16" viewBox="0 0 16 16"><path fill="#4285F4" d="M15.5 8.2c0-.6-.1-1.1-.2-1.7H8v3.2h4.2c-.2 1-.8 1.8-1.6 2.4v2h2.6c1.5-1.4 2.3-3.5 2.3-5.9z"/><path fill="#34A853" d="M8 16c2.2 0 4-.7 5.3-2l-2.6-2c-.7.5-1.6.8-2.7.8-2.1 0-3.8-1.4-4.5-3.3H.9v2c1.3 2.6 4 4.5 7.1 4.5z"/><path fill="#FBBC05" d="M3.5 9.5c-.2-.5-.3-1-.3-1.5s.1-1 .3-1.5v-2H.9C.3 5.6 0 6.8 0 8s.3 2.4.9 3.5l2.6-2z"/><path fill="#EA4335" d="M8 3.2c1.2 0 2.2.4 3 1.2l2.2-2.2C11.9.8 10.1 0 8 0 4.9 0 2.2 1.9.9 4.5l2.6 2C4.2 4.6 5.9 3.2 8 3.2z"/></svg>
+        Google でログイン
+      </button>
+      <p class="modal-footer-note">アカウントをお持ちでない方は <a onclick="closeModal()">無料登録</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function openModal(){ document.getElementById('loginModal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(){ document.getElementById('loginModal').classList.remove('open'); document.body.style.overflow=''; }
+function closeModalOutside(e){ if(e.target===document.getElementById('loginModal')) closeModal(); }
+</script>
+</body>
+</html>

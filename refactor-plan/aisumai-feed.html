@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai — 比較レポート一覧</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0a0a0a; --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.08);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.12);
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans JP',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(249,248,245,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.logo{font-family:var(--fd);font-size:18px;color:var(--ink);text-decoration:none;display:flex;align-items:center;gap:6px;}
+.logo em{font-family:var(--fm);font-style:normal;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 6px;border-radius:3px;}
+.nav a{font-size:13px;color:var(--ink-60);text-decoration:none;padding:6px 14px;border-radius:4px;transition:background .15s,color .15s;}
+.nav a:hover{background:var(--ink-10);color:var(--ink);}
+.nav a.active{color:var(--ink);font-weight:500;}
+.tbtn{font-size:13px;padding:6px 14px;border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:none;color:var(--ink);transition:background .15s;}
+.tbtn:hover{background:var(--ink-10);}
+.tbtn.solid{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.tbtn.solid:hover{opacity:.8;}
+
+/* ── PAGE ── */
+.page{padding-top:52px;display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{border-right:1px solid var(--rule);padding:24px 18px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}
+.sidebar::-webkit-scrollbar-thumb{background:var(--rule);}
+.fs-title{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.fs{margin-bottom:20px;}
+.fo{display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:13px;color:var(--ink-60);transition:color .15s;user-select:none;}
+.fo:hover{color:var(--ink);}
+.fo.active{color:var(--ink);font-weight:500;}
+.fcheck{width:14px;height:14px;border:1px solid var(--rule);border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.fo.active .fcheck{background:var(--ink);border-color:var(--ink);}
+.fo.active .fcheck::after{content:'';width:6px;height:4px;border-left:1.5px solid #fff;border-bottom:1.5px solid #fff;transform:rotate(-45deg) translateY(-1px);}
+.fc{margin-left:auto;font-family:var(--fm);font-size:9px;color:var(--ink-30);}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;}
+
+/* ── FEED HEADER ── */
+.feed-hd{padding:20px 24px;border-bottom:1px solid var(--rule);position:sticky;top:52px;background:rgba(249,248,245,.95);backdrop-filter:blur(8px);z-index:40;}
+.feed-hd-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.feed-title{font-family:var(--fd);font-size:22px;letter-spacing:-.3px;}
+.feed-title span{font-size:14px;font-family:var(--fb);color:var(--ink-60);font-weight:300;margin-left:8px;}
+.sort-sel{font-family:var(--fm);font-size:10px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--rule);background:none;color:var(--ink-60);padding:5px 10px;border-radius:4px;cursor:pointer;outline:none;}
+
+/* filter pills */
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--rule);padding:4px 10px;border-radius:20px;cursor:pointer;background:none;color:var(--ink-60);transition:all .15s;display:flex;align-items:center;gap:4px;}
+.pill:hover{border-color:var(--ink);color:var(--ink);}
+.pill.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* ── REPORT CARDS GRID ── */
+.cards-wrap{padding:20px 24px;}
+.cards-grid{display:flex;flex-direction:column;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;}
+
+/* ══════════════════════════════════
+   REPORT CARD — core component
+   ══════════════════════════════════ */
+.rcard{background:var(--white);cursor:pointer;transition:background .15s;position:relative;}
+.rcard:hover{background:#fdfcf9;}
+.rcard-inner{display:grid;grid-template-columns:1fr 320px;min-height:140px;}
+
+/* LEFT: comparison content */
+.rcard-left{padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid var(--rule);}
+.rcard-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.rcard-num{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-30);}
+.rcard-date{font-family:var(--fm);font-size:9px;color:var(--ink-30);}
+.rcard-area{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);background:var(--paper-dark);padding:2px 8px;border-radius:2px;}
+
+/* the A vs B headline */
+.rcard-versus{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;}
+.rcard-prop{flex:1;}
+.rcard-prop-name{font-family:var(--fd);font-size:15px;line-height:1.25;letter-spacing:-.2px;color:var(--ink);}
+.rcard-prop-sub{font-family:var(--fm);font-size:9px;letter-spacing:.06em;color:var(--ink-60);margin-top:3px;}
+.rcard-prop-price{font-family:var(--fd);font-size:17px;letter-spacing:-.3px;color:var(--ink);margin-top:5px;}
+.rcard-vs-sep{flex-shrink:0;width:28px;height:28px;border:1px solid var(--rule);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:9px;color:var(--ink-30);margin-top:4px;}
+
+/* highlights row */
+.rcard-highlights{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;}
+.rcard-hl{font-size:12px;color:var(--ink-60);background:var(--paper-dark);padding:3px 9px;border-radius:3px;display:flex;align-items:center;gap:4px;}
+.rcard-hl strong{color:var(--ink);font-weight:500;}
+
+/* RIGHT: score + expert panel */
+.rcard-right{display:flex;flex-direction:column;}
+
+/* score section */
+.rcard-scores{display:grid;grid-template-columns:1fr 1fr;flex:1;}
+.rscore{padding:14px 16px;display:flex;flex-direction:column;justify-content:space-between;border-bottom:1px solid var(--rule);}
+.rscore.winner{background:var(--ink);}
+.rscore.loser{background:var(--paper-dark);}
+.rscore-tag{font-family:var(--fm);font-size:8px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.rscore.winner .rscore-tag{color:rgba(255,255,255,.4);}
+.rscore.loser .rscore-tag{color:var(--ink-30);}
+.rscore-label{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;}
+.rscore.winner .rscore-label{color:rgba(255,255,255,.35);}
+.rscore.loser .rscore-label{color:var(--ink-30);}
+.rscore-num{font-family:var(--fd);font-size:32px;line-height:1;letter-spacing:-1px;margin:4px 0;}
+.rscore.winner .rscore-num{color:#fff;}
+.rscore.loser .rscore-num{color:var(--ink-30);}
+.rscore-win-badge{font-family:var(--fm);font-size:7px;letter-spacing:.1em;text-transform:uppercase;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);padding:2px 6px;border-radius:2px;width:fit-content;}
+
+/* expert section */
+.rcard-expert{padding:10px 14px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:10px;}
+.expert-avatar{width:28px;height:28px;border-radius:50%;background:var(--paper-dark);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:9px;color:var(--ink-60);flex-shrink:0;}
+.expert-avatar.filled{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.expert-info{flex:1;min-width:0;}
+.expert-name{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.expert-role{font-family:var(--fm);font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-60);}
+.expert-empty{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);flex:1;}
+.expert-cta{font-family:var(--fm);font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:3px 8px;border-radius:3px;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.expert-cta:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+.expert-cta.claim{color:var(--ink);border-color:var(--ink);}
+
+/* views / engagement */
+.rcard-footer{padding:8px 20px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:12px;background:var(--paper-dark);}
+.rcard-stat{font-family:var(--fm);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-30);display:flex;align-items:center;gap:4px;}
+.rcard-stat svg{width:10px;height:10px;opacity:.4;}
+.rcard-share{margin-left:auto;font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);background:none;border:none;cursor:pointer;padding:0;}
+.rcard-share:hover{color:var(--ink);}
+
+/* ── EXPERT CLAIM BANNER ── */
+.expert-banner{margin:0 24px 20px;padding:14px 20px;background:var(--ink);color:var(--paper);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.eb-left{}
+.eb-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.45;margin-bottom:3px;}
+.eb-text{font-size:13px;font-weight:500;}
+.eb-sub{font-size:12px;opacity:.6;margin-top:2px;}
+.eb-btn{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--paper);color:var(--ink);border:none;padding:8px 18px;border-radius:4px;cursor:pointer;white-space:nowrap;transition:opacity .15s;flex-shrink:0;}
+.eb-btn:hover{opacity:.85;}
+
+/* ── LOAD MORE ── */
+.load-more{padding:32px 24px;text-align:center;}
+.lm-btn{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:none;border:1px solid var(--rule);color:var(--ink-60);padding:10px 28px;border-radius:4px;cursor:pointer;transition:all .15s;}
+.lm-btn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.rcard{animation:fadeIn .4s ease both;}
+.rcard:nth-child(1){animation-delay:0s;}
+.rcard:nth-child(2){animation-delay:.06s;}
+.rcard:nth-child(3){animation-delay:.12s;}
+.rcard:nth-child(4){animation-delay:.18s;}
+
+@media(max-width:900px){
+  .page{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+  .rcard-inner{grid-template-columns:1fr;}
+  .rcard-right{border-top:1px solid var(--rule);}
+  .rcard-scores{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:520px){
+  .rcard-versus{flex-direction:column;gap:6px;}
+  .rcard-vs-sep{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a class="logo" href="index.html">愛住 AiSumai <em>Beta</em></a>
+  <div class="nav" style="display:flex;">
+    <a href="index.html">比較する</a>
+    <a href="#" class="active">レポート一覧</a>
+    <a href="#">専門家を探す</a>
+    <a href="#">About</a>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="tbtn">ログイン</button>
+    <button class="tbtn solid">無料で始める</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="fs">
+      <div class="fs-title">ステータス</div>
+      <div class="fo active" onclick="toggleF(this)"><div class="fcheck"></div>すべて<span class="fc">142</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>専門家コメント済み<span class="fc">38</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>専門家未介入<span class="fc">104</span></div>
+    </div>
+
+    <div class="fs">
+      <div class="fs-title">エリア</div>
+      <div class="fo active" onclick="toggleF(this)"><div class="fcheck"></div>東京都<span class="fc">89</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>大阪府<span class="fc">28</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>神奈川県<span class="fc">18</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>その他<span class="fc">7</span></div>
+    </div>
+
+    <div class="fs">
+      <div class="fs-title">価格帯</div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>〜5,000万円<span class="fc">21</span></div>
+      <div class="fo active" onclick="toggleF(this)"><div class="fcheck"></div>5,000〜1億円<span class="fc">76</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>1億円〜<span class="fc">45</span></div>
+    </div>
+
+    <div class="fs">
+      <div class="fs-title">目的</div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>居住用<span class="fc">94</span></div>
+      <div class="fo" onclick="toggleF(this)"><div class="fcheck"></div>投資・賃貸<span class="fc">48</span></div>
+    </div>
+
+    <!-- Expert CTA in sidebar -->
+    <div style="margin-top:28px;padding:14px;background:var(--paper-dark);border-radius:6px;border:1px solid var(--rule);">
+      <div style="font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:6px;">専門家の方へ</div>
+      <div style="font-size:12px;line-height:1.6;color:var(--ink);margin-bottom:10px;">レポートにコメントして潜在顧客と繋がりましょう。</div>
+      <button class="tbtn" style="width:100%;font-size:12px;padding:7px;">専門家登録 →</button>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- FEED HEADER -->
+    <div class="feed-hd">
+      <div class="feed-hd-top">
+        <div class="feed-title">比較レポート <span id="cnt">142件</span></div>
+        <select class="sort-sel">
+          <option>新着順</option>
+          <option>専門家コメント優先</option>
+          <option>閲覧数順</option>
+          <option>価格帯 高い順</option>
+        </select>
+      </div>
+      <div class="pills">
+        <button class="pill active" onclick="togglePill(this)">東京都 <span>×</span></button>
+        <button class="pill active" onclick="togglePill(this)">5,000万〜1億 <span>×</span></button>
+        <button class="pill active" onclick="togglePill(this)">専門家コメント済み <span>×</span></button>
+        <button class="pill" onclick="togglePill(this)">+ フィルター</button>
+      </div>
+    </div>
+
+    <!-- EXPERT CLAIM BANNER -->
+    <div style="padding:20px 24px 0;">
+      <div class="expert-banner">
+        <div class="eb-left">
+          <div class="eb-label">不動産専門家の方へ</div>
+          <div class="eb-text">38件のレポートが専門家のコメントを待っています</div>
+          <div class="eb-sub">コメントして潜在顧客と繋がり、仲介の機会を増やしましょう</div>
+        </div>
+        <button class="eb-btn">レポートを認領する →</button>
+      </div>
+    </div>
+
+    <!-- CARDS -->
+    <div class="cards-wrap">
+      <div class="cards-grid">
+
+        <!-- ─ Card 1: Expert commented ─ -->
+        <div class="rcard" onclick="openReport()">
+          <div class="rcard-inner">
+            <div class="rcard-left">
+              <div>
+                <div class="rcard-meta">
+                  <span class="rcard-num">#0142</span>
+                  <span class="rcard-area">渋谷区 · 目黒区</span>
+                  <span class="rcard-date">2日前</span>
+                </div>
+                <div class="rcard-versus">
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">パークコート渋谷<br>ザ タワー</div>
+                    <div class="rcard-prop-sub">渋谷区 · 65m² · 2LDK</div>
+                    <div class="rcard-prop-price">¥8,500万</div>
+                  </div>
+                  <div class="rcard-vs-sep">vs</div>
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">ザ・パークハウス<br>中目黒タワー</div>
+                    <div class="rcard-prop-sub">目黒区 · 72m² · 3LDK</div>
+                    <div class="rcard-prop-price">¥9,200万</div>
+                  </div>
+                </div>
+              </div>
+              <div class="rcard-highlights">
+                <span class="rcard-hl"><strong>B が700万円高い</strong></span>
+                <span class="rcard-hl">B の駅距離 <strong>3分短い</strong></span>
+                <span class="rcard-hl">B の面積 <strong>+7m²</strong></span>
+                <span class="rcard-hl">A の坪単価 <strong>割安</strong></span>
+              </div>
+            </div>
+            <div class="rcard-right">
+              <div class="rcard-scores">
+                <div class="rscore loser">
+                  <div class="rscore-tag">物件 A</div>
+                  <div class="rscore-num">74</div>
+                  <div class="rscore-label">/ 100</div>
+                </div>
+                <div class="rscore winner">
+                  <div class="rscore-tag">物件 B</div>
+                  <div class="rscore-num">88</div>
+                  <div class="rscore-label">/ 100</div>
+                  <div class="rscore-win-badge">AI 推奨</div>
+                </div>
+              </div>
+              <div class="rcard-expert">
+                <div class="expert-avatar filled">田</div>
+                <div class="expert-info">
+                  <div class="expert-name">田中 誠一</div>
+                  <div class="expert-role">東急リバブル · 渋谷支店</div>
+                </div>
+                <button class="expert-cta" onclick="event.stopPropagation();">コメントを見る</button>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-footer">
+            <span class="rcard-stat">
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><circle cx="6" cy="6" r="1.5" fill="currentColor" stroke="none"/></svg>
+              284 閲覧
+            </span>
+            <span class="rcard-stat">💬 1件のコメント</span>
+            <span class="rcard-stat">🔖 12 保存</span>
+            <button class="rcard-share" onclick="event.stopPropagation();">↑ シェア</button>
+          </div>
+        </div>
+
+        <!-- ─ Card 2: No expert yet ─ -->
+        <div class="rcard" onclick="openReport()">
+          <div class="rcard-inner">
+            <div class="rcard-left">
+              <div>
+                <div class="rcard-meta">
+                  <span class="rcard-num">#0141</span>
+                  <span class="rcard-area">港区</span>
+                  <span class="rcard-date">3日前</span>
+                </div>
+                <div class="rcard-versus">
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">虎ノ門ヒルズ<br>レジデンス</div>
+                    <div class="rcard-prop-sub">港区 · 110m² · 4LDK</div>
+                    <div class="rcard-prop-price">¥18,000万</div>
+                  </div>
+                  <div class="rcard-vs-sep">vs</div>
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">アークヒルズ<br>仙石山森タワー</div>
+                    <div class="rcard-prop-sub">港区 · 98m² · 3LDK</div>
+                    <div class="rcard-prop-price">¥15,500万</div>
+                  </div>
+                </div>
+              </div>
+              <div class="rcard-highlights">
+                <span class="rcard-hl">A が<strong>2,500万円高い</strong></span>
+                <span class="rcard-hl">A の面積 <strong>+12m²</strong></span>
+                <span class="rcard-hl">B の築年数 <strong>より新しい</strong></span>
+              </div>
+            </div>
+            <div class="rcard-right">
+              <div class="rcard-scores">
+                <div class="rscore winner">
+                  <div class="rscore-tag">物件 A</div>
+                  <div class="rscore-num">91</div>
+                  <div class="rscore-label">/ 100</div>
+                  <div class="rscore-win-badge">AI 推奨</div>
+                </div>
+                <div class="rscore loser">
+                  <div class="rscore-tag">物件 B</div>
+                  <div class="rscore-num">79</div>
+                  <div class="rscore-label">/ 100</div>
+                </div>
+              </div>
+              <div class="rcard-expert">
+                <div class="expert-avatar">?</div>
+                <div class="expert-empty">専門家コメント待ち</div>
+                <button class="expert-cta claim" onclick="event.stopPropagation();">認領する</button>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-footer">
+            <span class="rcard-stat">👁 521 閲覧</span>
+            <span class="rcard-stat">💬 コメントなし</span>
+            <span class="rcard-stat">🔖 31 保存</span>
+            <button class="rcard-share" onclick="event.stopPropagation();">↑ シェア</button>
+          </div>
+        </div>
+
+        <!-- ─ Card 3: Expert commented ─ -->
+        <div class="rcard" onclick="openReport()">
+          <div class="rcard-inner">
+            <div class="rcard-left">
+              <div>
+                <div class="rcard-meta">
+                  <span class="rcard-num">#0139</span>
+                  <span class="rcard-area">大阪市 北区</span>
+                  <span class="rcard-date">5日前</span>
+                </div>
+                <div class="rcard-versus">
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">ブランズタワー<br>梅田 North</div>
+                    <div class="rcard-prop-sub">北区 · 58m² · 2LDK</div>
+                    <div class="rcard-prop-price">¥6,800万</div>
+                  </div>
+                  <div class="rcard-vs-sep">vs</div>
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">グランドメゾン<br>新梅田タワー</div>
+                    <div class="rcard-prop-sub">北区 · 63m² · 2LDK</div>
+                    <div class="rcard-prop-price">¥7,200万</div>
+                  </div>
+                </div>
+              </div>
+              <div class="rcard-highlights">
+                <span class="rcard-hl">B が<strong>400万円高い</strong></span>
+                <span class="rcard-hl">B の面積 <strong>+5m²</strong></span>
+                <span class="rcard-hl">A は<strong>即入居可</strong></span>
+              </div>
+            </div>
+            <div class="rcard-right">
+              <div class="rcard-scores">
+                <div class="rscore loser">
+                  <div class="rscore-tag">物件 A</div>
+                  <div class="rscore-num">71</div>
+                  <div class="rscore-label">/ 100</div>
+                </div>
+                <div class="rscore winner">
+                  <div class="rscore-tag">物件 B</div>
+                  <div class="rscore-num">83</div>
+                  <div class="rscore-label">/ 100</div>
+                  <div class="rscore-win-badge">AI 推奨</div>
+                </div>
+              </div>
+              <div class="rcard-expert">
+                <div class="expert-avatar filled">山</div>
+                <div class="expert-info">
+                  <div class="expert-name">山本 健太郎</div>
+                  <div class="expert-role">住友不動産販売 · 梅田</div>
+                </div>
+                <button class="expert-cta" onclick="event.stopPropagation();">コメントを見る</button>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-footer">
+            <span class="rcard-stat">👁 198 閲覧</span>
+            <span class="rcard-stat">💬 1件のコメント</span>
+            <span class="rcard-stat">🔖 9 保存</span>
+            <button class="rcard-share" onclick="event.stopPropagation();">↑ シェア</button>
+          </div>
+        </div>
+
+        <!-- ─ Card 4: No expert ─ -->
+        <div class="rcard" onclick="openReport()">
+          <div class="rcard-inner">
+            <div class="rcard-left">
+              <div>
+                <div class="rcard-meta">
+                  <span class="rcard-num">#0138</span>
+                  <span class="rcard-area">横浜市 西区</span>
+                  <span class="rcard-date">1週間前</span>
+                </div>
+                <div class="rcard-versus">
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">ザ・タワー<br>横浜北仲</div>
+                    <div class="rcard-prop-sub">西区 · 55m² · 2LDK</div>
+                    <div class="rcard-prop-price">¥5,500万</div>
+                  </div>
+                  <div class="rcard-vs-sep">vs</div>
+                  <div class="rcard-prop">
+                    <div class="rcard-prop-name">プラウドタワー<br>横浜元町</div>
+                    <div class="rcard-prop-sub">中区 · 60m² · 2LDK</div>
+                    <div class="rcard-prop-price">¥5,900万</div>
+                  </div>
+                </div>
+              </div>
+              <div class="rcard-highlights">
+                <span class="rcard-hl">B が<strong>400万円高い</strong></span>
+                <span class="rcard-hl">A は<strong>海側ビュー</strong></span>
+                <span class="rcard-hl">B の駅距離 <strong>近い</strong></span>
+              </div>
+            </div>
+            <div class="rcard-right">
+              <div class="rcard-scores">
+                <div class="rscore loser">
+                  <div class="rscore-tag">物件 A</div>
+                  <div class="rscore-num">76</div>
+                  <div class="rscore-label">/ 100</div>
+                </div>
+                <div class="rscore winner">
+                  <div class="rscore-tag">物件 B</div>
+                  <div class="rscore-num">81</div>
+                  <div class="rscore-label">/ 100</div>
+                  <div class="rscore-win-badge">AI 推奨</div>
+                </div>
+              </div>
+              <div class="rcard-expert">
+                <div class="expert-avatar">?</div>
+                <div class="expert-empty">専門家コメント待ち</div>
+                <button class="expert-cta claim" onclick="event.stopPropagation();">認領する</button>
+              </div>
+            </div>
+          </div>
+          <div class="rcard-footer">
+            <span class="rcard-stat">👁 143 閲覧</span>
+            <span class="rcard-stat">💬 コメントなし</span>
+            <span class="rcard-stat">🔖 7 保存</span>
+            <button class="rcard-share" onclick="event.stopPropagation();">↑ シェア</button>
+          </div>
+        </div>
+
+      </div><!-- /cards-grid -->
+    </div><!-- /cards-wrap -->
+
+    <div class="load-more">
+      <button class="lm-btn">さらに読み込む（残り 138件）</button>
+    </div>
+
+  </main>
+</div>
+
+<script>
+function toggleF(el){ el.classList.toggle('active'); }
+function togglePill(el){ el.classList.toggle('active'); }
+function openReport(){ window.location.href='aisumai-compare-result.html'; }
+</script>
+</body>
+</html>
