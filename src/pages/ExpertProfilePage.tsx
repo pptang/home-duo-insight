@@ -4,22 +4,10 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { ExpertProfile } from "@/components/ExpertProfile";
 import ExpertProfileEditForm from "@/components/ExpertProfileEditForm";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { ExpertRating } from "@/components/ExpertRating";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { BookOpen, Building, MapPin, Edit } from "lucide-react";
+import { Edit, Globe, Instagram, Mail, Phone } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
 interface ExpertActivity {
@@ -28,12 +16,19 @@ interface ExpertActivity {
 
 type ExpertProfileType = Database["public"]["Tables"]["expert_profiles"]["Row"];
 
+const getInitials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .filter(Boolean)
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+
 const ExpertProfilePage: React.FC = () => {
   const { expertId } = useParams<{ expertId: string }>();
   const { t } = useTranslation();
-  const [expertProfile, setExpertProfile] = useState<ExpertProfileType | null>(
-    null
-  );
+  const [expertProfile, setExpertProfile] = useState<ExpertProfileType | null>(null);
   const [activity, setActivity] = useState<ExpertActivity | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [editMode, setEditMode] = useState<boolean>(false);
@@ -42,23 +37,19 @@ const ExpertProfilePage: React.FC = () => {
     name: "",
     email: "",
     subject: "",
-    message: ""
+    message: "",
   });
   const [sendingEmail, setSendingEmail] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const isOwnProfile =
-    user && expertProfile ? user.id === expertProfile.id : false;
+  const isOwnProfile = user && expertProfile ? user.id === expertProfile.id : false;
 
-  // Fetch expert profile and vote activity
   useEffect(() => {
     const fetchExpertData = async () => {
       if (!expertId) return;
-
       setIsLoading(true);
       try {
-        // Get expert profile
         const { data: profileData, error: profileError } = await supabase
           .from("expert_profiles")
           .select("*")
@@ -69,10 +60,8 @@ const ExpertProfilePage: React.FC = () => {
           console.error("Error fetching expert profile:", profileError);
           return;
         }
-
         setExpertProfile(profileData);
 
-        // Get total vote count
         const { count, error: voteError } = await supabase
           .from("votes")
           .select("*", { count: "exact", head: true })
@@ -82,10 +71,7 @@ const ExpertProfilePage: React.FC = () => {
           console.error("Error fetching expert activity:", voteError);
           return;
         }
-
-        setActivity({
-          totalVotes: count || 0,
-        });
+        setActivity({ totalVotes: count || 0 });
       } catch (error) {
         console.error("Error:", error);
       } finally {
@@ -96,31 +82,25 @@ const ExpertProfilePage: React.FC = () => {
     fetchExpertData();
   }, [expertId]);
 
-  const handleEditToggle = () => {
-    setEditMode(!editMode);
-  };
-
-  const handleProfileUpdate = () => {
-    setEditMode(false);
-    // Refetch profile to get updated data
-    fetchExpertProfile();
-  };
-
   const fetchExpertProfile = async () => {
     if (!expertId) return;
-
     try {
       const { data, error } = await supabase
         .from("expert_profiles")
         .select("*")
         .eq("id", expertId)
         .single();
-
       if (error) throw error;
       setExpertProfile(data);
     } catch (error) {
       console.error("Error refreshing profile:", error);
     }
+  };
+
+  const handleEditToggle = () => setEditMode((v) => !v);
+  const handleProfileUpdate = () => {
+    setEditMode(false);
+    fetchExpertProfile();
   };
 
   const handleContactSubmit = async (e: React.FormEvent) => {
@@ -136,19 +116,19 @@ const ExpertProfilePage: React.FC = () => {
 
     setSendingEmail(true);
     try {
-      await supabase.functions.invoke('send-email', {
+      await supabase.functions.invoke("send-email", {
         body: {
           to: expertProfile.email,
-          template: 'contact-expert',
+          template: "contact-expert",
           templateData: {
             expertName: expertProfile.name,
             expertEmail: expertProfile.email,
             userName: contactForm.name,
             userEmail: contactForm.email,
-              subject: contactForm.subject || 'Message from AiSumai (愛住)',
-            message: contactForm.message
-          }
-        }
+            subject: contactForm.subject || "Message from AiSumai (愛住)",
+            message: contactForm.message,
+          },
+        },
       });
 
       toast({
@@ -159,7 +139,7 @@ const ExpertProfilePage: React.FC = () => {
       setContactForm({ name: "", email: "", subject: "", message: "" });
       setShowContactModal(false);
     } catch (error) {
-      console.error('Failed to send contact email:', error);
+      console.error("Failed to send contact email:", error);
       toast({
         variant: "destructive",
         title: t("expertProfile.toast.sendFailed"),
@@ -172,211 +152,508 @@ const ExpertProfilePage: React.FC = () => {
 
   if (!expertId) {
     return (
-      <div className="container mx-auto py-8 px-4">
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
-              {t("expertProfile.errors.noId")}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="bg-paper text-ink min-h-screen">
+        <div className="max-w-[1040px] mx-auto px-6 py-16 text-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
+            404
+          </p>
+          <h1 className="font-display text-[28px] tracking-[-0.3px] mb-2">
+            {t("expertProfile.errors.noId")}
+          </h1>
+          <Link
+            to="/experts"
+            className="inline-block mt-4 text-[13px] text-ink underline underline-offset-4"
+          >
+            ← 専門家一覧に戻る
+          </Link>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto py-8 px-4 animate-fade-in">
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {t("expertProfile.title")}
-          </h1>
-          <p className="text-muted-foreground">
-            {t("expertProfile.description")}
-          </p>
+  if (isLoading) {
+    return (
+      <div className="bg-paper text-ink min-h-screen">
+        <div className="max-w-[1040px] mx-auto px-6 pt-6">
+          <div className="h-3 w-48 skel mb-6" />
+          <div className="border-b border-rule pb-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-6">
+              <div className="w-20 h-20 rounded-full skel" />
+              <div className="space-y-3">
+                <div className="h-7 w-64 skel" />
+                <div className="h-4 w-80 skel" />
+                <div className="h-3 w-full max-w-[480px] skel" />
+              </div>
+              <div className="h-24 w-[240px] skel" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
+            <div className="space-y-3">
+              <div className="h-32 w-full skel" />
+              <div className="h-32 w-full skel" />
+            </div>
+            <div className="h-64 w-full skel" />
+          </div>
         </div>
-
-        {isOwnProfile && !editMode && (
-          <Button onClick={handleEditToggle} className="gap-2">
-            <Edit className="h-4 w-4" /> {t("expertProfile.editButton")}
-          </Button>
-        )}
       </div>
+    );
+  }
 
-      {/* Main profile section */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Left column - Expert profile info */}
-        <div className="md:col-span-2">
-          {editMode ? (
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle>{t("expertProfile.editTitle")}</CardTitle>
-                <CardDescription>
-                  {t("expertProfile.editDescription")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {expertProfile && (
-                  <ExpertProfileEditForm
-                    profile={expertProfile}
-                    onCancel={handleEditToggle}
-                    onUpdate={handleProfileUpdate}
-                  />
-                )}
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <ExpertProfile expertId={expertId} className="mb-6" />
+  if (!expertProfile) {
+    return (
+      <div className="bg-paper text-ink min-h-screen">
+        <div className="max-w-[1040px] mx-auto px-6 py-16 text-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
+            404
+          </p>
+          <h1 className="font-display text-[28px] tracking-[-0.3px] mb-2">
+            {t("expertProfile.notFound")}
+          </h1>
+          <Link
+            to="/experts"
+            className="inline-block mt-4 text-[13px] text-ink underline underline-offset-4"
+          >
+            ← 専門家一覧に戻る
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-              {/* Specialization */}
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building className="h-5 w-5 text-primary" />
-                    {t("expertProfile.expertiseTitle")}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {/* Bio section */}
-                  {expertProfile?.bio && (
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium mb-2">{t("expertProfile.aboutHeading")}</h3>
-                      <p className="text-muted-foreground">
-                        {expertProfile.bio}
-                      </p>
+  const initials = getInitials(expertProfile.name);
+  const rating = expertProfile.average_rating ?? 0;
+  const ratingCount = expertProfile.rating_count ?? 0;
+  const tags = expertProfile.specialization_tags ?? [];
+
+  return (
+    <div className="bg-paper text-ink min-h-screen">
+      <div className="max-w-[1040px] mx-auto px-6">
+        {/* Breadcrumb */}
+        <nav className="pt-5 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
+          <Link to="/" className="text-ink-60 hover:text-ink no-underline">
+            Home
+          </Link>
+          <span className="opacity-30">/</span>
+          <Link to="/experts" className="text-ink-60 hover:text-ink no-underline">
+            専門家を探す
+          </Link>
+          <span className="opacity-30">/</span>
+          <span>{expertProfile.name}</span>
+        </nav>
+
+        {editMode ? (
+          <div className="my-8 bg-white border border-rule rounded-lg p-6">
+            <div className="mb-5">
+              <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-1">
+                Edit Profile
+              </div>
+              <h2 className="font-display text-[24px] tracking-[-0.3px]">
+                {t("expertProfile.editTitle")}
+              </h2>
+              <p className="text-[13px] text-ink-60 mt-1">
+                {t("expertProfile.editDescription")}
+              </p>
+            </div>
+            <ExpertProfileEditForm
+              profile={expertProfile}
+              onCancel={handleEditToggle}
+              onUpdate={handleProfileUpdate}
+            />
+          </div>
+        ) : (
+          <>
+            {/* PROFILE HERO */}
+            <section className="pt-7 pb-8 border-b border-rule animate-in">
+              <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-6 items-start">
+                {/* Avatar */}
+                <div className="w-20 h-20 rounded-full bg-ink text-paper flex items-center justify-center font-display text-[32px] flex-shrink-0 ring-1 ring-rule shadow-[0_0_0_3px_white_inset] overflow-hidden">
+                  {expertProfile.profile_image_url ? (
+                    <img
+                      src={expertProfile.profile_image_url}
+                      alt={expertProfile.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    initials
+                  )}
+                </div>
+
+                {/* Identity */}
+                <div className="min-w-0">
+                  <h1 className="font-display text-[clamp(22px,3vw,32px)] leading-[1.1] tracking-[-0.5px] mb-1.5">
+                    {expertProfile.name}
+                  </h1>
+                  {expertProfile.region && (
+                    <div className="text-[14px] text-ink-60 mb-2.5">
+                      {expertProfile.region}
                     </div>
                   )}
 
-                  {/* This would ideally come from the profile data */}
-                  <div className="space-y-2">
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>
-                        Tokyo Metropolitan Area (主に東京都23区と近郊)
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      <span>
-                        Foreign-friendly rental properties, Investment
-                        properties, Expat relocation assistance
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
-          )}
-        </div>
-
-        {/* Right column - Activity and stats */}
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("expertProfile.activityTitle")}</CardTitle>
-              <CardDescription>
-                {t("expertProfile.activityDescription")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-lg font-medium block">
-                      {activity?.totalVotes || 0}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    <span className="font-mono text-[8px] uppercase tracking-[0.09em] px-2 py-0.5 rounded-sm bg-ink text-paper border border-ink">
+                      ✓ {t("expertProfile.expertBadge", "AiSumai 認証済み")}
                     </span>
-                    <span className="text-sm text-muted-foreground">
-                      {t("expertProfile.totalVotes")}
-                    </span>
-                  </div>
-
-                  <Separator />
-
-                  <div className="pt-2">
-                    {!editMode && expertProfile?.email && (
-                      <Button 
-                        className="w-full"
-                        onClick={() => setShowContactModal(true)}
+                    {tags.slice(0, 8).map((tag) => (
+                      <span
+                        key={tag}
+                        className="font-mono text-[8px] uppercase tracking-[0.09em] px-2 py-0.5 rounded-sm border border-rule text-ink-60 bg-paper-dark"
                       >
-                        {t("expertProfile.contactButton")}
-                      </Button>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  {expertProfile.bio && (
+                    <p className="text-[13px] text-ink-60 leading-[1.75] max-w-[560px]">
+                      {expertProfile.bio}
+                    </p>
+                  )}
+
+                  {/* Social / web links */}
+                  <div className="flex items-center gap-1 mt-3.5">
+                    {expertProfile.company_website && (
+                      <a
+                        href={expertProfile.company_website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 flex items-center justify-center rounded text-ink-30 hover:text-ink hover:bg-ink/[0.06] transition-colors"
+                        title="Website"
+                      >
+                        <Globe className="w-4 h-4" />
+                      </a>
+                    )}
+                    {expertProfile.instagram_url && (
+                      <a
+                        href={expertProfile.instagram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 flex items-center justify-center rounded text-ink-30 hover:text-ink hover:bg-ink/[0.06] transition-colors"
+                        title="Instagram"
+                      >
+                        <Instagram className="w-4 h-4" />
+                      </a>
+                    )}
+                    {expertProfile.x_handle && (
+                      <a
+                        href={`https://twitter.com/${expertProfile.x_handle.replace("@", "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 flex items-center justify-center rounded text-ink-30 hover:text-ink hover:bg-ink/[0.06] transition-colors"
+                        title="X (Twitter)"
+                      >
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                      </a>
+                    )}
+                    {expertProfile.email && (
+                      <a
+                        href={`mailto:${expertProfile.email}`}
+                        className="w-8 h-8 flex items-center justify-center rounded text-ink-30 hover:text-ink hover:bg-ink/[0.06] transition-colors"
+                        title="Email"
+                      >
+                        <Mail className="w-4 h-4" />
+                      </a>
+                    )}
+                    {expertProfile.phone && (
+                      <a
+                        href={`tel:${expertProfile.phone}`}
+                        className="w-8 h-8 flex items-center justify-center rounded text-ink-30 hover:text-ink hover:bg-ink/[0.06] transition-colors"
+                        title="Phone"
+                      >
+                        <Phone className="w-4 h-4" />
+                      </a>
                     )}
                   </div>
                 </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-px bg-rule border border-rule rounded-lg overflow-hidden min-w-[240px] self-start">
+                  <div className="bg-white p-3.5 text-center">
+                    <div className="font-display text-[28px] leading-none tracking-[-0.5px]">
+                      {activity?.totalVotes ?? 0}
+                    </div>
+                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-ink-60 mt-1">
+                      {t("expertProfile.totalVotes", "投票数")}
+                    </div>
+                  </div>
+                  <div className="bg-white p-3.5 text-center">
+                    <div className="font-display text-[28px] leading-none tracking-[-0.5px]">
+                      {ratingCount}
+                    </div>
+                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-ink-60 mt-1">
+                      レビュー
+                    </div>
+                  </div>
+                  <div className="bg-white p-3.5 text-center">
+                    <div className="font-display text-[28px] leading-none tracking-[-0.5px]">
+                      {ratingCount > 0 ? rating.toFixed(1) : "—"}
+                    </div>
+                    <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-ink-60 mt-1">
+                      評価 / 5.0
+                    </div>
+                  </div>
+                  <div className="col-span-3 bg-white px-3.5 py-2 border-t border-rule">
+                    <div className="font-mono text-[9px] uppercase tracking-[0.08em] text-ink-60 flex items-center justify-center gap-1.5">
+                      <span className="w-[7px] h-[7px] rounded-full bg-[#4a7c59]" />
+                      通常 24時間以内に返信
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {isOwnProfile && (
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={handleEditToggle}
+                    className="flex items-center gap-2 text-[13px] text-ink px-3.5 py-1.5 border border-rule rounded hover:bg-ink/[0.06] transition-colors"
+                  >
+                    <Edit className="w-3.5 h-3.5" />
+                    {t("expertProfile.editButton")}
+                  </button>
+                </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
+            </section>
+
+            {/* PROFILE BODY */}
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6 pt-7 pb-16 items-start animate-in">
+              {/* LEFT */}
+              <div>
+                {/* About */}
+                {expertProfile.bio && (
+                  <section className="mb-7">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60">
+                        {t("expertProfile.aboutHeading", "プロフィール")}
+                      </div>
+                    </div>
+                    <div className="bg-white border border-rule rounded-lg p-5">
+                      <p className="text-[14px] leading-[1.75] text-ink whitespace-pre-line">
+                        {expertProfile.bio}
+                      </p>
+                    </div>
+                  </section>
+                )}
+
+                {/* Specialization */}
+                {tags.length > 0 && (
+                  <section className="mb-7">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60">
+                        {t("expertProfile.expertiseTitle", "専門分野")}
+                      </div>
+                    </div>
+                    <div className="bg-white border border-rule rounded-lg p-5">
+                      <div className="flex flex-wrap gap-2">
+                        {tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-[12px] px-2.5 py-1 rounded border border-rule text-ink"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </section>
+                )}
+
+                {/* Activity / Rating */}
+                <section>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60">
+                      {t("expertProfile.activityTitle", "活動・レビュー")}
+                    </div>
+                    {ratingCount > 0 && (
+                      <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60">
+                        ★ {rating.toFixed(1)} / 5.0 · {ratingCount} レビュー
+                      </span>
+                    )}
+                  </div>
+                  <div className="bg-white border border-rule rounded-lg p-5">
+                    <div className="grid grid-cols-2 gap-px bg-rule border border-rule rounded overflow-hidden mb-5">
+                      <div className="bg-white p-4 text-center">
+                        <div className="font-display text-[24px] leading-none">
+                          {activity?.totalVotes ?? 0}
+                        </div>
+                        <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-ink-60 mt-1">
+                          {t("expertProfile.totalVotes", "投票数")}
+                        </div>
+                      </div>
+                      <div className="bg-white p-4 text-center">
+                        <div className="font-display text-[24px] leading-none">
+                          {ratingCount > 0 ? rating.toFixed(1) : "—"}
+                        </div>
+                        <div className="font-mono text-[8px] uppercase tracking-[0.1em] text-ink-60 mt-1">
+                          評価
+                        </div>
+                      </div>
+                    </div>
+                    {!isOwnProfile && (
+                      <ExpertRating expertId={expertId} onRatingSubmitted={fetchExpertProfile} />
+                    )}
+                  </div>
+                </section>
+              </div>
+
+              {/* RIGHT: Sticky contact card */}
+              <aside>
+                <div className="bg-white border border-rule rounded-lg overflow-hidden md:sticky md:top-[72px]">
+                  <div className="px-5 py-4 border-b border-rule">
+                    <div className="font-display text-[18px] tracking-[-0.3px] mb-0.5">
+                      {expertProfile.name}さんに相談する
+                    </div>
+                    <div className="text-[12px] text-ink-60">
+                      無料・通常24時間以内に返信
+                    </div>
+                  </div>
+                  <div className="px-5 py-4">
+                    <ul className="flex flex-col gap-2 mb-5">
+                      {[
+                        "内覧の調整・同行サポート",
+                        "価格交渉・契約書の確認",
+                        "ローン・税務のご紹介",
+                        "比較レポートの追加質問",
+                      ].map((point) => (
+                        <li
+                          key={point}
+                          className="flex items-start gap-2 text-[12px] text-ink-60 leading-[1.55]"
+                        >
+                          <span className="w-1 h-1 rounded-full bg-ink-30 flex-shrink-0 mt-[7px]" />
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button
+                      onClick={() => setShowContactModal(true)}
+                      disabled={!expertProfile.email}
+                      className="w-full py-3 bg-ink text-paper rounded-md text-[14px] font-medium hover:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mb-2"
+                    >
+                      {t("expertProfile.contactButton")} →
+                    </button>
+
+                    {expertProfile.phone && (
+                      <a
+                        href={`tel:${expertProfile.phone}`}
+                        className="block text-center w-full py-2.5 bg-white border border-rule rounded-md text-[13px] text-ink hover:bg-ink/[0.06] transition-colors no-underline"
+                      >
+                        電話で問い合わせ
+                      </a>
+                    )}
+
+                    <div className="h-px bg-rule my-4" />
+
+                    <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
+                      <span className="w-[7px] h-[7px] rounded-full bg-[#4a7c59]" />
+                      <span>現在オンライン · 今日対応可</span>
+                    </div>
+
+                    <div className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-30 text-center mt-3 leading-relaxed">
+                      成約時のみ費用が発生します。
+                      <br />
+                      相談・問い合わせは完全無料です。
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Contact Expert Modal */}
       <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white border-rule">
           <DialogHeader>
-            <DialogTitle>{t("expertProfile.contactTitle", { name: expertProfile?.name })}</DialogTitle>
+            <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink-60 mb-1">
+              Contact Expert
+            </div>
+            <DialogTitle className="font-display text-[22px] tracking-[-0.3px]">
+              {t("expertProfile.contactTitle", { name: expertProfile?.name })}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleContactSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="contact-name">{t("expertProfile.contactForm.yourName")}</Label>
-              <Input
+              <label
+                htmlFor="contact-name"
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 block mb-1.5"
+              >
+                {t("expertProfile.contactForm.yourName")}
+              </label>
+              <input
                 id="contact-name"
                 value={contactForm.name}
-                onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
                 required
+                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
-              <Label htmlFor="contact-email">{t("expertProfile.contactForm.yourEmail")}</Label>
-              <Input
+              <label
+                htmlFor="contact-email"
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 block mb-1.5"
+              >
+                {t("expertProfile.contactForm.yourEmail")}
+              </label>
+              <input
                 id="contact-email"
                 type="email"
                 value={contactForm.email}
-                onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
                 required
+                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
-              <Label htmlFor="contact-subject">{t("expertProfile.contactForm.subject")}</Label>
-              <Input
+              <label
+                htmlFor="contact-subject"
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 block mb-1.5"
+              >
+                {t("expertProfile.contactForm.subject")}
+              </label>
+              <input
                 id="contact-subject"
                 value={contactForm.subject}
-                onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
+                onChange={(e) => setContactForm((p) => ({ ...p, subject: e.target.value }))}
                 placeholder={t("expertProfile.contactForm.subjectPlaceholder")}
+                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
-              <Label htmlFor="contact-message">{t("expertProfile.contactForm.message")}</Label>
-              <Textarea
+              <label
+                htmlFor="contact-message"
+                className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 block mb-1.5"
+              >
+                {t("expertProfile.contactForm.message")}
+              </label>
+              <textarea
                 id="contact-message"
                 value={contactForm.message}
-                onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
+                onChange={(e) => setContactForm((p) => ({ ...p, message: e.target.value }))}
                 placeholder={t("expertProfile.contactForm.messagePlaceholder")}
                 rows={4}
                 required
+                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors resize-y"
               />
             </div>
-            <div className="flex gap-2">
-              <Button
+            <div className="flex gap-2 pt-2">
+              <button
                 type="button"
-                variant="outline"
                 onClick={() => setShowContactModal(false)}
-                className="flex-1"
+                className="flex-1 py-2.5 bg-white border border-rule rounded-md text-[13px] text-ink hover:bg-ink/[0.06] transition-colors"
               >
                 {t("expertProfile.contactForm.cancel")}
-              </Button>
-              <Button
+              </button>
+              <button
                 type="submit"
                 disabled={sendingEmail}
-                className="flex-1"
+                className="flex-1 py-2.5 bg-ink text-paper rounded-md text-[13px] font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
               >
-                {sendingEmail ? t("expertProfile.contactForm.sending") : t("expertProfile.contactForm.send")}
-              </Button>
+                {sendingEmail
+                  ? t("expertProfile.contactForm.sending")
+                  : t("expertProfile.contactForm.send")}
+              </button>
             </div>
           </form>
         </DialogContent>
