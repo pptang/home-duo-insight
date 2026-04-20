@@ -25,9 +25,20 @@ export function AuthButtons() {
 
   if (!user) {
     return (
-      <Button asChild size="sm" variant="outline">
-        <Link to="/auth">{t("authButtons.signIn")}</Link>
-      </Button>
+      <div className="flex items-center gap-2">
+        <Link
+          to="/auth"
+          className="text-[13px] text-ink no-underline px-3.5 py-1.5 border border-rule rounded hover:bg-ink/[0.06] transition-colors"
+        >
+          {t("authButtons.signIn")}
+        </Link>
+        <Link
+          to="/auth"
+          className="text-[13px] text-paper bg-ink no-underline px-4 py-1.5 rounded hover:opacity-80 transition-opacity"
+        >
+          {t("authButtons.signUp", "無料で始める")}
+        </Link>
+      </div>
     );
   }
 

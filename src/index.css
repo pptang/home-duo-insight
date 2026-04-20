@@ -1,6 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -8,83 +6,73 @@
 
 @layer base {
   :root {
-    /* AiSumai Brand Colors */
-    --background: 120 33% 97%; /* #F8FAF9 neutral-bg */
-    --foreground: 120 5% 11%; /* #1A1C1A text */
+    /* AiSumai Editorial Palette — paper / ink monochrome */
+    --paper: 48 24% 97%;          /* #f9f8f5 */
+    --paper-dark: 45 22% 92%;     /* #f0ede6 */
+    --ink: 0 0% 4%;               /* #0a0a0a */
+    --ink-60: 0 0% 4%;
+    --ink-30: 0 0% 4%;
+    --ink-10: 0 0% 4%;
+    --rule: 0 0% 4%;
+    --tag-bg: 50 9% 92%;          /* #edece9 */
 
-    --card: 120 33% 97%; /* #F8FAF9 neutral-bg */
-    --card-foreground: 120 5% 11%; /* #1A1C1A text */
+    /* Accents */
+    --accent-red: 0 47% 47%;      /* #b04040 */
+    --accent-green: 142 30% 32%;  /* #3a6b4a */
+    --accent-yellow: 39 60% 33%;  /* #8a6520 */
 
+    /* shadcn alias mapping (HSL) */
+    --background: 48 24% 97%;
+    --foreground: 0 0% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 120 5% 11%;
+    --popover-foreground: 0 0% 4%;
+    --primary: 0 0% 4%;
+    --primary-foreground: 48 24% 97%;
+    --secondary: 45 22% 92%;
+    --secondary-foreground: 0 0% 4%;
+    --muted: 45 22% 92%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 45 22% 92%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 0 47% 47%;
+    --destructive-foreground: 48 24% 97%;
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 0 0% 4%;
+    --radius: 0.375rem;
 
-    --primary: 162 46% 33%; /* #2E7D64 Forest Green */
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 158 48% 76%; /* #B6E2D3 Mint */
-    --secondary-foreground: 120 5% 11%;
-
-    --muted: 158 48% 76%; /* #B6E2D3 Mint */
-    --muted-foreground: 120 5% 39%; /* #5E615E subtext */
-
-    --accent: 49 100% 71%; /* #FFD36B Yellow */
-    --accent-foreground: 120 5% 11%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 151 17% 85%; /* #D8E1DD divider */
-    --input: 151 17% 85%;
-    --ring: 162 46% 33%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 48 24% 97%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 4%;
+    --sidebar-primary-foreground: 48 24% 97%;
+    --sidebar-accent: 45 22% 92%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 0 0% 4%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 0 0% 6%;
+    --foreground: 48 24% 97%;
+    --card: 0 0% 8%;
+    --card-foreground: 48 24% 97%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 48 24% 97%;
+    --primary: 48 24% 97%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 48 24% 97%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 48 24% 97%;
+    --destructive: 0 47% 47%;
+    --destructive-foreground: 48 24% 97%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 48 24% 97%;
   }
 }
 
@@ -93,182 +81,151 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-foreground font-aisumai;
+    @apply bg-background text-foreground;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
-.property-card {
-  @apply bg-card rounded-2xl shadow-lg border border-border overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02];
+/* ─── Editorial type utilities ─────────────────────────── */
+@layer utilities {
+  .font-display {
+    font-family: 'DM Serif Display', Georgia, serif;
+  }
+  .font-body {
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .font-mono-label {
+    font-family: 'DM Mono', monospace;
+  }
+  .text-ink {
+    color: #0a0a0a;
+  }
+  .text-ink-60 {
+    color: rgba(10, 10, 10, 0.6);
+  }
+  .text-ink-30 {
+    color: rgba(10, 10, 10, 0.3);
+  }
+  .bg-paper {
+    background-color: #f9f8f5;
+  }
+  .bg-paper-dark {
+    background-color: #f0ede6;
+  }
+  .bg-ink {
+    background-color: #0a0a0a;
+  }
+  .border-rule {
+    border-color: rgba(10, 10, 10, 0.12);
+  }
+
+  /* Editorial micro-label */
+  .label-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(10, 10, 10, 0.6);
+  }
+  .label-mono-sm {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(10, 10, 10, 0.6);
+  }
 }
 
+/* ─── Aisumai logo (legacy class kept for compat) ──────── */
 .aisumai-logo {
-  @apply text-3xl font-bold text-primary;
-  font-family: 'Noto Sans JP', serif;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.3px;
+  color: #0a0a0a;
 }
 
-/* Immersive Design Utilities */
-.hero-landscape {
-  background: linear-gradient(135deg, 
-    hsl(var(--primary)) 0%, 
-    hsl(var(--secondary)) 50%, 
-    hsl(var(--accent) / 0.3) 100%);
-  position: relative;
+/* ─── Compare widget ────────────────────────────────────── */
+.compare-widget {
+  width: 100%;
+  max-width: 860px;
+  background: #fff;
+  border: 1px solid rgba(10, 10, 10, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 2px 24px rgba(10, 10, 10, 0.06), 0 0 0 1px rgba(10, 10, 10, 0.04);
+  overflow: hidden;
+  animation: slideUp 0.6s ease both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Score duel ────────────────────────────────────────── */
+.score-duel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: rgba(10, 10, 10, 0.12);
+  border: 1px solid rgba(10, 10, 10, 0.12);
+  border-radius: 10px;
   overflow: hidden;
 }
-
-.hero-landscape::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
-  opacity: 0.3;
-}
-
-.parallax-layer {
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.scrollytelling-section {
-  position: relative;
-  overflow: hidden;
-}
-
-.scrollytelling-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, transparent 0%, hsl(var(--background)) 100%);
-  pointer-events: none;
-}
-
-.section-fade {
-  @apply transition-all duration-700 ease-out opacity-0 transform translate-y-8;
-}
-
-.section-fade.visible {
-  @apply opacity-100 translate-y-0;
-}
-
-.hover-lift {
-  @apply transition-transform duration-300 hover:scale-105 hover:shadow-lg;
-}
-
-.hover-glow:hover {
-  box-shadow: 0 0 20px hsl(var(--accent) / 0.5), 0 0 40px hsl(var(--accent) / 0.3);
-  animation: pulse-glow 1s ease-in-out;
-}
-
-.feature-scroll-container {
-  @apply flex overflow-x-auto space-x-8 pb-4 scroll-smooth;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.feature-scroll-container::-webkit-scrollbar {
-  display: none;
-}
-
-.interactive-comparison:hover .comparison-overlay {
-  @apply opacity-100;
-}
-
-.comparison-overlay {
-  @apply absolute inset-0 bg-primary/10 opacity-0 transition-opacity duration-300 flex items-center justify-center;
-}
-
-.gradient-cta {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+.duel-side {
+  padding: 24px;
+  background: #fff;
   position: relative;
 }
-
-.gradient-cta::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-  animation: shimmer 3s infinite;
+.duel-side.winner {
+  background: #0a0a0a;
+  color: #f9f8f5;
+}
+.duel-side.loser {
+  background: #f0ede6;
 }
 
-.cinematic-heading {
-  @apply text-5xl md:text-7xl font-black tracking-tight leading-none;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+/* ─── Skeleton shimmer ─────────────────────────────────── */
+.skel {
+  background: linear-gradient(90deg, rgba(10, 10, 10, 0.06) 0%, rgba(10, 10, 10, 0.10) 50%, rgba(10, 10, 10, 0.06) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 4px;
 }
-
-.micro-animation {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Keyframe Animations */
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px hsl(var(--accent) / 0.5); }
-  50% { box-shadow: 0 0 30px hsl(var(--accent) / 0.8), 0 0 60px hsl(var(--accent) / 0.4); }
-}
-
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+/* ─── Feed report card hover ───────────────────────────── */
+.rcard {
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.rcard:hover {
+  background: #fdfcf9;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ─── Animations ───────────────────────────────────────── */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
 .animate-in {
-  @apply opacity-0;
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: fade-in-up 0.4s ease both;
 }
 
-.animate-in-delayed {
-  @apply opacity-0;
-  animation: fadeInUp 0.6s ease-out 0.2s forwards;
-}
-
-.animate-in {
-  @apply opacity-0;
-  animation: fadeIn 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+/* ─── Reduced motion ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

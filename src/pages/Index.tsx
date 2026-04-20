@@ -1,395 +1,351 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Home, Users, Search, Sparkles, Heart, Brain } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { ArrowRight } from "lucide-react";
+
+const FILTER_CHIPS = [
+  { id: "price", label: "価格" },
+  { id: "access", label: "交通" },
+  { id: "age", label: "築年数" },
+  { id: "layout", label: "間取り" },
+  { id: "school", label: "学区" },
+  { id: "risk", label: "リスク" },
+];
+
+const FEED_ITEMS = [
+  {
+    id: "demo-1",
+    num: "#0142",
+    area: "渋谷区 · 目黒区",
+    date: "2日前",
+    propA: { name: "パークコート渋谷 ザ タワー", price: "¥8,500万", score: 74, win: false },
+    propB: { name: "ザ・パークハウス中目黒", price: "¥9,200万", score: 88, win: true },
+    highlights: [
+      { text: "B が", strong: "700万円高い" },
+      { text: "B の駅距離", strong: "3分短い" },
+      { text: "B の面積", strong: "+7m²" },
+    ],
+    expert: { name: "田中 誠一", initial: "田", claimed: true },
+    stats: { views: 284, saves: 12 },
+  },
+  {
+    id: "demo-2",
+    num: "#0141",
+    area: "港区",
+    date: "3日前",
+    propA: { name: "虎ノ門ヒルズ レジデンス", price: "¥18,000万", score: 91, win: true },
+    propB: { name: "アークヒルズ仙石山森タワー", price: "¥15,500万", score: 79, win: false },
+    highlights: [
+      { text: "A が", strong: "2,500万円高い" },
+      { text: "A の面積", strong: "+12m²" },
+    ],
+    expert: { claimed: false },
+    stats: { views: 521, saves: 31 },
+  },
+  {
+    id: "demo-3",
+    num: "#0139",
+    area: "大阪市 北区",
+    date: "5日前",
+    propA: { name: "ブランズタワー梅田 North", price: "¥6,800万", score: 71, win: false },
+    propB: { name: "グランドメゾン新梅田タワー", price: "¥7,200万", score: 83, win: true },
+    highlights: [
+      { text: "B が", strong: "400万円高い" },
+      { text: "A は", strong: "即入居可" },
+    ],
+    expert: { name: "山本 健太郎", initial: "山", claimed: true },
+    stats: { views: 198, saves: 9 },
+  },
+];
 
 const Index = () => {
   const { t } = useTranslation();
-  const heroRef = useRef<HTMLElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const [activeChips, setActiveChips] = useState<Set<string>>(new Set(["price"]));
+  const [activeTab, setActiveTab] = useState<"url" | "id" | "area">("url");
+  const [propA, setPropA] = useState("");
+  const [propB, setPropB] = useState("");
 
-  useEffect(() => {
-    // Parallax scroll effect
-    const handleScroll = () => {
-      const scrolled = window.pageYOffset;
-      const rate = scrolled * -0.5;
-      
-      if (heroRef.current) {
-        const layers = heroRef.current.querySelectorAll('.parallax-layer');
-        layers.forEach((layer, index) => {
-          const speed = (index + 1) * 0.3;
-          (layer as HTMLElement).style.transform = `translateY(${rate * speed}px)`;
-        });
-      }
-    };
-
-    // Intersection Observer for animations
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    // Observe all sections with fade animation
-    document.querySelectorAll('.section-fade').forEach((el) => {
-      observer.observe(el);
+  const toggleChip = (id: string) => {
+    setActiveChips((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
     });
+  };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      observer.disconnect();
-    };
-  }, []);
+  const handleCompare = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/compare");
+  };
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="relative">
-        {/* Immersive Hero Section */}
-        <section 
-          ref={heroRef}
-          className="hero-landscape min-h-screen relative flex items-center justify-center text-center overflow-hidden"
-        >
-          {/* Background Layers for Parallax */}
-          <div className="parallax-layer absolute inset-0 opacity-20">
-            <div className="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-primary/30 to-transparent rounded-t-[50px]"></div>
+    <>
+      {/* HERO */}
+      <section className="min-h-[calc(100vh-52px)] flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 relative">
+        <div className="absolute inset-0 pointer-events-none"
+          style={{
+            background: "radial-gradient(ellipse 60% 40% at 50% 20%, rgba(10,10,10,0.04) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative z-10 w-full max-w-[860px] mx-auto">
+          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-60 mb-5 flex items-center justify-center gap-2.5">
+            <span className="block w-7 h-px bg-ink/30" />
+            日本の不動産を、正直に比べる
+            <span className="block w-7 h-px bg-ink/30" />
           </div>
-          <div className="parallax-layer absolute inset-0 opacity-30">
-            <div className="absolute bottom-20 left-1/4 w-16 h-32 bg-primary/40 rounded-full transform -rotate-12"></div>
-            <div className="absolute bottom-16 right-1/3 w-12 h-24 bg-secondary/60 rounded-full transform rotate-6"></div>
-            <div className="absolute top-1/3 left-1/6 w-8 h-16 bg-accent/50 rounded-full"></div>
-          </div>
-          
-          {/* Main Content */}
-          <div className="relative z-10 max-w-6xl mx-auto px-4 py-20">
-            <div className="bg-background/90 backdrop-blur-md rounded-3xl p-12 shadow-2xl border border-border/20">
-              <div className="inline-flex items-center space-x-4 mb-8 animate-in">
-                <span className="aisumai-logo text-6xl micro-animation">愛住</span>
-                <div className="text-left">
-                  <h1 className="cinematic-heading text-foreground">
-                    AiSumai
-                  </h1>
-                  <p className="text-2xl text-accent font-semibold">Love to live</p>
-                </div>
-              </div>
-              
-              <h2 className="text-4xl md:text-6xl font-bold text-foreground leading-tight mb-6 animate-in-delayed">
-                {t("home.hero.title")}
-              </h2>
-              
-              <p className="text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-in-delayed leading-relaxed">
-                {t("home.hero.subtitle")}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-in-delayed">
-                <Button 
-                  asChild 
-                  size="lg" 
-                  className="text-lg px-8 py-4 hover-glow bg-primary hover:bg-primary/90 text-primary-foreground"
+
+          <h1 className="font-display text-[clamp(40px,6vw,72px)] leading-[1.1] tracking-[-1px] text-ink mb-3">
+            Compare homes,<br />
+            <em className="italic text-ink-60">not brochures.</em>
+          </h1>
+          <p className="text-[15px] text-ink-60 mb-12 font-light">
+            2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。
+          </p>
+
+          {/* COMPARE WIDGET */}
+          <form onSubmit={handleCompare} className="compare-widget mx-auto text-left">
+            <div className="flex border-b border-rule bg-paper-dark px-5 gap-0.5">
+              {([
+                { id: "url", label: "物件URL" },
+                { id: "id", label: "物件番号" },
+                { id: "area", label: "エリア名で検索" },
+              ] as const).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`font-mono text-[11px] uppercase tracking-[0.06em] px-3.5 py-2.5 border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? "border-ink text-ink"
+                      : "border-transparent text-ink-60 hover:text-ink"
+                  }`}
                 >
-                  <Link to="/compare">
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    {t("home.hero.cta_primary")}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button 
-                  asChild 
-                  variant="outline" 
-                  size="lg" 
-                  className="text-lg px-8 py-4 hover-lift border-2 bg-background/50"
-                >
-                  <Link to="/feed">
-                    <Heart className="mr-2 h-5 w-5" />
-                    {t("home.hero.cta_secondary")}
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <div className="w-6 h-10 border-2 border-foreground/30 rounded-full flex justify-center">
-              <div className="w-1 h-3 bg-foreground/30 rounded-full mt-2 animate-pulse"></div>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section - Continuous Flow */}
-        <section className="scrollytelling-section py-32 relative">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-20 section-fade">
-              <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
-                {t("home.features.title")}
-              </h2>
-              <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                {t("home.features.subtitle")}
-              </p>
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            {/* Horizontal Scrolling Features */}
-            <div className="section-fade flex justify-center" ref={featuresRef}>
-              <div className="feature-scroll-container max-w-none px-4 md:px-8">
-                {/* AI Analysis */}
-                <div className="flex-shrink-0 w-80 p-8 bg-gradient-to-br from-primary/10 to-primary/20 rounded-3xl hover-lift border border-primary/20">
-                  <div className="w-20 h-20 bg-primary/20 rounded-2xl flex items-center justify-center mb-6 micro-animation">
-                    <Brain className="h-10 w-10 text-primary" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    {t("home.features.ai.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    {t("home.features.ai.description")}
-                  </p>
-                  {/* <div className="mt-6 flex items-center text-primary font-medium">
-                    <span>{t("home.features.ai.cta")}</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div> */}
-                </div>
-
-                {/* Expert Insights */}
-                <div className="flex-shrink-0 w-80 p-8 bg-gradient-to-br from-accent/10 to-accent/20 rounded-3xl hover-lift border border-accent/20">
-                  <div className="w-20 h-20 bg-accent/30 rounded-2xl flex items-center justify-center mb-6 micro-animation">
-                    <Users className="h-10 w-10 text-accent-foreground" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    {t("home.features.expert.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    {t("home.features.expert.description")}
-                  </p>
-                  {/* <div className="mt-6 flex items-center text-accent-foreground font-medium">
-                    <span>{t("home.features.expert.cta")}</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div> */}
-                </div>
-
-                {/* Community Wisdom */}
-                <div className="flex-shrink-0 w-80 p-8 bg-gradient-to-br from-secondary/20 to-secondary/30 rounded-3xl hover-lift border border-secondary/30">
-                  <div className="w-20 h-20 bg-secondary/40 rounded-2xl flex items-center justify-center mb-6 micro-animation">
-                    <Home className="h-10 w-10 text-primary" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    {t("home.features.community.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-lg">
-                    {t("home.features.community.description")}
-                  </p>
-                  {/* <div className="mt-6 flex items-center text-primary font-medium">
-                    <span>{t("home.features.community.cta")}</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </div> */}
-                </div>
+            <div className="p-5 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-end">
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 pl-0.5">
+                  物件 A
+                </label>
+                <input
+                  type="text"
+                  value={propA}
+                  onChange={(e) => setPropA(e.target.value)}
+                  placeholder="例：SUUMO の URL または 物件名"
+                  className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
+                />
+              </div>
+              <div className="hidden md:flex w-9 h-9 items-center justify-center border border-rule rounded-full font-mono text-[11px] text-ink-60 bg-paper-dark mb-1">
+                vs
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 pl-0.5">
+                  物件 B
+                </label>
+                <input
+                  type="text"
+                  value={propB}
+                  onChange={(e) => setPropB(e.target.value)}
+                  placeholder="例：HOME'S の URL または 物件名"
+                  className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
+                />
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* Interactive Sample Comparison */}
-        <section className="py-32 bg-muted/20">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16 section-fade">
-              <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
-                {t("home.sample.title")}
-              </h2>
-              <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                {t("home.sample.subtitle")}
-              </p>
-            </div>
-
-            <div className="section-fade max-w-6xl mx-auto">
-              <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* Property A */}
-                <div className="interactive-comparison group relative bg-card rounded-3xl overflow-hidden shadow-xl border border-border hover-lift">
-                  <div className="aspect-video bg-gradient-to-br from-primary/20 to-primary/40 relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-primary-foreground">
-                        <Home className="h-16 w-16 mx-auto mb-2 opacity-80" />
-                        <p className="text-lg font-medium">Shibuya Apartment</p>
-                      </div>
-                    </div>
-                    <div className="comparison-overlay">
-                      <div className="text-center text-primary-foreground">
-                        <Sparkles className="h-12 w-12 mx-auto mb-2" />
-                        <p className="font-bold text-lg">{t("home.sample.click_to_compare")}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Shibuya Dream</h3>
-                    <p className="text-primary font-bold text-xl mb-4">¥135,000/month</p>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.layout")}:</span>
-                        <span className="font-semibold text-foreground">1LDK (45m²)</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.station")}:</span>
-                        <span className="font-semibold text-foreground">7 min walk</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.building")}:</span>
-                        <span className="font-semibold text-foreground">10 years old</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Property B */}
-                <div className="interactive-comparison group relative bg-card rounded-3xl overflow-hidden shadow-xl border border-border hover-lift">
-                  <div className="aspect-video bg-gradient-to-br from-secondary/30 to-accent/20 relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-primary-foreground">
-                        <Home className="h-16 w-16 mx-auto mb-2 opacity-80" />
-                        <p className="text-lg font-medium">Nakameguro Apartment</p>
-                      </div>
-                    </div>
-                    <div className="comparison-overlay">
-                      <div className="text-center text-primary-foreground">
-                        <Sparkles className="h-12 w-12 mx-auto mb-2" />
-                        <p className="font-bold text-lg">{t("home.sample.click_to_compare")}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold text-foreground mb-2">Nakameguro Haven</h3>
-                    <p className="text-primary font-bold text-xl mb-4">¥142,000/month</p>
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.layout")}:</span>
-                        <span className="font-semibold text-foreground">1LDK (48m²)</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.station")}:</span>
-                        <span className="font-semibold text-foreground">5 min walk</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">{t("home.sample.building")}:</span>
-                        <span className="font-semibold text-foreground">5 years old</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+            <div className="px-5 pb-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-2">
+                {FILTER_CHIPS.map((chip) => {
+                  const active = activeChips.has(chip.id);
+                  return (
+                    <button
+                      key={chip.id}
+                      type="button"
+                      onClick={() => toggleChip(chip.id)}
+                      className={`font-mono text-[10px] uppercase tracking-[0.06em] border rounded-full px-2.5 py-1 transition-colors ${
+                        active
+                          ? "bg-ink text-paper border-ink"
+                          : "bg-paper-dark text-ink-60 border-rule hover:bg-ink hover:text-paper hover:border-ink"
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* AI Recommendation Preview */}
-              <div className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-3xl p-8 border border-primary/20">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-primary/20 rounded-xl flex items-center justify-center">
-                    <Brain className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="text-xl font-bold text-foreground mb-2">{t("home.sample.ai_recommendation")}</h4>
-                    <p className="text-muted-foreground leading-relaxed text-lg">
-                      {t("home.sample.recommendation_text")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-center mt-12">
-                <Button asChild size="lg" className="text-lg px-12 py-4 hover-glow">
-                  <Link to="/compare">
-                    {t("home.sample.create_comparison")}
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Success Stories */}
-        {/* <section className="py-32 scrollytelling-section">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16 section-fade">
-              <h2 className="text-5xl md:text-6xl font-black text-foreground mb-6">
-                Happy endings 💕
-              </h2>
-              <p className="text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                Real people, real decisions, real satisfaction
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8 section-fade">
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 p-8 rounded-3xl hover-lift border border-primary/20">
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-secondary mr-4"></div>
-                  <div>
-                    <h4 className="font-bold text-foreground text-lg">Tanaka Yuki</h4>
-                    <p className="text-muted-foreground">Tokyo • Software Engineer</p>
-                  </div>
-                </div>
-                <p className="text-muted-foreground leading-relaxed text-lg italic">
-                  "AiSumai revealed hidden costs and neighborhood insights I never would have found. 
-                  The AI caught things that even my realtor missed! Now I'm living my best life in Shibuya 🎉"
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-accent/10 to-accent/20 p-8 rounded-3xl hover-lift border border-accent/30">
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent to-secondary mr-4"></div>
-                  <div>
-                    <h4 className="font-bold text-foreground text-lg">Smith John</h4>
-                    <p className="text-muted-foreground">Osaka • Designer</p>
-                  </div>
-                </div>
-                <p className="text-muted-foreground leading-relaxed text-lg italic">
-                  "The expert insights saved me from a huge mistake. An agent spotted potential noise issues 
-                  that I completely overlooked. Dodged a bullet! 🛡️"
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-secondary/20 to-secondary/30 p-8 rounded-3xl hover-lift border border-secondary/40">
-                <div className="flex items-center mb-6">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-secondary to-primary mr-4"></div>
-                  <div>
-                    <h4 className="font-bold text-foreground text-lg">Yamamoto Keiko</h4>
-                    <p className="text-muted-foreground">Kyoto • Teacher</p>
-                  </div>
-                </div>
-                <p className="text-muted-foreground leading-relaxed text-lg italic">
-                  "Finally, no more second-guessing! The visual comparison made everything crystal clear. 
-                  My family found our dream home without any stress 🏡✨"
-                </p>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
-        {/* High-Contrast CTA */}
-        <section className="gradient-cta py-32 relative">
-          <div className="relative z-10 container mx-auto px-4 text-center">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="cinematic-heading text-primary-foreground mb-8">
-                {t("home.cta.title")}
-              </h2>
-              <p className="text-2xl text-primary-foreground/90 mb-12 leading-relaxed max-w-3xl mx-auto">
-                {t("home.cta.subtitle")}
-              </p>
-              <Button 
-                asChild 
-                size="lg" 
-                className="text-2xl px-16 py-6 bg-card text-primary hover:bg-card/90 hover-glow shadow-2xl border-4 border-card/20"
+              <button
+                type="submit"
+                className="bg-ink text-paper px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] flex items-center justify-center gap-2 hover:opacity-85 transition-all hover:-translate-y-0.5"
               >
-                <Link to="/compare">
-                  <Sparkles className="mr-3 h-6 w-6" />
-                  {t("home.cta.button")}
-                  <ArrowRight className="ml-3 h-6 w-6" />
-                </Link>
-              </Button>
+                <ArrowRight className="w-3.5 h-3.5" />
+                比較する
+              </button>
+            </div>
+
+            <div className="px-5 pt-2.5 pb-4 flex flex-wrap gap-4 justify-center border-t border-rule">
+              <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
+                <span className="w-1 h-1 rounded-full bg-ink/30" />
+                SUUMO / HOME'S / LIFULL 対応
+              </div>
+              <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
+                <span className="w-1 h-1 rounded-full bg-ink/30" />
+                無料で3比較/月
+              </div>
+              <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
+                <span className="w-1 h-1 rounded-full bg-ink/30" />
+                AI + 専門家のダブルチェック
+              </div>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      {/* DIVIDER */}
+      <div className="max-w-[860px] mx-auto px-6 flex items-center gap-4">
+        <div className="flex-1 h-px bg-rule" />
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 whitespace-nowrap">
+          Discover — 最新比較レポート
+        </span>
+        <div className="flex-1 h-px bg-rule" />
+      </div>
+
+      {/* FEED PREVIEW */}
+      <section className="max-w-[860px] mx-auto mt-10 px-6 pb-24">
+        <div className="flex items-center justify-between mb-5">
+          <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-60">
+            新着比較レポート
+          </span>
+          <Link
+            to="/feed"
+            className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink-60 hover:text-ink no-underline border border-transparent hover:border-rule rounded-full px-2.5 py-1"
+          >
+            すべて見る →
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-px bg-rule border border-rule rounded-lg overflow-hidden">
+          {FEED_ITEMS.map((item) => (
+            <ReportCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
+    </>
+  );
+};
+
+const ReportCard = ({ item }: { item: typeof FEED_ITEMS[number] }) => {
+  return (
+    <Link
+      to="/feed"
+      className="rcard no-underline text-ink"
+    >
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] min-h-[120px]">
+        <div className="p-4 flex flex-col justify-between border-r border-rule">
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-ink-30">
+                {item.num}
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
+                {item.area}
+              </span>
+              <span className="font-mono text-[9px] text-ink-30 ml-auto">{item.date}</span>
+            </div>
+            <div className="flex items-start gap-2 mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="font-display text-[13px] leading-[1.25] tracking-[-0.2px] truncate">
+                  {item.propA.name}
+                </div>
+                <div className="font-display text-[14px] tracking-[-0.3px] mt-0.5">
+                  {item.propA.price}
+                </div>
+              </div>
+              <div className="flex-shrink-0 w-[22px] h-[22px] border border-rule rounded-full flex items-center justify-center font-mono text-[8px] text-ink-30 mt-0.5">
+                vs
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-display text-[13px] leading-[1.25] tracking-[-0.2px] truncate">
+                  {item.propB.name}
+                </div>
+                <div className="font-display text-[14px] tracking-[-0.3px] mt-0.5">
+                  {item.propB.price}
+                </div>
+              </div>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+          <div className="flex flex-wrap gap-1.5">
+            {item.highlights.map((h, i) => (
+              <span key={i} className="text-[11px] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
+                {h.text}<strong className="text-ink font-medium">{h.strong}</strong>
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <div className="grid grid-cols-2 flex-1">
+            <div className={`p-2.5 flex flex-col justify-between border-b border-rule ${item.propA.win ? "bg-ink" : "bg-paper-dark"}`}>
+              <div className={`font-mono text-[8px] uppercase tracking-[0.1em] mb-0.5 ${item.propA.win ? "text-paper/40" : "text-ink-30"}`}>
+                物件 A
+              </div>
+              <div className={`font-display text-[26px] leading-none tracking-[-1px] ${item.propA.win ? "text-paper" : "text-ink-30"}`}>
+                {item.propA.score}
+              </div>
+              <div className={`font-mono text-[8px] ${item.propA.win ? "text-paper/30" : "text-ink-30"}`}>/ 100</div>
+              {item.propA.win && (
+                <span className="font-mono text-[7px] uppercase tracking-[0.1em] border border-paper/25 text-paper/70 px-1.5 py-0.5 rounded-sm w-fit mt-1">
+                  AI 推奨
+                </span>
+              )}
+            </div>
+            <div className={`p-2.5 flex flex-col justify-between border-b border-rule ${item.propB.win ? "bg-ink" : "bg-paper-dark"}`}>
+              <div className={`font-mono text-[8px] uppercase tracking-[0.1em] mb-0.5 ${item.propB.win ? "text-paper/40" : "text-ink-30"}`}>
+                物件 B
+              </div>
+              <div className={`font-display text-[26px] leading-none tracking-[-1px] ${item.propB.win ? "text-paper" : "text-ink-30"}`}>
+                {item.propB.score}
+              </div>
+              <div className={`font-mono text-[8px] ${item.propB.win ? "text-paper/30" : "text-ink-30"}`}>/ 100</div>
+              {item.propB.win && (
+                <span className="font-mono text-[7px] uppercase tracking-[0.1em] border border-paper/25 text-paper/70 px-1.5 py-0.5 rounded-sm w-fit mt-1">
+                  AI 推奨
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-2.5 py-1.5">
+            {item.expert.claimed ? (
+              <>
+                <div className="w-5 h-5 rounded-full bg-ink text-paper flex items-center justify-center font-mono text-[8px]">
+                  {item.expert.initial}
+                </div>
+                <span className="text-[11px] font-medium flex-1 truncate">{item.expert.name}</span>
+                <span className="font-mono text-[7px] uppercase tracking-[0.08em] border border-rule text-ink-60 px-1.5 py-0.5 rounded-sm">
+                  コメントあり
+                </span>
+              </>
+            ) : (
+              <>
+                <div className="w-5 h-5 rounded-full bg-paper-dark border border-rule text-ink-30 flex items-center justify-center font-mono text-[8px]">
+                  ?
+                </div>
+                <span className="font-mono text-[8px] uppercase tracking-[0.06em] text-ink-30 flex-1">
+                  専門家コメント待ち
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-2.5 px-4 py-1.5 bg-paper-dark border-t border-rule">
+        <span className="font-mono text-[9px] uppercase text-ink-30">👁 {item.stats.views}</span>
+        <span className="font-mono text-[9px] uppercase text-ink-30">🔖 {item.stats.saves}</span>
+      </div>
+    </Link>
   );
 };
 

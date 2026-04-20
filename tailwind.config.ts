@@ -19,12 +19,31 @@ export default {
 			}
 		},
 		extend: {
+			borderRadius: {
+				lg: 'var(--radius)',
+				md: 'calc(var(--radius) - 2px)',
+				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				display: ['DM Serif Display', 'Georgia', 'serif'],
+				body: ['Noto Sans JP', 'sans-serif'],
+				mono: ['DM Mono', 'monospace'],
+				inter: ['Noto Sans JP', 'sans-serif'],
+				aisumai: ['Noto Sans JP', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				paper: '#f9f8f5',
+				'paper-dark': '#f0ede6',
+				ink: '#0a0a0a',
+				'ink-60': 'rgba(10,10,10,0.6)',
+				'ink-30': 'rgba(10,10,10,0.3)',
+				'ink-10': 'rgba(10,10,10,0.08)',
+				rule: 'rgba(10,10,10,0.12)',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -63,15 +82,6 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				}
-			},
-			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
-			},
-			fontFamily: {
-				inter: ['Inter', 'Noto Sans JP', 'sans-serif'],
-				aisumai: ['Inter', 'Noto Sans JP', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {

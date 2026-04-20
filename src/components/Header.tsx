@@ -1,8 +1,6 @@
-
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { AuthButtons } from "@/components/AuthButtons";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -10,97 +8,78 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
+  const location = useLocation();
+
+  const navItems = [
+    { to: "/compare", labelKey: "nav.compare" },
+    { to: "/feed", labelKey: "nav.feed" },
+    { to: "/experts", labelKey: "nav.experts" },
+    { to: "/about", labelKey: "nav.about" },
+  ];
+
+  const isActive = (to: string) =>
+    to === "/" ? location.pathname === "/" : location.pathname.startsWith(to);
 
   return (
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3 hover-lift">
-              <span className="aisumai-logo">愛住</span>
-              <span className="text-xl font-semibold text-foreground">AiSumai</span>
-            </Link>
-          </div>
+    <header className="sticky top-0 z-50 h-[52px] bg-paper/95 backdrop-blur-md border-b border-rule">
+      <div className="h-full px-5 sm:px-8 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-1.5 text-ink no-underline">
+          <span className="font-display text-[18px] tracking-[-0.3px]">
+            愛住 AiSumai
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60 border border-rule rounded px-1.5 py-[2px]">
+            Beta
+          </span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            <Link to="/" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              {t("nav.home")}
-            </Link>
-            <Link to="/compare" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              {t("nav.compare")}
-            </Link>
-            <Link to="/feed" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              {t("nav.feed")}
-            </Link>
-            <Link to="/experts" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              {t("nav.experts")}
-            </Link>
-            <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-              {t("nav.about")}
-            </Link>
-          </nav>
-
-          <div className="hidden md:flex items-center gap-2">
-            <LanguageSwitcher />
-            <AuthButtons />
-          </div>
-
-          {/* Mobile Navigation Button */}
-          <div className="flex md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-primary focus:outline-none transition-colors"
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center">
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`text-[13px] no-underline rounded px-3.5 py-1.5 transition-colors hover:bg-ink/[0.06] hover:text-ink ${
+                isActive(item.to)
+                  ? "text-ink font-medium"
+                  : "text-ink-60"
+              }`}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
+              {t(item.labelKey)}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="hidden md:flex items-center gap-2">
+          <LanguageSwitcher />
+          <AuthButtons />
         </div>
+
+        {/* Mobile button */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden p-1.5 text-ink rounded hover:bg-ink/[0.06]"
+          aria-label="Toggle menu"
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="md:hidden animate-fade-in">
-          <div className="px-2 pt-2 pb-3 space-y-1 shadow-lg bg-background/95 backdrop-blur-md border-t border-border">
-            <Link 
-              to="/" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
+        <div className="md:hidden fixed inset-0 top-[52px] bg-paper/98 z-40 flex flex-col items-center justify-center gap-6 animate-in">
+          {navItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="font-display text-[26px] text-ink no-underline"
               onClick={() => setIsOpen(false)}
             >
-              {t("nav.home")}
+              {t(item.labelKey)}
             </Link>
-            <Link 
-              to="/compare" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {t("nav.compare")}
-            </Link>
-            <Link 
-              to="/feed" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {t("nav.feed")}
-            </Link>
-            <Link 
-              to="/experts" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {t("nav.experts")}
-            </Link>
-            <Link 
-              to="/about" 
-              className="block px-3 py-2 rounded-md text-base font-medium text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {t("nav.about")}
-            </Link>
-            <div className="pt-4 pb-3 border-t border-border flex items-center justify-between">
-              <LanguageSwitcher />
-              <AuthButtons />
-            </div>
+          ))}
+          <div className="flex flex-col gap-2.5 w-[260px] mt-4">
+            <LanguageSwitcher />
+            <AuthButtons />
           </div>
         </div>
       )}
