@@ -53,6 +53,22 @@ interface ComparisonData {
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
 }
 
+const PROPERTY_FIELDS = [
+  'id',
+  'property_name',
+  'address',
+  'price_yen',
+  'floor_plan',
+  'commute_minutes',
+  'property_type',
+  'image_urls',
+  'notes',
+  'private_area_sqm',
+  'construction_year',
+  'construction_month',
+  'building_age_years',
+].join(', ');
+
 type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
 const ComparisonDetail = () => {
@@ -72,8 +88,8 @@ const ComparisonDetail = () => {
         const { data: refreshed } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years)`)
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS})`)
           .eq("id", id)
           .single();
         if (refreshed) setComparison(refreshed as ComparisonData);
@@ -111,8 +127,8 @@ const ComparisonDetail = () => {
         const { data, error: err } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS}),
             recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
           .eq("id", id)
           .single();
