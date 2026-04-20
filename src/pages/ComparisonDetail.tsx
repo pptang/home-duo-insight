@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Share, Calendar, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ArrowLeft, Share, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
-import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
 import { RecommendationFeedback } from "@/components/RecommendationFeedback";
-import { WinnerBanner, CompareTabs } from "@/components/compare-result";
+import {
+  WinnerBanner,
+  CompareTabs,
+  ComparisonTable,
+  AIAnalysisBlock,
+  ProsConsGrid,
+} from "@/components/compare-result";
+import type { ComparisonRow } from "@/components/compare-result";
 
 interface PropertyData {
   id: string;
@@ -276,11 +282,7 @@ const ComparisonDetail = () => {
         onChange={setActiveTab}
       >
         {activeTab === 'summary' && (
-          <SummaryTab
-            comparison={comparison}
-            recommendation={recommendation}
-            formatPrice={formatPrice}
-          />
+          <SummaryTab comparison={comparison} recommendation={recommendation} />
         )}
         {activeTab === 'details' && (
           <DetailsTab comparison={comparison} formatPrice={formatPrice} />
@@ -330,19 +332,15 @@ const ComparisonDetail = () => {
 const SummaryTab = ({
   comparison,
   recommendation,
-  formatPrice,
 }: {
   comparison: ComparisonData;
   recommendation: AIRecommendation | null;
-  formatPrice: (p: number | null) => string;
 }) => {
   if (!recommendation) {
     return (
       <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
-        <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-30 mb-2">
-          Empty
-        </div>
-        <h3 className="font-display text-[20px] tracking-[-0.3px] mb-2">
+        <div className="text-label-sm text-ink-30 mb-2">Empty</div>
+        <h3 className="text-property-name mb-2">
           AI レポートはまだ生成されていません
         </h3>
         <p className="text-[13px] text-ink-60 mb-5">
@@ -358,104 +356,43 @@ const SummaryTab = ({
     );
   }
 
+  const summaryRows: ComparisonRow[] = (recommendation.summary_table || []).map(
+    (row, i) => ({
+      key: `summary-${i}`,
+      label: row.field,
+      valueA: row.property_a,
+      valueB: row.property_b,
+    }),
+  );
+
   return (
     <div className="space-y-8">
-      {/* Final verdict (dark) */}
-      <div className="bg-ink text-paper rounded-lg p-6 sm:p-8">
-        <div className="font-mono text-[9px] uppercase tracking-[0.12em] opacity-50 mb-3">
-          AI サマリー
-        </div>
-        <div className="text-[14px] leading-[1.7] prose prose-invert max-w-none">
-          <MarkdownRenderer content={recommendation.final_recommendation} />
-        </div>
-      </div>
-
-      {/* Summary table */}
-      {recommendation.summary_table?.length > 0 && (
+      <AIAnalysisBlock body={recommendation.final_recommendation} />
+      {summaryRows.length > 0 && (
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-            主要項目
-          </div>
-          <div className="border border-rule rounded-lg overflow-hidden bg-white">
-            <div className="grid grid-cols-[140px_1fr_1fr] bg-paper-dark border-b border-rule">
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60">
-                項目
-              </div>
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 border-l border-rule">
-                A · {comparison.property_a.property_name || "物件 A"}
-              </div>
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 border-l border-rule">
-                B · {comparison.property_b.property_name || "物件 B"}
-              </div>
-            </div>
-            {recommendation.summary_table.map((row, i) => (
-              <div
-                key={i}
-                className={`grid grid-cols-[140px_1fr_1fr] border-b border-rule last:border-b-0 text-[13px] ${
-                  i % 2 === 1 ? "bg-paper" : ""
-                }`}
-              >
-                <div className="px-4 py-2.5 text-ink-60">{row.field}</div>
-                <div className="px-4 py-2.5 border-l border-rule font-medium">{row.property_a}</div>
-                <div className="px-4 py-2.5 border-l border-rule font-medium">{row.property_b}</div>
-              </div>
-            ))}
-          </div>
+          <div className="text-label-sm text-ink-60 mb-3">主要項目</div>
+          <ComparisonTable
+            rows={summaryRows}
+            headerA={`A · ${comparison.property_a.property_name || '物件 A'}`}
+            headerB={`B · ${comparison.property_b.property_name || '物件 B'}`}
+          />
         </div>
       )}
-
-      {/* Pros/Cons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-rule border border-rule rounded-lg overflow-hidden">
-        <ProsCons
-          title={comparison.property_a.property_name || "物件 A"}
-          pros={recommendation.property_a_pros}
-          cons={recommendation.property_a_cons}
-        />
-        <ProsCons
-          title={comparison.property_b.property_name || "物件 B"}
-          pros={recommendation.property_b_pros}
-          cons={recommendation.property_b_cons}
-        />
-      </div>
+      <ProsConsGrid
+        a={{
+          title: comparison.property_a.property_name || '物件 A',
+          pros: recommendation.property_a_pros,
+          cons: recommendation.property_a_cons,
+        }}
+        b={{
+          title: comparison.property_b.property_name || '物件 B',
+          pros: recommendation.property_b_pros,
+          cons: recommendation.property_b_cons,
+        }}
+      />
     </div>
   );
 };
-
-const ProsCons = ({ title, pros, cons }: { title: string; pros: string[]; cons: string[] }) => (
-  <div className="bg-white p-6">
-    <h3 className="font-display text-[18px] tracking-[-0.2px] mb-4 pb-3 border-b border-rule">
-      {title}
-    </h3>
-    <div className="mb-5">
-      <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 mb-2">
-        <ThumbsUp className="w-3 h-3" />
-        Pros
-      </div>
-      <ul className="space-y-1.5 text-[13px]">
-        {pros.map((p, i) => (
-          <li key={i} className="flex gap-2">
-            <span className="text-ink-30">·</span>
-            <span>{p}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-    <div>
-      <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 mb-2">
-        <ThumbsDown className="w-3 h-3" />
-        Cons
-      </div>
-      <ul className="space-y-1.5 text-[13px]">
-        {cons.map((c, i) => (
-          <li key={i} className="flex gap-2">
-            <span className="text-ink-30">·</span>
-            <span>{c}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-);
 
 const DetailsTab = ({
   comparison,
