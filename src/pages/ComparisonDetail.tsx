@@ -7,9 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
-import { ExpertSection } from "@/components/ExpertSection";
 import { RecommendationFeedback } from "@/components/RecommendationFeedback";
-import { WinnerBanner } from "@/components/compare-result";
+import { WinnerBanner, CompareTabs } from "@/components/compare-result";
 
 interface PropertyData {
   id: string;
@@ -44,7 +43,7 @@ interface ComparisonData {
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
 }
 
-type Tab = "summary" | "details" | "photos" | "expert";
+type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
 const ComparisonDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -265,56 +264,42 @@ const ComparisonDetail = () => {
         />
       </section>
 
-      {/* Tabs */}
-      <nav className="max-w-[1040px] mx-auto px-6 mt-10 border-b border-rule flex gap-1 overflow-x-auto">
-        {([
-          { id: "summary" as Tab, label: "概要比較" },
-          { id: "details" as Tab, label: "詳細データ" },
-          { id: "photos" as Tab, label: "写真" },
-          { id: "expert" as Tab, label: "専門家コメント" },
-        ]).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
-            className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-3 border-b-2 whitespace-nowrap transition-colors ${
-              activeTab === t.id
-                ? "border-ink text-ink"
-                : "border-transparent text-ink-60 hover:text-ink"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
-      {/* Tab content */}
-      <section className="max-w-[1040px] mx-auto px-6 mt-8">
-        {activeTab === "summary" && (
-          <SummaryTab comparison={comparison} recommendation={recommendation} formatPrice={formatPrice} />
+      <CompareTabs
+        tabs={[
+          { id: 'summary', label: '概要比較' },
+          { id: 'details', label: '詳細データ' },
+          { id: 'photos', label: '写真' },
+          { id: 'map', label: '地図・交通' },
+          { id: 'risk', label: 'リスク分析' },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      >
+        {activeTab === 'summary' && (
+          <SummaryTab
+            comparison={comparison}
+            recommendation={recommendation}
+            formatPrice={formatPrice}
+          />
         )}
-        {activeTab === "details" && (
+        {activeTab === 'details' && (
           <DetailsTab comparison={comparison} formatPrice={formatPrice} />
         )}
-        {activeTab === "photos" && (
+        {activeTab === 'photos' && (
           <PhotosTab
             comparison={comparison}
             handleRetryImageExtraction={handleRetryImageExtraction}
           />
         )}
-        {activeTab === "expert" && (
-          <ExpertSection
-            comparisonId={comparison.id}
-            propertyAName={comparison.property_a.property_name || "物件 A"}
-            propertyBName={comparison.property_b.property_name || "物件 B"}
-          />
-        )}
+        {activeTab === 'map' && <MapTabPlaceholder />}
+        {activeTab === 'risk' && <RiskTabPlaceholder />}
 
-        {recommendation && activeTab === "summary" && (
+        {recommendation && activeTab === 'summary' && (
           <div className="mt-8">
             <RecommendationFeedback recommendationId={recommendation.id} />
           </div>
         )}
-      </section>
+      </CompareTabs>
 
       {/* Sticky action bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 z-30">
@@ -574,6 +559,19 @@ const PhotosTab = ({
         />
       </div>
     ))}
+  </div>
+);
+
+const MapTabPlaceholder = () => (
+  <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
+    <div className="text-label-sm text-ink-30 mb-2">地図・交通</div>
+    <div className="text-[13px] text-ink-60">準備中</div>
+  </div>
+);
+const RiskTabPlaceholder = () => (
+  <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
+    <div className="text-label-sm text-ink-30 mb-2">リスク分析</div>
+    <div className="text-[13px] text-ink-60">準備中</div>
   </div>
 );
 
