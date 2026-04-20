@@ -472,10 +472,10 @@ const PhotosTab = ({
   <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-rule border border-rule rounded-lg overflow-hidden">
     {[comparison.property_a, comparison.property_b].map((p, i) => (
       <div key={p.id} className="bg-white p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink-60 mb-2">
+        <div className="text-label-xs text-ink-60 mb-2">
           {i === 0 ? "物件 A" : "物件 B"}
         </div>
-        <h3 className="font-display text-[18px] tracking-[-0.2px] mb-4 truncate">
+        <h3 className="text-property-name mb-4 truncate">
           {p.property_name || `物件 ${i === 0 ? "A" : "B"}`}
         </h3>
         <PropertyImageDisplay
