@@ -368,9 +368,9 @@ const SummaryTab = ({
     return (
       <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
         <div className="text-label-sm text-ink-30 mb-2">Empty</div>
-        <h3 className="text-property-name mb-2">
+        <h2 className="text-property-name mb-2">
           AI レポートはまだ生成されていません
-        </h3>
+        </h2>
         <p className="text-[13px] text-ink-60 mb-5">
           物件 URL から再生成して、AI による比較分析を取得してください。
         </p>
@@ -395,6 +395,7 @@ const SummaryTab = ({
 
   return (
     <div className="space-y-8">
+      <h2 className="sr-only">比較サマリー</h2>
       <AIAnalysisBlock body={recommendation.final_recommendation} />
       {summaryRows.length > 0 && (
         <div>
