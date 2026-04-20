@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Share, Calendar, ThumbsUp, ThumbsDown, Crown } from "lucide-react";
+import { ArrowLeft, Share, Calendar, ThumbsUp, ThumbsDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
@@ -9,6 +9,7 @@ import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
 import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
 import { ExpertSection } from "@/components/ExpertSection";
 import { RecommendationFeedback } from "@/components/RecommendationFeedback";
+import { WinnerBanner } from "@/components/compare-result";
 
 interface PropertyData {
   id: string;
@@ -207,8 +208,6 @@ const ComparisonDetail = () => {
   const aPrice = comparison.property_a.price_yen ?? 0;
   const bPrice = comparison.property_b.price_yen ?? 0;
   const winner: "A" | "B" = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
-  const scoreA = winner === "A" ? 88 : 74;
-  const scoreB = winner === "B" ? 88 : 74;
 
   return (
     <div className="bg-paper text-ink pb-24">
@@ -250,27 +249,20 @@ const ComparisonDetail = () => {
         </div>
       </header>
 
-      {/* Score Duel */}
+      {/* Hero banner */}
       <section className="max-w-[1040px] mx-auto px-6 pt-8">
-        <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-          総合スコア
-        </div>
-        <div className="score-duel">
-          <ScoreSide
-            label="物件 A"
-            name={comparison.property_a.property_name || "物件 A"}
-            price={formatPrice(comparison.property_a.price_yen)}
-            score={scoreA}
-            winner={winner === "A"}
-          />
-          <ScoreSide
-            label="物件 B"
-            name={comparison.property_b.property_name || "物件 B"}
-            price={formatPrice(comparison.property_b.price_yen)}
-            score={scoreB}
-            winner={winner === "B"}
-          />
-        </div>
+        <div className="text-label-sm text-ink-60 mb-3">AI の判定</div>
+        <WinnerBanner
+          propertyA={{
+            name: comparison.property_a.property_name || '物件 A',
+            price: formatPrice(comparison.property_a.price_yen),
+          }}
+          propertyB={{
+            name: comparison.property_b.property_name || '物件 B',
+            price: formatPrice(comparison.property_b.price_yen),
+          }}
+          winner={winner}
+        />
       </section>
 
       {/* Tabs */}
@@ -349,41 +341,6 @@ const ComparisonDetail = () => {
     </div>
   );
 };
-
-const ScoreSide = ({
-  label,
-  name,
-  price,
-  score,
-  winner,
-}: {
-  label: string;
-  name: string;
-  price: string;
-  score: number;
-  winner: boolean;
-}) => (
-  <div className={`duel-side ${winner ? "winner" : "loser"}`}>
-    {winner && (
-      <div className="absolute top-3 right-3 font-mono text-[8px] uppercase tracking-[0.12em] border border-paper/25 text-paper/80 px-2 py-1 rounded-sm flex items-center gap-1">
-        <Crown className="w-3 h-3" />
-        AI 推奨
-      </div>
-    )}
-    <div className={`font-mono text-[9px] uppercase tracking-[0.12em] mb-2 ${winner ? "opacity-50" : "text-ink-60"}`}>
-      {label}
-    </div>
-    <div className={`font-display text-[20px] tracking-[-0.3px] mb-3 leading-[1.2] line-clamp-2`}>
-      {name}
-    </div>
-    <div className={`font-display text-[64px] leading-none tracking-[-2px] mb-2 ${winner ? "text-paper" : "text-ink/40"}`}>
-      {score}
-    </div>
-    <div className={`font-mono text-[9px] uppercase tracking-[0.1em] ${winner ? "opacity-50" : "text-ink-30"}`}>
-      / 100 · {price}
-    </div>
-  </div>
-);
 
 const SummaryTab = ({
   comparison,
