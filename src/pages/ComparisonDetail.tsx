@@ -26,6 +26,10 @@ interface PropertyData {
   property_type: string | null;
   image_urls: string[] | null;
   notes: string | null;
+  private_area_sqm: number | null;
+  construction_year: number | null;
+  construction_month: number | null;
+  building_age_years: number | null;
 }
 
 interface AIRecommendation {
@@ -68,8 +72,8 @@ const ComparisonDetail = () => {
         const { data: refreshed } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes)`)
+            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
+            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years)`)
           .eq("id", id)
           .single();
         if (refreshed) setComparison(refreshed as ComparisonData);
@@ -107,8 +111,8 @@ const ComparisonDetail = () => {
         const { data, error: err } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
+            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
+            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes, private_area_sqm, construction_year, construction_month, building_age_years),
             recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
           .eq("id", id)
           .single();
@@ -401,72 +405,44 @@ const DetailsTab = ({
   comparison: ComparisonData;
   formatPrice: (p: number | null) => string;
 }) => {
-  const fields: { key: string; label: string; getA: () => string | null; getB: () => string | null }[] = [
-    {
-      key: "price",
-      label: "価格",
-      getA: () => formatPrice(comparison.property_a.price_yen),
-      getB: () => formatPrice(comparison.property_b.price_yen),
-    },
-    {
-      key: "address",
-      label: "住所",
-      getA: () => comparison.property_a.address,
-      getB: () => comparison.property_b.address,
-    },
-    {
-      key: "floor",
-      label: "間取り",
-      getA: () => comparison.property_a.floor_plan,
-      getB: () => comparison.property_b.floor_plan,
-    },
-    {
-      key: "commute",
-      label: "通勤時間",
-      getA: () => comparison.property_a.commute_minutes ? `${comparison.property_a.commute_minutes} 分` : null,
-      getB: () => comparison.property_b.commute_minutes ? `${comparison.property_b.commute_minutes} 分` : null,
-    },
-    {
-      key: "type",
-      label: "種別",
-      getA: () => comparison.property_a.property_type,
-      getB: () => comparison.property_b.property_type,
-    },
+  const a = comparison.property_a;
+  const b = comparison.property_b;
+
+  const buildingAge = (p: PropertyData): string | null => {
+    if (p.building_age_years != null) {
+      const y = Math.floor(p.building_age_years);
+      return y === 0 ? '新築' : `築${y}年`;
+    }
+    if (p.construction_year) {
+      const month = p.construction_month ? `${p.construction_month}月` : '';
+      return `${p.construction_year}年${month}竣工`;
+    }
+    return null;
+  };
+
+  const area = (p: PropertyData): string | null =>
+    p.private_area_sqm != null ? `${p.private_area_sqm} ㎡` : null;
+
+  const commute = (p: PropertyData): string | null =>
+    p.commute_minutes != null ? `徒歩 ${p.commute_minutes} 分` : null;
+
+  const rows: ComparisonRow[] = [
+    { key: 'price', label: '価格', valueA: formatPrice(a.price_yen), valueB: formatPrice(b.price_yen), mono: true },
+    { key: 'address', label: '住所', valueA: a.address, valueB: b.address },
+    { key: 'floor', label: '間取り', valueA: a.floor_plan, valueB: b.floor_plan, mono: true },
+    { key: 'area', label: '専有面積', valueA: area(a), valueB: area(b), mono: true },
+    { key: 'age', label: '築年', valueA: buildingAge(a), valueB: buildingAge(b) },
+    { key: 'commute', label: '通勤時間', valueA: commute(a), valueB: commute(b), mono: true },
+    { key: 'type', label: '種別', valueA: a.property_type, valueB: b.property_type },
+    { key: 'notes', label: 'メモ', valueA: a.notes, valueB: b.notes },
   ];
+
   return (
-    <div className="border border-rule rounded-lg overflow-hidden bg-white">
-      {fields.map((f, i) => (
-        <div
-          key={f.key}
-          className={`grid grid-cols-[120px_1fr_1fr] border-b border-rule last:border-b-0 text-[13px] ${
-            i % 2 === 1 ? "bg-paper" : ""
-          }`}
-        >
-          <div className="px-4 py-3 text-ink-60 font-mono text-[10px] uppercase tracking-[0.08em]">
-            {f.label}
-          </div>
-          <div className="px-4 py-3 border-l border-rule font-medium">
-            {f.getA() || <span className="text-ink-30">—</span>}
-          </div>
-          <div className="px-4 py-3 border-l border-rule font-medium">
-            {f.getB() || <span className="text-ink-30">—</span>}
-          </div>
-        </div>
-      ))}
-      {(comparison.property_a.notes || comparison.property_b.notes) && (
-        <div className="grid grid-cols-[120px_1fr_1fr] border-t border-rule text-[13px] bg-paper-dark/40">
-          <div className="px-4 py-3 text-ink-60 font-mono text-[10px] uppercase tracking-[0.08em]">
-            メモ
-          </div>
-          <div className="px-4 py-3 border-l border-rule">
-            {comparison.property_a.notes || <span className="text-ink-30">—</span>}
-          </div>
-          <div className="px-4 py-3 border-l border-rule">
-            {comparison.property_b.notes || <span className="text-ink-30">—</span>}
-          </div>
-        </div>
-      )}
-    </div>
+    <ComparisonTable
+      rows={rows}
+      headerA={`A · ${a.property_name || '物件 A'}`}
+      headerB={`B · ${b.property_name || '物件 B'}`}
+    />
   );
 };
 
