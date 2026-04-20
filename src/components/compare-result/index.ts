@@ -9,3 +9,4 @@ export { AIAnalysisBlock } from './AIAnalysisBlock';
 export type { AIPoint, AIPointKind } from './AIAnalysisBlock';
 export { ProsConsGrid } from './ProsConsGrid';
 export { ComingSoonTab } from './ComingSoonTab';
+export { ExpertSectionPanel } from './ExpertSectionPanel';

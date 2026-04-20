@@ -14,6 +14,7 @@ import {
   AIAnalysisBlock,
   ProsConsGrid,
   ComingSoonTab,
+  ExpertSectionPanel,
 } from "@/components/compare-result";
 import type { ComparisonRow } from "@/components/compare-result";
 
@@ -323,6 +324,12 @@ const ComparisonDetail = () => {
           </div>
         )}
       </CompareTabs>
+
+      <ExpertSectionPanel
+        comparisonId={comparison.id}
+        propertyAName={comparison.property_a.property_name || '物件 A'}
+        propertyBName={comparison.property_b.property_name || '物件 B'}
+      />
 
       {/* Sticky action bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 z-30">
