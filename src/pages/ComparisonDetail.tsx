@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Share, Calendar } from "lucide-react";
+import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
@@ -13,6 +13,7 @@ import {
   ComparisonTable,
   AIAnalysisBlock,
   ProsConsGrid,
+  ComingSoonTab,
 } from "@/components/compare-result";
 import type { ComparisonRow } from "@/components/compare-result";
 
@@ -492,16 +493,20 @@ const PhotosTab = ({
 );
 
 const MapTabPlaceholder = () => (
-  <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
-    <div className="text-label-sm text-ink-30 mb-2">地図・交通</div>
-    <div className="text-[13px] text-ink-60">準備中</div>
-  </div>
+  <ComingSoonTab
+    eyebrow="地図・交通"
+    title="交通アクセスと周辺情報"
+    description="最寄り駅・路線数・所要時間、および主要施設までの経路を可視化したマップを準備しています。公開情報と現地調査を組み合わせ、物件ごとのアクセス性を比較できるようにします。"
+    icon={<MapPin className="w-4 h-4" />}
+  />
 );
 const RiskTabPlaceholder = () => (
-  <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
-    <div className="text-label-sm text-ink-30 mb-2">リスク分析</div>
-    <div className="text-[13px] text-ink-60">準備中</div>
-  </div>
+  <ComingSoonTab
+    eyebrow="リスク分析"
+    title="ハザードと将来リスクの可視化"
+    description="洪水・液状化・土砂災害などのハザードマップ情報と、エリアの資産価値トレンドに基づく将来リスクを AI が整理し、2 物件を並べて比較できるようにします。"
+    icon={<ShieldAlert className="w-4 h-4" />}
+  />
 );
 
 export default ComparisonDetail;

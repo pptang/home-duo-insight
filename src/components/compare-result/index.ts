@@ -8,3 +8,4 @@ export type { ComparisonRow } from './ComparisonTable';
 export { AIAnalysisBlock } from './AIAnalysisBlock';
 export type { AIPoint, AIPointKind } from './AIAnalysisBlock';
 export { ProsConsGrid } from './ProsConsGrid';
+export { ComingSoonTab } from './ComingSoonTab';
