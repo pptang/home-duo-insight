@@ -332,21 +332,21 @@ const ComparisonDetail = () => {
       />
 
       {/* Sticky action bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 z-30">
+      <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 shadow-drawer z-30">
         <div className="max-w-[1040px] mx-auto px-6 py-3 flex items-center justify-between gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-50 hidden sm:block">
+          <span className="text-label-sm opacity-50 hidden sm:block">
             このレポートが役に立ちましたか？
           </span>
           <div className="flex items-center gap-2 ml-auto">
             <Link
               to="/compare"
-              className="font-mono text-[10px] uppercase tracking-[0.06em] text-paper border border-paper/25 rounded-md px-3 py-2 no-underline hover:bg-paper/10"
+              className="text-label-md text-paper border border-paper/25 rounded-md px-3 py-2 no-underline hover:bg-paper/10 transition-colors duration-fast"
             >
               別の比較を作成
             </Link>
             <Link
               to="/auth"
-              className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink bg-paper rounded-md px-3 py-2 no-underline hover:opacity-85"
+              className="text-label-md text-ink bg-paper rounded-md px-3 py-2 no-underline hover:opacity-85 transition-opacity duration-fast"
             >
               専門家に相談する →
             </Link>
