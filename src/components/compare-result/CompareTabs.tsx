@@ -52,6 +52,7 @@ export function CompareTabs<Id extends string>({
           return (
             <button
               key={tab.id}
+              id={`compare-tab-${tab.id}`}
               role="tab"
               type="button"
               aria-selected={isActive}
@@ -74,6 +75,7 @@ export function CompareTabs<Id extends string>({
       </div>
       <section
         role="tabpanel"
+        aria-labelledby={`compare-tab-${activeTab}`}
         className="max-w-[1040px] mx-auto px-6 mt-8"
       >
         {children}
