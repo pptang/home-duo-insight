@@ -15,6 +15,7 @@ import {
   ProsConsGrid,
   ComingSoonTab,
   ExpertSectionPanel,
+  SimilarProperties,
 } from "@/components/compare-result";
 import type { ComparisonRow } from "@/components/compare-result";
 
@@ -394,6 +395,15 @@ const ComparisonDetail = () => {
           </div>
         )}
       </CompareTabs>
+
+      <SimilarProperties
+        propertyAId={comparison.property_a.id}
+        propertyBId={comparison.property_b.id}
+        propertyAAddress={comparison.property_a.address}
+        propertyBAddress={comparison.property_b.address}
+        propertyAPriceYen={comparison.property_a.price_yen}
+        propertyBPriceYen={comparison.property_b.price_yen}
+      />
 
       <ExpertSectionPanel
         comparisonId={comparison.id}

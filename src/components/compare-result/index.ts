@@ -12,3 +12,4 @@ export { ExpertSectionPanel } from './ExpertSectionPanel';
 
 export { ScoreCardsGrid } from './ScoreCardsGrid';
 export type { ScoreCardsGridProps, AxisScores } from './ScoreCardsGrid';
+export { SimilarProperties } from './SimilarProperties';
