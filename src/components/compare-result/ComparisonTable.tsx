@@ -5,6 +5,8 @@ export interface ComparisonRow {
   valueB: string | null | undefined;
   mono?: boolean; // render values in DM Mono (e.g. prices, areas)
   highlight?: 'A' | 'B'; // subtle bg to signal which side "wins" this row
+  winner?: 'A' | 'B' | 'draw'; // which cell gets the win/draw badge
+  badgeLabel?: string; // text inside the badge pill (e.g. '安', '広', '割安')
 }
 
 interface ComparisonTableProps {
@@ -12,6 +14,25 @@ interface ComparisonTableProps {
   headerA?: string;
   headerB?: string;
 }
+
+const WIN_BADGE =
+  'inline-flex items-center bg-ink text-paper font-mono text-[8px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-[2px] flex-shrink-0 ml-1.5';
+const DRAW_BADGE =
+  'inline-flex items-center bg-paper-dark text-ink-60 font-mono text-[8px] tracking-[0.1em] uppercase px-1.5 py-0.5 rounded-[2px] flex-shrink-0 ml-1.5';
+
+const WinBadge = ({ label }: { label: string }) => (
+  <span className={WIN_BADGE} aria-label={`勝者: ${label}`}>
+    <span className="sr-only">勝者: </span>
+    {label}
+  </span>
+);
+
+const DrawBadge = ({ label }: { label: string }) => (
+  <span className={DRAW_BADGE} aria-label={`引き分け: ${label}`}>
+    <span className="sr-only">引き分け: </span>
+    {label}
+  </span>
+);
 
 const renderValue = (v: string | null | undefined) =>
   v === null || v === undefined || v === '' ? (
@@ -61,6 +82,7 @@ export const ComparisonTable = ({
         const valueClass = row.mono
           ? 'text-mono-value text-[13px]'
           : 'text-[13px] font-medium';
+        const hasBadge = Boolean(row.winner && row.badgeLabel);
         return (
           <div
             role="row"
@@ -77,17 +99,26 @@ export const ComparisonTable = ({
               role="cell"
               className={`px-4 py-3 border-l border-rule ${valueClass} ${
                 row.highlight === 'A' ? 'bg-ink/[0.03]' : ''
-              }`}
+              } flex items-baseline gap-0`}
             >
               {renderValue(row.valueA)}
+              {hasBadge && (row.winner === 'A') && (
+                <WinBadge label={row.badgeLabel!} />
+              )}
+              {hasBadge && row.winner === 'draw' && (
+                <DrawBadge label={row.badgeLabel!} />
+              )}
             </div>
             <div
               role="cell"
               className={`px-4 py-3 border-l border-rule ${valueClass} ${
                 row.highlight === 'B' ? 'bg-ink/[0.03]' : ''
-              }`}
+              } flex items-baseline gap-0`}
             >
               {renderValue(row.valueB)}
+              {hasBadge && row.winner === 'B' && (
+                <WinBadge label={row.badgeLabel!} />
+              )}
             </div>
           </div>
         );
