@@ -32,6 +32,17 @@ interface PropertyData {
   construction_year: number | null;
   construction_month: number | null;
   building_age_years: number | null;
+  // tv7.13 fields
+  building_structure?: string | null;
+  total_units?: number | null;
+  management_type?: string | null;
+  parking?: string | null;
+  amenities?: Record<string, unknown> | null;
+  pet_allowed?: boolean | null;
+  estimated_rent?: number | null;
+  estimated_yield?: number | null;
+  seismic_standard?: string | null;
+  school_district?: string | null;
 }
 
 interface AIRecommendation {
@@ -40,9 +51,17 @@ interface AIRecommendation {
   property_a_cons: string[];
   property_b_pros: string[];
   property_b_cons: string[];
-  summary_table: { field: string; property_a: string; property_b: string }[];
+  summary_table: {
+    field: string;
+    property_a: string;
+    property_b: string;
+    winner?: "A" | "B" | "draw";
+    badge?: string;
+  }[];
   final_recommendation: string;
   created_at: string;
+  // tv7.10
+  ai_points?: { kind: "pro-a" | "pro-b" | "caution"; body: string }[] | null;
 }
 
 interface ComparisonData {
@@ -55,7 +74,8 @@ interface ComparisonData {
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
 }
 
-const PROPERTY_FIELDS = [
+// Base fields that exist on the properties table before wave-2 migrations
+const PROPERTY_FIELDS_BASE = [
   'id',
   'property_name',
   'address',
@@ -70,6 +90,25 @@ const PROPERTY_FIELDS = [
   'construction_month',
   'building_age_years',
 ].join(', ');
+
+// Extended fields added by wave-2 migrations (tv7.13)
+const PROPERTY_FIELDS_EXTENDED = [
+  ...PROPERTY_FIELDS_BASE.split(', '),
+  'building_structure',
+  'total_units',
+  'management_type',
+  'parking',
+  'amenities',
+  'pet_allowed',
+  'estimated_rent',
+  'estimated_yield',
+  'seismic_standard',
+  'school_district',
+].join(', ');
+
+/** Returns true when the PostgREST error is a missing column (code 42703) */
+const is42703 = (err: { code?: string; message?: string } | null): boolean =>
+  !!err && (err.code === '42703' || (err.message ?? '').includes('does not exist'));
 
 type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
@@ -90,8 +129,8 @@ const ComparisonDetail = () => {
         const { data: refreshed } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS}),
-            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS})`)
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED})`)
           .eq("id", id)
           .single();
         if (refreshed) setComparison(refreshed as ComparisonData);
@@ -126,14 +165,43 @@ const ComparisonDetail = () => {
       }
       try {
         setIsLoading(true);
-        const { data, error: err } = await supabase
+
+        // Attempt 1: extended property fields + ai_points
+        let { data, error: err } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS}),
-            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS}),
-            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points)`)
           .eq("id", id)
           .single();
+
+        // Fallback 1: extended property columns missing — retry with base fields but keep ai_points
+        if (is42703(err)) {
+          console.warn('[ComparisonDetail] Extended property columns missing (42703) — falling back to base fields');
+          ({ data, error: err } = await supabase
+            .from("comparisons")
+            .select(`id, created_at, user_id, image_extraction_status,
+              property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
+              property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
+              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points)`)
+            .eq("id", id)
+            .single());
+        }
+
+        // Fallback 2: ai_points column also missing — retry without it
+        if (is42703(err)) {
+          console.warn('[ComparisonDetail] ai_points column missing (42703) — falling back without ai_points');
+          ({ data, error: err } = await supabase
+            .from("comparisons")
+            .select(`id, created_at, user_id, image_extraction_status,
+              property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
+              property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
+              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
+            .eq("id", id)
+            .single());
+        }
+
         if (err || !data) {
           setError("Comparison not found");
           return;
@@ -386,19 +454,34 @@ const SummaryTab = ({
     );
   }
 
+  // tv7.7: pass winner/badgeLabel through from summary_table rows
   const summaryRows: ComparisonRow[] = (recommendation.summary_table || []).map(
     (row, i) => ({
       key: `summary-${i}`,
       label: row.field,
       valueA: row.property_a,
       valueB: row.property_b,
+      winner: row.winner,
+      badgeLabel: row.badge,
     }),
   );
+
+  // tv7.10: map ai_points body→text for AIAnalysisBlock
+  const aiPoints = (recommendation.ai_points || []).map((p) => ({
+    kind: p.kind,
+    text: p.body,
+  }));
 
   return (
     <div className="space-y-8">
       <h2 className="sr-only">比較サマリー</h2>
-      <AIAnalysisBlock body={recommendation.final_recommendation} />
+      {/* tv7.10: pass points, modelBadge, disclaimer */}
+      <AIAnalysisBlock
+        body={recommendation.final_recommendation}
+        points={aiPoints}
+        modelBadge={import.meta.env.VITE_AI_MODEL_NAME || 'Claude Sonnet 4'}
+        disclaimer="AI による分析です。最終決定は専門家や実物件確認と合わせて行ってください。"
+      />
       {summaryRows.length > 0 && (
         <div>
           <div className="text-label-sm text-ink-60 mb-3">主要項目</div>
@@ -425,9 +508,22 @@ const SummaryTab = ({
   );
 };
 
+// tv7.13: helper functions for DetailsTab
+const boolToMaru = (v: boolean | null | undefined): string | null =>
+  v === null || v === undefined ? null : v ? '○' : '—';
+
+const boolToPossible = (v: boolean | null | undefined): string | null =>
+  v === null || v === undefined ? null : v ? '可' : '不可';
+
+const rentStr = (p: PropertyData): string | null =>
+  p.estimated_rent != null ? `${p.estimated_rent}万円` : null;
+
+const yieldStr = (p: PropertyData): string | null =>
+  p.estimated_yield != null ? `${p.estimated_yield}%` : null;
+
 const DetailsTab = ({
   comparison,
-  formatPrice,
+  formatPrice: _formatPrice,
 }: {
   comparison: ComparisonData;
   formatPrice: (p: number | null) => string;
@@ -435,33 +531,107 @@ const DetailsTab = ({
   const a = comparison.property_a;
   const b = comparison.property_b;
 
-  const buildingAge = (p: PropertyData): string | null => {
-    if (p.building_age_years != null) {
-      const y = Math.floor(p.building_age_years);
-      return y === 0 ? '新築' : `築${y}年`;
-    }
-    if (p.construction_year) {
-      const month = p.construction_month ? `${p.construction_month}月` : '';
-      return `${p.construction_year}年${month}竣工`;
-    }
-    return null;
-  };
-
-  const area = (p: PropertyData): string | null =>
-    p.private_area_sqm != null ? `${p.private_area_sqm} ㎡` : null;
-
-  const commute = (p: PropertyData): string | null =>
-    p.commute_minutes != null ? `徒歩 ${p.commute_minutes} 分` : null;
-
+  // tv7.13: 14-row canonical table
   const rows: ComparisonRow[] = [
-    { key: 'price', label: '価格', valueA: formatPrice(a.price_yen), valueB: formatPrice(b.price_yen), mono: true },
-    { key: 'address', label: '住所', valueA: a.address, valueB: b.address },
-    { key: 'floor', label: '間取り', valueA: a.floor_plan, valueB: b.floor_plan, mono: true },
-    { key: 'area', label: '専有面積', valueA: area(a), valueB: area(b), mono: true },
-    { key: 'age', label: '築年', valueA: buildingAge(a), valueB: buildingAge(b) },
-    { key: 'commute', label: '通勤時間', valueA: commute(a), valueB: commute(b), mono: true },
-    { key: 'type', label: '種別', valueA: a.property_type, valueB: b.property_type },
-    { key: 'notes', label: 'メモ', valueA: a.notes, valueB: b.notes },
+    {
+      key: 'building_structure',
+      label: '建物構造',
+      valueA: a.building_structure ?? null,
+      valueB: b.building_structure ?? null,
+    },
+    {
+      key: 'total_units',
+      label: '総戸数',
+      valueA: a.total_units != null ? String(a.total_units) : null,
+      valueB: b.total_units != null ? String(b.total_units) : null,
+      mono: true,
+    },
+    {
+      key: 'management_type',
+      label: '管理形態',
+      valueA: a.management_type ?? null,
+      valueB: b.management_type ?? null,
+    },
+    {
+      key: 'parking',
+      label: '駐車場',
+      valueA: a.parking ?? null,
+      valueB: b.parking ?? null,
+    },
+    {
+      key: 'delivery_box',
+      label: '宅配ボックス',
+      valueA: boolToMaru((a.amenities as { delivery_box?: boolean } | null | undefined)?.delivery_box),
+      valueB: boolToMaru((b.amenities as { delivery_box?: boolean } | null | undefined)?.delivery_box),
+    },
+    {
+      key: 'concierge',
+      label: 'コンシェルジュ',
+      valueA: boolToMaru((a.amenities as { concierge?: boolean } | null | undefined)?.concierge),
+      valueB: boolToMaru((b.amenities as { concierge?: boolean } | null | undefined)?.concierge),
+    },
+    {
+      key: 'pet_allowed',
+      label: 'ペット可',
+      valueA: boolToPossible(a.pet_allowed),
+      valueB: boolToPossible(b.pet_allowed),
+    },
+    {
+      key: 'foreigner_purchase',
+      label: '外国人購入',
+      valueA: (() => {
+        const v = (a.amenities as { foreigner_purchase?: boolean } | null | undefined)?.foreigner_purchase;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+      valueB: (() => {
+        const v = (b.amenities as { foreigner_purchase?: boolean } | null | undefined)?.foreigner_purchase;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+    },
+    {
+      key: 'investment_allowed',
+      label: '投資・賃貸利用',
+      valueA: (() => {
+        const v = (a.amenities as { investment_allowed?: boolean } | null | undefined)?.investment_allowed;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+      valueB: (() => {
+        const v = (b.amenities as { investment_allowed?: boolean } | null | undefined)?.investment_allowed;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+    },
+    {
+      key: 'estimated_rent',
+      label: '想定賃料',
+      valueA: rentStr(a),
+      valueB: rentStr(b),
+      mono: true,
+    },
+    {
+      key: 'estimated_yield',
+      label: '想定表面利回り',
+      valueA: yieldStr(a),
+      valueB: yieldStr(b),
+      mono: true,
+    },
+    {
+      key: 'seismic_standard',
+      label: '耐震基準',
+      valueA: a.seismic_standard ?? null,
+      valueB: b.seismic_standard ?? null,
+    },
+    {
+      key: 'hazard_map',
+      label: 'ハザードマップ',
+      valueA: (a.amenities as { hazard_map?: string } | null | undefined)?.hazard_map ?? null,
+      valueB: (b.amenities as { hazard_map?: string } | null | undefined)?.hazard_map ?? null,
+    },
+    {
+      key: 'school_district',
+      label: '小学校区',
+      valueA: a.school_district ?? null,
+      valueB: b.school_district ?? null,
+    },
   ];
 
   return (
@@ -472,6 +642,7 @@ const DetailsTab = ({
     />
   );
 };
+
 
 const PhotosTab = ({
   comparison,
