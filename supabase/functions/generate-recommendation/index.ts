@@ -83,6 +83,12 @@ interface AIRecommendation {
     body: string;
   }[];
   final_recommendation: string;
+  property_a_score_total?: number;
+  property_b_score_total?: number;
+  score_breakdown?: {
+    a: { price: number; location: number; building: number };
+    b: { price: number; location: number; building: number };
+  };
 }
 
 interface AIRecommendationResponse extends AIRecommendation {
@@ -273,6 +279,23 @@ In the property_a_pros, property_a_cons, property_b_pros, property_b_cons fields
 
 ---
 
+## Axis Scores
+Compute a 0-100 score for each property on three axes:
+- price: affordability relative to market and user budget sensitivity (0 = expensive/poor value, 100 = excellent value)
+- location: neighborhood quality, commute convenience, daily amenities access (0 = poor, 100 = excellent)
+- building: physical quality of the building/unit — age, layout, condition, amenities (0 = poor, 100 = excellent)
+
+Weighting for property_a_score_total and property_b_score_total (weighted average):
+- price: 40%
+- location: 35%
+- building: 25%
+
+Formula: total = price×0.40 + location×0.35 + building×0.25
+
+Include these in the JSON output as numeric fields (integer, 0-100).
+
+---
+
 Now return your response in the following **JSON format only** (with no extra explanation):
 
 {
@@ -290,7 +313,13 @@ Now return your response in the following **JSON format only** (with no extra ex
     {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "近"},
     {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
   ],
-  "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections."
+  "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections.",
+  "property_a_score_total": 72,
+  "property_b_score_total": 68,
+  "score_breakdown": {
+    "a": { "price": 75, "location": 70, "building": 68 },
+    "b": { "price": 65, "location": 72, "building": 65 }
+  }
 }
 
 Rules for structured fields:
@@ -331,11 +360,18 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
       {"field": "通勤", "property_a": "X分", "property_b": "Y分", "winner": "B", "badge": "近"},
       {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
     ],
-    "final_recommendation": "上記8セクションをすべて含む最終提案文"
+    "final_recommendation": "上記8セクションをすべて含む最終提案文",
+    "property_a_score_total": 72,
+    "property_b_score_total": 68,
+    "score_breakdown": {
+      "a": { "price": 75, "location": 70, "building": 68 },
+      "b": { "price": 65, "location": 72, "building": 65 }
+    }
   }
 - 'ai_points' は2〜4件で出力すること
 - 'kind' は 'pro-a' / 'pro-b' / 'caution' のみ使用すること
 - 'summary_table' 各行に 'winner'（A/B/draw）と 'badge'（日本語1〜3文字、例: 安・広・近・多・新・割安・日当り・可・高）を含めること（後方互換のためoptional）
+- property_a_score_total / property_b_score_total / score_breakdown の各スコアは数値（0〜100の整数）のまま出力すること（翻訳不要）
 `;
   }
 
@@ -579,6 +615,9 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             property_b_cons: aiRecommendation.property_b_cons,
             summary_table: aiRecommendation.summary_table,
             ai_points: aiRecommendation.ai_points ?? null,
+            property_a_score_total: aiRecommendation.property_a_score_total ?? null,
+            property_b_score_total: aiRecommendation.property_b_score_total ?? null,
+            score_breakdown: aiRecommendation.score_breakdown ?? null,
             final_recommendation: aiRecommendation.final_recommendation,
             user_profile: requestData.user_profile,
           };
