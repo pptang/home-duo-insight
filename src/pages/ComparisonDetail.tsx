@@ -240,9 +240,11 @@ const ComparisonDetail = () => {
     <div className="bg-paper text-ink pb-24">
       {/* Breadcrumb */}
       <div className="max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
-        <Link to="/feed" className="hover:text-ink no-underline">Feed</Link>
+        <Link to="/" className="hover:text-ink no-underline">Home</Link>
         <span className="text-ink-30">/</span>
-        <span className="text-ink">Compare Report</span>
+        <Link to="/feed" className="hover:text-ink no-underline">比較</Link>
+        <span className="text-ink-30">/</span>
+        <span className="text-ink">{comparison.property_a.property_name || "物件 A"} vs {comparison.property_b.property_name || "物件 B"}</span>
       </div>
 
       {/* Header */}
