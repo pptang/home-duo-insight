@@ -237,6 +237,22 @@ export type Database = {
           private_area_sqm: number | null
           property_name: string | null
           property_type: string | null
+          building_structure: string | null
+          total_units: number | null
+          management_type: string | null
+          parking: string | null
+          pet_allowed: boolean | null
+          seismic_standard: string | null
+          management_fee: number | null
+          repair_reserve: number | null
+          price_per_tsubo: number | null
+          estimated_rent: number | null
+          estimated_yield: number | null
+          floor_number: number | null
+          direction: string | null
+          train_line: string | null
+          school_district: string | null
+          amenities: Json | null
         }
         Insert: {
           address?: string | null
@@ -256,6 +272,22 @@ export type Database = {
           private_area_sqm?: number | null
           property_name?: string | null
           property_type?: string | null
+          building_structure?: string | null
+          total_units?: number | null
+          management_type?: string | null
+          parking?: string | null
+          pet_allowed?: boolean | null
+          seismic_standard?: string | null
+          management_fee?: number | null
+          repair_reserve?: number | null
+          price_per_tsubo?: number | null
+          estimated_rent?: number | null
+          estimated_yield?: number | null
+          floor_number?: number | null
+          direction?: string | null
+          train_line?: string | null
+          school_district?: string | null
+          amenities?: Json | null
         }
         Update: {
           address?: string | null
@@ -275,6 +307,22 @@ export type Database = {
           private_area_sqm?: number | null
           property_name?: string | null
           property_type?: string | null
+          building_structure?: string | null
+          total_units?: number | null
+          management_type?: string | null
+          parking?: string | null
+          pet_allowed?: boolean | null
+          seismic_standard?: string | null
+          management_fee?: number | null
+          repair_reserve?: number | null
+          price_per_tsubo?: number | null
+          estimated_rent?: number | null
+          estimated_yield?: number | null
+          floor_number?: number | null
+          direction?: string | null
+          train_line?: string | null
+          school_district?: string | null
+          amenities?: Json | null
         }
         Relationships: []
       }
@@ -326,6 +374,10 @@ export type Database = {
           summary_table: Json
           updated_at: string
           user_id: string | null
+          property_a_score_total: number | null
+          property_b_score_total: number | null
+          score_breakdown: Json | null
+          ai_points: Json | null
           user_profile: Json | null
         }
         Insert: {
@@ -340,6 +392,10 @@ export type Database = {
           summary_table?: Json
           updated_at?: string
           user_id?: string | null
+          property_a_score_total?: number | null
+          property_b_score_total?: number | null
+          score_breakdown?: Json | null
+          ai_points?: Json | null
           user_profile?: Json | null
         }
         Update: {
@@ -354,6 +410,10 @@ export type Database = {
           summary_table?: Json
           updated_at?: string
           user_id?: string | null
+          property_a_score_total?: number | null
+          property_b_score_total?: number | null
+          score_breakdown?: Json | null
+          ai_points?: Json | null
           user_profile?: Json | null
         }
         Relationships: [
