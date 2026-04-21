@@ -121,6 +121,27 @@ const ComparisonDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("summary");
+  // tv7.17: PDF print state
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  // tv7.17: inject print CSS on mount, clean up on unmount
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'aisumai-print-css';
+    style.textContent = [
+      '@media print {',
+      '  .no-print { display: none !important; }',
+      '  body { padding-bottom: 0 !important; }',
+      '}',
+    ].join('\n');
+    if (!document.getElementById('aisumai-print-css')) {
+      document.head.appendChild(style);
+    }
+    return () => {
+      const el = document.getElementById('aisumai-print-css');
+      if (el) el.remove();
+    };
+  }, []);
 
   useComparisonSubscription({
     comparisonId: id || "",
@@ -154,6 +175,17 @@ const ComparisonDetail = () => {
     } catch {
       toast({ variant: "destructive", title: t("comparisonDetail.toast.retryError") });
     }
+  };
+
+  // tv7.17: trigger browser print dialog (window.print = zero-dep PDF approach)
+  const handlePrint = () => {
+    setIsPrinting(true);
+    // window.print() is synchronous; restore state after dialog closes
+    window.print();
+    setTimeout(() => {
+      setIsPrinting(false);
+      toast({ title: "PDFを保存しました" });
+    }, 500);
   };
 
   useEffect(() => {
@@ -304,10 +336,16 @@ const ComparisonDetail = () => {
   const bPrice = comparison.property_b.price_yen ?? 0;
   const winner: "A" | "B" = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
 
+  // tv7.18: derive winner name for the verdict line in the sticky bar
+  const winnerName =
+    winner === "A"
+      ? comparison.property_a.property_name || "物件 A"
+      : comparison.property_b.property_name || "物件 B";
+
   return (
     <div className="bg-paper text-ink pb-24">
-      {/* Breadcrumb */}
-      <div className="max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
+      {/* Breadcrumb — hidden in print (tv7.17) */}
+      <div className="no-print max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
         <Link to="/" className="hover:text-ink no-underline">Home</Link>
         <span className="text-ink-30">/</span>
         <Link to="/feed" className="hover:text-ink no-underline">比較</Link>
@@ -401,22 +439,43 @@ const ComparisonDetail = () => {
         propertyBName={comparison.property_b.property_name || '物件 B'}
       />
 
-      {/* Sticky action bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 shadow-drawer z-30">
+      {/* Sticky action bar — tv7.18: translucent paper/90 + backdrop-blur + shadow-drawer + verdict line
+          tv7.17: PDF保存 button via window.print()
+          Hidden during print via .no-print class */}
+      <div className="no-print fixed bottom-0 left-0 right-0 bg-paper/90 backdrop-blur-md border-t border-rule shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-30">
         <div className="max-w-[1040px] mx-auto px-6 py-3 flex items-center justify-between gap-3">
-          <span className="text-label-sm opacity-50 hidden sm:block">
-            このレポートが役に立ちましたか？
-          </span>
-          <div className="flex items-center gap-2 ml-auto">
+          {/* tv7.18: verdict line */}
+          <div className="flex items-center gap-1.5 text-ink min-w-0 overflow-hidden">
+            <span className="text-[13px] font-medium truncate hidden sm:block">
+              {comparison.property_a.property_name || "物件 A"}
+            </span>
+            <span className="text-ink-30 text-[10px] hidden sm:block">vs</span>
+            <span className="text-[13px] font-medium truncate hidden sm:block">
+              {comparison.property_b.property_name || "物件 B"}
+            </span>
+            <span className="font-mono text-[10px] text-ink-60 ml-2 whitespace-nowrap hidden sm:block">
+              — AI推奨: {winnerName}
+            </span>
+          </div>
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               to="/compare"
-              className="text-label-md text-paper border border-paper/25 rounded-md px-3 py-2 no-underline hover:bg-paper/10 transition-colors duration-fast"
+              className="text-label-md text-ink border border-rule rounded-md px-3 py-2 no-underline hover:bg-ink/[0.06] transition-colors duration-fast"
             >
               別の比較を作成
             </Link>
+            {/* tv7.17: PDF保存 button — uses window.print() as pragmatic zero-dep approach */}
+            <button
+              onClick={handlePrint}
+              disabled={isPrinting}
+              className="text-label-md text-ink border border-rule rounded-md px-3 py-2 hover:bg-ink/[0.06] transition-colors duration-fast disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isPrinting ? "生成中…" : "PDF保存"}
+            </button>
             <Link
               to="/auth"
-              className="text-label-md text-ink bg-paper rounded-md px-3 py-2 no-underline hover:opacity-85 transition-opacity duration-fast"
+              className="text-label-md text-paper bg-ink rounded-md px-3 py-2 no-underline hover:opacity-85 transition-opacity duration-fast"
             >
               専門家に相談する →
             </Link>
