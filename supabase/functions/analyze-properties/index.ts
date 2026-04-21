@@ -274,7 +274,7 @@ serve(async (req) => {
     
     const prompt = `You are AiSumai (愛住) AI. Extract structured property data from these Japanese real estate listing pages.
 
-Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Private Area, Building Age, Notes, and Image URLs.
+Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Private Area, Building Age, Notes, Image URLs, and extended fields (building structure, management fee, parking, pet policy, floor number, direction, train line, school district, amenities).
 
 CRITICAL EXTRACTION GUIDELINES:
 - Price: Look for 賃料, 家賃, 価格, 売買価格, 万円, 円. Extract rental/purchase price in yen, convert to numeric value
@@ -283,6 +283,21 @@ CRITICAL EXTRACTION GUIDELINES:
 - Private Area: Look for 専有面積, 居住面積, 面積, ㎡, 平米, 平方メートル, m². Extract exclusive floor area in square meters
 - Building Age: Look for 築年月, 建築年, 竣工年, 築, 年, 月. Extract construction year and month, calculate age from current date (2025)
 - Floor Plan: Room configuration like 1K, 1DK, 1LDK, 2DK, 2LDK, 3LDK, etc.
+- Building Structure: Look for 構造, 建物構造 (e.g. 鉄筋コンクリート造, 鉄骨造)
+- Total Units: Look for 総戸数, 総戸数 (integer)
+- Management Type: Look for 管理形態 (e.g. 全部委託, 一部委託, 自主管理)
+- Parking: Look for 駐車場 (e.g. 有, 無, 空き有, with fee info)
+- Pet Allowed: Look for ペット (可=true, 不可=false, 相談=null)
+- Seismic Standard: Look for 耐震基準, 新耐震基準 (text description)
+- Management Fee: Look for 管理費 in yen/month (integer, strip 円/月)
+- Repair Reserve: Look for 修繕積立金 in yen/month (integer, strip 円/月)
+- Price Per Tsubo: Look for 坪単価 (convert 万円 × 10000 to integer yen)
+- Estimated Rent: Look for 想定賃料 in yen (integer)
+- Estimated Yield: Look for 表面利回り, 想定利回り as percentage number (e.g. 4.5% → 4.5)
+- Floor Number: Look for 所在階 (integer, e.g. 3階 → 3)
+- Direction: Look for 向き, バルコニー向き (e.g. 南東, 南)
+- Train Line: Look for 沿線名, 路線 (transit line name, not station name)
+- School District: Look for 小学校区, 中学校区
 
 JAPANESE TERMINOLOGY TO LOOK FOR:
 - 専有面積 / 居住面積 / 面積 = Private Area
@@ -290,6 +305,26 @@ JAPANESE TERMINOLOGY TO LOOK FOR:
 - 築○年○月 / 建築年○年 / 竣工○年 = Construction date
 - 賃料 / 家賃 / 月額 = Rent
 - 価格 / 売買価格 / 販売価格 = Sale price
+- 構造 / 建物構造 = Building Structure
+- 総戸数 = Total Units
+- 管理形態 = Management Type
+- 駐車場 = Parking
+- ペット = Pet Policy
+- 耐震基準 / 新耐震基準 = Seismic Standard
+- 管理費 = Management Fee
+- 修繕積立金 = Repair Reserve Fund
+- 坪単価 = Price Per Tsubo
+- 想定賃料 = Estimated Rent
+- 表面利回り / 想定利回り = Estimated Yield
+- 所在階 = Floor Number
+- 向き / バルコニー向き = Direction
+- 沿線名 / 路線 = Train Line
+- 小学校区 / 中学校区 = School District
+- 宅配ボックス = Delivery Box (amenity)
+- コンシェルジュ = Concierge (amenity)
+- 外国籍購入可 = Foreigner Purchase (amenity)
+- 投資目的購入可 = Investment Allowed (amenity)
+- ハザードマップ = Hazard Map (amenity)
 
 SEARCH PATTERNS:
 - For area: Look for numbers followed by ㎡, 平米, 平方メートル, m²
@@ -388,7 +423,7 @@ Return only this JSON format (no explanations):
               temperature: 0.2,
               topK: 40,
               topP: 0.95,
-              maxOutputTokens: 8192, // Increased from 4096 to handle properties with many image URLs
+              maxOutputTokens: 16384, // Increased to handle extended schema with additional property fields
             },
           }),
         }
@@ -536,6 +571,29 @@ Return only this JSON format (no explanations):
         building_age_years?: number;
         image_urls?: string[];
         notes?: string;
+        // Extended fields from tv7.11 migration
+        building_structure?: string;      // 構造 / 建物構造
+        total_units?: number;             // 総戸数
+        management_type?: string;         // 管理形態
+        parking?: string;                 // 駐車場
+        pet_allowed?: boolean | null;     // ペット (可=true, 不可=false)
+        seismic_standard?: string;        // 耐震基準 / 新耐震基準
+        management_fee?: number;          // 管理費 (yen/month)
+        repair_reserve?: number;          // 修繕積立金 (yen/month)
+        price_per_tsubo?: number;         // 坪単価 (yen)
+        estimated_rent?: number;          // 想定賃料 (yen)
+        estimated_yield?: number;         // 表面利回り / 想定利回り (percentage as number)
+        floor_number?: number;            // 所在階
+        direction?: string;               // 向き / バルコニー向き
+        train_line?: string;              // 沿線名 / 路線
+        school_district?: string;         // 小学校区 / 中学校区
+        amenities?: {
+          delivery_box?: boolean | null;      // 宅配ボックス
+          concierge?: boolean | null;         // コンシェルジュ
+          foreigner_purchase?: boolean | null; // 外国籍購入可
+          investment_allowed?: boolean | null; // 投資目的購入可
+          hazard_map?: string | null;         // ハザードマップ
+        } | null;
       }, fallbackImages: string[]) => {
         // Calculate building age if construction year is provided
         let building_age_years = null;
@@ -678,6 +736,42 @@ Return only this JSON format (no explanations):
           final_has_h_params: finalImages.slice(0, 3).map(url => url.includes('&h='))
         });
 
+        // Helper: safely parse a positive integer, returning null for invalid values
+        const safeInt = (v: unknown): number | null => {
+          if (v === null || v === undefined) return null;
+          const n = typeof v === 'number' ? v : Number(v);
+          return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+        };
+
+        // Helper: safely parse a positive float, returning null for invalid values
+        const safeFloat = (v: unknown): number | null => {
+          if (v === null || v === undefined) return null;
+          const n = typeof v === 'number' ? v : Number(v);
+          return Number.isFinite(n) && n > 0 ? n : null;
+        };
+
+        // Helper: safely coerce to bool (only true/false; null for anything else)
+        const safeBool = (v: unknown): boolean | null => {
+          if (v === true || v === false) return v;
+          return null;
+        };
+
+        // Helper: safely return a non-empty string or null
+        const safeStr = (v: unknown): string | null => {
+          if (typeof v === 'string' && v.trim().length > 0) return v.trim();
+          return null;
+        };
+
+        // Build amenities jsonb — all fields optional, default null
+        const rawAmenities = propertyData.amenities ?? null;
+        const amenities = {
+          delivery_box: safeBool(rawAmenities?.delivery_box ?? null),       // 宅配ボックス
+          concierge: safeBool(rawAmenities?.concierge ?? null),             // コンシェルジュ
+          foreigner_purchase: safeBool(rawAmenities?.foreigner_purchase ?? null), // 外国籍購入可
+          investment_allowed: safeBool(rawAmenities?.investment_allowed ?? null), // 投資目的購入可
+          hazard_map: safeStr(rawAmenities?.hazard_map ?? null),            // ハザードマップ
+        };
+
         return {
           property_name: propertyData.property_name || null,
           address: propertyData.address || null,
@@ -690,7 +784,24 @@ Return only this JSON format (no explanations):
           construction_month: propertyData.construction_month && propertyData.construction_month >= 1 && propertyData.construction_month <= 12 ? propertyData.construction_month : null,
           building_age_years: building_age_years,
           image_urls: finalImages,
-          notes: propertyData.notes || null
+          notes: propertyData.notes || null,
+          // Extended fields from tv7.11 migration
+          building_structure: safeStr(propertyData.building_structure),     // 構造 / 建物構造
+          total_units: safeInt(propertyData.total_units),                   // 総戸数
+          management_type: safeStr(propertyData.management_type),           // 管理形態
+          parking: safeStr(propertyData.parking),                           // 駐車場
+          pet_allowed: safeBool(propertyData.pet_allowed),                  // ペット可否
+          seismic_standard: safeStr(propertyData.seismic_standard),         // 耐震基準
+          management_fee: safeInt(propertyData.management_fee),             // 管理費 (円/月)
+          repair_reserve: safeInt(propertyData.repair_reserve),             // 修繕積立金 (円/月)
+          price_per_tsubo: safeInt(propertyData.price_per_tsubo),           // 坪単価 (円)
+          estimated_rent: safeInt(propertyData.estimated_rent),             // 想定賃料 (円)
+          estimated_yield: safeFloat(propertyData.estimated_yield),         // 表面利回り (%)
+          floor_number: safeInt(propertyData.floor_number),                 // 所在階
+          direction: safeStr(propertyData.direction),                       // 向き / バルコニー向き
+          train_line: safeStr(propertyData.train_line),                     // 沿線名 / 路線
+          school_district: safeStr(propertyData.school_district),           // 小学校区 / 中学校区
+          amenities: amenities,
         };
       };
 
