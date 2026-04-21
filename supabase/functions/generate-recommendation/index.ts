@@ -75,6 +75,12 @@ interface AIRecommendation {
     field: string;
     property_a: string;
     property_b: string;
+    winner?: "A" | "B" | "draw";
+    badge?: string;
+  }[];
+  ai_points?: {
+    kind: "pro-a" | "pro-b" | "caution";
+    body: string;
   }[];
   final_recommendation: string;
 }
@@ -274,12 +280,25 @@ Now return your response in the following **JSON format only** (with no extra ex
   "property_a_cons": ["con 1", "con 2", "con 3"],
   "property_b_pros": ["pro 1", "pro 2", "pro 3"],
   "property_b_cons": ["con 1", "con 2", "con 3"],
+  "ai_points": [
+    {"kind": "pro-a", "body": "Property A advantage point"},
+    {"kind": "pro-b", "body": "Property B advantage point"},
+    {"kind": "caution", "body": "A key watch-out to verify"}
+  ],
   "summary_table": [
-    {"field": "Price", "property_a": "¥X", "property_b": "¥Y"},
-    {"field": "Commute", "property_a": "X min", "property_b": "Y min"}
+    {"field": "Price", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
+    {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "近"},
+    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
   ],
   "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections."
 }
+
+Rules for structured fields:
+- 'ai_points' must contain 2-4 items.
+- Allowed 'kind' values: 'pro-a', 'pro-b', 'caution'.
+- In each 'summary_table' row, include:
+  - 'winner' (optional for schema compatibility): 'A', 'B', or 'draw'
+  - 'badge' (optional for schema compatibility): 1-3 Japanese characters (examples: 安, 広, 近, 多, 新, 割安, 日当り, 可, 高)
 `;
 
   // Add translation instruction for Japanese
@@ -296,6 +315,27 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
 - Do NOT summarize or shorten the content - provide the same depth of analysis as you would in English
 - Write in a friendly, professional tone suitable for Japanese readers (です・ます調を使用)
 - Include all sections: 🏆 AIおすすめ、👤 あなたに合う理由、🧭 シティペルソナ、🏙️ ライフスタイル＆立地、🧩 戦略的視点、✅ 決断の確信度、🔮 将来の暮らし展望、⚠️ 注意点
+- JSONスキーマ例（日本語の値で出力）:
+  {
+    "property_a_pros": ["長所1", "長所2", "長所3"],
+    "property_a_cons": ["懸念1", "懸念2", "懸念3"],
+    "property_b_pros": ["長所1", "長所2", "長所3"],
+    "property_b_cons": ["懸念1", "懸念2", "懸念3"],
+    "ai_points": [
+      {"kind": "pro-a", "body": "物件Aの優位点"},
+      {"kind": "pro-b", "body": "物件Bの優位点"},
+      {"kind": "caution", "body": "内見前に確認すべき注意点"}
+    ],
+    "summary_table": [
+      {"field": "価格", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
+      {"field": "通勤", "property_a": "X分", "property_b": "Y分", "winner": "B", "badge": "近"},
+      {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
+    ],
+    "final_recommendation": "上記8セクションをすべて含む最終提案文"
+  }
+- 'ai_points' は2〜4件で出力すること
+- 'kind' は 'pro-a' / 'pro-b' / 'caution' のみ使用すること
+- 'summary_table' 各行に 'winner'（A/B/draw）と 'badge'（日本語1〜3文字、例: 安・広・近・多・新・割安・日当り・可・高）を含めること（後方互換のためoptional）
 `;
   }
 
@@ -538,6 +578,7 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             property_b_pros: aiRecommendation.property_b_pros,
             property_b_cons: aiRecommendation.property_b_cons,
             summary_table: aiRecommendation.summary_table,
+            ai_points: aiRecommendation.ai_points ?? null,
             final_recommendation: aiRecommendation.final_recommendation,
             user_profile: requestData.user_profile,
           };
