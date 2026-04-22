@@ -66,6 +66,9 @@ interface AIRecommendation {
   ai_points?: { kind: "pro-a" | "pro-b" | "caution"; body: string }[] | null;
   // tv7.2: per-axis scores emitted by generate-recommendation
   score_breakdown?: { a: AxisScores; b: AxisScores } | null;
+  // tv7.eod: score totals used for the sticky-bar verdict
+  property_a_score_total?: number | null;
+  property_b_score_total?: number | null;
 }
 
 interface ComparisonData {
@@ -208,7 +211,7 @@ const ComparisonDetail = () => {
           .select(`id, created_at, user_id, image_extraction_status,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown)`)
+            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
           .eq("id", id)
           .single();
 
@@ -220,7 +223,7 @@ const ComparisonDetail = () => {
             .select(`id, created_at, user_id, image_extraction_status,
               property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
               property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
-              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown)`)
+              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
             .eq("id", id)
             .single());
         }
@@ -335,10 +338,17 @@ const ComparisonDetail = () => {
     );
   }
 
-  // Naive winner heuristic from price (until real AI score is wired)
-  const aPrice = comparison.property_a.price_yen ?? 0;
-  const bPrice = comparison.property_b.price_yen ?? 0;
-  const winner: "A" | "B" = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
+  // tv7.eod: prefer score totals, fall back to price heuristic for pre-redeploy rows
+  const aScoreTotal = recommendation?.property_a_score_total ?? null;
+  const bScoreTotal = recommendation?.property_b_score_total ?? null;
+  let winner: "A" | "B";
+  if (aScoreTotal !== null && bScoreTotal !== null) {
+    winner = aScoreTotal >= bScoreTotal ? "A" : "B";
+  } else {
+    const aPrice = comparison.property_a.price_yen ?? 0;
+    const bPrice = comparison.property_b.price_yen ?? 0;
+    winner = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
+  }
 
   // tv7.18: derive winner name for the verdict line in the sticky bar
   const winnerName =
