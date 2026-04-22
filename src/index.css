@@ -142,6 +142,59 @@
     text-transform: uppercase;
     color: rgba(10, 10, 10, 0.6);
   }
+
+  /* ─── Editorial type scale ─────────────────────────── */
+  .text-hero {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 44px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .text-section {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  .text-property-name {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+  .text-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .text-price-lg {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .text-label-xs {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .text-label-sm {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .text-label-md {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .text-mono-value {
+    font-family: 'DM Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* ─── Aisumai logo (legacy class kept for compat) ──────── */

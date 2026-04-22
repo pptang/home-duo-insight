@@ -1,14 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Share, Calendar, ThumbsUp, ThumbsDown, Crown } from "lucide-react";
+import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
-import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
-import { ExpertSection } from "@/components/ExpertSection";
 import { RecommendationFeedback } from "@/components/RecommendationFeedback";
+import {
+  WinnerBanner,
+  CompareTabs,
+  ComparisonTable,
+  AIAnalysisBlock,
+  ComingSoonTab,
+  ExpertSectionPanel,
+  SimilarProperties,
+  ScoreCardsGrid,
+} from "@/components/compare-result";
+import type { ComparisonRow, AxisScores } from "@/components/compare-result";
 
 interface PropertyData {
   id: string;
@@ -20,17 +29,41 @@ interface PropertyData {
   property_type: string | null;
   image_urls: string[] | null;
   notes: string | null;
+  private_area_sqm: number | null;
+  construction_year: number | null;
+  construction_month: number | null;
+  building_age_years: number | null;
+  // tv7.13 fields
+  building_structure?: string | null;
+  total_units?: number | null;
+  management_type?: string | null;
+  parking?: string | null;
+  amenities?: Record<string, unknown> | null;
+  pet_allowed?: boolean | null;
+  estimated_rent?: number | null;
+  estimated_yield?: number | null;
+  seismic_standard?: string | null;
+  school_district?: string | null;
 }
 
 interface AIRecommendation {
   id: string;
-  property_a_pros: string[];
-  property_a_cons: string[];
-  property_b_pros: string[];
-  property_b_cons: string[];
-  summary_table: { field: string; property_a: string; property_b: string }[];
+  summary_table: {
+    field: string;
+    property_a: string;
+    property_b: string;
+    winner?: "A" | "B" | "draw";
+    badge?: string;
+  }[];
   final_recommendation: string;
   created_at: string;
+  // tv7.10
+  ai_points?: { kind: "pro-a" | "pro-b" | "caution"; body: string }[] | null;
+  // tv7.2: per-axis scores emitted by generate-recommendation
+  score_breakdown?: { a: AxisScores; b: AxisScores } | null;
+  // tv7.eod: score totals used for the sticky-bar verdict
+  property_a_score_total?: number | null;
+  property_b_score_total?: number | null;
 }
 
 interface ComparisonData {
@@ -43,7 +76,34 @@ interface ComparisonData {
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
 }
 
-type Tab = "summary" | "details" | "photos" | "expert";
+// Property fields including wave-2 migration additions (tv7.13)
+const PROPERTY_FIELDS_EXTENDED = [
+  'id',
+  'property_name',
+  'address',
+  'price_yen',
+  'floor_plan',
+  'commute_minutes',
+  'property_type',
+  'image_urls',
+  'notes',
+  'private_area_sqm',
+  'construction_year',
+  'construction_month',
+  'building_age_years',
+  'building_structure',
+  'total_units',
+  'management_type',
+  'parking',
+  'amenities',
+  'pet_allowed',
+  'estimated_rent',
+  'estimated_yield',
+  'seismic_standard',
+  'school_district',
+].join(', ');
+
+type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
 const ComparisonDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,6 +114,27 @@ const ComparisonDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("summary");
+  // tv7.17: PDF print state
+  const [isPrinting, setIsPrinting] = useState(false);
+
+  // tv7.17: inject print CSS on mount, clean up on unmount
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'aisumai-print-css';
+    style.textContent = [
+      '@media print {',
+      '  .no-print { display: none !important; }',
+      '  body { padding-bottom: 0 !important; }',
+      '}',
+    ].join('\n');
+    if (!document.getElementById('aisumai-print-css')) {
+      document.head.appendChild(style);
+    }
+    return () => {
+      const el = document.getElementById('aisumai-print-css');
+      if (el) el.remove();
+    };
+  }, []);
 
   useComparisonSubscription({
     comparisonId: id || "",
@@ -62,8 +143,8 @@ const ComparisonDetail = () => {
         const { data: refreshed } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes)`)
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED})`)
           .eq("id", id)
           .single();
         if (refreshed) setComparison(refreshed as ComparisonData);
@@ -89,6 +170,17 @@ const ComparisonDetail = () => {
     }
   };
 
+  // tv7.17: trigger browser print dialog (window.print = zero-dep PDF approach)
+  const handlePrint = () => {
+    setIsPrinting(true);
+    // window.print() is synchronous; restore state after dialog closes
+    window.print();
+    setTimeout(() => {
+      setIsPrinting(false);
+      toast({ title: "PDFを保存しました" });
+    }, 500);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       if (!id) {
@@ -98,14 +190,16 @@ const ComparisonDetail = () => {
       }
       try {
         setIsLoading(true);
+
         const { data, error: err } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
-            property_a:properties!comparisons_property_a_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
-            property_b:properties!comparisons_property_b_id_fkey(id, property_name, address, price_yen, floor_plan, commute_minutes, property_type, image_urls, notes),
-            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
+            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
           .eq("id", id)
           .single();
+
         if (err || !data) {
           setError("Comparison not found");
           return;
@@ -203,20 +297,33 @@ const ComparisonDetail = () => {
     );
   }
 
-  // Naive winner heuristic from price (until real AI score is wired)
-  const aPrice = comparison.property_a.price_yen ?? 0;
-  const bPrice = comparison.property_b.price_yen ?? 0;
-  const winner: "A" | "B" = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
-  const scoreA = winner === "A" ? 88 : 74;
-  const scoreB = winner === "B" ? 88 : 74;
+  // tv7.eod: prefer score totals, fall back to price heuristic for pre-redeploy rows
+  const aScoreTotal = recommendation?.property_a_score_total ?? null;
+  const bScoreTotal = recommendation?.property_b_score_total ?? null;
+  let winner: "A" | "B";
+  if (aScoreTotal !== null && bScoreTotal !== null) {
+    winner = aScoreTotal >= bScoreTotal ? "A" : "B";
+  } else {
+    const aPrice = comparison.property_a.price_yen ?? 0;
+    const bPrice = comparison.property_b.price_yen ?? 0;
+    winner = aPrice && bPrice ? (aPrice <= bPrice ? "A" : "B") : "A";
+  }
+
+  // tv7.18: derive winner name for the verdict line in the sticky bar
+  const winnerName =
+    winner === "A"
+      ? comparison.property_a.property_name || "物件 A"
+      : comparison.property_b.property_name || "物件 B";
 
   return (
     <div className="bg-paper text-ink pb-24">
-      {/* Breadcrumb */}
-      <div className="max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
-        <Link to="/feed" className="hover:text-ink no-underline">Feed</Link>
+      {/* Breadcrumb — hidden in print (tv7.17) */}
+      <div className="no-print max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
+        <Link to="/" className="hover:text-ink no-underline">Home</Link>
         <span className="text-ink-30">/</span>
-        <span className="text-ink">Compare Report</span>
+        <Link to="/feed" className="hover:text-ink no-underline">比較</Link>
+        <span className="text-ink-30">/</span>
+        <span className="text-ink">{comparison.property_a.property_name || "物件 A"} vs {comparison.property_b.property_name || "物件 B"}</span>
       </div>
 
       {/* Header */}
@@ -250,96 +357,107 @@ const ComparisonDetail = () => {
         </div>
       </header>
 
-      {/* Score Duel */}
+      {/* Hero banner */}
       <section className="max-w-[1040px] mx-auto px-6 pt-8">
-        <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-          総合スコア
-        </div>
-        <div className="score-duel">
-          <ScoreSide
-            label="物件 A"
-            name={comparison.property_a.property_name || "物件 A"}
-            price={formatPrice(comparison.property_a.price_yen)}
-            score={scoreA}
-            winner={winner === "A"}
-          />
-          <ScoreSide
-            label="物件 B"
-            name={comparison.property_b.property_name || "物件 B"}
-            price={formatPrice(comparison.property_b.price_yen)}
-            score={scoreB}
-            winner={winner === "B"}
-          />
-        </div>
+        <div className="text-label-sm text-ink-60 mb-3">AI の判定</div>
+        <WinnerBanner
+          propertyA={{
+            name: comparison.property_a.property_name || '物件 A',
+            price: formatPrice(comparison.property_a.price_yen),
+          }}
+          propertyB={{
+            name: comparison.property_b.property_name || '物件 B',
+            price: formatPrice(comparison.property_b.price_yen),
+          }}
+          winner={winner}
+        />
       </section>
 
-      {/* Tabs */}
-      <nav className="max-w-[1040px] mx-auto px-6 mt-10 border-b border-rule flex gap-1 overflow-x-auto">
-        {([
-          { id: "summary" as Tab, label: "概要比較" },
-          { id: "details" as Tab, label: "詳細データ" },
-          { id: "photos" as Tab, label: "写真" },
-          { id: "expert" as Tab, label: "専門家コメント" },
-        ]).map((t) => (
-          <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
-            className={`font-mono text-[11px] uppercase tracking-[0.06em] px-4 py-3 border-b-2 whitespace-nowrap transition-colors ${
-              activeTab === t.id
-                ? "border-ink text-ink"
-                : "border-transparent text-ink-60 hover:text-ink"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
-      {/* Tab content */}
-      <section className="max-w-[1040px] mx-auto px-6 mt-8">
-        {activeTab === "summary" && (
-          <SummaryTab comparison={comparison} recommendation={recommendation} formatPrice={formatPrice} />
+      <CompareTabs
+        tabs={[
+          { id: 'summary', label: '概要比較' },
+          { id: 'details', label: '詳細データ' },
+          { id: 'photos', label: '写真' },
+          { id: 'map', label: '地図・交通' },
+          { id: 'risk', label: 'リスク分析' },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      >
+        {activeTab === 'summary' && (
+          <SummaryTab comparison={comparison} recommendation={recommendation} />
         )}
-        {activeTab === "details" && (
+        {activeTab === 'details' && (
           <DetailsTab comparison={comparison} formatPrice={formatPrice} />
         )}
-        {activeTab === "photos" && (
+        {activeTab === 'photos' && (
           <PhotosTab
             comparison={comparison}
             handleRetryImageExtraction={handleRetryImageExtraction}
           />
         )}
-        {activeTab === "expert" && (
-          <ExpertSection
-            comparisonId={comparison.id}
-            propertyAName={comparison.property_a.property_name || "物件 A"}
-            propertyBName={comparison.property_b.property_name || "物件 B"}
-          />
-        )}
+        {activeTab === 'map' && <MapTabPlaceholder />}
+        {activeTab === 'risk' && <RiskTabPlaceholder />}
 
-        {recommendation && activeTab === "summary" && (
+        {recommendation && activeTab === 'summary' && (
           <div className="mt-8">
             <RecommendationFeedback recommendationId={recommendation.id} />
           </div>
         )}
-      </section>
+      </CompareTabs>
 
-      {/* Sticky action bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-ink text-paper border-t border-ink/40 z-30">
+      <SimilarProperties
+        propertyAId={comparison.property_a.id}
+        propertyBId={comparison.property_b.id}
+        propertyAAddress={comparison.property_a.address}
+        propertyBAddress={comparison.property_b.address}
+        propertyAPriceYen={comparison.property_a.price_yen}
+        propertyBPriceYen={comparison.property_b.price_yen}
+      />
+
+      <ExpertSectionPanel
+        comparisonId={comparison.id}
+        propertyAName={comparison.property_a.property_name || '物件 A'}
+        propertyBName={comparison.property_b.property_name || '物件 B'}
+      />
+
+      {/* Sticky action bar — tv7.18: translucent paper/90 + backdrop-blur + shadow-drawer + verdict line
+          tv7.17: PDF保存 button via window.print()
+          Hidden during print via .no-print class */}
+      <div className="no-print fixed bottom-0 left-0 right-0 bg-paper/90 backdrop-blur-md border-t border-rule shadow-[0_-4px_24px_rgba(0,0,0,0.08)] z-30">
         <div className="max-w-[1040px] mx-auto px-6 py-3 flex items-center justify-between gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.1em] opacity-50 hidden sm:block">
-            このレポートが役に立ちましたか？
-          </span>
-          <div className="flex items-center gap-2 ml-auto">
+          {/* tv7.18: verdict line */}
+          <div className="flex items-center gap-1.5 text-ink min-w-0 overflow-hidden">
+            <span className="text-[13px] font-medium truncate hidden sm:block">
+              {comparison.property_a.property_name || "物件 A"}
+            </span>
+            <span className="text-ink-30 text-[10px] hidden sm:block">vs</span>
+            <span className="text-[13px] font-medium truncate hidden sm:block">
+              {comparison.property_b.property_name || "物件 B"}
+            </span>
+            <span className="font-mono text-[10px] text-ink-60 ml-2 whitespace-nowrap hidden sm:block">
+              — AI推奨: {winnerName}
+            </span>
+          </div>
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               to="/compare"
-              className="font-mono text-[10px] uppercase tracking-[0.06em] text-paper border border-paper/25 rounded-md px-3 py-2 no-underline hover:bg-paper/10"
+              className="text-label-md text-ink border border-rule rounded-md px-3 py-2 no-underline hover:bg-ink/[0.06] transition-colors duration-fast"
             >
               別の比較を作成
             </Link>
+            {/* tv7.17: PDF保存 button — uses window.print() as pragmatic zero-dep approach */}
+            <button
+              onClick={handlePrint}
+              disabled={isPrinting}
+              className="text-label-md text-ink border border-rule rounded-md px-3 py-2 hover:bg-ink/[0.06] transition-colors duration-fast disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {isPrinting ? "生成中…" : "PDF保存"}
+            </button>
             <Link
               to="/auth"
-              className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink bg-paper rounded-md px-3 py-2 no-underline hover:opacity-85"
+              className="text-label-md text-paper bg-ink rounded-md px-3 py-2 no-underline hover:opacity-85 transition-opacity duration-fast"
             >
               専門家に相談する →
             </Link>
@@ -350,59 +468,20 @@ const ComparisonDetail = () => {
   );
 };
 
-const ScoreSide = ({
-  label,
-  name,
-  price,
-  score,
-  winner,
-}: {
-  label: string;
-  name: string;
-  price: string;
-  score: number;
-  winner: boolean;
-}) => (
-  <div className={`duel-side ${winner ? "winner" : "loser"}`}>
-    {winner && (
-      <div className="absolute top-3 right-3 font-mono text-[8px] uppercase tracking-[0.12em] border border-paper/25 text-paper/80 px-2 py-1 rounded-sm flex items-center gap-1">
-        <Crown className="w-3 h-3" />
-        AI 推奨
-      </div>
-    )}
-    <div className={`font-mono text-[9px] uppercase tracking-[0.12em] mb-2 ${winner ? "opacity-50" : "text-ink-60"}`}>
-      {label}
-    </div>
-    <div className={`font-display text-[20px] tracking-[-0.3px] mb-3 leading-[1.2] line-clamp-2`}>
-      {name}
-    </div>
-    <div className={`font-display text-[64px] leading-none tracking-[-2px] mb-2 ${winner ? "text-paper" : "text-ink/40"}`}>
-      {score}
-    </div>
-    <div className={`font-mono text-[9px] uppercase tracking-[0.1em] ${winner ? "opacity-50" : "text-ink-30"}`}>
-      / 100 · {price}
-    </div>
-  </div>
-);
-
 const SummaryTab = ({
   comparison,
   recommendation,
-  formatPrice,
 }: {
   comparison: ComparisonData;
   recommendation: AIRecommendation | null;
-  formatPrice: (p: number | null) => string;
 }) => {
   if (!recommendation) {
     return (
       <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
-        <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-30 mb-2">
-          Empty
-        </div>
-        <h3 className="font-display text-[20px] tracking-[-0.3px] mb-2">
+        <div className="text-label-sm text-ink-30 mb-2">Empty</div>
+        <h2 className="text-property-name mb-2">
           AI レポートはまだ生成されていません
-        </h3>
+        </h2>
         <p className="text-[13px] text-ink-60 mb-5">
           物件 URL から再生成して、AI による比較分析を取得してください。
         </p>
@@ -416,180 +495,191 @@ const SummaryTab = ({
     );
   }
 
+  // tv7.7: pass winner/badgeLabel through from summary_table rows
+  const summaryRows: ComparisonRow[] = (recommendation.summary_table || []).map(
+    (row, i) => ({
+      key: `summary-${i}`,
+      label: row.field,
+      valueA: row.property_a,
+      valueB: row.property_b,
+      winner: row.winner,
+      badgeLabel: row.badge,
+    }),
+  );
+
+  // tv7.10: map ai_points body→text for AIAnalysisBlock
+  const aiPoints = (recommendation.ai_points || []).map((p) => ({
+    kind: p.kind,
+    text: p.body,
+  }));
+
   return (
     <div className="space-y-8">
-      {/* Final verdict (dark) */}
-      <div className="bg-ink text-paper rounded-lg p-6 sm:p-8">
-        <div className="font-mono text-[9px] uppercase tracking-[0.12em] opacity-50 mb-3">
-          AI サマリー
-        </div>
-        <div className="text-[14px] leading-[1.7] prose prose-invert max-w-none">
-          <MarkdownRenderer content={recommendation.final_recommendation} />
-        </div>
-      </div>
-
-      {/* Summary table */}
-      {recommendation.summary_table?.length > 0 && (
+      <h2 className="sr-only">比較サマリー</h2>
+      {recommendation.score_breakdown && (
+        <ScoreCardsGrid
+          scoresA={recommendation.score_breakdown.a}
+          scoresB={recommendation.score_breakdown.b}
+          propertyAName={comparison.property_a.property_name || '物件 A'}
+          propertyBName={comparison.property_b.property_name || '物件 B'}
+        />
+      )}
+      {/* tv7.10: pass points, modelBadge, disclaimer */}
+      <AIAnalysisBlock
+        body={recommendation.final_recommendation}
+        points={aiPoints}
+        modelBadge={import.meta.env.VITE_AI_MODEL_NAME || 'Claude Sonnet 4'}
+        disclaimer="AI による分析です。最終決定は専門家や実物件確認と合わせて行ってください。"
+      />
+      {summaryRows.length > 0 && (
         <div>
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-            主要項目
-          </div>
-          <div className="border border-rule rounded-lg overflow-hidden bg-white">
-            <div className="grid grid-cols-[140px_1fr_1fr] bg-paper-dark border-b border-rule">
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60">
-                項目
-              </div>
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 border-l border-rule">
-                A · {comparison.property_a.property_name || "物件 A"}
-              </div>
-              <div className="px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 border-l border-rule">
-                B · {comparison.property_b.property_name || "物件 B"}
-              </div>
-            </div>
-            {recommendation.summary_table.map((row, i) => (
-              <div
-                key={i}
-                className={`grid grid-cols-[140px_1fr_1fr] border-b border-rule last:border-b-0 text-[13px] ${
-                  i % 2 === 1 ? "bg-paper" : ""
-                }`}
-              >
-                <div className="px-4 py-2.5 text-ink-60">{row.field}</div>
-                <div className="px-4 py-2.5 border-l border-rule font-medium">{row.property_a}</div>
-                <div className="px-4 py-2.5 border-l border-rule font-medium">{row.property_b}</div>
-              </div>
-            ))}
-          </div>
+          <div className="text-label-sm text-ink-60 mb-3">主要項目</div>
+          <ComparisonTable
+            rows={summaryRows}
+            headerA={`A · ${comparison.property_a.property_name || '物件 A'}`}
+            headerB={`B · ${comparison.property_b.property_name || '物件 B'}`}
+          />
         </div>
       )}
-
-      {/* Pros/Cons */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-rule border border-rule rounded-lg overflow-hidden">
-        <ProsCons
-          title={comparison.property_a.property_name || "物件 A"}
-          pros={recommendation.property_a_pros}
-          cons={recommendation.property_a_cons}
-        />
-        <ProsCons
-          title={comparison.property_b.property_name || "物件 B"}
-          pros={recommendation.property_b_pros}
-          cons={recommendation.property_b_cons}
-        />
-      </div>
     </div>
   );
 };
 
-const ProsCons = ({ title, pros, cons }: { title: string; pros: string[]; cons: string[] }) => (
-  <div className="bg-white p-6">
-    <h3 className="font-display text-[18px] tracking-[-0.2px] mb-4 pb-3 border-b border-rule">
-      {title}
-    </h3>
-    <div className="mb-5">
-      <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 mb-2">
-        <ThumbsUp className="w-3 h-3" />
-        Pros
-      </div>
-      <ul className="space-y-1.5 text-[13px]">
-        {pros.map((p, i) => (
-          <li key={i} className="flex gap-2">
-            <span className="text-ink-30">·</span>
-            <span>{p}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-    <div>
-      <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 mb-2">
-        <ThumbsDown className="w-3 h-3" />
-        Cons
-      </div>
-      <ul className="space-y-1.5 text-[13px]">
-        {cons.map((c, i) => (
-          <li key={i} className="flex gap-2">
-            <span className="text-ink-30">·</span>
-            <span>{c}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-);
+// tv7.13: helper functions for DetailsTab
+const boolToMaru = (v: boolean | null | undefined): string | null =>
+  v === null || v === undefined ? null : v ? '○' : '—';
+
+const boolToPossible = (v: boolean | null | undefined): string | null =>
+  v === null || v === undefined ? null : v ? '可' : '不可';
+
+const rentStr = (p: PropertyData): string | null =>
+  p.estimated_rent != null ? `${p.estimated_rent}万円` : null;
+
+const yieldStr = (p: PropertyData): string | null =>
+  p.estimated_yield != null ? `${p.estimated_yield}%` : null;
 
 const DetailsTab = ({
   comparison,
-  formatPrice,
+  formatPrice: _formatPrice,
 }: {
   comparison: ComparisonData;
   formatPrice: (p: number | null) => string;
 }) => {
-  const fields: { key: string; label: string; getA: () => string | null; getB: () => string | null }[] = [
+  const a = comparison.property_a;
+  const b = comparison.property_b;
+
+  // tv7.13: 14-row canonical table
+  const rows: ComparisonRow[] = [
     {
-      key: "price",
-      label: "価格",
-      getA: () => formatPrice(comparison.property_a.price_yen),
-      getB: () => formatPrice(comparison.property_b.price_yen),
+      key: 'building_structure',
+      label: '建物構造',
+      valueA: a.building_structure ?? null,
+      valueB: b.building_structure ?? null,
     },
     {
-      key: "address",
-      label: "住所",
-      getA: () => comparison.property_a.address,
-      getB: () => comparison.property_b.address,
+      key: 'total_units',
+      label: '総戸数',
+      valueA: a.total_units != null ? String(a.total_units) : null,
+      valueB: b.total_units != null ? String(b.total_units) : null,
+      mono: true,
     },
     {
-      key: "floor",
-      label: "間取り",
-      getA: () => comparison.property_a.floor_plan,
-      getB: () => comparison.property_b.floor_plan,
+      key: 'management_type',
+      label: '管理形態',
+      valueA: a.management_type ?? null,
+      valueB: b.management_type ?? null,
     },
     {
-      key: "commute",
-      label: "通勤時間",
-      getA: () => comparison.property_a.commute_minutes ? `${comparison.property_a.commute_minutes} 分` : null,
-      getB: () => comparison.property_b.commute_minutes ? `${comparison.property_b.commute_minutes} 分` : null,
+      key: 'parking',
+      label: '駐車場',
+      valueA: a.parking ?? null,
+      valueB: b.parking ?? null,
     },
     {
-      key: "type",
-      label: "種別",
-      getA: () => comparison.property_a.property_type,
-      getB: () => comparison.property_b.property_type,
+      key: 'delivery_box',
+      label: '宅配ボックス',
+      valueA: boolToMaru((a.amenities as { delivery_box?: boolean } | null | undefined)?.delivery_box),
+      valueB: boolToMaru((b.amenities as { delivery_box?: boolean } | null | undefined)?.delivery_box),
+    },
+    {
+      key: 'concierge',
+      label: 'コンシェルジュ',
+      valueA: boolToMaru((a.amenities as { concierge?: boolean } | null | undefined)?.concierge),
+      valueB: boolToMaru((b.amenities as { concierge?: boolean } | null | undefined)?.concierge),
+    },
+    {
+      key: 'pet_allowed',
+      label: 'ペット可',
+      valueA: boolToPossible(a.pet_allowed),
+      valueB: boolToPossible(b.pet_allowed),
+    },
+    {
+      key: 'foreigner_purchase',
+      label: '外国人購入',
+      valueA: (() => {
+        const v = (a.amenities as { foreigner_purchase?: boolean } | null | undefined)?.foreigner_purchase;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+      valueB: (() => {
+        const v = (b.amenities as { foreigner_purchase?: boolean } | null | undefined)?.foreigner_purchase;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+    },
+    {
+      key: 'investment_allowed',
+      label: '投資・賃貸利用',
+      valueA: (() => {
+        const v = (a.amenities as { investment_allowed?: boolean } | null | undefined)?.investment_allowed;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+      valueB: (() => {
+        const v = (b.amenities as { investment_allowed?: boolean } | null | undefined)?.investment_allowed;
+        return v === undefined || v === null ? null : v ? '可' : '不可';
+      })(),
+    },
+    {
+      key: 'estimated_rent',
+      label: '想定賃料',
+      valueA: rentStr(a),
+      valueB: rentStr(b),
+      mono: true,
+    },
+    {
+      key: 'estimated_yield',
+      label: '想定表面利回り',
+      valueA: yieldStr(a),
+      valueB: yieldStr(b),
+      mono: true,
+    },
+    {
+      key: 'seismic_standard',
+      label: '耐震基準',
+      valueA: a.seismic_standard ?? null,
+      valueB: b.seismic_standard ?? null,
+    },
+    {
+      key: 'hazard_map',
+      label: 'ハザードマップ',
+      valueA: (a.amenities as { hazard_map?: string } | null | undefined)?.hazard_map ?? null,
+      valueB: (b.amenities as { hazard_map?: string } | null | undefined)?.hazard_map ?? null,
+    },
+    {
+      key: 'school_district',
+      label: '小学校区',
+      valueA: a.school_district ?? null,
+      valueB: b.school_district ?? null,
     },
   ];
+
   return (
-    <div className="border border-rule rounded-lg overflow-hidden bg-white">
-      {fields.map((f, i) => (
-        <div
-          key={f.key}
-          className={`grid grid-cols-[120px_1fr_1fr] border-b border-rule last:border-b-0 text-[13px] ${
-            i % 2 === 1 ? "bg-paper" : ""
-          }`}
-        >
-          <div className="px-4 py-3 text-ink-60 font-mono text-[10px] uppercase tracking-[0.08em]">
-            {f.label}
-          </div>
-          <div className="px-4 py-3 border-l border-rule font-medium">
-            {f.getA() || <span className="text-ink-30">—</span>}
-          </div>
-          <div className="px-4 py-3 border-l border-rule font-medium">
-            {f.getB() || <span className="text-ink-30">—</span>}
-          </div>
-        </div>
-      ))}
-      {(comparison.property_a.notes || comparison.property_b.notes) && (
-        <div className="grid grid-cols-[120px_1fr_1fr] border-t border-rule text-[13px] bg-paper-dark/40">
-          <div className="px-4 py-3 text-ink-60 font-mono text-[10px] uppercase tracking-[0.08em]">
-            メモ
-          </div>
-          <div className="px-4 py-3 border-l border-rule">
-            {comparison.property_a.notes || <span className="text-ink-30">—</span>}
-          </div>
-          <div className="px-4 py-3 border-l border-rule">
-            {comparison.property_b.notes || <span className="text-ink-30">—</span>}
-          </div>
-        </div>
-      )}
-    </div>
+    <ComparisonTable
+      rows={rows}
+      headerA={`A · ${a.property_name || '物件 A'}`}
+      headerB={`B · ${b.property_name || '物件 B'}`}
+    />
   );
 };
+
 
 const PhotosTab = ({
   comparison,
@@ -601,10 +691,10 @@ const PhotosTab = ({
   <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-rule border border-rule rounded-lg overflow-hidden">
     {[comparison.property_a, comparison.property_b].map((p, i) => (
       <div key={p.id} className="bg-white p-5">
-        <div className="font-mono text-[9px] uppercase tracking-[0.12em] text-ink-60 mb-2">
+        <div className="text-label-xs text-ink-60 mb-2">
           {i === 0 ? "物件 A" : "物件 B"}
         </div>
-        <h3 className="font-display text-[18px] tracking-[-0.2px] mb-4 truncate">
+        <h3 className="text-property-name mb-4 truncate">
           {p.property_name || `物件 ${i === 0 ? "A" : "B"}`}
         </h3>
         <PropertyImageDisplay
@@ -618,6 +708,23 @@ const PhotosTab = ({
       </div>
     ))}
   </div>
+);
+
+const MapTabPlaceholder = () => (
+  <ComingSoonTab
+    eyebrow="地図・交通"
+    title="交通アクセスと周辺情報"
+    description="最寄り駅・路線数・所要時間、および主要施設までの経路を可視化したマップを準備しています。公開情報と現地調査を組み合わせ、物件ごとのアクセス性を比較できるようにします。"
+    icon={<MapPin className="w-4 h-4" />}
+  />
+);
+const RiskTabPlaceholder = () => (
+  <ComingSoonTab
+    eyebrow="リスク分析"
+    title="ハザードと将来リスクの可視化"
+    description="洪水・液状化・土砂災害などのハザードマップ情報と、エリアの資産価値トレンドに基づく将来リスクを AI が整理し、2 物件を並べて比較できるようにします。"
+    icon={<ShieldAlert className="w-4 h-4" />}
+  />
 );
 
 export default ComparisonDetail;
