@@ -27,10 +27,12 @@ export type Database = {
           property_b_id: string
           property_url_a: string | null
           property_url_b: string | null
+          save_count: number
           top_priority_1: string | null
           top_priority_2: string | null
           top_priority_3: string | null
           user_id: string | null
+          view_count: number
           why_move: string | null
         }
         Insert: {
@@ -45,10 +47,12 @@ export type Database = {
           property_b_id: string
           property_url_a?: string | null
           property_url_b?: string | null
+          save_count?: number
           top_priority_1?: string | null
           top_priority_2?: string | null
           top_priority_3?: string | null
           user_id?: string | null
+          view_count?: number
           why_move?: string | null
         }
         Update: {
@@ -63,10 +67,12 @@ export type Database = {
           property_b_id?: string
           property_url_a?: string | null
           property_url_b?: string | null
+          save_count?: number
           top_priority_1?: string | null
           top_priority_2?: string | null
           top_priority_3?: string | null
           user_id?: string | null
+          view_count?: number
           why_move?: string | null
         }
         Relationships: [
@@ -426,6 +432,39 @@ export type Database = {
           },
         ]
       }
+      saved_comparisons: {
+        Row: {
+          comparison_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          comparison_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          comparison_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_comparisons_comparison_id_fkey"
+            columns: ["comparison_id"]
+            isOneToOne: false
+            referencedRelation: "comparisons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_comparisons_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votes: {
         Row: {
           comment: string | null
@@ -473,7 +512,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_comparison_view: {
+        Args: { p_comparison_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       social_media_platform: "twitter" | "instagram" | "line" | "website"

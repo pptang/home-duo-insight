@@ -74,6 +74,8 @@ interface ComparisonData {
   property_b: PropertyData;
   recommendations?: AIRecommendation[];
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
+  view_count?: number;
+  save_count?: number;
 }
 
 // Property fields including wave-2 migration additions (tv7.13)
@@ -142,7 +144,7 @@ const ComparisonDetail = () => {
       if (id) {
         const { data: refreshed } = await supabase
           .from("comparisons")
-          .select(`id, created_at, user_id, image_extraction_status,
+          .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED})`)
           .eq("id", id)
@@ -193,7 +195,7 @@ const ComparisonDetail = () => {
 
         const { data, error: err } = await supabase
           .from("comparisons")
-          .select(`id, created_at, user_id, image_extraction_status,
+          .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
@@ -211,11 +213,16 @@ const ComparisonDetail = () => {
           property_a: data.property_a as PropertyData,
           property_b: data.property_b as PropertyData,
           recommendations: data.recommendations as AIRecommendation[],
+          view_count: (data as { view_count?: number }).view_count,
+          save_count: (data as { save_count?: number }).save_count,
         };
         setComparison(typed);
         if (typed.recommendations && typed.recommendations.length > 0) {
           setRecommendation(typed.recommendations[0]);
         }
+
+        // dy7: fire-and-forget view counter bump
+        void supabase.rpc('increment_comparison_view', { p_comparison_id: id });
       } catch {
         setError("Failed to load comparison data");
       } finally {
@@ -432,6 +439,8 @@ const ComparisonDetail = () => {
         propertyAName={comparison.property_a.property_name || '物件 A'}
         propertyBName={comparison.property_b.property_name || '物件 B'}
         propertyAAddress={comparison.property_a.address}
+        viewCount={comparison.view_count}
+        saveCount={comparison.save_count}
       />
 
       {/* Sticky action bar — tv7.18: translucent paper/90 + backdrop-blur + shadow-drawer + verdict line

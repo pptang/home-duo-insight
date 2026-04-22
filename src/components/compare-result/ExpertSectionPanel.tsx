@@ -28,6 +28,13 @@ interface ExpertSectionPanelProps {
   propertyAName: string;
   propertyBName: string;
   propertyAAddress?: string | null;
+  viewCount?: number | null;
+  saveCount?: number | null;
+}
+
+function formatCount(value: number | null | undefined): string {
+  if (value === null || value === undefined) return '—';
+  return value.toLocaleString('ja-JP');
 }
 
 function getInitials(name: string): string {
@@ -66,9 +73,11 @@ function formatJaDate(iso: string): string {
 interface UnclaimedBlockProps {
   onClaim: () => void;
   areaLabel: string;
+  viewCount?: number | null;
+  saveCount?: number | null;
 }
 
-function UnclaimedBlock({ onClaim, areaLabel }: UnclaimedBlockProps) {
+function UnclaimedBlock({ onClaim, areaLabel, viewCount, saveCount }: UnclaimedBlockProps) {
   return (
     <div className="rounded-xl border-2 border-dashed border-rule p-6">
       {/* Header row */}
@@ -100,9 +109,8 @@ function UnclaimedBlock({ onClaim, areaLabel }: UnclaimedBlockProps) {
       </div>
       {/* Footer row */}
       <div className="mt-4 pt-4 border-t border-rule flex items-center gap-4 flex-wrap">
-        {/* TODO(uz9): replace — placeholders with real counts once comparisons.view_count / save_count columns land (see home-duo-insight-dy7) */}
-        <span className="text-[12px] text-ink-60">👁 — 閲覧</span>
-        <span className="text-[12px] text-ink-60">🔖 — 人が保存</span>
+        <span className="text-[12px] text-ink-60">👁 {formatCount(viewCount)} 閲覧</span>
+        <span className="text-[12px] text-ink-60">🔖 {formatCount(saveCount)} 人が保存</span>
         <span className="text-[12px] text-ink-60">📍 {areaLabel}</span>
         <span className="ml-auto font-mono text-[9px] text-ink-30">
           認領した専門家には閲覧者から直接問い合わせが届きます
@@ -214,6 +222,8 @@ export const ExpertSectionPanel = ({
   propertyAName: _propertyAName,
   propertyBName: _propertyBName,
   propertyAAddress,
+  viewCount,
+  saveCount,
 }: ExpertSectionPanelProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -302,7 +312,12 @@ export const ExpertSectionPanel = ({
           onContact={() => navigate('/auth')}
         />
       ) : (
-        <UnclaimedBlock onClaim={() => navigate('/auth')} areaLabel={areaLabel} />
+        <UnclaimedBlock
+          onClaim={() => navigate('/auth')}
+          areaLabel={areaLabel}
+          viewCount={viewCount}
+          saveCount={saveCount}
+        />
       )}
     </section>
   );
