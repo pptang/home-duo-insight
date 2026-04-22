@@ -12,7 +12,6 @@ import {
   CompareTabs,
   ComparisonTable,
   AIAnalysisBlock,
-  ProsConsGrid,
   ComingSoonTab,
   ExpertSectionPanel,
   SimilarProperties,
@@ -49,10 +48,6 @@ interface PropertyData {
 
 interface AIRecommendation {
   id: string;
-  property_a_pros: string[];
-  property_a_cons: string[];
-  property_b_pros: string[];
-  property_b_cons: string[];
   summary_table: {
     field: string;
     property_a: string;
@@ -81,8 +76,8 @@ interface ComparisonData {
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
 }
 
-// Base fields that exist on the properties table before wave-2 migrations
-const PROPERTY_FIELDS_BASE = [
+// Property fields including wave-2 migration additions (tv7.13)
+const PROPERTY_FIELDS_EXTENDED = [
   'id',
   'property_name',
   'address',
@@ -96,11 +91,6 @@ const PROPERTY_FIELDS_BASE = [
   'construction_year',
   'construction_month',
   'building_age_years',
-].join(', ');
-
-// Extended fields added by wave-2 migrations (tv7.13)
-const PROPERTY_FIELDS_EXTENDED = [
-  ...PROPERTY_FIELDS_BASE.split(', '),
   'building_structure',
   'total_units',
   'management_type',
@@ -112,10 +102,6 @@ const PROPERTY_FIELDS_EXTENDED = [
   'seismic_standard',
   'school_district',
 ].join(', ');
-
-/** Returns true when the PostgREST error is a missing column (code 42703) */
-const is42703 = (err: { code?: string; message?: string } | null): boolean =>
-  !!err && (err.code === '42703' || (err.message ?? '').includes('does not exist'));
 
 type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
@@ -205,41 +191,14 @@ const ComparisonDetail = () => {
       try {
         setIsLoading(true);
 
-        // Attempt 1: extended property fields + ai_points
-        let { data, error: err } = await supabase
+        const { data, error: err } = await supabase
           .from("comparisons")
           .select(`id, created_at, user_id, image_extraction_status,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
+            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
           .eq("id", id)
           .single();
-
-        // Fallback 1: extended property columns missing — retry with base fields but keep ai_points
-        if (is42703(err)) {
-          console.warn('[ComparisonDetail] Extended property columns missing (42703) — falling back to base fields');
-          ({ data, error: err } = await supabase
-            .from("comparisons")
-            .select(`id, created_at, user_id, image_extraction_status,
-              property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
-              property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
-              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
-            .eq("id", id)
-            .single());
-        }
-
-        // Fallback 2: ai_points column also missing — retry without it
-        if (is42703(err)) {
-          console.warn('[ComparisonDetail] ai_points column missing (42703) — falling back without ai_points');
-          ({ data, error: err } = await supabase
-            .from("comparisons")
-            .select(`id, created_at, user_id, image_extraction_status,
-              property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
-              property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
-              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at)`)
-            .eq("id", id)
-            .single());
-        }
 
         if (err || !data) {
           setError("Comparison not found");
@@ -582,18 +541,6 @@ const SummaryTab = ({
           />
         </div>
       )}
-      <ProsConsGrid
-        a={{
-          title: comparison.property_a.property_name || '物件 A',
-          pros: recommendation.property_a_pros,
-          cons: recommendation.property_a_cons,
-        }}
-        b={{
-          title: comparison.property_b.property_name || '物件 B',
-          pros: recommendation.property_b_pros,
-          cons: recommendation.property_b_cons,
-        }}
-      />
     </div>
   );
 };
