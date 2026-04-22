@@ -287,8 +287,8 @@ serve(async (req) => {
     const fullHtmlA = stripHtmlForGemini(html_property_a);
     const fullHtmlB = stripHtmlForGemini(html_property_b);
     console.log(`Sending HTML to Gemini - Property A: ${html_property_a.length} → ${fullHtmlA.length} chars, Property B: ${html_property_b.length} → ${fullHtmlB.length} chars`);
-    
-    const prompt = `You are AiSumai (愛住) AI. Extract structured property data from these Japanese real estate listing pages.
+
+    const buildPrompt = (label: string, html: string) => `You are AiSumai (愛住) AI. Extract structured property data from this Japanese real estate listing page.
 
 Focus on extracting: Property Name, Address, Price, Floor Plan, Commute Time, Property Type, Private Area, Building Age, Notes, Image URLs, and extended fields (building structure, management fee, parking, pet policy, floor number, direction, train line, school district, amenities).
 
@@ -377,162 +377,126 @@ EXTRACTION RULES:
 - INCLUDE ONLY: Actual property photos with valid base64 IDs or image file extensions
 - Return empty array [] if no main property images found
 
-FOR PROPERTY A:
-${fullHtmlA}
-
-FOR PROPERTY B:
-${fullHtmlB}
+LISTING HTML (${label}):
+${html}
 
 IMPORTANT: Search thoroughly through ALL text content. If you cannot find specific values, set them to null (not 0). Only use 0 for actual zero values.
 
 Return only this JSON format (no explanations). Include every key even when the value is null. Use null (not 0 and not empty string) when the listing does not expose the field.
 {
-  "property_a": {
-    "property_name": "",
-    "address": "",
-    "price_yen": null,
-    "floor_plan": "",
-    "commute_minutes": null,
-    "property_type": "",
-    "private_area_sqm": null,
-    "construction_year": null,
-    "construction_month": null,
-    "building_age_years": null,
-    "image_urls": [],
-    "notes": "",
-    "building_structure": null,
-    "total_units": null,
-    "management_type": null,
-    "parking": null,
-    "pet_allowed": null,
-    "seismic_standard": null,
-    "management_fee": null,
-    "repair_reserve": null,
-    "price_per_tsubo": null,
-    "estimated_rent": null,
-    "estimated_yield": null,
-    "floor_number": null,
-    "direction": null,
-    "train_line": null,
-    "school_district": null,
-    "amenities": {
-      "delivery_box": null,
-      "concierge": null,
-      "foreigner_purchase": null,
-      "investment_allowed": null,
-      "hazard_map": null
-    }
-  },
-  "property_b": {
-    "property_name": "",
-    "address": "",
-    "price_yen": null,
-    "floor_plan": "",
-    "commute_minutes": null,
-    "property_type": "",
-    "private_area_sqm": null,
-    "construction_year": null,
-    "construction_month": null,
-    "building_age_years": null,
-    "image_urls": [],
-    "notes": "",
-    "building_structure": null,
-    "total_units": null,
-    "management_type": null,
-    "parking": null,
-    "pet_allowed": null,
-    "seismic_standard": null,
-    "management_fee": null,
-    "repair_reserve": null,
-    "price_per_tsubo": null,
-    "estimated_rent": null,
-    "estimated_yield": null,
-    "floor_number": null,
-    "direction": null,
-    "train_line": null,
-    "school_district": null,
-    "amenities": {
-      "delivery_box": null,
-      "concierge": null,
-      "foreigner_purchase": null,
-      "investment_allowed": null,
-      "hazard_map": null
-    }
+  "property_name": "",
+  "address": "",
+  "price_yen": null,
+  "floor_plan": "",
+  "commute_minutes": null,
+  "property_type": "",
+  "private_area_sqm": null,
+  "construction_year": null,
+  "construction_month": null,
+  "building_age_years": null,
+  "image_urls": [],
+  "notes": "",
+  "building_structure": null,
+  "total_units": null,
+  "management_type": null,
+  "parking": null,
+  "pet_allowed": null,
+  "seismic_standard": null,
+  "management_fee": null,
+  "repair_reserve": null,
+  "price_per_tsubo": null,
+  "estimated_rent": null,
+  "estimated_yield": null,
+  "floor_number": null,
+  "direction": null,
+  "train_line": null,
+  "school_district": null,
+  "amenities": {
+    "delivery_box": null,
+    "concierge": null,
+    "foreigner_purchase": null,
+    "investment_allowed": null,
+    "hazard_map": null
   }
 }`;
 
-    // Make request to Gemini API using cheaper Flash-Lite model
-    console.log("Calling Gemini API to extract data");
-    let geminiResponse;
-    try {
-      geminiResponse = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-goog-api-key": geminiApiKey,
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: prompt }],
-              },
-            ],
-            generationConfig: {
-              temperature: 0.2,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 16384, // Increased to handle extended schema with additional property fields
+    // Call Gemini API twice in parallel — one call per property. Halves wall-clock
+    // time versus a single combined call, and each response fits comfortably below
+    // maxOutputTokens so truncation risk drops as well.
+    const callGeminiForProperty = async (label: string, html: string): Promise<Record<string, unknown>> => {
+      const prompt = buildPrompt(label, html);
+      let resp: Response;
+      try {
+        resp = await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": geminiApiKey,
             },
-          }),
-        }
-      );
-    } catch (fetchError) {
-      console.error("Network error calling Gemini API:", fetchError);
-      return new Response(
-        JSON.stringify({
-          error: "Network error connecting to Gemini API",
-          details: fetchError.message
-        }),
-        {
-          status: 503,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.2,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 16384,
+              },
+            }),
+          }
+        );
+      } catch (fetchError) {
+        throw new Error(`Network error calling Gemini for ${label}: ${(fetchError as Error).message}`);
+      }
 
-    if (!geminiResponse.ok) {
-      const errorData = await geminiResponse.json().catch(() => ({ error: "Could not parse error response" }));
-      console.error("Gemini API error:", {
-        status: geminiResponse.status,
-        statusText: geminiResponse.statusText,
-        errorData
-      });
-      return new Response(
-        JSON.stringify({
-          error: "Gemini API request failed",
-          status: geminiResponse.status,
-          statusText: geminiResponse.statusText,
-          details: errorData
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+      if (!resp.ok) {
+        const errorData = await resp.json().catch(() => ({ error: "Could not parse error response" }));
+        throw new Error(`Gemini API request failed for ${label}: ${resp.status} ${resp.statusText} ${JSON.stringify(errorData)}`);
+      }
 
-    let geminiData;
+      const data = await resp.json();
+      const finishReason = data.candidates?.[0]?.finishReason;
+      if (finishReason === 'MAX_TOKENS') {
+        console.warn(`Gemini response for ${label} was truncated (MAX_TOKENS)`);
+      }
+
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      console.log(`Raw Gemini response for ${label}:`, responseText.substring(0, 300) + "...");
+
+      const jsonMatch =
+        responseText.match(/```json\n([\s\S]*?)\n```/) ||
+        responseText.match(/({[\s\S]*})/);
+      let jsonString = jsonMatch ? jsonMatch[1] : responseText;
+      jsonString = jsonString
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'");
+
+      try {
+        return JSON.parse(jsonString);
+      } catch (parseError) {
+        throw new Error(`Failed to parse JSON from Gemini for ${label}: ${(parseError as Error).message}. Raw: ${responseText.substring(0, 1000)}`);
+      }
+    };
+
+    console.log("Calling Gemini API in parallel (one call per property)");
+    let extractedData: { property_a: Record<string, unknown>; property_b: Record<string, unknown> };
     try {
-      geminiData = await geminiResponse.json();
-      console.log("Gemini response received successfully");
-    } catch (jsonError) {
-      console.error("Error parsing Gemini response JSON:", jsonError);
+      const [propA, propB] = await Promise.all([
+        callGeminiForProperty('property_a', fullHtmlA),
+        callGeminiForProperty('property_b', fullHtmlB),
+      ]);
+      extractedData = { property_a: propA, property_b: propB };
+      console.log("Successfully parsed property data for both properties");
+    } catch (geminiError) {
+      console.error("Gemini extraction error:", geminiError);
       return new Response(
         JSON.stringify({
-          error: "Invalid JSON response from Gemini API",
-          details: jsonError.message
+          error: "Gemini extraction failed",
+          details: (geminiError as Error).message,
         }),
         {
           status: 502,
@@ -542,78 +506,7 @@ Return only this JSON format (no explanations). Include every key even when the 
     }
 
     try {
-      // Check if response was truncated due to token limit
-      const finishReason = geminiData.candidates[0]?.finishReason;
-      if (finishReason === 'MAX_TOKENS') {
-        console.warn('Gemini response was truncated due to token limit (MAX_TOKENS)');
-      }
-
-      // Extract the JSON from Gemini's response
-      const responseText =
-        geminiData.candidates[0]?.content?.parts?.[0]?.text || "";
-
-      console.log("Raw Gemini response text:", responseText.substring(0, 500) + "...");
-      console.log("Gemini finish reason:", finishReason);
-
-      // Extract the JSON part from the response
-      const jsonMatch =
-        responseText.match(/```json\n([\s\S]*?)\n```/) ||
-        responseText.match(/({[\s\S]*})/);
-      let jsonString = jsonMatch ? jsonMatch[1] : responseText;
-
-      // Clean HTML entities from JSON string before parsing
-      jsonString = jsonString
-        .replace(/&amp;/g, '&')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&quot;/g, '"')
-        .replace(/&#39;/g, "'");
-
-      console.log("Extracted and cleaned JSON string:", jsonString.substring(0, 500) + "...");
-
-      // Check for truncation - validate JSON contains both properties before parsing
-      if (!jsonString.includes('"property_b"')) {
-        const truncationError = 'Response appears truncated - missing property_b data. This usually indicates the Gemini output token limit was exceeded.';
-        console.error(truncationError);
-        console.error("Truncated JSON string:", jsonString.substring(0, 2000) + "...");
-        throw new Error(truncationError);
-      }
-
-      // Parse the extracted JSON
-      let extractedData;
-      try {
-        extractedData = JSON.parse(jsonString);
-        console.log("Successfully parsed property data");
-        console.log("Extracted data structure:", JSON.stringify(extractedData, null, 2));
-
-        // Log specific field extraction for debugging
-        if (extractedData.property_a) {
-          console.log("Property A extracted fields:", {
-            private_area_sqm: extractedData.property_a.private_area_sqm,
-            commute_minutes: extractedData.property_a.commute_minutes,
-            construction_year: extractedData.property_a.construction_year,
-            construction_month: extractedData.property_a.construction_month,
-            building_age_years: extractedData.property_a.building_age_years
-          });
-        }
-        if (extractedData.property_b) {
-          console.log("Property B extracted fields:", {
-            private_area_sqm: extractedData.property_b.private_area_sqm,
-            commute_minutes: extractedData.property_b.commute_minutes,
-            construction_year: extractedData.property_b.construction_year,
-            construction_month: extractedData.property_b.construction_month,
-            building_age_years: extractedData.property_b.building_age_years
-          });
-        }
-      } catch (parseError) {
-        console.error("JSON parsing failed:", parseError.message);
-        console.error("Failed JSON string:", jsonString);
-        throw new Error(`Failed to parse JSON from Gemini response: ${parseError.message}. Raw response: ${responseText.substring(0, 1000)}`);
-      }
-
-      // Validate extracted data structure
       if (!extractedData.property_a || !extractedData.property_b) {
-        console.error("Missing property data in extracted response:", extractedData);
         throw new Error(`Invalid data structure from Gemini. Missing property_a or property_b. Received: ${JSON.stringify(extractedData)}`);
       }
 
