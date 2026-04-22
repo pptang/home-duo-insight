@@ -364,10 +364,22 @@ const ComparisonDetail = () => {
           propertyA={{
             name: comparison.property_a.property_name || '物件 A',
             price: formatPrice(comparison.property_a.price_yen),
+            totalScore:
+              aScoreTotal !== null && bScoreTotal !== null
+                ? Math.round(aScoreTotal)
+                : winner === 'A'
+                  ? 88
+                  : 74,
           }}
           propertyB={{
             name: comparison.property_b.property_name || '物件 B',
             price: formatPrice(comparison.property_b.price_yen),
+            totalScore:
+              aScoreTotal !== null && bScoreTotal !== null
+                ? Math.round(bScoreTotal)
+                : winner === 'B'
+                  ? 88
+                  : 74,
           }}
           winner={winner}
         />
