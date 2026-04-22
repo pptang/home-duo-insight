@@ -68,7 +68,7 @@ export const AIAnalysisBlock = ({
       )}
     </div>
     <div className="text-[14px] leading-[1.7] prose prose-invert max-w-none">
-      <MarkdownRenderer content={body} />
+      <MarkdownRenderer content={body} invert />
     </div>
     {points && points.length > 0 && (
       <ul className="mt-5 grid gap-2 sm:grid-cols-2">

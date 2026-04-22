@@ -184,6 +184,9 @@ client_id = ""
 # Secret for the WorkOS provider.
 secret = ""
 
+[edge_runtime]
+policy = "per_worker"
+
 [functions]
 # Limit for the number of functions that can be instantiated.
 
