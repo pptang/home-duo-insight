@@ -37,7 +37,7 @@ serve(async (req) => {
   }
 
   try {
-    // Extract and validate the session from the request
+    // Client carries caller auth for invoking downstream edge functions
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -54,19 +54,8 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    // Get session for user identification (optional for rate limiting)
-    const {
-      data: { session },
-      error: sessionError,
-    } = await supabaseClient.auth.getSession();
-
-    console.log("Authorization header:", req.headers.get("Authorization"));
-    console.log("Session data:", session);
-    console.log("Session error:", sessionError);
-
-    // Basic rate limiting by IP or user ID
-    const clientIP = req.headers.get("cf-connecting-ip") || "anonymous";
-    const identifier = session?.user?.id || clientIP;
+    // Basic rate limiting by client IP
+    const identifier = req.headers.get("cf-connecting-ip") || "anonymous";
 
     // Check rate limiting
     const now = Date.now();
@@ -777,32 +766,27 @@ Return only this JSON format (no explanations). Include every key even when the 
       console.log("ANALYZE-PROPERTIES: Property A image URLs (first 3):", propertyA.image_urls?.slice(0, 3));
       console.log("ANALYZE-PROPERTIES: Property B image URLs (first 3):", propertyB.image_urls?.slice(0, 3));
 
-      // Insert PropertyA using service role client (bypasses RLS)
-      const { data: propertyAData, error: propertyAError } =
-        await supabaseServiceClient.from("properties").insert([propertyA]).select();
+      // Insert both properties in a single round-trip (service role bypasses RLS).
+      // Supabase preserves input order in the returned rows, so [0]=A, [1]=B.
+      const { data: insertedProperties, error: propertiesInsertError } =
+        await supabaseServiceClient
+          .from("properties")
+          .insert([propertyA, propertyB])
+          .select();
 
-      if (propertyAError) {
-        console.error("Property A insertion error:", propertyAError);
-        console.error("Property A data that failed:", JSON.stringify(propertyA, null, 2));
+      if (propertiesInsertError || !insertedProperties || insertedProperties.length !== 2) {
+        console.error("Properties insertion error:", propertiesInsertError);
+        console.error("Property A data:", JSON.stringify(propertyA, null, 2));
+        console.error("Property B data:", JSON.stringify(propertyB, null, 2));
         throw new Error(
-          `Error inserting property A: ${propertyAError.message}. Details: ${JSON.stringify(propertyAError.details || {})}. Code: ${propertyAError.code || 'unknown'}`
+          `Error inserting properties: ${propertiesInsertError?.message ?? "unexpected row count"}. Details: ${JSON.stringify(propertiesInsertError?.details || {})}. Code: ${propertiesInsertError?.code || 'unknown'}`
         );
       }
+
+      const propertyAData = [insertedProperties[0]];
+      const propertyBData = [insertedProperties[1]];
 
       console.log("Property A inserted successfully:", propertyAData[0]);
-
-      // Insert PropertyB using service role client (bypasses RLS)
-      const { data: propertyBData, error: propertyBError } =
-        await supabaseServiceClient.from("properties").insert([propertyB]).select();
-
-      if (propertyBError) {
-        console.error("Property B insertion error:", propertyBError);
-        console.error("Property B data that failed:", JSON.stringify(propertyB, null, 2));
-        throw new Error(
-          `Error inserting property B: ${propertyBError.message}. Details: ${JSON.stringify(propertyBError.details || {})}. Code: ${propertyBError.code || 'unknown'}`
-        );
-      }
-
       console.log("Property B inserted successfully:", propertyBData[0]);
 
       // Create comparison record with user_id from request and original URLs
