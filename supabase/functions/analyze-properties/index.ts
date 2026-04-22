@@ -369,7 +369,7 @@ ${fullHtmlB}
 
 IMPORTANT: Search thoroughly through ALL text content. If you cannot find specific values, set them to null (not 0). Only use 0 for actual zero values.
 
-Return only this JSON format (no explanations):
+Return only this JSON format (no explanations). Include every key even when the value is null. Use null (not 0 and not empty string) when the listing does not expose the field.
 {
   "property_a": {
     "property_name": "",
@@ -383,7 +383,29 @@ Return only this JSON format (no explanations):
     "construction_month": null,
     "building_age_years": null,
     "image_urls": [],
-    "notes": ""
+    "notes": "",
+    "building_structure": null,
+    "total_units": null,
+    "management_type": null,
+    "parking": null,
+    "pet_allowed": null,
+    "seismic_standard": null,
+    "management_fee": null,
+    "repair_reserve": null,
+    "price_per_tsubo": null,
+    "estimated_rent": null,
+    "estimated_yield": null,
+    "floor_number": null,
+    "direction": null,
+    "train_line": null,
+    "school_district": null,
+    "amenities": {
+      "delivery_box": null,
+      "concierge": null,
+      "foreigner_purchase": null,
+      "investment_allowed": null,
+      "hazard_map": null
+    }
   },
   "property_b": {
     "property_name": "",
@@ -397,7 +419,29 @@ Return only this JSON format (no explanations):
     "construction_month": null,
     "building_age_years": null,
     "image_urls": [],
-    "notes": ""
+    "notes": "",
+    "building_structure": null,
+    "total_units": null,
+    "management_type": null,
+    "parking": null,
+    "pet_allowed": null,
+    "seismic_standard": null,
+    "management_fee": null,
+    "repair_reserve": null,
+    "price_per_tsubo": null,
+    "estimated_rent": null,
+    "estimated_yield": null,
+    "floor_number": null,
+    "direction": null,
+    "train_line": null,
+    "school_district": null,
+    "amenities": {
+      "delivery_box": null,
+      "concierge": null,
+      "foreigner_purchase": null,
+      "investment_allowed": null,
+      "hazard_map": null
+    }
   }
 }`;
 
