@@ -227,108 +227,108 @@ export type Database = {
       properties: {
         Row: {
           address: string | null
+          amenities: Json | null
           building_age_years: number | null
+          building_structure: string | null
           commute_minutes: number | null
           construction_month: number | null
           construction_year: number | null
           created_at: string | null
+          direction: string | null
           edited_at: string | null
           edited_by: string | null
+          estimated_rent: number | null
+          estimated_yield: number | null
+          floor_number: number | null
           floor_plan: string | null
           id: string
           image_urls: string[] | null
+          management_fee: number | null
+          management_type: string | null
           manual_overrides: Json | null
           notes: string | null
+          parking: string | null
+          pet_allowed: boolean | null
+          price_per_tsubo: number | null
           price_yen: number | null
           private_area_sqm: number | null
           property_name: string | null
           property_type: string | null
-          building_structure: string | null
-          total_units: number | null
-          management_type: string | null
-          parking: string | null
-          pet_allowed: boolean | null
-          seismic_standard: string | null
-          management_fee: number | null
           repair_reserve: number | null
-          price_per_tsubo: number | null
-          estimated_rent: number | null
-          estimated_yield: number | null
-          floor_number: number | null
-          direction: string | null
-          train_line: string | null
           school_district: string | null
-          amenities: Json | null
+          seismic_standard: string | null
+          total_units: number | null
+          train_line: string | null
         }
         Insert: {
           address?: string | null
+          amenities?: Json | null
           building_age_years?: number | null
+          building_structure?: string | null
           commute_minutes?: number | null
           construction_month?: number | null
           construction_year?: number | null
           created_at?: string | null
+          direction?: string | null
           edited_at?: string | null
           edited_by?: string | null
+          estimated_rent?: number | null
+          estimated_yield?: number | null
+          floor_number?: number | null
           floor_plan?: string | null
           id?: string
           image_urls?: string[] | null
+          management_fee?: number | null
+          management_type?: string | null
           manual_overrides?: Json | null
           notes?: string | null
+          parking?: string | null
+          pet_allowed?: boolean | null
+          price_per_tsubo?: number | null
           price_yen?: number | null
           private_area_sqm?: number | null
           property_name?: string | null
           property_type?: string | null
-          building_structure?: string | null
-          total_units?: number | null
-          management_type?: string | null
-          parking?: string | null
-          pet_allowed?: boolean | null
-          seismic_standard?: string | null
-          management_fee?: number | null
           repair_reserve?: number | null
-          price_per_tsubo?: number | null
-          estimated_rent?: number | null
-          estimated_yield?: number | null
-          floor_number?: number | null
-          direction?: string | null
-          train_line?: string | null
           school_district?: string | null
-          amenities?: Json | null
+          seismic_standard?: string | null
+          total_units?: number | null
+          train_line?: string | null
         }
         Update: {
           address?: string | null
+          amenities?: Json | null
           building_age_years?: number | null
+          building_structure?: string | null
           commute_minutes?: number | null
           construction_month?: number | null
           construction_year?: number | null
           created_at?: string | null
+          direction?: string | null
           edited_at?: string | null
           edited_by?: string | null
+          estimated_rent?: number | null
+          estimated_yield?: number | null
+          floor_number?: number | null
           floor_plan?: string | null
           id?: string
           image_urls?: string[] | null
+          management_fee?: number | null
+          management_type?: string | null
           manual_overrides?: Json | null
           notes?: string | null
+          parking?: string | null
+          pet_allowed?: boolean | null
+          price_per_tsubo?: number | null
           price_yen?: number | null
           private_area_sqm?: number | null
           property_name?: string | null
           property_type?: string | null
-          building_structure?: string | null
-          total_units?: number | null
-          management_type?: string | null
-          parking?: string | null
-          pet_allowed?: boolean | null
-          seismic_standard?: string | null
-          management_fee?: number | null
           repair_reserve?: number | null
-          price_per_tsubo?: number | null
-          estimated_rent?: number | null
-          estimated_yield?: number | null
-          floor_number?: number | null
-          direction?: string | null
-          train_line?: string | null
           school_district?: string | null
-          amenities?: Json | null
+          seismic_standard?: string | null
+          total_units?: number | null
+          train_line?: string | null
         }
         Relationships: []
       }
@@ -369,57 +369,57 @@ export type Database = {
       }
       recommendations: {
         Row: {
+          ai_points: Json | null
           comparison_id: string
           created_at: string
           final_recommendation: string
           id: string
           property_a_cons: string[]
           property_a_pros: string[]
+          property_a_score_total: number | null
           property_b_cons: string[]
           property_b_pros: string[]
+          property_b_score_total: number | null
+          score_breakdown: Json | null
           summary_table: Json
           updated_at: string
           user_id: string | null
-          property_a_score_total: number | null
-          property_b_score_total: number | null
-          score_breakdown: Json | null
-          ai_points: Json | null
           user_profile: Json | null
         }
         Insert: {
+          ai_points?: Json | null
           comparison_id: string
           created_at?: string
           final_recommendation: string
           id?: string
           property_a_cons?: string[]
           property_a_pros?: string[]
+          property_a_score_total?: number | null
           property_b_cons?: string[]
           property_b_pros?: string[]
+          property_b_score_total?: number | null
+          score_breakdown?: Json | null
           summary_table?: Json
           updated_at?: string
           user_id?: string | null
-          property_a_score_total?: number | null
-          property_b_score_total?: number | null
-          score_breakdown?: Json | null
-          ai_points?: Json | null
           user_profile?: Json | null
         }
         Update: {
+          ai_points?: Json | null
           comparison_id?: string
           created_at?: string
           final_recommendation?: string
           id?: string
           property_a_cons?: string[]
           property_a_pros?: string[]
+          property_a_score_total?: number | null
           property_b_cons?: string[]
           property_b_pros?: string[]
+          property_b_score_total?: number | null
+          score_breakdown?: Json | null
           summary_table?: Json
           updated_at?: string
           user_id?: string | null
-          property_a_score_total?: number | null
-          property_b_score_total?: number | null
-          score_breakdown?: Json | null
-          ai_points?: Json | null
           user_profile?: Json | null
         }
         Relationships: [
