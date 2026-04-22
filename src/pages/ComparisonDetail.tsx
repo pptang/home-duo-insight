@@ -16,8 +16,9 @@ import {
   ComingSoonTab,
   ExpertSectionPanel,
   SimilarProperties,
+  ScoreCardsGrid,
 } from "@/components/compare-result";
-import type { ComparisonRow } from "@/components/compare-result";
+import type { ComparisonRow, AxisScores } from "@/components/compare-result";
 
 interface PropertyData {
   id: string;
@@ -63,6 +64,8 @@ interface AIRecommendation {
   created_at: string;
   // tv7.10
   ai_points?: { kind: "pro-a" | "pro-b" | "caution"; body: string }[] | null;
+  // tv7.2: per-axis scores emitted by generate-recommendation
+  score_breakdown?: { a: AxisScores; b: AxisScores } | null;
 }
 
 interface ComparisonData {
@@ -205,7 +208,7 @@ const ComparisonDetail = () => {
           .select(`id, created_at, user_id, image_extraction_status,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points)`)
+            recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown)`)
           .eq("id", id)
           .single();
 
@@ -217,7 +220,7 @@ const ComparisonDetail = () => {
             .select(`id, created_at, user_id, image_extraction_status,
               property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_BASE}),
               property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_BASE}),
-              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points)`)
+              recommendations(id, property_a_pros, property_a_cons, property_b_pros, property_b_cons, summary_table, final_recommendation, created_at, ai_points, score_breakdown)`)
             .eq("id", id)
             .single());
         }
@@ -544,6 +547,14 @@ const SummaryTab = ({
   return (
     <div className="space-y-8">
       <h2 className="sr-only">比較サマリー</h2>
+      {recommendation.score_breakdown && (
+        <ScoreCardsGrid
+          scoresA={recommendation.score_breakdown.a}
+          scoresB={recommendation.score_breakdown.b}
+          propertyAName={comparison.property_a.property_name || '物件 A'}
+          propertyBName={comparison.property_b.property_name || '物件 B'}
+        />
+      )}
       {/* tv7.10: pass points, modelBadge, disclaimer */}
       <AIAnalysisBlock
         body={recommendation.final_recommendation}
