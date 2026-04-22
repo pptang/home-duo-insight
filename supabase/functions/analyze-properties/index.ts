@@ -14,6 +14,22 @@ const rateLimiter = new Map<string, { count: number; lastReset: number }>();
 const RATE_LIMIT = 10; // requests
 const RATE_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
 
+// Strip noise from listing HTML before sending to Gemini. Removes <script>, <style>,
+// <svg>, <head>, HTML comments, and collapses whitespace. Preserves img tags so
+// src/data-src/srcset attributes remain available for image extraction.
+function stripHtmlForGemini(html: string): string {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+    .replace(/<style\b[\s\S]*?<\/style>/gi, "")
+    .replace(/<noscript\b[\s\S]*?<\/noscript>/gi, "")
+    .replace(/<svg\b[\s\S]*?<\/svg>/gi, "")
+    .replace(/<head\b[\s\S]*?<\/head>/gi, "")
+    .replace(/<link\b[^>]*>/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -266,11 +282,11 @@ serve(async (req) => {
       );
     }
 
-    // Send full HTML content directly to Gemini without preprocessing
-    console.log(`Sending full HTML content to Gemini - Property A: ${html_property_a.length} chars, Property B: ${html_property_b.length} chars`);
-
-    const fullHtmlA = html_property_a;
-    const fullHtmlB = html_property_b;
+    // Strip scripts/styles/SVG/head/comments before sending to Gemini to cut token count.
+    // Image extraction still works because <img> tags and src/data-src attributes are preserved.
+    const fullHtmlA = stripHtmlForGemini(html_property_a);
+    const fullHtmlB = stripHtmlForGemini(html_property_b);
+    console.log(`Sending HTML to Gemini - Property A: ${html_property_a.length} → ${fullHtmlA.length} chars, Property B: ${html_property_b.length} → ${fullHtmlB.length} chars`);
     
     const prompt = `You are AiSumai (愛住) AI. Extract structured property data from these Japanese real estate listing pages.
 
