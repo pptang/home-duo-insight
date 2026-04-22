@@ -419,6 +419,7 @@ const ComparisonDetail = () => {
         comparisonId={comparison.id}
         propertyAName={comparison.property_a.property_name || '物件 A'}
         propertyBName={comparison.property_b.property_name || '物件 B'}
+        propertyAAddress={comparison.property_a.address}
       />
 
       {/* Sticky action bar — tv7.18: translucent paper/90 + backdrop-blur + shadow-drawer + verdict line

@@ -27,6 +27,7 @@ interface ExpertSectionPanelProps {
   comparisonId: string;
   propertyAName: string;
   propertyBName: string;
+  propertyAAddress?: string | null;
 }
 
 function getInitials(name: string): string {
@@ -36,6 +37,18 @@ function getInitials(name: string): string {
     .join('')
     .toUpperCase()
     .slice(0, 2);
+}
+
+// Derive a human-readable area label from a Japanese address:
+// strip prefecture prefix (都/道/府/県), then extract the first 市/区 token
+// (e.g. `東京都渋谷区神南` → `渋谷区エリア`, `静岡県静岡市駿河区…` → `静岡市エリア`).
+// Falls back to the first 3 chars when no 市/区 is present.
+function deriveAreaLabel(address: string | null | undefined): string {
+  if (!address) return 'エリア未設定';
+  const afterPrefecture = address.replace(/^.+?(都|道|府|県)/, '');
+  const wardMatch = afterPrefecture.match(/^.+?(区|市)/);
+  if (wardMatch) return `${wardMatch[0]}エリア`;
+  return `${(afterPrefecture || address).slice(0, 3)}エリア`;
 }
 
 function formatJaDate(iso: string): string {
@@ -52,9 +65,10 @@ function formatJaDate(iso: string): string {
 
 interface UnclaimedBlockProps {
   onClaim: () => void;
+  areaLabel: string;
 }
 
-function UnclaimedBlock({ onClaim }: UnclaimedBlockProps) {
+function UnclaimedBlock({ onClaim, areaLabel }: UnclaimedBlockProps) {
   return (
     <div className="rounded-xl border-2 border-dashed border-rule p-6">
       {/* Header row */}
@@ -71,7 +85,7 @@ function UnclaimedBlock({ onClaim }: UnclaimedBlockProps) {
               このレポートにあなたの見解を加えませんか？
             </div>
             <div className="text-[13px] text-ink-60 leading-relaxed">
-              渋谷区・目黒区エリアの専門家として、AI分析に現場の知見を追加できます。
+              {areaLabel !== 'エリア未設定' && `${areaLabel}の`}専門家として、AI分析に現場の知見を追加できます。
               コメントにより潜在買主・借主と直接繋がる機会が生まれます。
             </div>
           </div>
@@ -86,9 +100,10 @@ function UnclaimedBlock({ onClaim }: UnclaimedBlockProps) {
       </div>
       {/* Footer row */}
       <div className="mt-4 pt-4 border-t border-rule flex items-center gap-4 flex-wrap">
-        <span className="text-[12px] text-ink-60">👁 284 閲覧</span>
-        <span className="text-[12px] text-ink-60">🔖 12 人が保存</span>
-        <span className="text-[12px] text-ink-60">📍 渋谷区・目黒区エリア</span>
+        {/* TODO(uz9): replace — placeholders with real counts once comparisons.view_count / save_count columns land (see home-duo-insight-dy7) */}
+        <span className="text-[12px] text-ink-60">👁 — 閲覧</span>
+        <span className="text-[12px] text-ink-60">🔖 — 人が保存</span>
+        <span className="text-[12px] text-ink-60">📍 {areaLabel}</span>
         <span className="ml-auto font-mono text-[9px] text-ink-30">
           認領した専門家には閲覧者から直接問い合わせが届きます
         </span>
@@ -198,6 +213,7 @@ export const ExpertSectionPanel = ({
   comparisonId,
   propertyAName: _propertyAName,
   propertyBName: _propertyBName,
+  propertyAAddress,
 }: ExpertSectionPanelProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -263,6 +279,7 @@ export const ExpertSectionPanel = ({
 
   const hasClaimed = votes.length > 0;
   const primaryVote = votes[0] ?? null;
+  const areaLabel = deriveAreaLabel(propertyAAddress);
 
   return (
     <section className="max-w-[1040px] mx-auto px-6 mt-16 pt-12 border-t border-rule">
@@ -285,7 +302,7 @@ export const ExpertSectionPanel = ({
           onContact={() => navigate('/auth')}
         />
       ) : (
-        <UnclaimedBlock onClaim={() => navigate('/auth')} />
+        <UnclaimedBlock onClaim={() => navigate('/auth')} areaLabel={areaLabel} />
       )}
     </section>
   );
