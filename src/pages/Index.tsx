@@ -2,6 +2,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import {
+  analyzeProperties,
+  defaultLandingPreferences,
+  generateRecommendation,
+} from "@/lib/comparisonFlow";
+import { trackComparisonCreated, trackRecommendationGenerated } from "@/lib/analytics";
 
 const FILTER_CHIPS = [
   { id: "price", label: "価格" },
@@ -61,10 +69,28 @@ const FEED_ITEMS = [
 const Index = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user } = useAuth();
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set(["price"]));
   const [activeTab, setActiveTab] = useState<"url" | "id" | "area">("url");
   const [propA, setPropA] = useState("");
   const [propB, setPropB] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isValidUrl = (value: string) => {
+    try {
+      const url = new URL(value.trim());
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  };
+
+  const canSubmit =
+    activeTab === "url" &&
+    isValidUrl(propA) &&
+    isValidUrl(propB) &&
+    !isSubmitting;
 
   const toggleChip = (id: string) => {
     setActiveChips((prev) => {
@@ -75,9 +101,40 @@ const Index = () => {
     });
   };
 
-  const handleCompare = (e: React.FormEvent) => {
+  const handleCompare = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/compare");
+    if (!canSubmit) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const comparisonResult = await analyzeProperties(propA.trim(), propB.trim(), user?.id);
+      trackComparisonCreated(comparisonResult.comparison_id);
+
+      const recommendation = await generateRecommendation(
+        comparisonResult,
+        defaultLandingPreferences,
+        user?.id,
+      );
+      trackRecommendationGenerated(
+        comparisonResult.comparison_id,
+        recommendation.recommendation_id,
+      );
+
+      navigate(`/comparisons/${comparisonResult.comparison_id}`);
+    } catch (error) {
+      console.error("Failed to create comparison from landing page:", error);
+      toast({
+        variant: "destructive",
+        title: t("compare.messages.error_title"),
+        description:
+          error instanceof Error
+            ? error.message
+            : t("compare.messages.error_unexpected"),
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -138,6 +195,7 @@ const Index = () => {
                   value={propA}
                   onChange={(e) => setPropA(e.target.value)}
                   placeholder="例：SUUMO の URL または 物件名"
+                  disabled={isSubmitting || activeTab !== "url"}
                   className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
                 />
               </div>
@@ -153,6 +211,7 @@ const Index = () => {
                   value={propB}
                   onChange={(e) => setPropB(e.target.value)}
                   placeholder="例：HOME'S の URL または 物件名"
+                  disabled={isSubmitting || activeTab !== "url"}
                   className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
                 />
               </div>
@@ -180,10 +239,11 @@ const Index = () => {
               </div>
               <button
                 type="submit"
+                disabled={!canSubmit}
                 className="bg-ink text-paper px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] flex items-center justify-center gap-2 hover:opacity-85 transition-all hover:-translate-y-0.5"
               >
                 <ArrowRight className="w-3.5 h-3.5" />
-                比較する
+                {isSubmitting ? "比較を作成中..." : "比較する"}
               </button>
             </div>
 

@@ -7,6 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  analyzeProperties,
+  defaultLandingPreferences,
+  generateRecommendation,
+} from "@/lib/comparisonFlow";
+import {
   ArrowDown,
   CheckCircle,
   ImageIcon,
@@ -67,44 +72,12 @@ import { ExpertSection } from "@/components/ExpertSection";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 import { RecommendationFeedback } from "@/components/RecommendationFeedback";
-
-interface PropertyData {
-  id: string;
-  property_name?: string;
-  address?: string;
-  price_yen?: number;
-  floor_plan?: string;
-  commute_minutes?: number;
-  property_type?: string;
-  image_urls: string[];
-  notes?: string;
-  // New enhanced fields
-  private_area_sqm?: number;
-  construction_year?: number;
-  construction_month?: number;
-  building_age_years?: number;
-}
-
-interface ComparisonResult {
-  comparison_id: string;
-  property_a: PropertyData;
-  property_b: PropertyData;
-  image_extraction_status?: 'pending' | 'in_progress' | 'completed' | 'failed';
-}
-
-interface AIRecommendation {
-  recommendation_id?: string;
-  property_a_pros: string[];
-  property_a_cons: string[];
-  property_b_pros: string[];
-  property_b_cons: string[];
-  summary_table: {
-    field: string;
-    property_a: string;
-    property_b: string;
-  }[];
-  final_recommendation: string;
-}
+import type {
+  AIRecommendation,
+  ComparisonResult,
+  PersonalizationValues,
+  PropertyData,
+} from "@/lib/comparisonFlow";
 
 // Improved URL validation schema
 const urlSchema = z.object({
@@ -164,7 +137,6 @@ const personalizationSchema = z.object({
 });
 
 type FormValues = z.infer<typeof urlSchema>;
-type PersonalizationValues = z.infer<typeof personalizationSchema>;
 
 // Function to extract URLs from pasted text
 const extractUrlFromText = (text: string): string => {
@@ -287,42 +259,7 @@ const Compare = () => {
 
   const personalizationForm = useForm<PersonalizationValues>({
     resolver: zodResolver(personalizationSchema),
-    defaultValues: {
-      // Lifestyle Fit (Day-to-Day Life)
-      proximity_to_cafes: 3,
-      access_to_gym: 3,
-      dog_walking_friendly: 3,
-      quiet_at_night: 3,
-      morning_vs_afternoon_sunlight: "no_preference",
-      laundromat_access: 3,
-      
-      // Emotional Desires / Aesthetic Preferences
-      open_view: 3,
-      feels_like_home: 3,
-      creative_friendly: 3,
-      reading_corner_space: 3,
-      natural_surroundings: 3,
-      
-      // Life Planning / Forward-looking Goals
-      future_family_growth: 3,
-      work_from_home_support: 3,
-      resale_potential: 3,
-      renovation_willingness: 3,
-      storage_capacity: 3,
-      
-      // Sensory or Comfort Needs
-      natural_ventilation: 3,
-      light_sensitivity: 3,
-      minimalist_vs_maximalist: "no_preference",
-      privacy_from_neighbors: 3,
-      
-      // Cultural / Routine-Based Needs
-      grocery_chain_access: 3,
-      international_schools: 3,
-      weekend_market_access: 3,
-      safe_for_biking: 3,
-      spiritual_space_access: 3,
-    },
+    defaultValues: defaultLandingPreferences,
   });
 
   const handleAnalyzeProperties = async (values: FormValues) => {
@@ -331,37 +268,11 @@ const Compare = () => {
       // Show loading stages for better user feedback
       setLoadingStage(t("compare.url_input.loading_stage"));
 
-      // Call the Supabase Edge Function with user_id
-      const { data, error } = await supabase.functions.invoke(
-        "analyze-properties",
-        {
-          body: {
-            property_url_a: values.property_url_a,
-            property_url_b: values.property_url_b,
-            user_id: user?.id || null, // Include user_id if logged in
-          },
-        }
+      const data = await analyzeProperties(
+        values.property_url_a,
+        values.property_url_b,
+        user?.id,
       );
-
-      if (error) {
-        console.error("Edge function error:", error);
-        toast({
-          variant: "destructive",
-          title: t("compare.messages.error_title"),
-          description: t("compare.messages.error_extract"),
-        });
-        return;
-      }
-
-      if (data.error) {
-        console.error("API error:", data.error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: data.error,
-        });
-        return;
-      }
 
       // Success - set comparison result and move to metadata review stage
       setComparisonResult(data);
@@ -400,80 +311,12 @@ const Compare = () => {
     setShowPersonalizationDialog(false);
 
     try {
-      // Organize preferences by category for better AI processing
-      const categorizedPreferences = {
-        lifestyle_fit: {
-          proximity_to_cafes: values.proximity_to_cafes,
-          access_to_gym: values.access_to_gym,
-          dog_walking_friendly: values.dog_walking_friendly,
-          quiet_at_night: values.quiet_at_night,
-          morning_vs_afternoon_sunlight: values.morning_vs_afternoon_sunlight,
-          laundromat_access: values.laundromat_access,
-        },
-        emotional_desires: {
-          open_view: values.open_view,
-          feels_like_home: values.feels_like_home,
-          creative_friendly: values.creative_friendly,
-          reading_corner_space: values.reading_corner_space,
-          natural_surroundings: values.natural_surroundings,
-        },
-        life_planning: {
-          future_family_growth: values.future_family_growth,
-          work_from_home_support: values.work_from_home_support,
-          resale_potential: values.resale_potential,
-          renovation_willingness: values.renovation_willingness,
-          storage_capacity: values.storage_capacity,
-        },
-        sensory_comfort: {
-          natural_ventilation: values.natural_ventilation,
-          light_sensitivity: values.light_sensitivity,
-          minimalist_vs_maximalist: values.minimalist_vs_maximalist,
-          privacy_from_neighbors: values.privacy_from_neighbors,
-        },
-        cultural_routine: {
-          grocery_chain_access: values.grocery_chain_access,
-          international_schools: values.international_schools,
-          weekend_market_access: values.weekend_market_access,
-          safe_for_biking: values.safe_for_biking,
-          spiritual_space_access: values.spiritual_space_access,
-        }
-      };
-
-      // Normalize language to 'en' or 'ja' (strip locale variants like 'en-US', 'ja-JP')
-      const detectedLanguage = i18n.language || 'en';
-      const normalizedLanguage: 'en' | 'ja' = detectedLanguage.startsWith('ja') ? 'ja' : 'en';
-      console.log('Language detection:', { detectedLanguage, normalizedLanguage });
-
-      const { data, error } = await supabase.functions.invoke(
-        "generate-recommendation",
-        {
-          body: {
-            comparison_id: comparisonResult.comparison_id,
-            property_a: comparisonResult.property_a,
-            property_b: comparisonResult.property_b,
-            user_profile: categorizedPreferences,
-            user_id: user?.id || null, // Include user_id if logged in
-            language: normalizedLanguage, // Add normalized language
-          },
-        }
-      );
-
-      if (error) {
-        console.error("Recommendation error:", error);
-        toast({
-          variant: "destructive",
-          title: t("compare.messages.error_title"),
-          description: t("compare.messages.error_recommendation"),
-        });
-        return;
-      }
-
-      // Success - set AI recommendation
+      const data = await generateRecommendation(comparisonResult, values, user?.id);
       setAiRecommendation(data);
       trackRecommendationGenerated(
         comparisonResult.comparison_id,
         data?.recommendation_id,
-        normalizedLanguage,
+        i18n.language,
       );
       toast({
         title: t("compare.messages.success_title"),
