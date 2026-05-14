@@ -397,6 +397,39 @@ serve(async (req) => {
       }
     );
 
+    // Service-role client for transitioning comparisons.status. The anon client
+    // can't UPDATE comparisons under RLS, but the report-status flow needs to
+    // mark the comparison 'published' (or 'failed') regardless of who triggered
+    // generation, so we use the service role for that one column.
+    const supabaseServiceClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+
+    const setComparisonStatus = async (
+      comparisonId: string,
+      status: "published" | "failed",
+      failureReason: string | null = null,
+    ) => {
+      try {
+        const { error } = await supabaseServiceClient
+          .from("comparisons")
+          .update({ status, failure_reason: failureReason })
+          .eq("id", comparisonId);
+        if (error) {
+          console.error(
+            `Failed to set comparison ${comparisonId} status='${status}':`,
+            error
+          );
+        }
+      } catch (e) {
+        console.error(
+          `Exception updating comparison ${comparisonId} status='${status}':`,
+          e
+        );
+      }
+    };
+
     // Get session for user identification (optional)
     const {
       data: { session },
@@ -557,6 +590,13 @@ Property B: ${requestData.property_b.property_name || "N/A"}
     if (!geminiResponse.ok) {
       const errorData = await geminiResponse.json();
       console.error("Gemini API error:", errorData);
+      if (requestData.comparison_id) {
+        await setComparisonStatus(
+          requestData.comparison_id,
+          "failed",
+          "gemini_api_error"
+        );
+      }
       return new Response(
         JSON.stringify({ error: "Error generating recommendation" }),
         {
@@ -637,10 +677,17 @@ Property B: ${requestData.property_b.property_name || "N/A"}
           if (saveError) {
             console.error("Error saving recommendation:", saveError);
             console.error("Error details:", JSON.stringify(saveError, null, 2));
-            // Don't fail the request if saving fails, just log it
+            // Recommendation is the gating artifact for a 'published' report —
+            // if we couldn't store it, the comparison shouldn't appear on Feed.
+            await setComparisonStatus(
+              requestData.comparison_id,
+              "failed",
+              "recommendation_save_error"
+            );
           } else {
             recommendationId = savedRecommendation?.id || null;
             console.log("Recommendation saved with ID:", recommendationId);
+            await setComparisonStatus(requestData.comparison_id, "published");
           }
         } catch (saveError) {
           console.error("Error saving recommendation to database:", saveError);
@@ -648,7 +695,11 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             "Save error details:",
             JSON.stringify(saveError, null, 2)
           );
-          // Continue without failing the request
+          await setComparisonStatus(
+            requestData.comparison_id,
+            "failed",
+            "recommendation_save_exception"
+          );
         }
       } else {
         console.log("No comparison_id provided, skipping database save");
@@ -665,6 +716,13 @@ Property B: ${requestData.property_b.property_name || "N/A"}
       );
     } catch (error) {
       console.error("Error processing Gemini response:", error);
+      if (requestData.comparison_id) {
+        await setComparisonStatus(
+          requestData.comparison_id,
+          "failed",
+          "gemini_response_parse_error"
+        );
+      }
       return new Response(
         JSON.stringify({
           error: "Could not generate recommendation. Please try again.",
