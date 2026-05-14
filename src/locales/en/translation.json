@@ -430,29 +430,56 @@
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
-      "heading": "Making It Easier to Choose Your Perfect Home",
+      "eyebrow": "About AiSumai",
+      "heading": "Choose your home with confidence.",
+      "lede": "AiSumai brings AI analysis, expert insight, and community signal together so you can compare two shortlisted homes side by side, fairly.",
       "description": "Helping renters and home buyers in Japan make confident final housing decisions through",
       "descriptionAI": "AI-powered analysis",
       "descriptionExpert": "expert insights",
       "descriptionCommunity": "community wisdom",
-      "ctaPrimary": "🚀 Compare Properties",
-      "ctaSecondary": "📊 Browse Comparisons"
+      "ctaPrimary": "Compare properties",
+      "ctaSecondary": "Browse comparisons"
     },
     "howItWorks": {
-      "aiTitle": "AI Analysis",
-      "aiDescription": "Our AI evaluates both properties based on objective criteria and your personal priorities. It analyzes floor plans, location data, pricing, and more to provide a detailed comparison.",
-      "aiFeature": "🎯 Personalized recommendations based on your lifestyle",
+      "eyebrow": "How it works",
+      "title": "Three steps to a confident decision.",
+      "subtitle": "AI, experts, and community — three lenses that converge on the answer that's right for you.",
+      "aiTitle": "AI does the objective analysis",
+      "aiDescription": "Floor plan, location data, pricing, age, and risk factors. Our AI evaluates both properties on objective criteria weighted to your personal priorities.",
+      "aiFeature": "Personalized recommendations based on your lifestyle",
       "aiOverlay": "Click to see AI in action",
-      "expertTitle": "Expert Insights",
-      "expertDescription": "Local real estate professionals provide their expert opinion on your choices, highlighting factors you might have missed and offering practical advice based on experience.",
-      "expertFeature": "🏆 Verified local market expertise",
+      "expertTitle": "Experts add real-world context",
+      "expertDescription": "Licensed local agents add the context data alone can't provide — flagging things to watch out for and adding practical, experience-backed advice.",
+      "expertFeature": "Verified local market expertise",
       "expertOverlay": "Real expert opinions",
-      "communityTitle": "Community Wisdom",
-      "communityDescription": "Browse similar comparisons from other users and learn from their experiences. See which properties others chose and why, gaining valuable perspective for your decision.",
-      "communityFeature": "🌟 Real stories from real decisions",
+      "communityTitle": "Community shows you precedent",
+      "communityDescription": "Browse comparisons made by people in similar situations. Seeing what others chose, and why, sharpens your own judgment.",
+      "communityFeature": "Real stories from real decisions",
       "communityOverlay": "Community experiences"
     },
+    "features": {
+      "eyebrow": "Why AiSumai",
+      "featureLabel": "Feature 0{{n}}",
+      "illustrationLabel": "Visual",
+      "fair": {
+        "title": "Compared on data, not on marketing copy.",
+        "description": "Listing portals optimize for clicks. AiSumai produces a fair, transparent report that lays out the good and the worrying side by side, on the same scale.",
+        "tag": "Bias-free"
+      },
+      "fast": {
+        "title": "First read in under a minute.",
+        "description": "Paste two URLs. Our AI extracts the key differences, scores, and risks immediately, so you have something concrete to react to instead of staring at two listings.",
+        "tag": "Under 60s"
+      },
+      "trusted": {
+        "title": "Double-checked by AI and humans.",
+        "description": "On top of the AI score, verified real estate experts add their own commentary — so the call you make is backed by both technology and lived experience.",
+        "tag": "AI + Human"
+      }
+    },
     "faq": {
+      "eyebrow": "FAQ",
+      "subtitle": "The questions we hear most often.",
       "title": "Frequently Asked Questions",
       "q1": "What types of properties can I compare?",
       "a1": "You can compare any two residential properties in Japan, including apartments, houses, condominiums, and more. The service works for both rentals and properties for sale.",
@@ -481,11 +508,13 @@
       "member3Bio": "Coordinates our network of real estate professionals across Japan."
     },
     "cta": {
-      "heading": "Ready to Start Your Journey with AiSumai?",
+      "eyebrow": "Get started",
+      "subtitle": "No signup required, free for 3 comparisons. Drop in two listings to get started.",
+      "heading": "Ready to start with AiSumai?",
       "description": "Compare your shortlisted properties now and get personalized insights to help you choose the",
       "descriptionHighlight": "perfect home",
       "descriptionEnd": "with confidence.",
-      "button": "Start Your Comparison",
+      "button": "Start your comparison",
       "freeToUse": "Free to use",
       "noRegistration": "No registration required",
       "feature1": "Instant Analysis",

@@ -1,0 +1,58 @@
+bead: home-duo-insight-p6g
+summary: Full rebuild of /about using paper/ink design system — 0 emojis, JP-first hero, Step 01–03 cards with Lucide icons, alternating Features sections, native <details> FAQ.
+branch: feat/p6g-about-rebuild
+sha: c13547d05dec8362a09c2cd23e1e3a25d3aab5b8
+base_branch: main
+
+files_changed:
+  - src/pages/About.tsx
+  - src/locales/ja/translation.json
+  - src/locales/en/translation.json
+
+lint:
+  ran: true
+  errors: 0          # 0 introduced by this bead; pre-existing repo lint errors unrelated
+  warnings: 0        # 0 introduced by this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-p6g/logs/build.log
+
+tests:
+  ran: true
+  command: "npx tsc --noEmit"
+  result: pass
+  reason_if_skipped: ""
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-p6g/screens/about-desktop-top.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-hero.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-howitworks.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-features1.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-features2.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-faq.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-faq-open.png
+    - .agents/reports/home-duo-insight-p6g/screens/about-ja-cta-footer.png
+  scenarios:
+    - "Desktop EN — top of /about renders with global Header, eyebrow rule, font-display heading, no emoji, monochrome CTAs (about-desktop-top.png)"
+    - "Desktop JA — hero renders Japanese copy '理想の住まいを、自信を持って選ぶ。', no emoji, no frosted overlay (about-ja-hero.png)"
+    - "How It Works — three numbered cards Step 01/02/03 with Lucide line icons (Search/Users/MessageSquare), JP titles + descriptions (about-ja-howitworks.png)"
+    - "Features — 3-section alternating layout: image-left/copy-right then copy-left/image-right with Lucide icons (Compass/Sparkles/ShieldCheck) and tag chips Bias-free / Under 60s / AI + Human (about-ja-features1.png, about-ja-features2.png)"
+    - "FAQ closed state — six native <details> elements visible with + indicator (about-ja-faq.png). Verified via DOM: document.querySelectorAll('details').length === 6"
+    - "FAQ open state — first two <details> opened programmatically; answer text becomes visible and the + indicator rotates 45° to display as × (about-ja-faq-open.png). Confirms native HTML semantics, no Radix Accordion"
+    - "CTA + Footer — black ink CTA strip with paper text, then global Footer matching /landing (about-ja-cta-footer.png)"
+
+deferred:
+  - item: "Reference HTML aisumai-about-redesign.html not found in repo"
+    reason: "docs/aisumai-design-handoff/ contains aisumai-redesign.html (landing) but no about-specific reference. Followed bead's structural requirements + project's existing paper/ink editorial design language (matches Index.tsx + Header/Footer)."
+  - item: "Removed local <Header>/<Footer> imports from About.tsx"
+    reason: "App.tsx renders <Header>/<Footer> globally for /about (matches Index.tsx pattern). Original About.tsx duplicated them — bead's 'Topbar/Footer matching the Landing page' is satisfied by the global render, not by importing them in the page."
+
+escalations: []

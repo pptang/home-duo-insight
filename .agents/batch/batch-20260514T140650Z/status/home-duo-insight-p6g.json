@@ -1,0 +1,12 @@
+{
+  "bead_id": "home-duo-insight-p6g",
+  "status": "success",
+  "report_yaml_path": ".agents/reports/home-duo-insight-p6g/report.yaml",
+  "branch": "feat/p6g-about-rebuild",
+  "head_sha": "c13547d05dec8362a09c2cd23e1e3a25d3aab5b8",
+  "base_branch": "main",
+  "worktree": "/Users/neo/Projects/dowell/home-duo-insight/.claude/worktrees/agent-a6f8e7059be42bfa4",
+  "build": { "ran": true, "exit_code": 0 },
+  "ui_qa": { "ran": true, "artifacts_count": 8 },
+  "escalations": []
+}
