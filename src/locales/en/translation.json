@@ -170,7 +170,9 @@
       "error_title": "Error",
       "success_title": "Success",
       "retry_title": "Retry failed",
-      "images_loaded": "Images loaded!"
+      "images_loaded": "Images loaded!",
+      "cached_title": "Showing existing report",
+      "cached_description": "We already created this comparison within the last 24 hours, so we're showing the existing report."
     }
   },
   "feed": {

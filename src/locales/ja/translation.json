@@ -170,7 +170,9 @@
       "error_title": "エラー",
       "success_title": "成功",
       "retry_title": "再試行に失敗しました",
-      "images_loaded": "画像が読み込まれました！"
+      "images_loaded": "画像が読み込まれました！",
+      "cached_title": "既存のレポートを表示しています",
+      "cached_description": "同じ物件の比較が24時間以内に作成されていたため、既存のレポートを再利用しました。"
     }
   },
   "feed": {

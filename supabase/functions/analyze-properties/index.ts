@@ -5,6 +5,7 @@ import {
   isSupportedRealEstateUrl,
   UNSUPPORTED_SITE_MESSAGE_JA,
 } from "../_shared/url-whitelist.ts";
+import { buildPairKey, todayDateBucket } from "../_shared/url-normalize.ts";
 
 // Required for CORS
 const corsHeaders = {
@@ -136,6 +137,64 @@ serve(async (req) => {
 
     // Log the user_id we received
     console.log("Received user_id from request:", user_id);
+
+    // 0. Same-pair dedup. Before spending a parse + Gemini call, check whether
+    // we already created a comparison for this URL pair within today's UTC
+    // date bucket. If so, return it with `cached: true` so the client can
+    // show a "reused existing report" toast instead of re-running the
+    // pipeline. See bead home-duo-insight-mc4.
+    //
+    // We only treat 'published'/'processing' rows as cache hits — a previous
+    // 'failed' or 'archived' attempt should be allowed to retry. The hard
+    // guard against same-day duplicates is the partial unique index added
+    // in the dedup migration; this lookup is the soft, fast path.
+    const pairKey = buildPairKey(property_url_a, property_url_b);
+    const dateBucket = todayDateBucket();
+    if (pairKey) {
+      const { data: cachedRows, error: cacheLookupError } = await supabaseServiceClient
+        .from("comparisons")
+        .select(
+          "id, property_a_id, property_b_id, image_extraction_status, status"
+        )
+        .eq("pair_key", pairKey)
+        .eq("date_bucket", dateBucket)
+        .in("status", ["processing", "published"])
+        .order("created_at", { ascending: false })
+        .limit(1);
+
+      if (cacheLookupError) {
+        // Don't fail the request — the cache is a fast-path optimization,
+        // not a correctness invariant. Log and fall through to a normal run.
+        console.warn("Pair-key cache lookup failed; proceeding without dedup:", cacheLookupError.message);
+      } else if (cachedRows && cachedRows.length > 0) {
+        const cached = cachedRows[0];
+        const { data: cachedProps, error: cachedPropsError } = await supabaseServiceClient
+          .from("properties")
+          .select("*")
+          .in("id", [cached.property_a_id, cached.property_b_id]);
+
+        if (cachedPropsError || !cachedProps || cachedProps.length !== 2) {
+          console.warn("Pair-key cache hit but properties unfetchable; proceeding with fresh run:", cachedPropsError?.message);
+        } else {
+          const propA = cachedProps.find((p) => p.id === cached.property_a_id);
+          const propB = cachedProps.find((p) => p.id === cached.property_b_id);
+          if (propA && propB) {
+            console.log("Returning cached comparison for pair_key:", pairKey, "comparison_id:", cached.id);
+            return new Response(
+              JSON.stringify({
+                message: "Returning existing comparison for same-day pair",
+                comparison_id: cached.id,
+                property_a: propA,
+                property_b: propB,
+                image_extraction_status: cached.image_extraction_status ?? "completed",
+                cached: true,
+              }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        }
+      }
+    }
 
     // 1. First call the parse-properties function to get the HTML content
     console.log("Calling parse-properties function with URLs:", { property_url_a, property_url_b });
@@ -837,7 +896,9 @@ Return only this JSON format (no explanations). Include every key even when the 
         initialFailureReason = "zero_price_both_sides";
       }
 
-      // Create comparison record with user_id from request and original URLs
+      // Create comparison record with user_id from request and original URLs.
+      // pair_key/date_bucket support dedup (see bead mc4 + the partial unique
+      // index added by 20260515120000_add_comparisons_pair_dedup.sql).
       const comparisonData = {
         property_a_id: propertyAData[0].id,
         property_b_id: propertyBData[0].id,
@@ -847,6 +908,8 @@ Return only this JSON format (no explanations). Include every key even when the 
         image_extraction_status: "completed", // Always completed with enhanced extraction
         status: initialStatus,
         failure_reason: initialFailureReason,
+        pair_key: pairKey,
+        date_bucket: dateBucket,
       };
 
       console.log("Creating comparison with data:", JSON.stringify(comparisonData, null, 2));
@@ -858,6 +921,43 @@ Return only this JSON format (no explanations). Include every key even when the 
           .select();
 
       if (comparisonError) {
+        // Unique-violation on (pair_key, date_bucket) = lost the race against
+        // a concurrent submission. Recover by returning the row that won.
+        // Postgres code '23505' is the SQLSTATE for unique_violation; the
+        // PostgREST wrapper exposes it on `comparisonError.code`.
+        if (comparisonError.code === "23505" && pairKey) {
+          console.log("Pair-key uniqueness race lost; returning the winning row.");
+          const { data: raceRows, error: raceLookupError } = await supabaseServiceClient
+            .from("comparisons")
+            .select("id, property_a_id, property_b_id, image_extraction_status")
+            .eq("pair_key", pairKey)
+            .eq("date_bucket", dateBucket)
+            .in("status", ["processing", "published"])
+            .order("created_at", { ascending: false })
+            .limit(1);
+          if (!raceLookupError && raceRows && raceRows.length > 0) {
+            const winner = raceRows[0];
+            const { data: winnerProps } = await supabaseServiceClient
+              .from("properties")
+              .select("*")
+              .in("id", [winner.property_a_id, winner.property_b_id]);
+            const wA = winnerProps?.find((p) => p.id === winner.property_a_id);
+            const wB = winnerProps?.find((p) => p.id === winner.property_b_id);
+            if (wA && wB) {
+              return new Response(
+                JSON.stringify({
+                  message: "Returning concurrent comparison for same-day pair",
+                  comparison_id: winner.id,
+                  property_a: wA,
+                  property_b: wB,
+                  image_extraction_status: winner.image_extraction_status ?? "completed",
+                  cached: true,
+                }),
+                { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              );
+            }
+          }
+        }
         console.error("Comparison creation error:", comparisonError);
         console.error("Comparison data that failed:", JSON.stringify(comparisonData, null, 2));
         throw new Error(
@@ -874,7 +974,8 @@ Return only this JSON format (no explanations). Include every key even when the 
           comparison_id: comparisonResult[0].id,
           property_a: propertyAData[0],
           property_b: propertyBData[0],
-          image_extraction_status: "completed" // Always completed with enhanced extraction
+          image_extraction_status: "completed", // Always completed with enhanced extraction
+          cached: false,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

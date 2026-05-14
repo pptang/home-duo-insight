@@ -152,6 +152,17 @@ const Index = () => {
       const comparisonResult = await analyzeProperties(propA.trim(), propB.trim(), user?.id);
       trackComparisonCreated(comparisonResult.comparison_id);
 
+      // If the edge function returned an existing comparison for the same
+      // URL pair within today's UTC bucket, surface a toast so the user
+      // understands they're seeing a reused report rather than a fresh
+      // analysis. See bead home-duo-insight-mc4.
+      if (comparisonResult.cached) {
+        toast({
+          title: t("compare.messages.cached_title"),
+          description: t("compare.messages.cached_description"),
+        });
+      }
+
       const recommendation = await generateRecommendation(
         comparisonResult,
         defaultLandingPreferences,

@@ -22,6 +22,13 @@ export interface ComparisonResult {
   property_a: PropertyData;
   property_b: PropertyData;
   image_extraction_status?: "pending" | "in_progress" | "completed" | "failed";
+  /**
+   * True when the edge function returned an existing comparison for the same
+   * (normalized URL pair, UTC date) bucket instead of running a fresh
+   * parse+analyze. Used by the UI to surface a toast informing the user that
+   * the report was reused. See bead home-duo-insight-mc4.
+   */
+  cached?: boolean;
 }
 
 export interface PersonalizationValues {

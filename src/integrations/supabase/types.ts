@@ -17,6 +17,7 @@ export type Database = {
       comparisons: {
         Row: {
           created_at: string | null
+          date_bucket: string | null
           failure_reason: string | null
           id: string
           image_extraction_completed_at: string | null
@@ -24,6 +25,7 @@ export type Database = {
           image_extraction_status: string | null
           metadata_review_status: string | null
           metadata_reviewed_at: string | null
+          pair_key: string | null
           property_a_id: string
           property_b_id: string
           property_url_a: string | null
@@ -39,6 +41,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          date_bucket?: string | null
           failure_reason?: string | null
           id?: string
           image_extraction_completed_at?: string | null
@@ -46,6 +49,7 @@ export type Database = {
           image_extraction_status?: string | null
           metadata_review_status?: string | null
           metadata_reviewed_at?: string | null
+          pair_key?: string | null
           property_a_id: string
           property_b_id: string
           property_url_a?: string | null
@@ -61,6 +65,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          date_bucket?: string | null
           failure_reason?: string | null
           id?: string
           image_extraction_completed_at?: string | null
@@ -68,6 +73,7 @@ export type Database = {
           image_extraction_status?: string | null
           metadata_review_status?: string | null
           metadata_reviewed_at?: string | null
+          pair_key?: string | null
           property_a_id?: string
           property_b_id?: string
           property_url_a?: string | null
