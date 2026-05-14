@@ -11,7 +11,7 @@ const Header = () => {
   const location = useLocation();
 
   const navItems = [
-    { to: "/compare", labelKey: "nav.compare" },
+    { to: "/#compare-widget", labelKey: "nav.compare" },
     { to: "/feed", labelKey: "nav.feed" },
     { to: "/experts", labelKey: "nav.experts" },
     { to: "/about", labelKey: "nav.about" },

@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Index from '@/pages/Index';
-import Compare from '@/pages/Compare';
 import Feed from '@/pages/Feed';
 import Experts from '@/pages/Experts';
 import About from '@/pages/About';
@@ -37,7 +36,7 @@ function AppShell() {
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/compare" element={<Compare />} />
+          <Route path="/compare" element={<Navigate to="/#compare-widget" replace />} />
           <Route path="/feed" element={<Feed />} />
           <Route path="/experts" element={<Experts />} />
           <Route path="/about" element={<About />} />

@@ -1,6 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -69,6 +69,7 @@ const FEED_ITEMS = [
 const Index = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set(["price"]));
@@ -76,6 +77,19 @@ const Index = () => {
   const [propA, setPropA] = useState("");
   const [propB, setPropB] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Scroll to the compare widget when the URL hash targets it (e.g. /#compare-widget,
+  // including the redirect from the deprecated /compare route).
+  useEffect(() => {
+    if (location.hash !== "#compare-widget") return;
+    // Defer one frame so the form is mounted before we scroll.
+    const id = window.requestAnimationFrame(() => {
+      document
+        .getElementById("compare-widget")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [location.hash, location.key]);
 
   const isValidUrl = (value: string) => {
     try {
@@ -163,7 +177,11 @@ const Index = () => {
           </p>
 
           {/* COMPARE WIDGET */}
-          <form onSubmit={handleCompare} className="compare-widget mx-auto text-left">
+          <form
+            id="compare-widget"
+            onSubmit={handleCompare}
+            className="compare-widget mx-auto text-left scroll-mt-[72px]"
+          >
             <div className="flex border-b border-rule bg-paper-dark px-5 gap-0.5">
               {([
                 { id: "url", label: "物件URL" },

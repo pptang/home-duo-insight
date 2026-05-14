@@ -1,0 +1,49 @@
+bead: home-duo-insight-ic1
+summary: Delete /compare page, redirect /compare -> /#compare-widget anchor on Landing.
+branch: bd/home-duo-insight-ic1-delete-compare-page
+sha: f81a94548811b8aabb2a7718941d263e6a4be5d8
+
+base_branch: main
+
+files_changed:
+  - src/App.tsx
+  - src/components/Header.tsx
+  - src/pages/Compare.tsx        # deleted
+  - src/pages/Index.tsx
+
+lint:
+  ran: true
+  errors: 0          # 0 errors in the files this bead touched (App.tsx, Header.tsx, Index.tsx). Pre-existing lint errors elsewhere (Experts.tsx, supabase/functions/*, tailwind.config.ts) untouched.
+  warnings: 0
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-ic1/build.log
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "no unit tests exist for routing/anchor behavior in this repo (no vitest/jest harness wired up)"
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-ic1/screenshots/01-compare-redirect-to-widget.png
+    - .agents/reports/home-duo-insight-ic1/screenshots/02-landing-top.png
+    - .agents/reports/home-duo-insight-ic1/screenshots/03-header-compare-click.png
+  scenarios:
+    - "Navigate browser directly to http://localhost:8211/compare -> URL replaces to http://localhost:8211/#compare-widget, page renders Landing scrolled to the compare URL-input widget (screenshot 01)."
+    - "Navigate to http://localhost:8211/ from a fresh tab -> Landing renders at top with the hero (screenshot 02)."
+    - "Click Header nav 'Compare' link from / -> URL becomes /#compare-widget, scrollY moves from 0 to 324px, compare widget is the focal viewport content (screenshot 03)."
+    - "Header 'Compare' link href is '/#compare-widget' (verified via DOM eval); /compare route definition is now <Navigate to=\"/#compare-widget\" replace />; no remaining import of @/pages/Compare anywhere in src/."
+
+deferred:
+  - item: "Update remaining `Link to=\"/compare\"` callsites in Footer.tsx, Feed.tsx, ComparisonDetail.tsx, About.tsx to point directly at /#compare-widget (currently they still work via the <Navigate> redirect, so no broken UX)."
+    reason: "Out of scope for this bead's manifest, which scoped the link change to Header.tsx only. The Navigate redirect keeps these existing CTAs functional; touching them here would risk overlap with sibling beads (e.g. home-duo-insight-b5v on Index.tsx)."
+
+escalations: []
