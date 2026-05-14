@@ -1,7 +1,7 @@
 bead: home-duo-insight-ic1
 summary: Delete /compare page, redirect /compare -> /#compare-widget anchor on Landing.
 branch: bd/home-duo-insight-ic1-delete-compare-page
-sha: 10883bb68b7d3982b0918dcf946db12231ac24f5
+sha: f81a94548811b8aabb2a7718941d263e6a4be5d8
 
 base_branch: main
 
