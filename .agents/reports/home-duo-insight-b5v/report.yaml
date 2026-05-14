@@ -7,7 +7,7 @@ summary: |
   + deletes pre-existing non-JP comparisons / orphaned properties /
   recommendations.
 branch: bd/home-duo-insight-b5v-url-whitelist
-sha: dab9d5d366a01643104573bf2e1e7f8ad29ddc45
+sha: fb904e5ae7a471e7e96a0eb32aca97f91e96f570
 base_branch: bd/home-duo-insight-ic1-delete-compare-page
 
 files_changed:
