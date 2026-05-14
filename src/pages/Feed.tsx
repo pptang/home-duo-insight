@@ -72,6 +72,10 @@ const Feed = () => {
             propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
             propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
           `)
+          // Only show fully-generated reports on the public Feed. Failed /
+          // processing / archived rows are hidden here; they remain visible to
+          // the owner via the (future) user dashboard.
+          .eq("status", "published")
           .order("created_at", { ascending: false });
 
         if (comparisonsError) {

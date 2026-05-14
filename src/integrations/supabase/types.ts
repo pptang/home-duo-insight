@@ -17,6 +17,7 @@ export type Database = {
       comparisons: {
         Row: {
           created_at: string | null
+          failure_reason: string | null
           id: string
           image_extraction_completed_at: string | null
           image_extraction_started_at: string | null
@@ -28,6 +29,7 @@ export type Database = {
           property_url_a: string | null
           property_url_b: string | null
           save_count: number
+          status: Database["public"]["Enums"]["comparison_status"]
           top_priority_1: string | null
           top_priority_2: string | null
           top_priority_3: string | null
@@ -37,6 +39,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          failure_reason?: string | null
           id?: string
           image_extraction_completed_at?: string | null
           image_extraction_started_at?: string | null
@@ -48,6 +51,7 @@ export type Database = {
           property_url_a?: string | null
           property_url_b?: string | null
           save_count?: number
+          status?: Database["public"]["Enums"]["comparison_status"]
           top_priority_1?: string | null
           top_priority_2?: string | null
           top_priority_3?: string | null
@@ -57,6 +61,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          failure_reason?: string | null
           id?: string
           image_extraction_completed_at?: string | null
           image_extraction_started_at?: string | null
@@ -68,6 +73,7 @@ export type Database = {
           property_url_a?: string | null
           property_url_b?: string | null
           save_count?: number
+          status?: Database["public"]["Enums"]["comparison_status"]
           top_priority_1?: string | null
           top_priority_2?: string | null
           top_priority_3?: string | null
@@ -518,6 +524,7 @@ export type Database = {
       }
     }
     Enums: {
+      comparison_status: "processing" | "failed" | "published" | "archived"
       social_media_platform: "twitter" | "instagram" | "line" | "website"
       user_role: "user" | "expert" | "admin"
     }

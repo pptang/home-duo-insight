@@ -789,6 +789,29 @@ Return only this JSON format (no explanations). Include every key even when the 
       console.log("Property A inserted successfully:", propertyAData[0]);
       console.log("Property B inserted successfully:", propertyBData[0]);
 
+      // Determine the initial comparison status. analyze-properties only owns
+      // the parse step — the final 'published' transition happens in
+      // generate-recommendation once the AI summary is saved. So here we either
+      //   * mark the comparison 'failed' with a reason if the parse produced
+      //     obviously-broken data (placeholder names, ¥0 on both sides), or
+      //   * leave it 'processing' so the next step can promote it.
+      // (Filtering at this seam is what keeps the public Feed clean.)
+      const aName = propertyAData[0].property_name as string | null;
+      const bName = propertyBData[0].property_name as string | null;
+      const aPrice = (propertyAData[0].price_yen as number | null) ?? 0;
+      const bPrice = (propertyBData[0].price_yen as number | null) ?? 0;
+      const isPlaceholder = (n: string | null) =>
+        !n || ["物件 A", "物件A", "物件 B", "物件B", "Property A", "Property B"].includes(n.trim());
+      let initialStatus: "processing" | "failed" = "processing";
+      let initialFailureReason: string | null = null;
+      if (isPlaceholder(aName) || isPlaceholder(bName)) {
+        initialStatus = "failed";
+        initialFailureReason = "placeholder_property_name";
+      } else if (aPrice === 0 && bPrice === 0) {
+        initialStatus = "failed";
+        initialFailureReason = "zero_price_both_sides";
+      }
+
       // Create comparison record with user_id from request and original URLs
       const comparisonData = {
         property_a_id: propertyAData[0].id,
@@ -797,6 +820,8 @@ Return only this JSON format (no explanations). Include every key even when the 
         property_url_a: property_url_a,
         property_url_b: property_url_b,
         image_extraction_status: "completed", // Always completed with enhanced extraction
+        status: initialStatus,
+        failure_reason: initialFailureReason,
       };
 
       console.log("Creating comparison with data:", JSON.stringify(comparisonData, null, 2));
