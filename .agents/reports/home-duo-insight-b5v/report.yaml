@@ -1,0 +1,56 @@
+bead: home-duo-insight-b5v
+summary: |
+  Restrict comparison submissions to whitelisted Japanese real estate hosts
+  (suumo.jp, homes.co.jp, lifull.com, athome.co.jp, mansion-review.jp +
+  subdomains). Frontend shows a JP error under each input, edge function
+  returns 400 unsupported_site before any scrape, and a migration archives
+  + deletes pre-existing non-JP comparisons / orphaned properties /
+  recommendations.
+branch: bd/home-duo-insight-b5v-url-whitelist
+sha: fb904e5ae7a471e7e96a0eb32aca97f91e96f570
+base_branch: bd/home-duo-insight-ic1-delete-compare-page
+
+files_changed:
+  - src/config/supported-sites.ts
+  - src/pages/Index.tsx
+  - supabase/functions/_shared/url-whitelist.ts
+  - supabase/functions/parse-properties/index.ts
+  - supabase/migrations/20260514150100_clean_non_jp_reports.sql
+
+lint:
+  ran: true
+  errors: 0  # in the files this bead touched; repo has 44 pre-existing errors in unrelated files
+  warnings: 0
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-b5v/build.log
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "Repo has no Vitest/Jest harness; verification is via build + agent-browser QA + edge-function whitelist gate (covered by code review of the helper)."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-b5v/01-landing-empty.png
+    - .agents/reports/home-duo-insight-b5v/02-unsupported-error.png
+    - .agents/reports/home-duo-insight-b5v/03-supported-ok.png
+  scenarios:
+    - "Landing page loads at / (vite dev server, http://localhost:8080) — compare widget renders, both URL inputs empty, submit disabled."
+    - "Type unsupported URLs (https://example.com/listing/foo and https://wikipedia.org/realestate) into 物件 A and 物件 B — both inputs gain red border, JP error '対応している不動産サイトのURLを入力してください（SUUMO、HOMES、LIFULL、AtHome、マンションレビュー）' appears under each, 比較する button stays disabled."
+    - "Replace with supported URLs (https://suumo.jp/ms/chuko/... and https://www.homes.co.jp/mansion/b-12345/) — red borders + error text disappear, 比較する button becomes enabled."
+
+deferred:
+  - item: "Did not run the new SQL migration against the remote DB."
+    reason: "Sub-orchestrator scope is code only; migration applies on next supabase db push by the human reviewer. Migration uses BEGIN/COMMIT and is safe to re-run (archive table is CREATE TABLE IF NOT EXISTS; delete sets are scoped to the temp table)."
+  - item: "Did not add a Deno unit test for the edge function whitelist helper."
+    reason: "Repo has no Deno test convention in supabase/functions/. Helper is a 30-line pure function vendored from src/config/supported-sites.ts and exercised by the same logic as the frontend; agent-browser QA + curl-equivalent code review of the 400 response was used instead."
+
+escalations: []
