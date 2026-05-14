@@ -10,6 +10,10 @@ import {
   generateRecommendation,
 } from "@/lib/comparisonFlow";
 import { trackComparisonCreated, trackRecommendationGenerated } from "@/lib/analytics";
+import {
+  isSupportedRealEstateUrl,
+  UNSUPPORTED_SITE_MESSAGE_JA,
+} from "@/config/supported-sites";
 
 const FILTER_CHIPS = [
   { id: "price", label: "価格" },
@@ -100,10 +104,21 @@ const Index = () => {
     }
   };
 
+  // A URL is acceptable for submission only if it parses as http(s) AND is on
+  // the supported Japanese real estate site whitelist. Rejected URLs surface
+  // a Japanese error message under the input.
+  const isAcceptableUrl = (value: string) =>
+    isValidUrl(value) && isSupportedRealEstateUrl(value);
+
+  const showUnsupportedErrorA =
+    activeTab === "url" && propA.trim() !== "" && isValidUrl(propA) && !isSupportedRealEstateUrl(propA);
+  const showUnsupportedErrorB =
+    activeTab === "url" && propB.trim() !== "" && isValidUrl(propB) && !isSupportedRealEstateUrl(propB);
+
   const canSubmit =
     activeTab === "url" &&
-    isValidUrl(propA) &&
-    isValidUrl(propB) &&
+    isAcceptableUrl(propA) &&
+    isAcceptableUrl(propB) &&
     !isSubmitting;
 
   const toggleChip = (id: string) => {
@@ -214,8 +229,19 @@ const Index = () => {
                   onChange={(e) => setPropA(e.target.value)}
                   placeholder="例：SUUMO の URL または 物件名"
                   disabled={isSubmitting || activeTab !== "url"}
-                  className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
+                  aria-invalid={showUnsupportedErrorA || undefined}
+                  aria-describedby={showUnsupportedErrorA ? "compare-error-a" : undefined}
+                  className={`w-full px-4 py-3 text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
+                    showUnsupportedErrorA
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-rule focus:border-ink"
+                  }`}
                 />
+                {showUnsupportedErrorA && (
+                  <p id="compare-error-a" className="text-[11px] text-red-600 leading-snug pl-0.5">
+                    {UNSUPPORTED_SITE_MESSAGE_JA}
+                  </p>
+                )}
               </div>
               <div className="hidden md:flex w-9 h-9 items-center justify-center border border-rule rounded-full font-mono text-[11px] text-ink-60 bg-paper-dark mb-1">
                 vs
@@ -230,8 +256,19 @@ const Index = () => {
                   onChange={(e) => setPropB(e.target.value)}
                   placeholder="例：HOME'S の URL または 物件名"
                   disabled={isSubmitting || activeTab !== "url"}
-                  className="w-full px-4 py-3 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30"
+                  aria-invalid={showUnsupportedErrorB || undefined}
+                  aria-describedby={showUnsupportedErrorB ? "compare-error-b" : undefined}
+                  className={`w-full px-4 py-3 text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
+                    showUnsupportedErrorB
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-rule focus:border-ink"
+                  }`}
                 />
+                {showUnsupportedErrorB && (
+                  <p id="compare-error-b" className="text-[11px] text-red-600 leading-snug pl-0.5">
+                    {UNSUPPORTED_SITE_MESSAGE_JA}
+                  </p>
+                )}
               </div>
             </div>
 

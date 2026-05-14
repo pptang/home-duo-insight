@@ -1,5 +1,9 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import {
+  isSupportedRealEstateUrl,
+  UNSUPPORTED_SITE_MESSAGE_JA,
+} from "../_shared/url-whitelist.ts";
 
 // Required for CORS
 const corsHeaders = {
@@ -42,6 +46,26 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Authoritative whitelist gate: reject any URL that is not on a supported
+    // Japanese real estate site. The frontend performs the same check for UX,
+    // but this server-side gate is the source of truth — never scrape arbitrary
+    // sites. See supabase/functions/_shared/url-whitelist.ts.
+    if (
+      !isSupportedRealEstateUrl(property_url_a) ||
+      !isSupportedRealEstateUrl(property_url_b)
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: "unsupported_site",
+          message: UNSUPPORTED_SITE_MESSAGE_JA,
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Get Firecrawl API key
