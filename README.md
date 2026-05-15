@@ -61,6 +61,14 @@ This project is built with:
 - Tailwind CSS
 - Supabase (for backend and database)
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for coding conventions. Note in
+particular the **no-emoji-in-JSX** policy: a custom ESLint rule
+(`local/no-emoji-jsx`) blocks unicode emoji in `*.ts`/`*.tsx`, enforced as a
+hard error in the Husky pre-commit hook. Use [Lucide React](https://lucide.dev/)
+icons instead — the replacement path is documented in `CONTRIBUTING.md`.
+
 ## Local Development with Supabase and Firecrawl
 
 This project uses Supabase for backend services and Firecrawl for web scraping. You can run both locally for development.
