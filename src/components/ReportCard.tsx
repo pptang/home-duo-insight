@@ -180,14 +180,17 @@ const ReportCard = ({
       </div>
 
       {/* Meta footer — view / save counts. Hidden entirely when saves === 0.
-          A later bead (nnm) refines the save-count label inside this block. */}
+          The save count uses the explicit "N 人が保存" label (matching
+          ExpertSectionPanel). The emoji prefix was dropped because the
+          bookmark glyph (🔖) renders as a notdef "!" box on devices whose
+          UI font lacks it — the root cause of the reported "! 票" artifact. */}
       {showMeta && (
         <div className="flex items-center gap-2.5 px-4 py-1.5 bg-paper-dark border-t border-rule">
           <span className="font-mono text-[9px] uppercase text-ink-30">
             👁 {meta!.views}
           </span>
           <span className="font-mono text-[9px] uppercase text-ink-30">
-            🔖 {meta!.saves}
+            {meta!.saves} 人が保存
           </span>
         </div>
       )}
