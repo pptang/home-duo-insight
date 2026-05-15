@@ -6,7 +6,7 @@ import tseslint from "typescript-eslint";
 import localRules from "./eslint-rules/no-emoji-jsx.js";
 
 export default tseslint.config(
-  { ignores: ["dist", "eslint-rules"] },
+  { ignores: ["dist", "eslint-rules", ".agents", ".codex", ".claude"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
