@@ -169,14 +169,8 @@ const Index = () => {
   return (
     <>
       {/* HERO */}
-      <section className="min-h-[calc(100vh-52px)] flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 relative">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 60% 40% at 50% 20%, rgba(10,10,10,0.04) 0%, transparent 70%)",
-          }}
-        />
-
-        <div className="relative z-10 w-full max-w-[860px] mx-auto">
+      <section className="min-h-[calc(100vh-52px)] flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 bg-paper">
+        <div className="w-full max-w-[860px] mx-auto">
           <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-60 mb-5 flex items-center justify-center gap-2.5">
             <span className="block w-7 h-px bg-ink/30" />
             日本の不動産を、正直に比べる
