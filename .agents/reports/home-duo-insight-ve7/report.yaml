@@ -1,7 +1,7 @@
 bead: home-duo-insight-ve7
 summary: Extract the Landing DISCOVER rich card into a shared ReportCard component used by both Landing and Feed.
 branch: bd/home-duo-insight-ve7-report-card
-sha: 45102180c7bf7198e15da13d506e4dae062b65da
+sha: 36c06fe674d6976eb7e5d072595a35ca244fa4a4   # implementation commit; report committed on top as f7de7f5
 
 base_branch: bd/home-duo-insight-p7x-hero-ellipse
 
