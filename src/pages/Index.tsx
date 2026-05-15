@@ -3,6 +3,9 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import ReportCard, { type ReportCardProps } from "@/components/ReportCard";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Section, SectionDivider } from "@/components/ui/Section";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -179,11 +182,9 @@ const Index = () => {
       {/* HERO */}
       <section className="min-h-[calc(100vh-52px)] flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 bg-paper">
         <div className="w-full max-w-[860px] mx-auto">
-          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-60 mb-5 flex items-center justify-center gap-2.5">
-            <span className="block w-7 h-px bg-ink/30" />
+          <Eyebrow rules className="mb-5">
             日本の不動産を、正直に比べる
-            <span className="block w-7 h-px bg-ink/30" />
-          </div>
+          </Eyebrow>
 
           <h1 className="font-display text-[clamp(40px,6vw,72px)] leading-[1.1] tracking-[-1px] text-ink mb-3">
             Compare homes,<br />
@@ -294,14 +295,10 @@ const Index = () => {
                   );
                 })}
               </div>
-              <button
-                type="submit"
-                disabled={!canSubmit}
-                className="bg-ink text-paper px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] flex items-center justify-center gap-2 hover:opacity-85 transition-all hover:-translate-y-0.5"
-              >
+              <Button type="submit" disabled={!canSubmit} variant="editorial" size="editorial">
                 <ArrowRight className="w-3.5 h-3.5" />
                 {isSubmitting ? "比較を作成中..." : "比較する"}
-              </button>
+              </Button>
             </div>
 
             <div className="px-5 pt-2.5 pb-4 flex flex-wrap gap-4 justify-center border-t border-rule">
@@ -323,20 +320,12 @@ const Index = () => {
       </section>
 
       {/* DIVIDER */}
-      <div className="max-w-[860px] mx-auto px-6 flex items-center gap-4">
-        <div className="flex-1 h-px bg-rule" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 whitespace-nowrap">
-          Discover — 最新比較レポート
-        </span>
-        <div className="flex-1 h-px bg-rule" />
-      </div>
+      <SectionDivider label="Discover — 最新比較レポート" />
 
       {/* FEED PREVIEW */}
-      <section className="max-w-[860px] mx-auto mt-10 px-6 pb-24">
+      <Section className="mt-10 pb-24">
         <div className="flex items-center justify-between mb-5">
-          <span className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-60">
-            新着比較レポート
-          </span>
+          <Eyebrow>新着比較レポート</Eyebrow>
           <Link
             to="/feed"
             className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink-60 hover:text-ink no-underline border border-transparent hover:border-rule rounded-full px-2.5 py-1"
@@ -350,7 +339,7 @@ const Index = () => {
             <ReportCard key={id} {...cardProps} />
           ))}
         </div>
-      </section>
+      </Section>
     </>
   );
 };

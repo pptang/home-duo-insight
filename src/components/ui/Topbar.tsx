@@ -5,7 +5,11 @@ import { Menu, X } from "lucide-react";
 import { AuthButtons } from "@/components/AuthButtons";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
-const Header = () => {
+/**
+ * Shared global navigation bar. The single source of truth for the AiSumai
+ * top navigation — pages must not hand-roll their own header markup.
+ */
+const Topbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const location = useLocation();
@@ -87,4 +91,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default Topbar;

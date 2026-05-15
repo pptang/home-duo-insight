@@ -3,8 +3,6 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { Home } from "lucide-react";
 
 const NotFound = () => {
@@ -19,26 +17,24 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-grow flex items-center justify-center bg-softgray">
-        <div className="text-center px-4 py-16">
-          <h1 className="text-6xl font-bold text-primary mb-4">{t("notFound.title")}</h1>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            {t("notFound.heading")}
-          </h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-md mx-auto">
-            {t("notFound.description")}
-          </p>
-          <Button asChild size="lg">
-            <Link to="/" className="flex items-center">
-              <Home className="mr-2 h-5 w-5" /> {t("notFound.backToHome")}
-            </Link>
-          </Button>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+    <main className="flex items-center justify-center py-24 px-4">
+      <div className="text-center max-w-md mx-auto">
+        <h1 className="font-display text-[clamp(48px,8vw,72px)] leading-[1.1] tracking-[-1px] text-ink mb-4">
+          {t("notFound.title")}
+        </h1>
+        <h2 className="font-display text-[22px] tracking-[-0.3px] text-ink mb-4">
+          {t("notFound.heading")}
+        </h2>
+        <p className="text-[14px] text-ink-60 leading-relaxed mb-8">
+          {t("notFound.description")}
+        </p>
+        <Button asChild variant="editorial" size="editorial">
+          <Link to="/">
+            <Home className="h-4 w-4" /> {t("notFound.backToHome")}
+          </Link>
+        </Button>
+      </div>
+    </main>
   );
 };
 

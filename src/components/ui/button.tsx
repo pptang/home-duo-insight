@@ -18,12 +18,25 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // AiSumai editorial variants — the ink-on-paper CTA treatment used
+        // across Landing / About / Feed. Centralised here so pages stop
+        // hand-rolling `bg-ink text-paper ...` button markup.
+        editorial:
+          "bg-ink text-paper font-medium tracking-[0.01em] hover:opacity-85 hover:-translate-y-0.5 transition-all",
+        "editorial-outline":
+          "border border-rule bg-transparent text-ink font-medium tracking-[0.01em] hover:bg-paper-dark",
+        "editorial-ghost":
+          "bg-transparent text-ink-60 hover:bg-ink/[0.06] hover:text-ink",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-11 rounded-md px-8",
         icon: "h-10 w-10",
+        // Editorial CTA sizing — matches the 13px / px-6 py-2.5 buttons used
+        // on the marketing pages.
+        editorial: "text-[13px] px-6 py-2.5",
+        "editorial-sm": "text-[11px] font-mono uppercase tracking-[0.06em] px-3 py-1.5",
       },
     },
     defaultVariants: {

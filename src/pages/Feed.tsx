@@ -4,6 +4,9 @@ import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ReportCard, { type ReportCardHighlight } from "@/components/ReportCard";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { SurfaceCard } from "@/components/ui/SurfaceCard";
 
 interface Expert {
   id: string;
@@ -216,23 +219,20 @@ const Feed = () => {
             ))}
           </FilterGroup>
 
-          <div className="mt-8 p-4 border border-rule rounded-lg bg-paper-dark">
-            <div className="font-mono text-[9px] uppercase tracking-[0.1em] text-ink-60 mb-2">
+          <SurfaceCard tone="paper-dark" pad="sm" className="mt-8">
+            <Eyebrow size="sm" className="mb-2">
               専門家の方へ
-            </div>
+            </Eyebrow>
             <div className="font-display text-[16px] tracking-[-0.2px] mb-2 leading-[1.2]">
               レポートを認領
             </div>
             <p className="text-[12px] text-ink-60 leading-relaxed mb-3">
               あなたの専門知識でユーザーをサポート。
             </p>
-            <Link
-              to="/auth"
-              className="inline-block bg-ink text-paper px-3 py-2 text-[11px] font-mono uppercase tracking-[0.06em] no-underline rounded-md hover:opacity-85"
-            >
-              専門家として登録
-            </Link>
-          </div>
+            <Button asChild variant="editorial" size="editorial-sm">
+              <Link to="/auth">専門家として登録</Link>
+            </Button>
+          </SurfaceCard>
         </aside>
 
         {/* Main */}
@@ -243,9 +243,9 @@ const Feed = () => {
               <h1 className="font-display text-[22px] tracking-[-0.3px]">
                 比較レポート
               </h1>
-              <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
+              <Eyebrow size="sm" className="tracking-[0.08em]">
                 {filtered.length} 件
-              </span>
+              </Eyebrow>
             </div>
             <div className="flex items-center gap-2">
               <select
@@ -256,18 +256,21 @@ const Feed = () => {
                 <option value="newest">新着順</option>
                 <option value="popular">人気順</option>
               </select>
-              <Link
-                to="/compare"
-                className="bg-ink text-paper px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.06em] no-underline rounded-md flex items-center gap-1.5 hover:opacity-85"
-              >
-                <Plus className="w-3 h-3" />
-                新規比較
-              </Link>
+              <Button asChild variant="editorial" size="editorial-sm">
+                <Link to="/compare">
+                  <Plus className="w-3 h-3" />
+                  新規比較
+                </Link>
+              </Button>
             </div>
           </div>
 
           {/* Expert claim banner */}
-          <div className="bg-ink text-paper rounded-lg p-5 flex items-center justify-between gap-4 mb-6 flex-wrap">
+          <SurfaceCard
+            tone="ink"
+            pad="none"
+            className="p-5 flex items-center justify-between gap-4 mb-6 flex-wrap"
+          >
             <div>
               <div className="font-mono text-[9px] uppercase tracking-[0.1em] opacity-50 mb-1">
                 認領待ち {comparisons.filter((c) => !c.experts || c.experts.length === 0).length} 件
@@ -276,13 +279,14 @@ const Feed = () => {
                 専門家コメントを募集中のレポートがあります。
               </div>
             </div>
-            <Link
-              to="/auth"
-              className="bg-paper text-ink px-4 py-2 text-[12px] font-medium no-underline rounded-md hover:opacity-85"
+            <Button
+              asChild
+              size="sm"
+              className="bg-paper text-ink text-[12px] font-medium hover:opacity-85"
             >
-              認領する →
-            </Link>
-          </div>
+              <Link to="/auth">認領する →</Link>
+            </Button>
+          </SurfaceCard>
 
           {/* Loading */}
           {isLoading && (
@@ -317,24 +321,23 @@ const Feed = () => {
 
           {/* Empty */}
           {!isLoading && !error && filtered.length === 0 && (
-            <div className="border border-rule rounded-lg p-12 bg-white text-center">
-              <div className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-30 mb-3">
+            <SurfaceCard pad="none" className="p-12 text-center">
+              <Eyebrow size="sm" tone="muted" className="mb-3">
                 Empty
-              </div>
+              </Eyebrow>
               <h3 className="font-display text-[20px] tracking-[-0.3px] mb-2">
                 まだ比較レポートがありません
               </h3>
               <p className="text-[13px] text-ink-60 mb-5">
                 最初の比較を作成して、コミュニティに貢献しましょう。
               </p>
-              <Link
-                to="/compare"
-                className="inline-flex items-center gap-2 bg-ink text-paper px-4 py-2 text-[13px] no-underline rounded-md hover:opacity-85"
-              >
-                <Plus className="w-4 h-4" />
-                比較を作成
-              </Link>
-            </div>
+              <Button asChild variant="editorial" className="text-[13px]">
+                <Link to="/compare">
+                  <Plus className="w-4 h-4" />
+                  比較を作成
+                </Link>
+              </Button>
+            </SurfaceCard>
           )}
 
           {/* Cards */}
