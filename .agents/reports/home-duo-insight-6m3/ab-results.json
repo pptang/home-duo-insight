@@ -1,0 +1,164 @@
+{
+  "suumo-A": {
+    "current (wait 3000 + scroll)": {
+      "ms": 1281,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "no actions": {
+      "ms": 43439,
+      "count": 20,
+      "ok": true,
+      "err": "",
+      "images": [
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0010.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0011.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0012.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0013.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0014.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0016.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0018.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0017.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0015.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0019.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0046.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0004.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0003.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0005.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0006.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0007.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0008.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0002.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0009.jpg",
+        "https://img01.suumo.com/front/gazo/bukken/030/N010000/img/769/20364769/20364769_0020.jpg"
+      ]
+    },
+    "scroll only": {
+      "ms": 1601,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "wait 800 + scroll": {
+      "ms": 1640,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    }
+  },
+  "suumo-B": {
+    "current (wait 3000 + scroll)": {
+      "ms": 1092,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "no actions": {
+      "ms": 6671,
+      "count": 20,
+      "ok": true,
+      "err": "",
+      "images": [
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0012.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0010.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0011.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0014.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0013.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0017.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0018.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0019.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0016.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0012.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0010.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0011.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0014.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0013.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0017.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0018.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0019.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0016.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/241/20477241/20477241_0015.jpg",
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/241/20477241/20477241_0012.jpg"
+      ]
+    },
+    "scroll only": {
+      "ms": 1586,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "wait 800 + scroll": {
+      "ms": 2067,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    }
+  },
+  "athome-A": {
+    "current (wait 3000 + scroll)": {
+      "ms": 1124,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "no actions": {
+      "ms": 2091,
+      "count": 0,
+      "ok": true,
+      "err": "",
+      "images": []
+    },
+    "scroll only": {
+      "ms": 1572,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "wait 800 + scroll": {
+      "ms": 1548,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    }
+  },
+  "athome-B": {
+    "current (wait 3000 + scroll)": {
+      "ms": 1563,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "no actions": {
+      "ms": 2103,
+      "count": 0,
+      "ok": true,
+      "err": "",
+      "images": []
+    },
+    "scroll only": {
+      "ms": 547,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    },
+    "wait 800 + scroll": {
+      "ms": 1570,
+      "count": 0,
+      "ok": false,
+      "err": "HTTP 500",
+      "images": []
+    }
+  }
+}

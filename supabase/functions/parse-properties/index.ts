@@ -340,17 +340,24 @@ async function fetchWithFirecrawl(
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
     
-    // Call Firecrawl API to scrape the URL
+    // Call Firecrawl API to scrape the URL.
+    //
+    // NOTE (home-duo-insight-6m3): the `actions` array (a hardcoded
+    // `wait 3000ms + scroll`) was removed after a live A/B test. It added a
+    // flat ~3s floor per URL on the critical path, and on a self-hosted
+    // Firecrawl any `actions` array caused `SCRAPE_ALL_ENGINES_FAILED`
+    // (HTTP 500) on every SUUMO/athome scrape. Plain scrapes (no actions)
+    // return full SUUMO HTML and extractImageUrls() captures 20 images per
+    // listing — i.e. the actions hurt rather than helped. athome.co.jp
+    // serves a bot-challenge interstitial regardless of actions, so the
+    // actions never helped athome either. If lazy-loaded images go missing
+    // in production, the right fix is a targeted wait, not a blanket one.
     const response = await fetch(`${firecrawlUrl}/v1/scrape`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         url: url,
         formats: ['html'],
-        actions: [
-          { type: 'wait', milliseconds: 3000 }, // Wait for dynamic content
-          { type: 'scroll', direction: 'down' }   // Trigger lazy loading
-        ],
         onlyMainContent: false // Get full page content including images
       })
     });
