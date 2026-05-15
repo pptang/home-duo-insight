@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import ReportCard, { type ReportCardProps } from "@/components/ReportCard";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -24,49 +25,56 @@ const FILTER_CHIPS = [
   { id: "risk", label: "リスク" },
 ];
 
-const FEED_ITEMS = [
+// DISCOVER demo reports. Each entry maps directly onto <ReportCard> props
+// (plus an `id` for the React key and a `to` link target).
+type FeedItem = Omit<ReportCardProps, "style"> & { id: string };
+
+const FEED_ITEMS: FeedItem[] = [
   {
     id: "demo-1",
+    to: "/feed",
     num: "#0142",
     area: "渋谷区 · 目黒区",
-    date: "2日前",
-    propA: { name: "パークコート渋谷 ザ タワー", price: "¥8,500万", score: 74, win: false },
-    propB: { name: "ザ・パークハウス中目黒", price: "¥9,200万", score: 88, win: true },
+    date: "2 日前",
+    propertyA: { name: "パークコート渋谷 ザ タワー", price: "¥8,500万", score: 74 },
+    propertyB: { name: "ザ・パークハウス中目黒", price: "¥9,200万", score: 88 },
     highlights: [
       { text: "B が", strong: "700万円高い" },
       { text: "B の駅距離", strong: "3分短い" },
       { text: "B の面積", strong: "+7m²" },
     ],
-    expert: { name: "田中 誠一", initial: "田", claimed: true },
-    stats: { views: 284, saves: 12 },
+    expert: { name: "田中 誠一", initial: "田" },
+    meta: { views: 284, saves: 12 },
   },
   {
     id: "demo-2",
+    to: "/feed",
     num: "#0141",
     area: "港区",
-    date: "3日前",
-    propA: { name: "虎ノ門ヒルズ レジデンス", price: "¥18,000万", score: 91, win: true },
-    propB: { name: "アークヒルズ仙石山森タワー", price: "¥15,500万", score: 79, win: false },
+    date: "3 日前",
+    propertyA: { name: "虎ノ門ヒルズ レジデンス", price: "¥18,000万", score: 91 },
+    propertyB: { name: "アークヒルズ仙石山森タワー", price: "¥15,500万", score: 79 },
     highlights: [
       { text: "A が", strong: "2,500万円高い" },
       { text: "A の面積", strong: "+12m²" },
     ],
-    expert: { claimed: false },
-    stats: { views: 521, saves: 31 },
+    expert: null,
+    meta: { views: 521, saves: 31 },
   },
   {
     id: "demo-3",
+    to: "/feed",
     num: "#0139",
     area: "大阪市 北区",
-    date: "5日前",
-    propA: { name: "ブランズタワー梅田 North", price: "¥6,800万", score: 71, win: false },
-    propB: { name: "グランドメゾン新梅田タワー", price: "¥7,200万", score: 83, win: true },
+    date: "5 日前",
+    propertyA: { name: "ブランズタワー梅田 North", price: "¥6,800万", score: 71 },
+    propertyB: { name: "グランドメゾン新梅田タワー", price: "¥7,200万", score: 83 },
     highlights: [
       { text: "B が", strong: "400万円高い" },
       { text: "A は", strong: "即入居可" },
     ],
-    expert: { name: "山本 健太郎", initial: "山", claimed: true },
-    stats: { views: 198, saves: 9 },
+    expert: { name: "山本 健太郎", initial: "山" },
+    meta: { views: 198, saves: 9 },
   },
 ];
 
@@ -338,123 +346,12 @@ const Index = () => {
         </div>
 
         <div className="flex flex-col gap-px bg-rule border border-rule rounded-lg overflow-hidden">
-          {FEED_ITEMS.map((item) => (
-            <ReportCard key={item.id} item={item} />
+          {FEED_ITEMS.map(({ id, ...cardProps }) => (
+            <ReportCard key={id} {...cardProps} />
           ))}
         </div>
       </section>
     </>
-  );
-};
-
-const ReportCard = ({ item }: { item: typeof FEED_ITEMS[number] }) => {
-  return (
-    <Link
-      to="/feed"
-      className="rcard no-underline text-ink"
-    >
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] min-h-[120px]">
-        <div className="p-4 flex flex-col justify-between border-r border-rule">
-          <div>
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-ink-30">
-                {item.num}
-              </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
-                {item.area}
-              </span>
-              <span className="font-mono text-[9px] text-ink-30 ml-auto">{item.date}</span>
-            </div>
-            <div className="flex items-start gap-2 mb-2">
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] leading-[1.25] tracking-[-0.2px] truncate">
-                  {item.propA.name}
-                </div>
-                <div className="font-display text-[14px] tracking-[-0.3px] mt-0.5">
-                  {item.propA.price}
-                </div>
-              </div>
-              <div className="flex-shrink-0 w-[22px] h-[22px] border border-rule rounded-full flex items-center justify-center font-mono text-[8px] text-ink-30 mt-0.5">
-                vs
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[13px] leading-[1.25] tracking-[-0.2px] truncate">
-                  {item.propB.name}
-                </div>
-                <div className="font-display text-[14px] tracking-[-0.3px] mt-0.5">
-                  {item.propB.price}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {item.highlights.map((h, i) => (
-              <span key={i} className="text-[11px] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
-                {h.text}<strong className="text-ink font-medium">{h.strong}</strong>
-              </span>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <div className="grid grid-cols-2 flex-1">
-            <div className={`p-2.5 flex flex-col justify-between border-b border-rule ${item.propA.win ? "bg-ink" : "bg-paper-dark"}`}>
-              <div className={`font-mono text-[8px] uppercase tracking-[0.1em] mb-0.5 ${item.propA.win ? "text-paper/40" : "text-ink-30"}`}>
-                物件 A
-              </div>
-              <div className={`font-display text-[26px] leading-none tracking-[-1px] ${item.propA.win ? "text-paper" : "text-ink-30"}`}>
-                {item.propA.score}
-              </div>
-              <div className={`font-mono text-[8px] ${item.propA.win ? "text-paper/30" : "text-ink-30"}`}>/ 100</div>
-              {item.propA.win && (
-                <span className="font-mono text-[7px] uppercase tracking-[0.1em] border border-paper/25 text-paper/70 px-1.5 py-0.5 rounded-sm w-fit mt-1">
-                  AI 推奨
-                </span>
-              )}
-            </div>
-            <div className={`p-2.5 flex flex-col justify-between border-b border-rule ${item.propB.win ? "bg-ink" : "bg-paper-dark"}`}>
-              <div className={`font-mono text-[8px] uppercase tracking-[0.1em] mb-0.5 ${item.propB.win ? "text-paper/40" : "text-ink-30"}`}>
-                物件 B
-              </div>
-              <div className={`font-display text-[26px] leading-none tracking-[-1px] ${item.propB.win ? "text-paper" : "text-ink-30"}`}>
-                {item.propB.score}
-              </div>
-              <div className={`font-mono text-[8px] ${item.propB.win ? "text-paper/30" : "text-ink-30"}`}>/ 100</div>
-              {item.propB.win && (
-                <span className="font-mono text-[7px] uppercase tracking-[0.1em] border border-paper/25 text-paper/70 px-1.5 py-0.5 rounded-sm w-fit mt-1">
-                  AI 推奨
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 px-2.5 py-1.5">
-            {item.expert.claimed ? (
-              <>
-                <div className="w-5 h-5 rounded-full bg-ink text-paper flex items-center justify-center font-mono text-[8px]">
-                  {item.expert.initial}
-                </div>
-                <span className="text-[11px] font-medium flex-1 truncate">{item.expert.name}</span>
-                <span className="font-mono text-[7px] uppercase tracking-[0.08em] border border-rule text-ink-60 px-1.5 py-0.5 rounded-sm">
-                  コメントあり
-                </span>
-              </>
-            ) : (
-              <>
-                <div className="w-5 h-5 rounded-full bg-paper-dark border border-rule text-ink-30 flex items-center justify-center font-mono text-[8px]">
-                  ?
-                </div>
-                <span className="font-mono text-[8px] uppercase tracking-[0.06em] text-ink-30 flex-1">
-                  専門家コメント待ち
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-2.5 px-4 py-1.5 bg-paper-dark border-t border-rule">
-        <span className="font-mono text-[9px] uppercase text-ink-30">👁 {item.stats.views}</span>
-        <span className="font-mono text-[9px] uppercase text-ink-30">🔖 {item.stats.saves}</span>
-      </div>
-    </Link>
   );
 };
 

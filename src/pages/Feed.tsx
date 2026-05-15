@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import ReportCard, { type ReportCardHighlight } from "@/components/ReportCard";
 
 interface Expert {
   id: string;
@@ -407,129 +408,44 @@ const FeedCard = ({
   dateAgo: (iso: string) => string;
 }) => {
   const expert = comparison.experts?.[0];
-  const claimed = !!expert;
   const aPrice = comparison.propertyA.price_yen ?? 0;
   const bPrice = comparison.propertyB.price_yen ?? 0;
-  // Naive winner heuristic for visual: cheaper price wins (placeholder until real score system).
+  // Naive winner heuristic for visual: cheaper price wins (placeholder until a
+  // real score system exists). Translated into scores so <ReportCard> derives
+  // the winner the same way it does for the Landing demo data.
   const winner: "A" | "B" | null = aPrice && bPrice ? (aPrice < bPrice ? "A" : "B") : null;
   const num = `#${(index + 1).toString().padStart(4, "0")}`;
 
-  return (
-    <Link
-      to={`/comparisons/${comparison.id}`}
-      className="rcard no-underline text-ink"
-      style={{ animation: `fade-in-up 0.4s ease ${index * 0.06}s both` }}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] min-h-[140px]">
-        <div className="p-4 flex flex-col justify-between border-r border-rule">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-ink-30">{num}</span>
-              {comparison.propertyA.floor_plan && (
-                <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
-                  {comparison.propertyA.floor_plan}
-                </span>
-              )}
-              <span className="font-mono text-[9px] text-ink-30 ml-auto">
-                {dateAgo(comparison.created_at)}
-              </span>
-            </div>
-            <div className="flex items-start gap-2 mb-3">
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[14px] leading-[1.25] tracking-[-0.2px] truncate">
-                  {comparison.propertyA.property_name || "物件 A"}
-                </div>
-                <div className="font-display text-[15px] tracking-[-0.3px] mt-0.5">
-                  {formatPrice(comparison.propertyA.price_yen)}
-                </div>
-              </div>
-              <div className="flex-shrink-0 w-[22px] h-[22px] border border-rule rounded-full flex items-center justify-center font-mono text-[8px] text-ink-30 mt-0.5">
-                vs
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="font-display text-[14px] leading-[1.25] tracking-[-0.2px] truncate">
-                  {comparison.propertyB.property_name || "物件 B"}
-                </div>
-                <div className="font-display text-[15px] tracking-[-0.3px] mt-0.5">
-                  {formatPrice(comparison.propertyB.price_yen)}
-                </div>
-              </div>
-            </div>
-          </div>
-          {comparison.expertVotes !== undefined && (
-            <div className="flex flex-wrap gap-1.5">
-              <span className="text-[11px] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
-                <strong className="text-ink font-medium">{comparison.expertVotes}</strong> 票
-              </span>
-              {comparison.propertyA.property_type && (
-                <span className="text-[11px] text-ink-60 bg-paper-dark px-1.5 py-0.5 rounded-sm">
-                  {comparison.propertyA.property_type}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+  // Highlight pills: vote count plus the property type when available.
+  const highlights: ReportCardHighlight[] = [];
+  if (comparison.expertVotes !== undefined) {
+    highlights.push({ text: "", strong: `${comparison.expertVotes} 票` });
+  }
+  if (comparison.propertyA.property_type) {
+    highlights.push({ text: comparison.propertyA.property_type, strong: "" });
+  }
 
-        <div className="flex flex-col">
-          <div className="grid grid-cols-2 flex-1">
-            <ScoreCell label="物件 A" score={winner === "A" ? 88 : 74} winner={winner === "A"} />
-            <ScoreCell label="物件 B" score={winner === "B" ? 88 : 74} winner={winner === "B"} />
-          </div>
-          <div className="flex items-center gap-2 px-3 py-2 border-t border-rule">
-            {claimed ? (
-              <>
-                <div className="w-6 h-6 rounded-full bg-ink text-paper flex items-center justify-center font-mono text-[9px]">
-                  {expert!.name.charAt(0)}
-                </div>
-                <span className="text-[11px] font-medium flex-1 truncate">{expert!.name}</span>
-                <span className="font-mono text-[7px] uppercase tracking-[0.08em] border border-rule text-ink-60 px-1.5 py-0.5 rounded-sm">
-                  コメントあり
-                </span>
-              </>
-            ) : (
-              <>
-                <div className="w-6 h-6 rounded-full bg-paper-dark border border-rule text-ink-30 flex items-center justify-center font-mono text-[9px]">
-                  ?
-                </div>
-                <span className="font-mono text-[8px] uppercase tracking-[0.06em] text-ink-30 flex-1">
-                  専門家コメント待ち
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
+  return (
+    <ReportCard
+      to={`/comparisons/${comparison.id}`}
+      num={num}
+      area={comparison.propertyA.floor_plan || "—"}
+      date={dateAgo(comparison.created_at)}
+      propertyA={{
+        name: comparison.propertyA.property_name || "物件 A",
+        price: formatPrice(comparison.propertyA.price_yen),
+        score: winner === "A" ? 88 : 74,
+      }}
+      propertyB={{
+        name: comparison.propertyB.property_name || "物件 B",
+        price: formatPrice(comparison.propertyB.price_yen),
+        score: winner === "B" ? 88 : 74,
+      }}
+      highlights={highlights}
+      expert={expert ? { name: expert.name } : null}
+      style={{ animation: `fade-in-up 0.4s ease ${index * 0.06}s both` }}
+    />
   );
 };
-
-const ScoreCell = ({ label, score, winner }: { label: string; score: number; winner: boolean }) => (
-  <div
-    className={`p-3 flex flex-col justify-between border-b border-rule ${
-      winner ? "bg-ink" : "bg-paper-dark"
-    }`}
-  >
-    <div
-      className={`font-mono text-[8px] uppercase tracking-[0.1em] mb-0.5 ${
-        winner ? "text-paper/40" : "text-ink-30"
-      }`}
-    >
-      {label}
-    </div>
-    <div
-      className={`font-display text-[28px] leading-none tracking-[-1px] ${
-        winner ? "text-paper" : "text-ink-30"
-      }`}
-    >
-      {score}
-    </div>
-    <div className={`font-mono text-[8px] ${winner ? "text-paper/30" : "text-ink-30"}`}>/ 100</div>
-    {winner && (
-      <span className="font-mono text-[7px] uppercase tracking-[0.1em] border border-paper/25 text-paper/70 px-1.5 py-0.5 rounded-sm w-fit mt-1">
-        AI 推奨
-      </span>
-    )}
-  </div>
-);
 
 export default Feed;
