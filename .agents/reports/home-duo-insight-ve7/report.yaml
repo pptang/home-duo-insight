@@ -1,0 +1,46 @@
+bead: home-duo-insight-ve7
+summary: Extract the Landing DISCOVER rich card into a shared ReportCard component used by both Landing and Feed.
+branch: bd/home-duo-insight-ve7-report-card
+sha: 45102180c7bf7198e15da13d506e4dae062b65da
+
+base_branch: bd/home-duo-insight-p7x-hero-ellipse
+
+files_changed:
+  - src/components/ReportCard.tsx
+  - src/pages/Index.tsx
+  - src/pages/Feed.tsx
+
+lint:
+  ran: true
+  errors: 0          # 0 in changed files; 44 pre-existing errors in edge functions / tailwind.config.ts, untouched
+  warnings: 0
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-ve7/build.log
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "No unit-test harness in this project; verification done via build + agent-browser UI QA."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-ve7/landing-discover.png
+    - .agents/reports/home-duo-insight-ve7/landing-full.png
+    - .agents/reports/home-duo-insight-ve7/feed.png
+  scenarios:
+    - "Landing / -> scroll to DISCOVER section -> 3 ReportCards render: eyebrow (number+area+date 'X 日前'), A/B prices, highlight pills, AI score boxes with 'AI 推奨' badge on winner, expert row, view/save meta footer."
+    - "Landing card #0141 has expert=null -> renders unclaimed '専門家コメント待ち' state with '?' avatar; meta footer still shown (31 saves)."
+    - "Feed /feed -> ReportCards render against real Supabase data: floor_plan as area eyebrow, '0 票' + property-type highlight pills, score tie (74/74 on card #0004) correctly suppresses 'AI 推奨' badge on both columns, all cards show unclaimed expert state (no votes), no meta footer (Feed passes no meta -> footer hidden)."
+
+deferred:
+  - { item: "Save-count label refinement inside ReportCard meta block", reason: "Out of scope — explicitly assigned to a later bead (nnm). Meta block kept clean and easy to locate." }
+
+escalations: []
