@@ -1,0 +1,44 @@
+bead: home-duo-insight-nnm
+summary: ReportCard meta footer save count now renders 'N 人が保存'; emoji prefix dropped (root cause of '!' notdef glyph); 0-save footer stays hidden.
+branch: bd/home-duo-insight-nnm-save-count
+sha: 8db8830a7953e0bb8af848fa0514d31dabe6c699
+
+base_branch: bd/home-duo-insight-ve7-report-card
+
+files_changed:
+  - src/components/ReportCard.tsx
+
+lint:
+  ran: true
+  errors: 0          # 0 in changed file; 44 pre-existing errors in unrelated files (supabase/functions, tailwind.config.ts)
+  warnings: 0        # 0 in changed file
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-nnm/build.log
+
+tests:
+  ran: true
+  command: "npx tsc --noEmit"
+  result: pass
+  reason_if_skipped: "no unit-test file exists for ReportCard; type-check + agent-browser QA used instead"
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-nnm/qa-discover-savecount.png
+    - .agents/reports/home-duo-insight-nnm/qa-zero-saves-hidden.png
+  scenarios:
+    - "Landing DISCOVER section: 3 ReportCards render. Cards #0142/#0141 (saves 12/31) show meta footer text '12 人が保存' / '31 人が保存' — target 'N 人が保存' form, no '!' artifact, no '票'. Verified via DOM eval and screenshot qa-discover-savecount.png."
+    - "0-save case: demo-3 card temporarily set to saves=0 and rebuilt. Card #0139's meta footer is absent entirely (DOM eval returned footer:'HIDDEN') — no '0 人が保存' rendered. Verified via screenshot qa-zero-saves-hidden.png. Demo data reverted to saves=9 after capture."
+
+deferred:
+  - item: "Feed.tsx line 422 highlight pill '${expertVotes} 票' left unchanged"
+    reason: "That '票' is an expert-VOTE count, semantically distinct from a save count. Relabeling it '人が保存' would mislabel votes as saves. Bead intent ('semantically clearer for real estate save counts') and manifest ('local to the meta footer', 've7 left the save-count label refinement for THIS bead') target the meta-footer save count, which is what was fixed. ExpertSectionPanel precedent confirms 票=votes and 人が保存=saves are separate concepts."
+
+escalations: []
