@@ -3,7 +3,7 @@ summary: >-
   Removed the hardcoded Firecrawl `wait 3000ms + scroll` actions array from
   parse-properties; a live A/B test proved the actions hurt rather than helped.
 branch: bd/home-duo-insight-6m3-firecrawl-actions
-sha: <filled-after-commit>
+sha: 02959831c0d5ac764af141e0c0c9af971e1c46de
 base_branch: main
 
 files_changed:
