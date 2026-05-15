@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Eyebrow } from "@/components/ui/Eyebrow";
 
+/**
+ * Shared global site footer. Single source of truth — pages must not hand-roll
+ * their own footer markup.
+ */
 const Footer = () => {
   const { t } = useTranslation();
 
@@ -20,9 +25,9 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-4 pb-2 border-b border-rule">
+            <Eyebrow size="sm" className="mb-4 pb-2 border-b border-rule w-full">
               {t("footer.platform")}
-            </h3>
+            </Eyebrow>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/compare" className="text-[13px] text-ink-60 hover:text-ink no-underline">
@@ -43,9 +48,9 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-4 pb-2 border-b border-rule">
+            <Eyebrow size="sm" className="mb-4 pb-2 border-b border-rule w-full">
               {t("footer.company")}
-            </h3>
+            </Eyebrow>
             <ul className="space-y-2.5">
               <li>
                 <Link to="/about" className="text-[13px] text-ink-60 hover:text-ink no-underline">

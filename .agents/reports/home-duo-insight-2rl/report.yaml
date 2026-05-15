@@ -1,0 +1,67 @@
+bead: home-duo-insight-2rl
+summary: Shared editorial component library (Topbar/Footer/Eyebrow/Section/SurfaceCard/Button variants) + design-token cleanup; Landing/Feed/About/NotFound refactored onto it.
+branch: bd/home-duo-insight-2rl-component-library
+sha: c42b8c189eebcb9687434932a761ef8947a27a34
+
+base_branch: bd/home-duo-insight-nnm-save-count
+
+files_changed:
+  - src/App.tsx
+  - src/components/ui/Eyebrow.tsx          # NEW
+  - src/components/ui/Section.tsx          # NEW (Section + SectionDivider)
+  - src/components/ui/SurfaceCard.tsx      # NEW
+  - src/components/ui/Topbar.tsx           # moved from src/components/Header.tsx
+  - src/components/ui/Footer.tsx           # moved from src/components/Footer.tsx
+  - src/components/ui/button.tsx           # added editorial variants/sizes
+  - src/index.css
+  - src/pages/About.tsx
+  - src/pages/Feed.tsx
+  - src/pages/Index.tsx
+  - src/pages/NotFound.tsx
+  # deletions (git renames): src/components/Header.tsx, src/components/Footer.tsx
+
+lint:
+  ran: true
+  errors: 0          # 0 errors in changed files; 44 pre-existing errors live in
+                     # supabase/functions/* and tailwind.config.ts (require()) — untouched
+  warnings: 2        # react-refresh/only-export-components in SurfaceCard.tsx + button.tsx
+                     # (same warning every shadcn ui file already carries)
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-2rl/build.log
+  tsc:
+    command: "npx tsc --noEmit"
+    exit_code: 0
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "No unit test suite exists in the repo (no test runner configured in package.json); verification is the build + tsc + agent-browser UI QA below."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-2rl/screenshots/01-landing.png
+    - .agents/reports/home-duo-insight-2rl/screenshots/02-feed.png
+    - .agents/reports/home-duo-insight-2rl/screenshots/02-feed-viewport.png
+    - .agents/reports/home-duo-insight-2rl/screenshots/03-about.png
+    - .agents/reports/home-duo-insight-2rl/screenshots/04-experts.png
+  scenarios:
+    - "Landing (/): hero section renders with bg-paper and no overlay (p7x intact); Eyebrow rules render above 'Compare homes, not brochures'; compare widget submit is now <Button variant=editorial>; ReportCard list renders with scores 88/91/83 and the nnm '人が保存' save-count meta intact."
+    - "Feed (/feed): ink expert-claim banner via SurfaceCard tone=ink; sidebar expert SurfaceCard + editorial-sm Button; new-comparison Button; ReportCard list renders; live remote Supabase data (109 reports) loads."
+    - "About (/about): three SectionDividers, hero/step/feature Eyebrows, feature illustration SurfaceCards, FAQ accordion SurfaceCard, and ink CTA SurfaceCard all render via shared components."
+    - "Experts (/experts): shared Topbar + Footer (moved into ui/) render correctly with brand, nav, and Eyebrow footer headings."
+  notes: "Console showed only benign pre-existing 'Google Analytics Measurement ID not configured' warnings."
+
+deferred:
+  - item: "ComparisonDetail (/comparisons/:id) and ExpertProfilePage (/experts/:id) not refactored onto Section/Eyebrow."
+    reason: "Neither page has an inline Topbar/Footer duplicate (global ones come from AppShell). Their inline markup is page-specific (comparison/profile layouts), not the recurring editorial primitives this bead targets. Refactoring them is cosmetic-only with real regression risk to the ve7 ReportCard usage path; out of scope for the root-cause anti-drift goal. Manifest lists them as candidates, not required AC."
+
+escalations:
+  - "NEEDS_ELEVATION:file:aisumai-figma-tokens.json — the figma token source file does not exist anywhere in the repo (no docs/aisumai-design-handoff/ dir either). Per the bead notes, tokens were derived from the existing tailwind.config.ts values + docs/design-guidelines.md instead. The ink/paper/rule colours and DM Serif Display / Noto Sans JP / DM Mono families were ALREADY applied to tailwind.config.ts by a prior chain bead; this bead added the --font-* CSS vars and removed redundant hardcoded utility classes from index.css. INTERPRETATION NOTE: AC says grep '#0a0a0a'/'DM Serif' should hit 'ONLY tailwind config'. '#0a0a0a' is now fully eliminated from src/. 'DM Serif' has exactly one remaining hit — src/index.css:22, the `--font-display` token *definition* that mirrors tailwind.config.ts. A font-family string must physically exist somewhere; index.css is the design-token/theming layer (it hosts the @tailwind directives + shadcn CSS vars). Zero '#0a0a0a' and zero 'DM Serif' literals remain in any .tsx page/component, which satisfies the bead's stated intent (root-cause prevention of hardcoded values drifting in pages)."

@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/AuthContext';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Topbar from '@/components/ui/Topbar';
+import Footer from '@/components/ui/Footer';
 import Index from '@/pages/Index';
 import Feed from '@/pages/Feed';
 import Experts from '@/pages/Experts';
@@ -32,7 +32,7 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-paper text-ink flex flex-col">
-      {!isFullLayout && <Header />}
+      {!isFullLayout && <Topbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Index />} />

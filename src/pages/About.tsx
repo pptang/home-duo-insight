@@ -9,6 +9,10 @@ import {
   ShieldCheck,
   Compass,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Section, SectionDivider } from "@/components/ui/Section";
+import { SurfaceCard } from "@/components/ui/SurfaceCard";
 
 const About = () => {
   const { t } = useTranslation();
@@ -72,11 +76,9 @@ const About = () => {
           }}
         />
         <div className="relative z-10 max-w-[860px] mx-auto text-center">
-          <div className="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-60 mb-5 flex items-center justify-center gap-2.5">
-            <span className="block w-7 h-px bg-ink/30" />
+          <Eyebrow rules className="mb-5">
             {t("about.hero.eyebrow")}
-            <span className="block w-7 h-px bg-ink/30" />
-          </div>
+          </Eyebrow>
 
           <h1 className="font-display text-[clamp(36px,5.4vw,64px)] leading-[1.1] tracking-[-1px] text-ink mb-6">
             {t("about.hero.heading")}
@@ -87,34 +89,26 @@ const About = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <Link
-              to="/compare"
-              className="inline-flex items-center gap-2 bg-ink text-paper px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] no-underline hover:opacity-85 hover:-translate-y-0.5 transition-all"
-            >
-              <span>{t("about.hero.ctaPrimary")}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <Link
-              to="/feed"
-              className="inline-flex items-center gap-2 border border-rule text-ink px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] no-underline hover:bg-paper-dark transition-colors"
-            >
-              <span>{t("about.hero.ctaSecondary")}</span>
-            </Link>
+            <Button asChild variant="editorial" size="editorial">
+              <Link to="/compare">
+                <span>{t("about.hero.ctaPrimary")}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </Button>
+            <Button asChild variant="editorial-outline" size="editorial">
+              <Link to="/feed">
+                <span>{t("about.hero.ctaSecondary")}</span>
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* SECTION DIVIDER */}
-      <div className="max-w-[860px] mx-auto px-6 flex items-center gap-4">
-        <div className="flex-1 h-px bg-rule" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 whitespace-nowrap">
-          {t("about.howItWorks.eyebrow")}
-        </span>
-        <div className="flex-1 h-px bg-rule" />
-      </div>
+      <SectionDivider label={t("about.howItWorks.eyebrow")} />
 
       {/* HOW IT WORKS — 3 numbered steps */}
-      <section className="max-w-[1040px] mx-auto px-6 pt-16 pb-20">
+      <Section width="wide" className="pt-16 pb-20">
         <div className="text-center mb-12">
           <h2 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.15] tracking-[-0.5px] text-ink mb-3">
             {t("about.howItWorks.title")}
@@ -134,9 +128,9 @@ const About = () => {
                 className="bg-paper p-6 sm:p-7 flex flex-col gap-4"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30">
+                  <Eyebrow size="sm" tone="muted">
                     Step {stepNumber}
-                  </span>
+                  </Eyebrow>
                   <span className="w-9 h-9 border border-rule rounded-full flex items-center justify-center bg-paper-dark">
                     <Icon
                       className="w-4 h-4 text-ink"
@@ -155,19 +149,13 @@ const About = () => {
             );
           })}
         </ol>
-      </section>
+      </Section>
 
       {/* SECTION DIVIDER */}
-      <div className="max-w-[860px] mx-auto px-6 flex items-center gap-4">
-        <div className="flex-1 h-px bg-rule" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 whitespace-nowrap">
-          {t("about.features.eyebrow")}
-        </span>
-        <div className="flex-1 h-px bg-rule" />
-      </div>
+      <SectionDivider label={t("about.features.eyebrow")} />
 
       {/* FEATURES — 3 alternating layout */}
-      <section className="max-w-[1040px] mx-auto px-6 pt-16 pb-20">
+      <Section width="wide" className="pt-16 pb-20">
         <div className="flex flex-col gap-14 sm:gap-20">
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -180,9 +168,9 @@ const About = () => {
                 }`}
               >
                 <div className="flex flex-col gap-4">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30">
+                  <Eyebrow size="sm" tone="muted">
                     {t("about.features.featureLabel", { n: index + 1 })}
-                  </span>
+                  </Eyebrow>
                   <h3 className="font-display text-[clamp(24px,3vw,32px)] leading-[1.15] tracking-[-0.5px] text-ink">
                     {t(feature.titleKey)}
                   </h3>
@@ -195,7 +183,11 @@ const About = () => {
                   </div>
                 </div>
 
-                <div className="aspect-[4/3] border border-rule rounded-lg bg-paper-dark relative overflow-hidden flex items-center justify-center">
+                <SurfaceCard
+                  tone="paper-dark"
+                  pad="none"
+                  className="aspect-[4/3] relative overflow-hidden flex items-center justify-center"
+                >
                   <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
@@ -211,28 +203,22 @@ const About = () => {
                         aria-hidden="true"
                       />
                     </span>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30">
+                    <Eyebrow size="sm" tone="muted">
                       {t("about.features.illustrationLabel")}
-                    </span>
+                    </Eyebrow>
                   </div>
-                </div>
+                </SurfaceCard>
               </article>
             );
           })}
         </div>
-      </section>
+      </Section>
 
       {/* SECTION DIVIDER */}
-      <div className="max-w-[860px] mx-auto px-6 flex items-center gap-4">
-        <div className="flex-1 h-px bg-rule" />
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 whitespace-nowrap">
-          {t("about.faq.eyebrow")}
-        </span>
-        <div className="flex-1 h-px bg-rule" />
-      </div>
+      <SectionDivider label={t("about.faq.eyebrow")} />
 
       {/* FAQ — native details/summary */}
-      <section className="max-w-[760px] mx-auto px-6 pt-16 pb-20">
+      <Section width="narrow" className="pt-16 pb-20">
         <div className="text-center mb-10">
           <h2 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.15] tracking-[-0.5px] text-ink mb-3">
             {t("about.faq.title")}
@@ -242,7 +228,7 @@ const About = () => {
           </p>
         </div>
 
-        <div className="border border-rule rounded-lg divide-y divide-rule overflow-hidden bg-paper">
+        <SurfaceCard pad="none" className="divide-y divide-rule overflow-hidden">
           {faqs.map((n) => (
             <details
               key={n}
@@ -277,12 +263,16 @@ const About = () => {
               </p>
             </details>
           ))}
-        </div>
-      </section>
+        </SurfaceCard>
+      </Section>
 
       {/* CTA STRIP */}
-      <section className="max-w-[860px] mx-auto px-6 pb-24">
-        <div className="border border-ink rounded-lg bg-ink text-paper p-8 sm:p-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <Section className="pb-24">
+        <SurfaceCard
+          tone="ink"
+          pad="lg"
+          className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+        >
           <div className="flex-1">
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper/50 block mb-2">
               {t("about.cta.eyebrow")}
@@ -294,15 +284,18 @@ const About = () => {
               {t("about.cta.subtitle")}
             </p>
           </div>
-          <Link
-            to="/compare"
-            className="inline-flex items-center gap-2 bg-paper text-ink px-6 py-2.5 rounded-md text-[13px] font-medium tracking-[0.01em] no-underline hover:opacity-90 hover:-translate-y-0.5 transition-all flex-shrink-0"
+          <Button
+            asChild
+            size="editorial"
+            className="bg-paper text-ink font-medium tracking-[0.01em] hover:opacity-90 hover:-translate-y-0.5 transition-all flex-shrink-0"
           >
-            <span>{t("about.cta.button")}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
+            <Link to="/compare">
+              <span>{t("about.cta.button")}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        </SurfaceCard>
+      </Section>
     </>
   );
 };
