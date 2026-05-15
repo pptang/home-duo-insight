@@ -1,0 +1,85 @@
+bead: home-duo-insight-6m3
+summary: >-
+  Removed the hardcoded Firecrawl `wait 3000ms + scroll` actions array from
+  parse-properties; a live A/B test proved the actions hurt rather than helped.
+branch: bd/home-duo-insight-6m3-firecrawl-actions
+sha: <filled-after-commit>
+base_branch: main
+
+files_changed:
+  - supabase/functions/parse-properties/index.ts
+
+investigation:
+  method: >-
+    Live A/B test against the self-hosted Firecrawl (http://localhost:3002,
+    confirmed working). Test harness in
+    .agents/reports/home-duo-insight-6m3/firecrawl-ab-test.ts reuses the actual
+    extractImageUrls() copied verbatim from parse-properties/index.ts:187-317
+    (the function is not exported). 4 Firecrawl configs x 4 live listing URLs
+    (2 SUUMO, 2 athome). Raw results in ab-results.json.
+  note_on_test_urls: >-
+    The SUUMO/athome URLs hardcoded in the repo test scripts (nc_73125861 etc.)
+    are EXPIRED -> SUUMO 404 error page, athome statusCode 404. Re-ran against
+    fresh live listings verified 2026-05-16 (statusCode 200).
+  findings:
+    - >-
+      Any `actions` array (wait+scroll, scroll-only, or wait-800+scroll) causes
+      the self-hosted Firecrawl to return HTTP 500 SCRAPE_ALL_ENGINES_FAILED on
+      EVERY SUUMO/athome scrape. The current production code captures ZERO
+      images when run against a self-hosted Firecrawl.
+    - >-
+      With NO actions, SUUMO scrapes succeed: full HTML (200-270KB,
+      130-180 `gazo` image refs) and extractImageUrls() captures 20 images per
+      listing. Verified on 4 SUUMO listings.
+    - >-
+      athome.co.jp serves a bot-challenge interstitial ("認証中" / authenticating)
+      regardless of actions. `no actions` gets the challenge page (0 property
+      images), `actions` gets a 500. The actions never helped athome.
+  decision: >-
+    Remove the actions array. It added a flat ~3s critical-path floor per URL,
+    broke self-hosted Firecrawl entirely, and provided no image-capture benefit
+    on either site. Decision documented in a code comment at the call site.
+
+lint:
+  ran: true
+  errors: 0          # 0 NEW errors; 3 pre-existing `any` errors at index.ts:305-306 are untouched
+  warnings: 0
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-6m3/build.log
+  tsc:
+    command: "npx tsc --noEmit"
+    exit_code: 0
+    log_path: .agents/reports/home-duo-insight-6m3/tsc.log
+
+tests:
+  ran: true
+  command: "deno run --allow-net --allow-write --allow-env .agents/reports/home-duo-insight-6m3/_harness.ts"
+  result: pass
+  reason_if_skipped: >-
+    Live A/B test executed against self-hosted Firecrawl; results recorded in
+    ab-results.json. No unit-test file exists for parse-properties.
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: >-
+    ui_surface=false — this is a pure edge-function change (removed an actions
+    array, added a code comment). No *.tsx / *.css / route files touched.
+  artifacts: []
+  scenarios: []
+
+deferred:
+  - item: >-
+      athome.co.jp bot-challenge ("認証中") blocks property-image capture on the
+      self-hosted Firecrawl regardless of Firecrawl config. This is a separate
+      problem from the actions array and out of scope for this bead.
+    reason: >-
+      Needs a dedicated bead — likely requires a proxy / stealth Firecrawl
+      config or the hosted api.firecrawl.dev with anti-bot handling.
+
+escalations: []
