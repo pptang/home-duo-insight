@@ -1,7 +1,7 @@
 bead: home-duo-insight-w3s
 summary: Add custom ESLint rule local/no-emoji-jsx blocking unicode emoji in JSX/TSX, with Husky+lint-staged pre-commit enforcement, CI step, and CONTRIBUTING docs.
 branch: bd/home-duo-insight-w3s-no-emoji-eslint
-sha: <filled-after-commit>
+sha: 8d6830e2b4068ee41105fd7381e0033f7e675197
 
 base_branch: main
 
