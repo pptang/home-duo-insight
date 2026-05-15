@@ -1,0 +1,43 @@
+bead: home-duo-insight-p7x
+summary: Remove unintended radial-gradient overlay div from Landing hero; render solid bg-paper, no overlays.
+branch: bd/home-duo-insight-p7x-hero-ellipse
+sha: 0b2dc6df6f9b313be4ff8ecb1ee9b5f08282deb6
+base_branch: main
+
+files_changed: [src/pages/Index.tsx]
+
+lint:
+  ran: true
+  errors: 0          # 0 in src/pages/Index.tsx (verified via `npx eslint src/pages/Index.tsx`); 44 pre-existing errors live only in untouched supabase/functions/* and tailwind.config.ts
+  warnings: 0
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-p7x/build.log
+  tsc: "npx tsc --noEmit -> exit 0"
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "No unit test file exists for Index.tsx; verification done via agent-browser QA + DOM eval."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-p7x/hero-before.png
+    - .agents/reports/home-duo-insight-p7x/hero-after.png
+  scenarios:
+    - "Entry: load http://localhost:8080/ (Index landing). before screenshot captured at base, after screenshot captured post-fix."
+    - "Hero DOM verified via eval: section bg = rgb(249,248,245) (#f9f8f5 bg-paper), 0 inline gradients, 0 absolute overlay divs."
+    - "Success state: hero renders eyebrow with line decorators, DM Serif Display headline 'Compare homes, not brochures.', Noto Sans JP subtitle, solid paper background, no overlay obscuring the headline."
+
+deferred:
+  - { item: "Reported 'large black ellipse' could not be reproduced at base SHA — overlay was a faint 0.04-alpha vignette, not opaque.", reason: "Fix removes the overlay entirely per the AC ('no overlays'), which is the correct root-cause fix regardless of how prominent it rendered in the reporter's environment." }
+
+escalations: []
