@@ -1,0 +1,47 @@
+bead: home-duo-insight-584
+summary: One-off admin backfill script for the 15 extended property columns + amenities and recommendation scores; delivered with verified dry-run, full backfill escalated for missing remote credentials.
+branch: bd/home-duo-insight-584-backfill-extended-fields
+sha: 64cd82662c77fa8160d83f0e740c233efb2af03a
+
+base_branch: main
+
+files_changed:
+  - scripts/backfill-extended-fields.mjs
+
+lint:
+  ran: true
+  errors: 0          # 0 in the changed file; 44 pre-existing errors elsewhere (supabase/functions/*, tailwind.config.ts) are untouched by this bead
+  warnings: 15       # all pre-existing, in files not touched by this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-584/build.log
+  tsc_noemit_exit_code: 0   # `npx tsc --noEmit` also run separately, exit 0
+
+tests:
+  ran: true
+  command: "node scripts/backfill-extended-fields.mjs --dry-run (against local Supabase stack on :54321)"
+  result: pass
+  reason_if_skipped: >
+    Live backfill against remote Supabase (project qditnqwrjioypsuxwagg) NOT run -
+    requires SUPABASE_SERVICE_ROLE_KEY / SUPABASE_ANON_KEY / GEMINI_API_KEY /
+    FIRECRAWL credentials not available in this worktree, and the Supabase MCP
+    denies access to that project. Per the bead's own escalation clause the
+    deliverable is the script + a verified dry-run; see escalations.
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "ui_surface=false - this is a one-off Node admin script, no *.tsx/*.css/route changes"
+  artifacts: []
+  scenarios: []
+
+deferred:
+  - item: Execute the live backfill against remote Supabase and confirm DetailsTab / ScoreCardsGrid render on historical comparisons.
+    reason: Requires service-role + Gemini/Firecrawl credentials and remote DB access not available to this agent. Run after a human supplies env vars - `node scripts/backfill-extended-fields.mjs --dry-run` first, then without --dry-run.
+
+escalations:
+  - "NEEDS_ELEVATION:env:SUPABASE_SERVICE_ROLE_KEY+SUPABASE_ANON_KEY+GEMINI_API_KEY (remote project qditnqwrjioypsuxwagg) - required to execute the live backfill; script + verified dry-run delivered instead per the bead's escalation clause"
