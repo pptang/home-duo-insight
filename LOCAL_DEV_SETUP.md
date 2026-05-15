@@ -32,14 +32,17 @@ docker compose up -d
 cd ../home-duo-insight
 npm run supabase:start
 
-# 5. Setup environment
-cp .env.example .env.local
+# 5. Frontend env — nothing to do.
+# .env.development (local) and .env.remote (remote) are committed mode files.
+# .env.local (gitignored) is only for secret overrides like GEMINI_API_KEY.
 
-# 6. Configure Edge Functions for Docker networking
-# Edge Functions read supabase/functions/.env (NOT supabase/.env.local).
-# From inside the edge runtime container, reach the host via host.docker.internal.
-echo "FIRECRAWL_URL=http://host.docker.internal:3002" >> supabase/functions/.env
-echo "FIRECRAWL_API_KEY=your_api_key" >> supabase/functions/.env
+# 6. Edge function env — create the two mode files from the template
+cp supabase/functions/.env.example supabase/functions/.env.development
+cp supabase/functions/.env.example supabase/functions/.env.remote
+# Then fill in real API keys in each (both files are gitignored).
+# For local mode, keep FIRECRAWL_URL pointed at the host:
+#   FIRECRAWL_URL=http://host.docker.internal:3002
+# (Edge Functions run inside a container, so localhost = the container itself.)
 ```
 
 ### 2. Daily Development
@@ -126,53 +129,68 @@ npm run supabase:status
 
 ## Environment Configuration
 
-### Frontend (.env.local)
-```env
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+Local vs remote is selected by **which command you run** — no file edits.
+
+### Frontend — Vite mode files
+
+Vite loads `.env.local` plus a mode-specific file; the mode file wins for
+`VITE_SUPABASE_*`. Both mode files are committed (the keys are public anon keys):
+
+| File | Loaded by | Target | Git |
+|------|-----------|--------|-----|
+| `.env.development` | `npm run dev` / `dev:local` | local Supabase | committed |
+| `.env.remote` | `npm run dev:remote` | remote Supabase | committed |
+| `.env.local` | always (overridden by mode file) | secret overrides only | gitignored |
 
 ### Edge Functions (`supabase/functions/.env`)
 
 The Supabase CLI edge runtime loads **`supabase/functions/.env`** — this is the
 file it passes as `--env-file`. Do **not** use `supabase/.env.local`; the runtime
-never reads it.
+never reads it. There is no `--mode` for this file, so two mode files are kept
+alongside it and copied into place by npm scripts:
+
+| File | Activated by | Git |
+|------|--------------|-----|
+| `.env.development` | `npm run functions:env:local` (auto via `dev:local`) | gitignored |
+| `.env.remote` | `npm run functions:env:remote` | gitignored |
+| `.env` | the active copy `supabase start` reads | gitignored |
+| `.env.example` | template — copy to create the two mode files | committed |
+
+All variants except `.env.example` hold real API keys and are gitignored.
 
 Edge Functions run inside a Docker container, so `localhost` resolves to the
-container itself. Reach the host machine (where Firecrawl listens) via
-`host.docker.internal`:
+container itself. In `.env.development`, reach the host machine (where Firecrawl
+listens) via `host.docker.internal`:
 
 ```env
-# supabase/functions/.env
 FIRECRAWL_URL=http://host.docker.internal:3002
 FIRECRAWL_API_KEY=your_api_key
 GEMINI_API_KEY=your_gemini_key
 ```
 
 Env vars are injected when the edge runtime container is created, so after
-editing this file you must fully restart Supabase (a plain `docker restart`
+switching env files you must fully restart Supabase (a plain `docker restart`
 will not reload it):
 
 ```bash
+npm run functions:env:local   # or functions:env:remote
 npm run supabase:stop && npm run supabase:start
 ```
 
 ## Switching to Remote Services
 
-To use remote Supabase/Firecrawl instead:
-
 ```bash
-# Frontend — update .env.local (repo root)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-remote-key
+# Frontend against remote Supabase — no file edits
+npm run dev:remote
 
-# Edge Functions — update supabase/functions/.env
-FIRECRAWL_URL=https://api.firecrawl.dev
-FIRECRAWL_API_KEY=your-remote-key
-
-# Restart frontend
-npm run dev
+# To serve edge functions locally with remote-style config:
+npm run functions:env:remote
+npm run supabase:stop && npm run supabase:start
 ```
+
+When the frontend runs in remote mode, it calls edge functions deployed on the
+remote Supabase project, which use their own `supabase secrets` — the local
+`supabase/functions/.env` is not consulted in that case.
 
 ## Testing
 

@@ -33,8 +33,9 @@ AiSumai (愛住) is a React-based web application that helps renters and home bu
 **Local Development:**
 ```bash
 npm i                    # Install dependencies
-npm run dev              # Start development server
-npm run dev:local        # Start both Supabase and frontend
+npm run dev              # Start frontend (development mode → local Supabase)
+npm run dev:local        # Start Supabase + frontend (local mode)
+npm run dev:remote       # Start frontend against remote Supabase
 ```
 
 **Build & Quality:**
@@ -61,10 +62,28 @@ npm run supabase:reset   # Reset local database
 
 ## Environment Variables
 
+Local vs remote is selected by which command is run — no file edits required.
+
+**Frontend (Vite mode files):**
+- `.env.development` — local Supabase; loaded by `npm run dev` / `dev:local` (committed)
+- `.env.remote` — remote Supabase; loaded by `npm run dev:remote` (committed)
+- `.env.local` — gitignored, secret overrides only (e.g. `GEMINI_API_KEY`); the
+  mode file overrides it for `VITE_SUPABASE_*`
+
+**Edge functions (`supabase/functions/.env`):**
+The Supabase CLI always reads `supabase/functions/.env`. Two mode files are kept
+beside it and copied in by npm scripts (all gitignored except `.env.example`):
+- `npm run functions:env:local` — copies `.env.development` → `.env`
+- `npm run functions:env:remote` — copies `.env.remote` → `.env`
+- `dev:local` runs `functions:env:local` automatically
+
+Restart Supabase after switching — env is injected at container creation.
+
 **Firecrawl Configuration:**
 ```bash
-FIRECRAWL_URL=https://api.firecrawl.dev  # Default hosted service
-# For self-hosted: FIRECRAWL_URL=http://localhost:3002
+FIRECRAWL_URL=https://api.firecrawl.dev    # hosted service (remote mode)
+# Local self-hosted (edge runtime is containerized — use the host bridge):
+# FIRECRAWL_URL=http://host.docker.internal:3002
 FIRECRAWL_API_KEY=your_api_key_here
 ```
 
@@ -96,8 +115,11 @@ The application uses the following main tables:
 ## Local Development Setup
 
 1. Install Supabase CLI and Docker
-2. Copy `.env.example` to `.env.local` 
-3. Run `npm run supabase:start` to start local services
+2. Create the edge function env mode files:
+   `cp supabase/functions/.env.example supabase/functions/.env.development`
+   (and `.env.remote`), then fill in real API keys. Frontend env files are
+   already committed — no setup needed.
+3. Run `npm run dev:local` to start local services + frontend
 4. Access frontend at http://localhost:8080
 5. Access Supabase Studio at http://localhost:54323
 

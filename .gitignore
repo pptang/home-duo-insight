@@ -32,6 +32,9 @@ out/
 # Supabase local development
 .supabase/
 supabase/functions/.env
+supabase/functions/.env.development
+supabase/functions/.env.remote
+!supabase/functions/.env.example
 supabase/.env
 supabase/seed.sql
 supabase/.temp/

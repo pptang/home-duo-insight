@@ -111,31 +111,28 @@ npm run supabase:start
 ```
 
 4. **Set up environment variables:**
-Copy `.env.example` to `.env.local`:
+
+The frontend uses Vite mode-based env files, which are committed — no setup needed:
+- `.env.development` → local Supabase (used by `npm run dev`)
+- `.env.remote` → remote Supabase (used by `npm run dev:remote`)
+
+`.env.local` (gitignored) is only for local secret overrides such as `GEMINI_API_KEY`.
+
+For edge function secrets, create the two mode files from the template:
 ```sh
-cp .env.example .env.local
-```
-
-Update `.env.local` with local service URLs:
-```env
-# Supabase (automatically configured)
-VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_ANON_KEY=your_local_anon_key
-
-# Firecrawl (add these lines)
-FIRECRAWL_URL=http://localhost:3002
-FIRECRAWL_API_KEY=your_firecrawl_api_key
+cp supabase/functions/.env.example supabase/functions/.env.development
+cp supabase/functions/.env.example supabase/functions/.env.remote
+# then fill in real API keys in each (these files are gitignored)
 ```
 
 5. **Start the development server:**
 ```sh
-npm run dev
+npm run dev:local      # local Supabase + frontend
+npm run dev:remote     # frontend against remote Supabase
 ```
 
-Or use the combined command:
-```sh
-npm run dev:local
-```
+`npm run dev:local` also copies `supabase/functions/.env.development` into the
+active `supabase/functions/.env` automatically. See **Switching Environments** below.
 
 ### Quick Setup Script
 
@@ -150,9 +147,10 @@ cd ../firecrawl && \
 echo -e "PORT=3002\nHOST=0.0.0.0\nUSE_DB_AUTHENTICATION=false\nBULL_AUTH_KEY=your_secure_admin_key" > .env && \
 docker compose up -d && \
 cd ../home-duo-insight && \
-cp .env.example .env.local && \
+cp supabase/functions/.env.example supabase/functions/.env.development && \
+cp supabase/functions/.env.example supabase/functions/.env.remote && \
 npm run supabase:start && \
-echo "✅ Setup complete! Run 'npm run dev' to start development."
+echo "✅ Setup complete! Fill in API keys in supabase/functions/.env.*, then run 'npm run dev:local'."
 ```
 
 ### Useful Commands
@@ -162,7 +160,27 @@ echo "✅ Setup complete! Run 'npm run dev' to start development."
 - `npm run supabase:stop` - Stop local Supabase
 - `npm run supabase:status` - Check status of local services
 - `npm run supabase:reset` - Reset local database
-- `npm run dev:local` - Start both Supabase and frontend
+- `npm run dev:local` - Start both Supabase and frontend (local mode)
+- `npm run dev:remote` - Start frontend against remote Supabase
+
+**Environment switching:**
+- `npm run functions:env:local` - Activate local edge function env
+- `npm run functions:env:remote` - Activate remote edge function env
+
+### Switching Environments
+
+The app targets either local or remote Supabase without editing any files:
+
+| Command | Frontend | Edge functions env |
+|---------|----------|--------------------|
+| `npm run dev:local` | local Supabase (`.env.development`) | copies `.env.development` → `.env` |
+| `npm run dev:remote` | remote Supabase (`.env.remote`) | unchanged (remote functions use their own secrets) |
+
+Vite loads `.env.local` plus the mode file (`.env.development` or `.env.remote`),
+and the mode file wins for `VITE_SUPABASE_*`. For locally-served edge functions,
+`supabase start` always reads `supabase/functions/.env`; the `functions:env:*`
+scripts copy the chosen mode file into place. Restart Supabase after switching —
+env is injected at container creation.
 
 **Firecrawl:**
 - `docker compose up -d` - Start Firecrawl (run in firecrawl directory)

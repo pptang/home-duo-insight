@@ -85,28 +85,24 @@ curl -X POST http://localhost:3002/v1/scrape \
 
 ### Environment Variables
 
-Add these environment variables to your Supabase Edge Functions:
+Edge function env lives in mode files under `supabase/functions/` (see
+`LOCAL_DEV_SETUP.md`). Set Firecrawl values in each:
 
 ```bash
-# For local development (.env.local)
-FIRECRAWL_URL=http://localhost:3002
+# supabase/functions/.env.development (local mode)
+# Edge runtime is containerized — reach the host via host.docker.internal.
+FIRECRAWL_URL=http://host.docker.internal:3002
 FIRECRAWL_API_KEY=your_firecrawl_api_key
 
-# For production
+# supabase/functions/.env.remote (remote / hosted mode)
 FIRECRAWL_URL=https://your-firecrawl-domain.com
 FIRECRAWL_API_KEY=your_firecrawl_api_key
 ```
 
-### Supabase Local Development
-
-Update your local Supabase configuration:
-
-```bash
-# In your project's .env.local
-FIRECRAWL_URL=http://host.docker.internal:3002
-```
-
-Note: Use `host.docker.internal` to access localhost from within Docker containers.
+Activate a mode with `npm run functions:env:local` / `functions:env:remote`,
+then restart Supabase. Note: `host.docker.internal` is required because the
+edge runtime runs inside a Docker container — `localhost` would point at the
+container itself.
 
 ## Production Deployment
 
