@@ -1,0 +1,78 @@
+bead: home-duo-insight-w3s
+summary: Add custom ESLint rule local/no-emoji-jsx blocking unicode emoji in JSX/TSX, with Husky+lint-staged pre-commit enforcement, CI step, and CONTRIBUTING docs.
+branch: bd/home-duo-insight-w3s-no-emoji-eslint
+sha: 8d6830e2b4068ee41105fd7381e0033f7e675197
+
+base_branch: main
+
+files_changed:
+  - eslint-rules/no-emoji-jsx.js          # new custom rule
+  - eslint.config.js                       # registers rule as warn (EMOJI_LINT=error -> error)
+  - eslint.emoji.config.js                 # new emoji-only config used by lint-staged
+  - package.json                           # husky/lint-staged deps, prepare + lint:emoji scripts, lint-staged config
+  - package-lock.json                      # dep install (husky, lint-staged, cross-env)
+  - .husky/pre-commit                      # new pre-commit hook running lint-staged
+  - .github/workflows/lint.yml             # new CI lint workflow + emoji guard step
+  - CONTRIBUTING.md                        # new: emoji policy, exception list (empty), Lucide replacement path
+  - README.md                             # pointer to CONTRIBUTING.md
+
+lint:
+  ran: true
+  errors: 0          # the no-emoji-jsx rule contributes 0 errors to `npm run lint`
+  warnings: 34       # emoji flagged as warnings (pre-existing offenders, documented in CONTRIBUTING.md)
+  note: >-
+    `npm run lint` exits 1 due to 44 PRE-EXISTING errors (@typescript-eslint/no-explicit-any,
+    no-case-declarations, etc.) unrelated to this bead — that exit code is unchanged from `main`.
+    The new emoji rule is registered at `warn` severity in the shared config, so it adds only
+    warnings and does not change the lint exit code or block any build/commit on its own.
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-w3s/build.log
+
+tests:
+  ran: true
+  command: "npx tsc --noEmit; manual lint-staged + emoji-config verification"
+  result: pass
+  reason_if_skipped: >-
+    No unit-test harness in repo. Verified instead: (1) `npx tsc --noEmit` exits 0;
+    (2) the custom rule flags emoji in JSXText / string Literal / TemplateElement and ignores
+    comments; (3) `eslint --config eslint.emoji.config.js --max-warnings=0` exits 1 on a staged
+    file containing an emoji and exits 0 on a clean .tsx file carrying unrelated pre-existing
+    warnings; (4) the Husky pre-commit hook runs `npx lint-staged` and blocks an emoji commit.
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "ui_surface=false — diff touches only ESLint config, custom rule, Husky hook, CI workflow, and docs; no *.tsx / *.css / route files changed."
+  artifacts: []
+  scenarios: []
+
+deferred:
+  - item: Migrate the 13 pre-existing emoji-bearing files to Lucide React icons.
+    reason: >-
+      Out of scope for this bead (rule + tooling only). The bead notes explicitly call for the
+      least-invasive option: rule at `warn` in the shared config so `npm run build` stays green,
+      while the pre-commit hook enforces `error` on changed files. Offenders are enumerated in
+      CONTRIBUTING.md's cleanup list.
+  - item: Flip `continue-on-error: false` on the CI emoji-guard step.
+    reason: Should happen once the CONTRIBUTING.md cleanup list is empty.
+
+escalations: []
+
+notes: |
+  Interpretation decision (Step 1 ambiguity gate): the bead AC says lint-staged runs
+  `eslint --max-warnings=0`. Applied literally against the shared config that would block
+  commits to ~40 shadcn/ui files for unrelated pre-existing `react-refresh` warnings —
+  contradicting the bead's own note ("Do not leave the repo in a state where `npm run lint`
+  blocks all future commits on unrelated pre-existing" issues). Resolved per intent: lint-staged
+  uses a dedicated emoji-only config (`eslint.emoji.config.js`) with `--max-warnings=0`, so the
+  hook fails ONLY on emoji in staged files, never on unrelated lint debt. The `--max-warnings=0`
+  flag is preserved as written. Documented in CONTRIBUTING.md.
+
+  `eslint-plugin-no-emoji` was NOT installed — it targets the legacy eslintrc plugin API and the
+  custom rule already covers JSXText + Literal + TemplateElement, satisfying the AC. No per-file
+  eslint-disable directives were used.
