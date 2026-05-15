@@ -36,14 +36,10 @@ npm run supabase:start
 cp .env.example .env.local
 
 # 6. Configure Edge Functions for Docker networking
-# Find Docker gateway IP
-docker network ls | grep supabase
-docker network inspect supabase_network_[id] | grep Gateway
-
-# 7. Update supabase/.env.local with correct Firecrawl URL
-# Replace 172.23.0.1 with your actual gateway IP
-echo "FIRECRAWL_URL=http://172.23.0.1:3002" >> supabase/.env.local
-echo "FIRECRAWL_API_KEY=your_api_key" >> supabase/.env.local
+# Edge Functions read supabase/functions/.env (NOT supabase/.env.local).
+# From inside the edge runtime container, reach the host via host.docker.internal.
+echo "FIRECRAWL_URL=http://host.docker.internal:3002" >> supabase/functions/.env
+echo "FIRECRAWL_API_KEY=your_api_key" >> supabase/functions/.env
 ```
 
 ### 2. Daily Development
@@ -89,18 +85,21 @@ docker compose logs -f  # (Firecrawl logs)
 
 **Error**: `"error sending request for url (https://localhost:3002/v1/scrape)"`
 
-**Fix**: Update Firecrawl URL for Docker networking:
+**Fix**: Edge Functions run inside a container, so `localhost` points at the
+container itself. Point `FIRECRAWL_URL` at the host instead:
 
 ```bash
-# 1. Find Docker gateway IP
-docker network inspect $(docker network ls | grep supabase | awk '{print $1}') | grep Gateway
-
-# 2. Update supabase/.env.local
+# 1. Edit supabase/functions/.env (the file the edge runtime actually loads)
 # Change: FIRECRAWL_URL=https://localhost:3002
-# To: FIRECRAWL_URL=http://172.23.0.1:3002  # Use your gateway IP
+# To:     FIRECRAWL_URL=http://host.docker.internal:3002
 
-# 3. Restart Supabase
+# 2. Restart Supabase (env is injected at container creation,
+#    so a plain restart will not reload it)
 npm run supabase:stop && npm run supabase:start
+
+# 3. Verify the var loaded
+curl -s http://127.0.0.1:54321/functions/v1/test-env \
+  -H "Authorization: Bearer <local-anon-key>"
 ```
 
 ### ❌ Services won't start
@@ -133,29 +132,26 @@ VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-### Edge Functions (supabase/.env.local)
+### Edge Functions (`supabase/functions/.env`)
 
-The Edge Functions run inside Docker containers and need to reach Firecrawl via the Docker gateway IP (not `localhost`).
+The Supabase CLI edge runtime loads **`supabase/functions/.env`** — this is the
+file it passes as `--env-file`. Do **not** use `supabase/.env.local`; the runtime
+never reads it.
+
+Edge Functions run inside a Docker container, so `localhost` resolves to the
+container itself. Reach the host machine (where Firecrawl listens) via
+`host.docker.internal`:
 
 ```env
-# Use Docker gateway IP for container networking
-# ⚠️ The IP may vary - find yours with the command below
-FIRECRAWL_URL=http://172.23.0.1:3002
+# supabase/functions/.env
+FIRECRAWL_URL=http://host.docker.internal:3002
 FIRECRAWL_API_KEY=your_api_key
 GEMINI_API_KEY=your_gemini_key
 ```
 
-**How to find your Docker gateway IP:**
-
-```bash
-# Find the gateway IP for Supabase network
-docker network inspect $(docker network ls | grep supabase | awk '{print $1}') | grep Gateway
-
-# Example output: "Gateway": "172.23.0.1"
-# Use this IP in FIRECRAWL_URL
-```
-
-After updating the IP, restart Supabase:
+Env vars are injected when the edge runtime container is created, so after
+editing this file you must fully restart Supabase (a plain `docker restart`
+will not reload it):
 
 ```bash
 npm run supabase:stop && npm run supabase:start
@@ -166,9 +162,11 @@ npm run supabase:stop && npm run supabase:start
 To use remote Supabase/Firecrawl instead:
 
 ```bash
-# Update .env.local
+# Frontend — update .env.local (repo root)
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-remote-key
+
+# Edge Functions — update supabase/functions/.env
 FIRECRAWL_URL=https://api.firecrawl.dev
 FIRECRAWL_API_KEY=your-remote-key
 
