@@ -9,19 +9,19 @@ const corsHeaders = {
 interface UpdatePropertyRequest {
   property_id: string;
   field_name: string;
-  field_value: any;
+  field_value: unknown;
   user_id?: string;
 }
 
 interface BatchUpdatePropertyRequest {
   property_id: string;
-  updates: Record<string, any>;
+  updates: Record<string, unknown>;
   user_id?: string;
 }
 
 interface UpdatePropertyResponse {
   success: boolean;
-  property: any;
+  property: Record<string, unknown>;
   validation_errors?: ValidationError[];
   updated_fields: string[];
 }
@@ -74,7 +74,7 @@ serve(async (req) => {
     const manualOverrides = currentProperty.manual_overrides || {};
 
     // Validate and prepare updates
-    const propertyUpdates: Record<string, any> = {};
+    const propertyUpdates: Record<string, unknown> = {};
     
     for (const [fieldName, value] of Object.entries(fieldsToUpdate)) {
       // Skip validation if field is empty (all fields optional)
@@ -167,7 +167,7 @@ serve(async (req) => {
 });
 
 // Format validation function
-function validateField(value: any, fieldName: string): { isValid: boolean, error?: string } {
+function validateField(value: unknown, fieldName: string): { isValid: boolean, error?: string } {
   switch (fieldName) {
     case 'price_yen':
       if (typeof value !== 'number' || value <= 0) {
@@ -199,12 +199,13 @@ function validateField(value: any, fieldName: string): { isValid: boolean, error
       }
       break;
       
-    case 'floor_plan':
+    case 'floor_plan': {
       const floorPlanRegex = /^(\d+[DKLR]+|\d+部屋)$/i;
       if (typeof value !== 'string' || !floorPlanRegex.test(value)) {
         return { isValid: false, error: 'Invalid floor plan format (e.g., 1LDK, 2DK)' };
       }
       break;
+    }
       
     case 'property_name':
     case 'address':

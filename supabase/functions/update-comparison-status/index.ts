@@ -36,7 +36,7 @@ serve(async (req) => {
     }
 
     // Update comparison status
-    const updateData: any = {
+    const updateData: Record<string, string> = {
       metadata_review_status: status,
     };
 

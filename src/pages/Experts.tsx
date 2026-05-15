@@ -158,7 +158,7 @@ const Experts = () => {
           profile_image_url: profileImageUrl,
           specialization_tags: selectedTags,
           status: "pending"
-        } as any);
+        });
 
       if (error) {
         throw error;
@@ -173,10 +173,10 @@ const Experts = () => {
       setHasApplication(true);
       setApplicationStatus("pending");
 
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: t("experts.toast.error"),
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
     } finally {

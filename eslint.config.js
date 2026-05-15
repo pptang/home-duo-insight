@@ -35,5 +35,14 @@ export default tseslint.config(
       // guard step.
       "local/no-emoji-jsx": process.env.EMOJI_LINT === "error" ? "error" : "warn",
     },
+  },
+  {
+    // shadcn/ui vendored primitives + Tailwind config: relax rules that
+    // conflict with upstream-generated code we don't hand-author.
+    files: ["src/components/ui/**/*.{ts,tsx}", "tailwind.config.ts"],
+    rules: {
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/no-require-imports": "off",
+    },
   }
 );

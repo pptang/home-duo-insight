@@ -6,15 +6,22 @@ interface UsePropertyMetadataEditorProps {
   comparisonId: string;
 }
 
+type FieldValue = string | number | string[] | null | undefined;
+
+interface ValidationError {
+  field: string;
+  message: string;
+}
+
 export const usePropertyMetadataEditor = ({ comparisonId }: UsePropertyMetadataEditorProps) => {
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { user } = useAuth();
 
   const updateProperty = useCallback(async (
-    propertyId: string, 
-    fieldName: string, 
-    value: any
+    propertyId: string,
+    fieldName: string,
+    value: FieldValue
   ) => {
     setIsSaving(true);
     setErrors(prev => ({ ...prev, [`${propertyId}.${fieldName}`]: '' }));
@@ -60,7 +67,7 @@ export const usePropertyMetadataEditor = ({ comparisonId }: UsePropertyMetadataE
 
   const batchUpdateProperty = useCallback(async (
     propertyId: string,
-    updates: Record<string, any>
+    updates: Record<string, FieldValue>
   ) => {
     setIsSaving(true);
     
@@ -80,7 +87,7 @@ export const usePropertyMetadataEditor = ({ comparisonId }: UsePropertyMetadataE
       const result = response.data;
       if (!result.success) {
         if (result.validation_errors && result.validation_errors.length > 0) {
-          result.validation_errors.forEach((error: any) => {
+          result.validation_errors.forEach((error: ValidationError) => {
             setErrors(prev => ({
               ...prev,
               [`${propertyId}.${error.field}`]: error.message

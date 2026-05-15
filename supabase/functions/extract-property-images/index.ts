@@ -272,10 +272,10 @@ function extractImagesFromHtml(html: string): string[] {
   // Focus on SUUMO property image patterns - preserve full URLs with query parameters including w= and h=
   const patterns = [
     // Standard img src attributes - capture complete URLs
-    /src=["']([^"']+)[\"']/gi,
+    /src=["']([^"']+)["']/gi,
     // Data-src attributes for lazy loading
-    /data-src=["']([^"']+)[\"']/gi,
-    /data-original=["']([^"']+)[\"']/gi,
+    /data-src=["']([^"']+)["']/gi,
+    /data-original=["']([^"']+)["']/gi,
     // Markdown-style image links - capture everything inside parentheses (most reliable for SUUMO)
     /\[!\[[^\]]*\]\(([^)]+)\)/gi,
   ];

@@ -302,8 +302,8 @@ function extractImageUrls(html: string): string[] {
 
     // Sort by priority (highest first) and extract URLs
     const sortedImages = images
-      .sort((a: any, b: any) => b.priority - a.priority)
-      .map((img: any) => img.url);
+      .sort((a: { priority: number }, b: { priority: number }) => b.priority - a.priority)
+      .map((img: { url: string }) => img.url);
 
     // Remove duplicates while preserving priority order
     const uniqueImages = [...new Set(sortedImages)];

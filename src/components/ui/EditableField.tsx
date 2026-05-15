@@ -89,7 +89,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
         </label>
         <div className="relative">
           <InputComponent
-            ref={inputRef as any}
+            ref={inputRef as React.RefObject<HTMLInputElement & HTMLTextAreaElement>}
             type={type === 'number' ? 'number' : 'text'}
             value={localValue}
             onChange={(e) => setLocalValue(e.target.value)}

@@ -14,10 +14,10 @@ interface EmailRequest {
   html?: string
   text?: string
   template?: 'expert-invite' | 'contact-expert' | 'feedback'
-  templateData?: Record<string, any>
+  templateData?: Record<string, unknown>
 }
 
-const getEmailTemplate = (template: string, data: Record<string, any>) => {
+const getEmailTemplate = (template: string, data: Record<string, unknown>) => {
   switch (template) {
     case 'expert-invite':
       return {
@@ -142,10 +142,10 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
       },
     )
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error sending email:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },

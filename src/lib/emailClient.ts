@@ -6,7 +6,7 @@ interface SendEmailOptions {
   html?: string;
   text?: string;
   template?: 'expert-invite' | 'contact-expert' | 'welcome' | 'feedback';
-  templateData?: Record<string, any>;
+  templateData?: Record<string, unknown>;
 }
 
 export const sendEmail = async (options: SendEmailOptions) => {

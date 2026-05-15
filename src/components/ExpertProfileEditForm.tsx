@@ -18,6 +18,17 @@ interface ExpertProfileEditFormProps {
   onUpdate: () => void;
 }
 
+type ExpertProfileFormValues = {
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+  company_website: string;
+  x_handle: string;
+  instagram_url: string;
+  line_url: string;
+};
+
 const ExpertProfileEditForm = ({
   profile,
   onCancel,
@@ -37,7 +48,7 @@ const ExpertProfileEditForm = ({
     setValue,
     watch,
     formState: { errors }
-  } = useForm({
+  } = useForm<ExpertProfileFormValues>({
     defaultValues: {
       name: profile.name || "",
       email: profile.email || "",
@@ -92,7 +103,7 @@ const ExpertProfileEditForm = ({
     }
   };
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: ExpertProfileFormValues) => {
     console.log("Submitted data:", data); // Debug log
     setIsLoading(true);
 
@@ -146,10 +157,10 @@ const ExpertProfileEditForm = ({
       });
       
       onUpdate();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: t("expertProfileEditForm.errorUpdating"),
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
       console.error("Error updating profile:", error);

@@ -53,7 +53,7 @@ const AdminExpertReview = () => {
       }
 
       setApplications(data || []);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to fetch applications",
@@ -94,10 +94,10 @@ const AdminExpertReview = () => {
       });
 
       fetchApplications();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
     } finally {
@@ -124,10 +124,10 @@ const AdminExpertReview = () => {
       });
 
       fetchApplications();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
-        description: error.message,
+        description: error instanceof Error ? error.message : String(error),
         variant: "destructive",
       });
     } finally {

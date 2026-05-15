@@ -1,5 +1,5 @@
 export const useFieldValidation = () => {
-  const validateField = (value: any, fieldName: string, type: string = 'text') => {
+  const validateField = (value: string | number | null | undefined, fieldName: string, type: string = 'text') => {
     // Empty fields are always valid
     if (!value || value === '') {
       return { isValid: true, error: null };
@@ -51,12 +51,13 @@ export const useFieldValidation = () => {
         }
         break;
         
-      case 'floor_plan':
+      case 'floor_plan': {
         const floorPlanRegex = /^(\d+[DKLR]+|\d+部屋)$/i;
         if (typeof value === 'string' && !floorPlanRegex.test(value)) {
           return { isValid: false, error: 'Invalid floor plan format (e.g., 1LDK, 2DK)' };
         }
         break;
+      }
     }
     
     return { isValid: true, error: null };

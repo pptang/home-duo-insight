@@ -19,6 +19,8 @@ interface PropertyData {
   notes?: string;
 }
 
+type PropertyFieldValue = string | number | string[] | undefined;
+
 interface MetadataEditState {
   originalProperties: {
     property_a: PropertyData;
@@ -40,7 +42,7 @@ interface MetadataEditState {
 
 type MetadataEditAction =
   | { type: 'INIT_PROPERTIES'; payload: { property_a: PropertyData; property_b: PropertyData; comparison_id: string } }
-  | { type: 'UPDATE_FIELD'; payload: { propertyKey: 'property_a' | 'property_b'; fieldName: string; value: any } }
+  | { type: 'UPDATE_FIELD'; payload: { propertyKey: 'property_a' | 'property_b'; fieldName: string; value: PropertyFieldValue } }
   | { type: 'UPDATE_PROPERTY_DATA'; payload: { propertyKey: 'property_a' | 'property_b'; propertyData: PropertyData } }
   | { type: 'SET_SAVING'; payload: { fieldKey: string; saving: boolean } }
   | { type: 'SET_VALIDATION_ERROR'; payload: { fieldKey: string; error: string | null } }
@@ -50,7 +52,7 @@ type MetadataEditAction =
 
 interface MetadataEditingContextType {
   state: MetadataEditState;
-  updateField: (propertyKey: 'property_a' | 'property_b', fieldName: string, value: any) => Promise<void>;
+  updateField: (propertyKey: 'property_a' | 'property_b', fieldName: string, value: PropertyFieldValue) => Promise<void>;
   hasUnsavedChanges: boolean;
   saveAllChanges: () => Promise<void>;
   resetToOriginal: () => void;
@@ -72,7 +74,7 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         comparisonId: action.payload.comparison_id
       };
 
-    case 'UPDATE_FIELD':
+    case 'UPDATE_FIELD': {
       const { propertyKey, fieldName, value } = action.payload;
       const newUnsavedChanges = { ...state.unsavedChanges };
       newUnsavedChanges[propertyKey] = new Set([...newUnsavedChanges[propertyKey], fieldName]);
@@ -88,6 +90,7 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         },
         unsavedChanges: newUnsavedChanges
       };
+    }
 
     case 'UPDATE_PROPERTY_DATA':
       return {
@@ -98,7 +101,7 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         }
       };
 
-    case 'MARK_FIELD_SAVED':
+    case 'MARK_FIELD_SAVED': {
       const updatedUnsaved = { ...state.unsavedChanges };
       updatedUnsaved[action.payload.propertyKey].delete(action.payload.fieldName);
 
@@ -106,8 +109,9 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         ...state,
         unsavedChanges: updatedUnsaved
       };
+    }
 
-    case 'SET_SAVING':
+    case 'SET_SAVING': {
       const newSavingFields = new Set(state.savingFields);
       if (action.payload.saving) {
         newSavingFields.add(action.payload.fieldKey);
@@ -119,8 +123,9 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         ...state,
         savingFields: newSavingFields
       };
+    }
 
-    case 'SET_VALIDATION_ERROR':
+    case 'SET_VALIDATION_ERROR': {
       const newErrors = { ...state.validationErrors };
       if (action.payload.error) {
         newErrors[action.payload.fieldKey] = action.payload.error;
@@ -132,6 +137,7 @@ function metadataEditReducer(state: MetadataEditState, action: MetadataEditActio
         ...state,
         validationErrors: newErrors
       };
+    }
 
     case 'SET_STAGE':
       return {
@@ -173,7 +179,7 @@ export const MetadataEditingProvider: React.FC<{ children: ReactNode }> = ({ chi
   const updateField = useCallback(async (
     propertyKey: 'property_a' | 'property_b',
     fieldName: string,
-    value: any
+    value: PropertyFieldValue
   ) => {
     const fieldKey = `${propertyKey}.${fieldName}`;
 
@@ -245,7 +251,7 @@ export const MetadataEditingProvider: React.FC<{ children: ReactNode }> = ({ chi
     ];
 
     for (const { propertyKey, field } of allUnsavedChanges) {
-      const value = (state.editedProperties[propertyKey] as any)[field];
+      const value = (state.editedProperties[propertyKey] as Record<string, PropertyFieldValue>)[field];
       await updateField(propertyKey, field, value);
     }
   }, [state.unsavedChanges, state.editedProperties, updateField]);
