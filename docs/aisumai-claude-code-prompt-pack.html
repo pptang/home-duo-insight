@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiSumai · Claude Code 工程指令包</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0a0a0a; --ink-80:rgba(10,10,10,.82); --ink-60:rgba(10,10,10,.6); --ink-30:rgba(10,10,10,.3); --ink-10:rgba(10,10,10,.06);
+  --paper:#f9f8f5; --paper-dark:#f0ede6; --white:#fff; --rule:rgba(10,10,10,.12);
+  --red:#b04040; --green:#3a6b4a; --yellow:#8a6520;
+  --code-bg:#0d0d0d; --code-text:#e8e4d9; --code-key:#a3d4ad; --code-str:#fde68a; --code-com:#7a8388;
+  --fd:'DM Serif Display',Georgia,serif; --fb:'Noto Sans TC',sans-serif; --fm:'DM Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--paper);color:var(--ink);font-family:var(--fb);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;background:rgba(249,248,245,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);}
+.tb-logo{font-family:var(--fd);font-size:18px;display:flex;align-items:center;gap:8px;}
+.tb-logo em{font-family:var(--fm);font-style:normal;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);border:1px solid var(--rule);padding:2px 7px;border-radius:3px;}
+.tb-version{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:4px 9px;border-radius:3px;}
+
+.layout{display:grid;grid-template-columns:260px 1fr;padding-top:54px;min-height:100vh;}
+.sidebar{border-right:1px solid var(--rule);padding:30px 20px;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto;}
+.sidebar::-webkit-scrollbar{width:3px;}.sidebar::-webkit-scrollbar-thumb{background:var(--rule);}
+.sb-label{font-family:var(--fm);font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-30);margin:22px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule);}
+.sb-label:first-child{margin-top:0;}
+.sb-link{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--ink-60);text-decoration:none;padding:6px 9px;border-radius:3px;line-height:1.4;transition:all .15s;margin-bottom:1px;}
+.sb-link:hover{color:var(--ink);background:var(--ink-10);}
+.sb-link.p1{border-left:2px solid var(--red);padding-left:7px;}
+.sb-link.p2{border-left:2px solid var(--yellow);padding-left:7px;}
+.sb-link.p3{border-left:2px solid var(--green);padding-left:7px;}
+.sb-pill{font-family:var(--fm);font-size:9px;color:var(--ink-30);}
+
+.main{padding:42px 56px 100px;max-width:1080px;}
+
+/* DOC HEADER */
+.doc-header{padding-bottom:32px;margin-bottom:48px;border-bottom:1px solid var(--rule);}
+.eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px;}
+.doc-title{font-family:var(--fd);font-size:46px;letter-spacing:-.6px;line-height:1.05;margin-bottom:14px;}
+.doc-title em{font-style:italic;color:var(--ink-60);}
+.doc-intro{font-size:14.5px;color:var(--ink-60);max-width:740px;line-height:1.8;margin-top:18px;}
+.doc-intro strong{color:var(--ink);font-weight:500;}
+
+/* HOW-TO BANNER */
+.howto{background:var(--ink);color:var(--paper);border-radius:10px;padding:28px 32px;margin-bottom:48px;}
+.howto-label{font-family:var(--fm);font-size:10px;letter-spacing:.16em;text-transform:uppercase;opacity:.4;margin-bottom:10px;}
+.howto-title{font-family:var(--fd);font-size:24px;letter-spacing:-.3px;margin-bottom:14px;}
+.howto-list{list-style:none;padding:0;margin:0;}
+.howto-list li{padding:8px 0;font-size:14px;opacity:.85;display:flex;align-items:flex-start;gap:14px;line-height:1.7;}
+.howto-list li::before{content:counter(step);counter-increment:step;font-family:var(--fm);font-size:10px;background:rgba(255,255,255,.1);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;letter-spacing:.05em;}
+.howto-list{counter-reset:step;}
+.howto-list strong{opacity:1;}
+.howto-list code{font-family:var(--fm);font-size:12px;background:rgba(255,255,255,.08);padding:1px 6px;border-radius:2px;color:var(--code-key);}
+
+/* PRIORITY OVERVIEW TABLE */
+.priority-table{width:100%;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:48px;background:var(--white);}
+.priority-table th{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);padding:12px 16px;text-align:left;border-bottom:1px solid var(--rule);background:var(--paper-dark);}
+.priority-table td{padding:12px 16px;border-bottom:1px solid var(--rule);font-size:13px;vertical-align:middle;}
+.priority-table tr:last-child td{border-bottom:none;}
+.priority-table tr:hover td{background:var(--paper);}
+.pri-tag{font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:3px;font-weight:500;}
+.pri-tag.p1{background:var(--red);color:#fff;}
+.pri-tag.p2{background:var(--yellow);color:#fff;}
+.pri-tag.p3{background:var(--ink-10);color:var(--ink);}
+.priority-table a{color:var(--ink);text-decoration:none;font-weight:500;}
+.priority-table a:hover{text-decoration:underline;}
+
+/* TASK BLOCK */
+.task{margin-bottom:48px;scroll-margin-top:74px;}
+.task-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid var(--ink);}
+.task-head-text{flex:1;}
+.task-num{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:4px;}
+.task-title{font-family:var(--fd);font-size:28px;letter-spacing:-.4px;line-height:1.15;margin-bottom:6px;}
+.task-meta{font-family:var(--fm);font-size:10px;letter-spacing:.06em;color:var(--ink-60);display:flex;gap:12px;flex-wrap:wrap;}
+.task-meta span{display:flex;align-items:center;gap:4px;}
+.task-tags{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0;}
+
+.task-summary{font-size:13.5px;color:var(--ink-60);margin-bottom:18px;line-height:1.75;}
+.task-summary strong{color:var(--ink);}
+
+.task-section{margin-bottom:18px;}
+.task-section-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-60);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.task-section-label::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--ink-30);}
+.task-section-text{font-size:13px;line-height:1.75;color:var(--ink-80);}
+.task-section-text code{font-family:var(--fm);font-size:11.5px;background:var(--paper-dark);padding:1px 6px;border-radius:2px;color:var(--ink);}
+.task-section-text strong{color:var(--ink);font-weight:500;}
+.task-section-text ul{margin:6px 0 0 22px;}
+.task-section-text li{padding:3px 0;}
+
+/* CODE BLOCK */
+.code-wrapper{position:relative;margin-top:8px;}
+.code-head{background:#1a1a1a;color:#9aa3a8;font-family:var(--fm);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:10px 16px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.06);}
+.code-head-label{display:flex;align-items:center;gap:8px;}
+.code-head-label::before{content:'';width:6px;height:6px;border-radius:50%;background:#7eb888;}
+.copy-btn{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.08);color:#cbd5d8;border:none;padding:5px 12px;border-radius:3px;cursor:pointer;transition:background .15s;}
+.copy-btn:hover{background:rgba(255,255,255,.18);}
+.copy-btn.copied{background:#7eb888;color:#000;}
+.code-body{background:var(--code-bg);color:var(--code-text);font-family:var(--fm);font-size:12px;line-height:1.75;padding:20px 22px;border-radius:0 0 6px 6px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;}
+.code-body .ck{color:var(--code-key);}
+.code-body .cs{color:var(--code-str);}
+.code-body .cc{color:var(--code-com);font-style:italic;}
+
+/* FILES BLOCK */
+.files-list{background:var(--paper-dark);border-radius:6px;padding:14px 18px;font-family:var(--fm);font-size:11.5px;line-height:2;color:var(--ink-80);}
+.files-list code{background:var(--white);padding:1px 6px;border-radius:2px;color:var(--ink);}
+.files-list .note{color:var(--ink-60);font-style:italic;}
+
+/* DO/DONT BLOCKS */
+.do-dont{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.dd{padding:14px 16px;border-radius:6px;font-size:12.5px;line-height:1.7;}
+.dd.do{background:rgba(58,107,74,.08);border:1px solid rgba(58,107,74,.25);}
+.dd.dont{background:rgba(176,64,64,.06);border:1px solid rgba(176,64,64,.25);}
+.dd-label{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.dd.do .dd-label{color:var(--green);}
+.dd.dont .dd-label{color:var(--red);}
+.dd-label::before{content:'';width:6px;height:6px;border-radius:50%;}
+.dd.do .dd-label::before{background:var(--green);}
+.dd.dont .dd-label::before{background:var(--red);}
+.dd ul{margin:0;padding-left:18px;}
+.dd li{padding:3px 0;}
+
+/* SECTION DIVIDER */
+.divider{padding:24px 0;margin:48px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);text-align:center;}
+.divider-label{font-family:var(--fm);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-60);}
+.divider-title{font-family:var(--fd);font-size:32px;letter-spacing:-.4px;line-height:1.15;margin-top:6px;}
+
+/* FOOT */
+.foot{margin-top:80px;padding-top:32px;border-top:1px solid var(--rule);}
+.foot-meta{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-40);margin-bottom:16px;}
+.foot-links{display:flex;gap:8px;flex-wrap:wrap;}
+.foot-links a{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-60);text-decoration:none;border:1px solid var(--rule);padding:7px 14px;border-radius:3px;}
+.foot-links a:hover{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;}.sidebar{display:none;}
+  .main{padding:28px 22px 60px;}
+  .topbar{padding:0 18px;}
+  .doc-title{font-size:32px;}
+  .task-title{font-size:22px;}
+  .task-head{flex-direction:column;}
+  .task-tags{align-items:flex-start;flex-direction:row;}
+  .do-dont{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="tb-logo">愛住 AiSumai <em>Claude Code Prompt Pack</em></div>
+  <div class="tb-version">v1 · Engineering</div>
+</nav>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sb-label">使用說明</div>
+  <a class="sb-link" href="#howto">如何使用這份指令</a>
+  <a class="sb-link" href="#priority">任務優先級總表</a>
+
+  <div class="sb-label">P1 急修任務</div>
+  <a class="sb-link p1" href="#t01">01 URL 白名單<span class="sb-pill">30m</span></a>
+  <a class="sb-link p1" href="#t02">02 報告 status 機制<span class="sb-pill">45m</span></a>
+  <a class="sb-link p1" href="#t03">03 資料庫去重<span class="sb-pill">30m</span></a>
+  <a class="sb-link p1" href="#t04">04 About 頁重做<span class="sb-pill">2h</span></a>
+  <a class="sb-link p1" href="#t05">05 Compare 入口刪除<span class="sb-pill">15m</span></a>
+  <a class="sb-link p1" href="#t06">06 手機版 RWD 修復<span class="sb-pill">2h</span></a>
+
+  <div class="sb-label">P2 中級任務</div>
+  <a class="sb-link p2" href="#t07">07 ReportCard 元件抽離<span class="sb-pill">1h</span></a>
+  <a class="sb-link p2" href="#t08">08 Landing Hero bug<span class="sb-pill">20m</span></a>
+  <a class="sb-link p2" href="#t09">09 「! 票」修正<span class="sb-pill">10m</span></a>
+  <a class="sb-link p2" href="#t10">10 Component Library<span class="sb-pill">3h</span></a>
+  <a class="sb-link p2" href="#t11">11 ESLint 阻擋 emoji<span class="sb-pill">30m</span></a>
+
+  <div class="sb-label">P3 優化任務</div>
+  <a class="sb-link p3" href="#t12">12 Filter 補充<span class="sb-pill">1h</span></a>
+  <a class="sb-link p3" href="#t13">13 Pagination<span class="sb-pill">45m</span></a>
+  <a class="sb-link p3" href="#t14">14 chip UX 邏輯<span class="sb-pill">30m</span></a>
+</aside>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="eyebrow">Claude Code Prompt Pack · Engineering</div>
+    <h1 class="doc-title">aisum.ai<br><em>給工程師的 Claude Code 指令包</em></h1>
+    <p class="doc-intro">
+      這份文件包含 <strong>14 個任務</strong>，每個任務都有可<strong>直接複製貼到 Claude Code</strong> 的 prompt。任務按優先級排序：P1 急修（這週做）、P2 中級（下週做）、P3 優化（可延後）。<br><br>
+      每個 prompt 都包含：<strong>背景脈絡 / 具體需求 / 不該做什麼 / 驗證方式</strong>。Claude Code 拿到後可立即動手實作。
+    </p>
+  </div>
+
+  <!-- ═══════ 使用說明 ═══════ -->
+  <div class="howto" id="howto">
+    <div class="howto-label">如何使用這份指令包</div>
+    <div class="howto-title">給工程師的 Workflow</div>
+    <ul class="howto-list">
+      <li><strong>挑一個任務</strong>。建議從 P1 開始，照順序做。每個任務獨立，不會互相依賴（除了任務 02 → 03 有資料庫前置關係）。</li>
+      <li><strong>打開該任務的 Prompt 區塊</strong>。每個任務有個黑色程式碼區，點右上角 <code>COPY</code> 按鈕複製整段。</li>
+      <li><strong>在 repo 根目錄打開 Claude Code</strong>。執行 <code>claude</code> 進入互動模式。</li>
+      <li><strong>貼上整段 prompt</strong>。Claude Code 會自動分析 repo 結構、找對應的檔案、提出實作計畫。</li>
+      <li><strong>確認計畫後讓它執行</strong>。Claude Code 會邊改邊報告進度。完成後執行任務區塊裡的「驗證指令」確認結果。</li>
+      <li><strong>重要：不要修改 prompt</strong>。每個 prompt 都已寫好正確的限制條件（DO / DO NOT），改了會影響執行結果。</li>
+    </ul>
+  </div>
+
+  <!-- ═══════ 任務優先級總表 ═══════ -->
+  <div id="priority">
+    <div class="eyebrow" style="margin-bottom:14px;">任務總表</div>
+    <h2 class="task-title" style="font-size:28px;margin-bottom:24px;">14 個任務 · 按優先級排序</h2>
+
+    <table class="priority-table">
+      <thead>
+        <tr>
+          <th style="width:60px;">編號</th>
+          <th style="width:80px;">優先級</th>
+          <th>任務名稱</th>
+          <th style="width:110px;">類型</th>
+          <th style="width:80px;">預估</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>01</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t01">URL 白名單 — 限制只允許日本不動產網站</a></td><td>Backend</td><td>30 分鐘</td></tr>
+        <tr><td>02</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t02">報告 status 機制 — 過濾失敗報告不進 Feed</a></td><td>Full-stack</td><td>45 分鐘</td></tr>
+        <tr><td>03</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t03">資料庫去重 — 同物件對 24h 內合併</a></td><td>Backend</td><td>30 分鐘</td></tr>
+        <tr><td>04</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t04">About 頁整頁重做 — 套用設計系統</a></td><td>Frontend</td><td>2 小時</td></tr>
+        <tr><td>05</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t05">Compare 入口頁刪除 — 與 Landing 重複</a></td><td>Frontend</td><td>15 分鐘</td></tr>
+        <tr><td>06</td><td><span class="pri-tag p1">P1 急</span></td><td><a href="#t06">手機版 RWD 全面修復</a></td><td>Frontend</td><td>2 小時</td></tr>
+        <tr><td>07</td><td><span class="pri-tag p2">P2 中</span></td><td><a href="#t07">ReportCard 元件抽離 + 兩處共用</a></td><td>Frontend</td><td>1 小時</td></tr>
+        <tr><td>08</td><td><span class="pri-tag p2">P2 中</span></td><td><a href="#t08">Landing Hero 黑橢圓 bug 修復</a></td><td>Frontend</td><td>20 分鐘</td></tr>
+        <tr><td>09</td><td><span class="pri-tag p2">P2 中</span></td><td><a href="#t09">「! 票」改成「N 人が保存」</a></td><td>Frontend</td><td>10 分鐘</td></tr>
+        <tr><td>10</td><td><span class="pri-tag p2">P2 中</span></td><td><a href="#t10">建立 Component Library + Design Tokens</a></td><td>Architecture</td><td>3 小時</td></tr>
+        <tr><td>11</td><td><span class="pri-tag p2">P2 中</span></td><td><a href="#t11">ESLint rule 阻擋未經審查的 emoji</a></td><td>DevOps</td><td>30 分鐘</td></tr>
+        <tr><td>12</td><td><span class="pri-tag p3">P3 低</span></td><td><a href="#t12">Feed Filter 補充：物件種別 / 戶型</a></td><td>Frontend</td><td>1 小時</td></tr>
+        <tr><td>13</td><td><span class="pri-tag p3">P3 低</span></td><td><a href="#t13">Pagination + URL 帶 page 參數</a></td><td>Full-stack</td><td>45 分鐘</td></tr>
+        <tr><td>14</td><td><span class="pri-tag p3">P3 低</span></td><td><a href="#t14">Landing chip 多選邏輯明確化</a></td><td>Frontend</td><td>30 分鐘</td></tr>
+      </tbody>
+    </table>
+
+    <p style="font-size:13px;color:var(--ink-60);line-height:1.75;">
+      <strong>建議順序：</strong>P1 全做完才開始 P2。任務 04（About 頁重做）和任務 06（手機版）可以參考檔案 <code>aisumai-about-redesign.html</code> 作為設計 reference。
+    </p>
+  </div>
+
+  <!-- ═══════ DIVIDER ═══════ -->
+  <div class="divider">
+    <div class="divider-label">P1 急修任務</div>
+    <div class="divider-title">這週必須完成</div>
+  </div>
+
+  <!-- ═══════ TASK 01: URL 白名單 ═══════ -->
+  <div class="task" id="t01">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 01</div>
+        <div class="task-title">URL 白名單</div>
+        <div class="task-meta">
+          <span>📍 Backend</span>
+          <span>⏱ 30 分鐘</span>
+          <span>📂 src/config/, src/api/compare/</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      目前 Feed 出現賓士車（#0023）、滑雪板（#0027/#0028）、英國公寓、台灣大樓等非日本不動產資料。<strong>必須在抓取前加 URL 白名單驗證</strong>，並清除現有非白名單資料。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">需要修改的檔案</div>
+      <div class="files-list">
+        <code>src/config/supported-sites.ts</code> <span class="note">(新增)</span><br>
+        <code>src/api/compare/create.ts</code> <span class="note">(或類似的 compare 創建端點)</span><br>
+        <code>src/db/migrations/clean-non-jp-reports.sql</code> <span class="note">(新增)</span><br>
+        <code>src/components/CompareInput.tsx</code> <span class="note">(錯誤訊息顯示)</span>
+      </div>
+    </div>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-01-url-whitelist.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Enforce URL whitelist for property comparison
+
+## Context
+Our property comparison platform (aisum.ai, Japanese real estate) is currently accepting URLs from any website. The Feed has been polluted with non-real-estate content like Mercedes SUVs (#0023), snowboards (#0027), London apartments (#0024-26), and Taiwan properties (#0031, #0043-45).
+
+We need to enforce a strict whitelist of supported Japanese real estate sites BEFORE any URL scraping happens.
+
+## Requirements
+
+### 1. Create whitelist config
+Create new file: `src/config/supported-sites.ts`
+
+```typescript
+export const SUPPORTED_DOMAINS = [
+  'suumo.jp',
+  'homes.co.jp',
+  'lifull.com',
+  'athome.co.jp',
+  'mansion-review.jp',
+] as const;
+
+export function isWhitelistedUrl(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    return SUPPORTED_DOMAINS.some(domain =>
+      hostname === domain || hostname.endsWith('.' + domain)
+    );
+  } catch {
+    return false;
+  }
+}
+```
+
+### 2. Add validation in compare creation endpoint
+Find the API endpoint that handles property comparison creation (likely POST /api/compare or POST /api/reports). Add validation at the START of the handler, before any scraping logic:
+
+```typescript
+import { isWhitelistedUrl, SUPPORTED_DOMAINS } from '@/config/supported-sites';
+
+// At the start of the handler:
+if (!isWhitelistedUrl(urlA) || !isWhitelistedUrl(urlB)) {
+  return Response.json({
+    error: 'UNSUPPORTED_DOMAIN',
+    message: '対応していないサイトです。SUUMO、HOME\\'S、LIFULL、アットホームのいずれかのURLを入力してください。',
+    supportedSites: SUPPORTED_DOMAINS,
+  }, { status: 400 });
+}
+```
+
+### 3. Migration to clean existing data
+Create migration that finds and deletes (or archives) existing reports where source URLs are NOT in the whitelist:
+
+```sql
+-- Move non-whitelisted reports to archive table for inspection
+CREATE TABLE IF NOT EXISTS comparison_reports_archive AS
+  SELECT * FROM comparison_reports WHERE 1=0;
+
+INSERT INTO comparison_reports_archive
+SELECT * FROM comparison_reports
+WHERE NOT (
+  source_url_a LIKE '%suumo.jp%' OR
+  source_url_a LIKE '%homes.co.jp%' OR
+  source_url_a LIKE '%lifull.com%' OR
+  source_url_a LIKE '%athome.co.jp%'
+) OR NOT (
+  source_url_b LIKE '%suumo.jp%' OR
+  source_url_b LIKE '%homes.co.jp%' OR
+  source_url_b LIKE '%lifull.com%' OR
+  source_url_b LIKE '%athome.co.jp%'
+);
+
+DELETE FROM comparison_reports
+WHERE id IN (SELECT id FROM comparison_reports_archive);
+```
+
+Output the count of archived records.
+
+### 4. Frontend error handling
+Find the URL input component (search for "物件 A URL" or "compareInput" or similar). When the API returns 400 with code 'UNSUPPORTED_DOMAIN':
+- Display the Japanese error message inline below the URL input
+- Show the supported sites list as a hint
+- Style the error using the existing error state pattern
+
+## DO NOT
+- Allow any "fallback mode" that lets non-whitelisted URLs through
+- Touch the AI generation logic
+- Forget to update the supported-sites display in Landing footer / About FAQ if they hardcode the list
+
+## Verification
+After implementation, run these tests:
+1. Try POST /api/compare with `urlA = https://suumo.jp/...` — should succeed
+2. Try POST /api/compare with `urlA = https://example.com/car` — should return 400 with Japanese error
+3. Run the migration and check archive table count
+4. Check the Feed page — non-whitelisted reports should no longer appear</div>
+      </div>
+    </div>
+
+    <div class="do-dont">
+      <div class="dd do">
+        <div class="dd-label">DO</div>
+        <ul>
+          <li>先創建 config 再加 validation</li>
+          <li>清除資料前先備份到 archive 表</li>
+          <li>前端錯誤訊息日文化</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <div class="dd-label">DO NOT</div>
+        <ul>
+          <li>Soft validation 讓非白名單 URL 通過</li>
+          <li>動 AI 生成邏輯</li>
+          <li>直接 DELETE 不留備份</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 02: status 機制 ═══════ -->
+  <div class="task" id="t02">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 02</div>
+        <div class="task-title">報告 status 機制</div>
+        <div class="task-meta">
+          <span>📍 Full-stack</span>
+          <span>⏱ 45 分鐘</span>
+          <span>📂 db migrations + frontend</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      Feed 至少有 17 筆 ¥0 / placeholder「物件 A」的破損報告（#0078, #0083, #0088 等）。需要加 status enum 機制，讓<strong>失敗的報告永遠不進入 Feed</strong>，只在使用者個人 Dashboard 顯示「再試行」。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-02-status-mechanism.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Add status enum to comparison reports + filter Feed
+
+## Context
+The Feed currently shows reports with ¥0 prices and "物件 A / 物件 B" placeholder names — these are reports where URL scraping failed but they were still saved as published. We need a proper status mechanism.
+
+## Requirements
+
+### 1. Database schema change
+Add `status` column to comparison_reports table:
+
+```sql
+ALTER TABLE comparison_reports
+  ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'processing'
+  CHECK (status IN ('processing', 'failed', 'published', 'archived'));
+
+ALTER TABLE comparison_reports
+  ADD COLUMN failure_reason TEXT;
+
+CREATE INDEX idx_reports_status ON comparison_reports(status);
+```
+
+### 2. Migration for existing data
+```sql
+-- Mark broken records as 'failed'
+UPDATE comparison_reports
+SET status = 'failed',
+    failure_reason = 'Legacy data with missing fields'
+WHERE price_a = 0
+   OR price_b = 0
+   OR title_a LIKE '%物件 A%'
+   OR title_b LIKE '%物件 B%'
+   OR title_a IS NULL
+   OR title_b IS NULL;
+
+-- Mark all others as 'published' (they were live before)
+UPDATE comparison_reports
+SET status = 'published'
+WHERE status = 'processing';
+```
+
+### 3. Update AI generation flow
+Find the worker/service that handles AI report generation. After AI completes:
+
+```typescript
+function determineStatus(propA: PropertyData, propB: PropertyData): {
+  status: 'published' | 'failed';
+  reason?: string;
+} {
+  const hasValidData = (p: PropertyData) =>
+    p.price > 0 &&
+    p.title &&
+    !p.title.includes('物件 A') &&
+    !p.title.includes('物件 B') &&
+    Object.keys(p).filter(k => p[k] != null).length >= 5;
+
+  if (!hasValidData(propA)) {
+    return { status: 'failed', reason: 'Property A data incomplete' };
+  }
+  if (!hasValidData(propB)) {
+    return { status: 'failed', reason: 'Property B data incomplete' };
+  }
+  return { status: 'published' };
+}
+```
+
+### 4. Update Feed API
+Find the Feed endpoint (likely GET /api/feed or GET /api/reports). Add filter:
+
+```typescript
+const reports = await db.comparisonReports.findMany({
+  where: {
+    status: 'published',  // ← Only published in public Feed
+    // ... other filters
+  },
+  orderBy: { createdAt: 'desc' },
+});
+```
+
+### 5. User Dashboard endpoint
+Logged-in users should see ALL their reports (including failed ones).
+
+```typescript
+// GET /api/my-reports
+const myReports = await db.comparisonReports.findMany({
+  where: {
+    createdBy: userId,
+    // No status filter — show all to owner
+  },
+});
+```
+
+### 6. Frontend: Failed report card
+On the User Dashboard page, when a report has `status === 'failed'`, render an error card:
+
+```jsx
+<div className="failed-report-card">
+  <div className="error-icon">!</div>
+  <div>
+    <h3>物件情報を取得できませんでした</h3>
+    <p>{report.failure_reason || '対応サイトのURLか確認してください'}</p>
+    <button onClick={() => retryReport(report.id)}>再試行</button>
+  </div>
+</div>
+```
+
+## DO NOT
+- Hide failed reports from the user who created them
+- Delete failed reports from DB (keep for debugging)
+- Show failed reports in public Feed under any circumstance
+
+## Verification
+1. Check Feed API response — should not contain any reports with `status != 'published'`
+2. Check User Dashboard — should show failed reports for the logged-in user
+3. Run migration and verify ~17 existing broken records are marked 'failed'
+4. Test "再試行" button triggers re-generation</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 03: 去重 ═══════ -->
+  <div class="task" id="t03">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 03</div>
+        <div class="task-title">資料庫去重</div>
+        <div class="task-meta">
+          <span>📍 Backend</span>
+          <span>⏱ 30 分鐘</span>
+          <span>📂 db + api</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      Feed 有多組完全重複的報告：#0010=#0011（グランドメゾン白金）、#0006=#0007（エンブル・パーク）、#0043=#0044=#0045（富春居）等。需要在創建時去重，並清理現有重複資料。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-03-deduplication.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Deduplicate comparison reports
+
+## Context
+The Feed contains multiple duplicate reports for the same property pairs (e.g., #0010 and #0011 are both グランドメゾン白金の杜ザ・タワー comparing the same properties). Users see "I just looked at this" which destroys trust.
+
+## Requirements
+
+### 1. URL normalization utility
+Create `src/lib/url-normalize.ts`:
+
+```typescript
+export function normalizeUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    // Strip tracking params
+    const stripParams = ['utm_source', 'utm_medium', 'utm_campaign', 'fbclid', 'gclid', 'ref'];
+    stripParams.forEach(p => u.searchParams.delete(p));
+
+    // Lowercase host, remove trailing slash, normalize path
+    let normalized = `${u.protocol}//${u.hostname.toLowerCase()}${u.pathname}`;
+    normalized = normalized.replace(/\\/$/, '');
+
+    // Re-add remaining query params (sorted for stability)
+    const params = [...u.searchParams.entries()].sort();
+    if (params.length > 0) {
+      normalized += '?' + params.map(([k, v]) => `${k}=${v}`).join('&');
+    }
+    return normalized;
+  } catch {
+    return url;
+  }
+}
+
+export function makePairKey(urlA: string, urlB: string): string {
+  const a = normalizeUrl(urlA);
+  const b = normalizeUrl(urlB);
+  // Sort so (A,B) and (B,A) are equivalent
+  return [a, b].sort().join('|');
+}
+```
+
+### 2. Add unique constraint
+```sql
+ALTER TABLE comparison_reports
+  ADD COLUMN pair_key VARCHAR(2048),
+  ADD COLUMN date_bucket DATE GENERATED ALWAYS AS (DATE(created_at)) STORED;
+
+-- Backfill pair_key for existing records (run as one-time migration)
+UPDATE comparison_reports
+SET pair_key = LEAST(source_url_a, source_url_b) || '|' || GREATEST(source_url_a, source_url_b);
+
+-- Add unique constraint with date bucket (allow re-comparison after 24h)
+CREATE UNIQUE INDEX idx_unique_pair_per_day
+  ON comparison_reports(pair_key, date_bucket)
+  WHERE status = 'published';
+```
+
+### 3. Modify compare creation endpoint
+Before creating a new report, check for existing:
+
+```typescript
+import { makePairKey } from '@/lib/url-normalize';
+
+async function handleCompare(req: Request) {
+  const { urlA, urlB } = await req.json();
+
+  // ... existing whitelist validation ...
+
+  const pairKey = makePairKey(urlA, urlB);
+  const today = new Date().toISOString().split('T')[0];
+
+  // Check if same pair was compared today
+  const existing = await db.comparisonReports.findFirst({
+    where: {
+      pair_key: pairKey,
+      date_bucket: today,
+      status: 'published',
+    },
+  });
+
+  if (existing) {
+    // Increment view count and return existing
+    await db.comparisonReports.update({
+      where: { id: existing.id },
+      data: { view_count: { increment: 1 } },
+    });
+
+    return Response.json({
+      reportId: existing.id,
+      slug: existing.slug,
+      cached: true,
+      message: 'このペアは本日既に比較されています',
+    });
+  }
+
+  // ... continue with new report creation ...
+}
+```
+
+### 4. Migration to clean existing duplicates
+```sql
+-- Find duplicate groups
+WITH duplicate_groups AS (
+  SELECT
+    pair_key,
+    date_bucket,
+    array_agg(id ORDER BY view_count DESC, created_at ASC) as ids
+  FROM comparison_reports
+  WHERE status = 'published'
+  GROUP BY pair_key, date_bucket
+  HAVING COUNT(*) > 1
+)
+-- Keep first (most viewed/oldest), archive the rest
+UPDATE comparison_reports
+SET status = 'archived', failure_reason = 'Deduplicated'
+WHERE id IN (
+  SELECT unnest(ids[2:])
+  FROM duplicate_groups
+);
+
+-- Output count
+SELECT COUNT(*) FROM comparison_reports WHERE failure_reason = 'Deduplicated';
+```
+
+### 5. Frontend: Show "cached" message
+When the API returns `cached: true`, briefly show a toast:
+
+```jsx
+toast({
+  message: 'このペアは本日既に比較されています。最新レポートを表示します。',
+  duration: 3000,
+});
+```
+
+## DO NOT
+- Break existing report URLs/slugs (they must remain stable)
+- Delete archived reports (keep for analytics)
+- Allow re-comparison within the same day to bypass dedup (24h is the rule)
+
+## Verification
+1. POST same urlA + urlB twice → second call should return existing reportId with `cached: true`
+2. Migration output should show duplicate count
+3. Feed should no longer show duplicate reports</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 04: About 重做 ═══════ -->
+  <div class="task" id="t04">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 04</div>
+        <div class="task-title">About 頁整頁重做</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 2 小時</span>
+          <span>📂 src/pages/about</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      About 頁目前有 20+ emoji、全英文、毛玻璃遮住自己的標題。<strong>不要逐個改 emoji，整頁重做最快</strong>。我們已準備好完整的 reference HTML：<code>aisumai-about-redesign.html</code>。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-04-about-page-rebuild.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Rebuild About page from scratch
+
+## Context
+The current About page (/about) has serious style violations:
+- 20+ emojis throughout (🏠 🌸 ⛩ 🤖 ✨ 👨‍💼 💼 👥 💬 🎯 🏆 ⭐ 🎉 🚀 ⚡ etc.)
+- All content is in English while the rest of the site is Japanese
+- Frosted glass / gradient hero that obscures its own title
+- Looks completely different from the Landing page (/) which uses our design system
+
+The Landing page is our visual standard. The About page must match that style.
+
+## Reference Implementation
+A complete reference HTML has been prepared at:
+**`aisumai-about-redesign.html`** (provided separately by the design team)
+
+This file contains the exact target design with:
+- Topbar matching site style
+- Hero section (no emojis, Japanese copy, no frosted glass)
+- "How It Works" 3-step section (numbered cards, line-icon SVGs only)
+- 3 Features (alternating left/right layout with mock visuals)
+- FAQ section (using <details> accordion)
+- Bottom CTA (black background, no emoji)
+- Footer matching site style
+
+## Task
+Rebuild the About page route to match the reference HTML. Implementation details:
+
+### 1. Locate the existing About page component
+Search for: route '/about', file matching `about` in pages/ or app/about/
+
+### 2. Replace it entirely
+DELETE the current implementation. Build from scratch matching the reference.
+
+### 3. Use existing design tokens
+Use the same design tokens as the Landing page:
+- Colors: `--ink: #0a0a0a`, `--paper: #f9f8f5`, `--paper-dark: #f0ede6`, `--rule: rgba(10,10,10,.12)`
+- Fonts: `'DM Serif Display'` (display), `'Noto Sans JP'` (body), `'DM Mono'` (labels/eyebrows)
+
+### 4. Component structure (React/Next.js pattern)
+```tsx
+// pages/about.tsx or app/about/page.tsx
+export default function AboutPage() {
+  return (
+    <>
+      <Topbar />  {/* Reuse existing component */}
+      <AboutHero />
+      <HowItWorksSection />
+      <FeaturesSection />
+      <FAQSection />
+      <BottomCTA />
+      <Footer />  {/* Reuse existing component */}
+    </>
+  );
+}
+```
+
+### 5. Key implementation rules
+- **NO EMOJI**. Replace all icon needs with inline SVG (use Lucide React or hand-coded line icons)
+- **All copy in Japanese**. Use the exact Japanese text from the reference HTML
+- **No frosted glass / gradient overlays** on hero
+- **No `mix-blend-mode`** anywhere
+- All section padding must be responsive (use existing breakpoint pattern)
+- FAQ uses native `<details><summary>` for accessibility (no JS toggle)
+
+### 6. Specific copy (Japanese)
+Hero title: 日本の不動産選びを、もっと、誠実に。
+Hero subtitle: AI 分析・専門家の知見・コミュニティの集合知を組み合わせ、後悔しない住まい選びをサポートします。
+Section 1 title: 3 ステップで、客観的な比較レポートを。
+Section 2 title: なぜ AiSumai を選ぶか。
+Section 3 title: FAQ
+Bottom CTA: 迷っている 2 つの物件を、今すぐ比較してみませんか。
+
+(Full copy in reference HTML)
+
+## DO NOT
+- Add ANY emoji, even small ones (no 🚀 buttons, no 🏠 cards)
+- Use English copy anywhere except the brand name "AiSumai"
+- Add frosted glass, gradient backgrounds, or backdrop-filter on the hero
+- Create new design tokens — use existing ones from Landing
+- Add fancy scroll animations or parallax (this is a serious real estate platform, not a SaaS marketing page)
+
+## Verification
+1. Visit /about — should look almost identical to the reference HTML
+2. Compare side-by-side with Landing page — same fonts, same colors, same spacing language
+3. Mobile view — all sections stack vertically, hamburger menu works
+4. Search the rendered page source for emoji — should find ZERO emoji characters
+5. Run accessibility check — FAQ should be keyboard-navigable via native details element</div>
+      </div>
+    </div>
+
+    <div class="do-dont">
+      <div class="dd do">
+        <div class="dd-label">DO</div>
+        <ul>
+          <li>整頁刪除重寫</li>
+          <li>對照 reference HTML 1:1 還原</li>
+          <li>用 Lucide line icons 取代 emoji</li>
+          <li>FAQ 用 native details element</li>
+        </ul>
+      </div>
+      <div class="dd dont">
+        <div class="dd-label">DO NOT</div>
+        <ul>
+          <li>逐個刪 emoji（太慢）</li>
+          <li>留任何英文文案</li>
+          <li>用毛玻璃、漸層遮罩</li>
+          <li>加 fancy scroll 動畫</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 05: Compare 入口刪除 ═══════ -->
+  <div class="task" id="t05">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 05</div>
+        <div class="task-title">Compare 入口頁刪除</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 15 分鐘</span>
+          <span>📂 routes</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      <code>/compare</code> 頁面跟 Landing 重複，是劣化版（emoji + 全英文）。<strong>直接刪除路由</strong>，Nav 上的「Compare」改成跳到 Landing 的比較區塊。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-05-delete-compare-page.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Remove redundant /compare page, redirect to Landing
+
+## Context
+The /compare page is a degraded duplicate of the Landing page (/). It has emojis, English copy, frosted glass, and a 3-step stepper that conflicts with our design system. The Landing page already has the full compare widget.
+
+## Requirements
+
+### 1. Delete the /compare page
+Find and delete:
+- `pages/compare.tsx` or `app/compare/page.tsx`
+- Any associated styles/components only used by this page
+
+### 2. Add redirect
+Add redirect from /compare to /#compare-widget (anchor on Landing):
+
+```typescript
+// next.config.js
+module.exports = {
+  async redirects() {
+    return [
+      {
+        source: '/compare',
+        destination: '/#compare-widget',
+        permanent: true,  // 301 for SEO
+      },
+    ];
+  },
+};
+```
+
+### 3. Update Nav
+Find the Topbar component. The "Compare" nav item:
+- Change href from `/compare` to `/#compare-widget`
+- Make sure clicking smooth-scrolls to the compare widget on Landing
+
+### 4. Add anchor target on Landing
+Find the Landing page compare widget container. Add `id="compare-widget"`:
+
+```jsx
+<section id="compare-widget" className="compare-widget">
+  {/* existing content */}
+</section>
+```
+
+## DO NOT
+- Remove the compare widget from Landing (it stays where it is)
+- Forget to handle existing inbound links to /compare (the redirect handles this)
+
+## Verification
+1. Visit /compare — should redirect to /#compare-widget
+2. Click "Compare" in Nav from any page — should land at the compare widget
+3. Old bookmarks to /compare should not 404</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 06: 手機版 RWD ═══════ -->
+  <div class="task" id="t06">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 06</div>
+        <div class="task-title">手機版 RWD 全面修復</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 2 小時</span>
+          <span>📂 全站</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p1">P1 急</span></div>
+    </div>
+
+    <p class="task-summary">
+      使用者反饋「目前手機版本也很爛」。需要全站 RWD 審查與修復：觸控目標尺寸、字體可讀性、版面堆疊、漢堡選單。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-06-mobile-rwd-fix.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Comprehensive mobile RWD audit and fix
+
+## Context
+User feedback: "Mobile version is also bad." We need a systematic mobile fix across all pages: Landing, Feed, /compare/[id] result page, /experts/[id], About, Auth.
+
+## Mobile breakpoint strategy
+We use 3 breakpoints (matching design system):
+- Desktop: ≥ 1024px
+- Tablet: 768-1023px
+- Mobile: ≤ 767px
+- Small mobile: ≤ 480px
+
+## Universal mobile rules to enforce
+
+### 1. Touch targets
+ALL interactive elements (buttons, links, tabs, chips, inputs) must be:
+- Minimum height: 44px on mobile (Apple HIG standard)
+- Minimum tap area: 44×44px even if visual is smaller (use padding)
+
+```css
+@media (max-width: 767px) {
+  button, a.btn, .chip, .tab {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  /* Icon buttons */
+  .icon-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+```
+
+### 2. Typography
+```css
+@media (max-width: 767px) {
+  body { font-size: 15px; }  /* base, not 14px on mobile */
+
+  h1, .hero-title { font-size: 32px !important; line-height: 1.15; letter-spacing: -.4px; }
+  h2, .section-title { font-size: 24px !important; }
+  h3 { font-size: 18px !important; }
+}
+
+@media (max-width: 480px) {
+  h1, .hero-title { font-size: 28px !important; }
+}
+```
+
+### 3. Layout stacking
+- Desktop multi-column → mobile single column
+- Sidebars hidden, accessible via hamburger or modal
+- Hero CTAs: stack vertically with full-width buttons
+
+### 4. Hamburger menu
+Topbar nav items hidden on mobile, replaced by hamburger button. Tapping opens full-screen overlay menu.
+
+```jsx
+// In Topbar component
+const [menuOpen, setMenuOpen] = useState(false);
+
+<>
+  <nav className="topbar">
+    <Logo />
+    <DesktopNav className="hidden md:flex" />  {/* hide on mobile */}
+    <button
+      className="hamburger md:hidden"
+      onClick={() => setMenuOpen(true)}
+      aria-label="Open menu"
+    >
+      ☰  {/* Use SVG icon instead of emoji */}
+    </button>
+  </nav>
+
+  {menuOpen && (
+    <div className="mobile-menu-overlay" onClick={() => setMenuOpen(false)}>
+      <button className="close-btn">×</button>
+      <nav>
+        <a href="/">比較する</a>
+        <a href="/feed">レポート</a>
+        <a href="/experts">専門家を探す</a>
+        <a href="/about">サービスについて</a>
+        <a href="/auth/login" className="btn-outline">ログイン</a>
+        <a href="/auth/register" className="btn-solid">無料で始める</a>
+      </nav>
+    </div>
+  )}
+</>
+```
+
+## Page-specific fixes
+
+### Landing (/)
+- Hero compare widget: input fields stack vertically below 768px (currently 2-column)
+- "vs" circle stays centered between A and B
+- Tabs (物件URL / 物件番号 / エリア検索): horizontal scroll on mobile if too wide
+- Quick chips (価格/交通/築年数...): wrap to multiple rows
+- DISCOVER feed cards: full-width single column
+
+### Feed (/feed)
+- Filter sidebar (left): convert to top filter bar that scrolls horizontally on mobile, OR move to filter modal triggered by button
+- Report cards: single column, full width
+- "Apply for expert" CTA: stays at bottom or sticky
+
+### Compare result (/compare/[id])
+- Score Duel: keep 2-column even on mobile (smaller fonts), but reduce padding
+- 5 Tabs: horizontal scroll on mobile (overflow-x: auto)
+- Property table (PRICE/COMMUTE/LAYOUT): convert to card list on mobile
+- Expert section: stacks vertically
+
+### Expert profile (/experts/[id])
+- Profile hero: single column, smaller avatar
+- Sticky contact card on right desktop → bottom sheet or fixed bottom bar on mobile
+- Stats bar: 2x2 grid on mobile (instead of 4-column)
+
+### About (/about)
+- Already covered by reference HTML which has mobile breakpoints
+- Verify FAQ accordions tap-friendly
+
+### Auth (/auth/*)
+- Split layout (brand left + form right) → form-only on mobile
+- Brand panel hidden below 768px
+
+## Common bugs to check
+- Inputs zooming on iOS Safari: add `font-size: 16px` minimum to all inputs
+- Sticky elements breaking: test with scroll on real device
+- Modals that don't fit screen: add `max-height: 90vh; overflow-y: auto`
+- Buttons that wrap: ensure `white-space: nowrap` for important CTAs
+
+## DO NOT
+- Use `display: none` to hide content on mobile (hide menu items, but keep all features accessible)
+- Make text smaller than 14px (accessibility)
+- Set fixed heights on content containers (let them grow)
+- Forget the 480px breakpoint for very small phones
+
+## Verification
+Test on these viewports:
+1. 375×667 (iPhone SE) — smallest common
+2. 390×844 (iPhone 14)
+3. 360×800 (Android medium)
+4. 768×1024 (iPad portrait)
+
+For each page check:
+- All text readable without zooming
+- All buttons tappable (44px minimum)
+- No horizontal scroll on body
+- Hamburger menu opens/closes properly
+- Forms usable (no keyboard hiding submit button)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div class="divider">
+    <div class="divider-label">P2 中級任務</div>
+    <div class="divider-title">下週完成</div>
+  </div>
+
+  <!-- ═══════ TASK 07: ReportCard ═══════ -->
+  <div class="task" id="t07">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 07</div>
+        <div class="task-title">ReportCard 元件抽離</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 1 小時</span>
+          <span>📂 src/components</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p2">P2</span></div>
+    </div>
+
+    <p class="task-summary">
+      Landing 首頁的 DISCOVER 區塊有完整的卡片設計（AI 分數對比、比較亮點、専家狀態），但 Feed 用了另一個簡化版。<strong>抽離成共用 component，兩處都用同一個</strong>。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-07-report-card-component.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Extract ReportCard as shared component
+
+## Context
+The Landing page (/) has a "DISCOVER" section with rich comparison report cards (numbers, area, dates, both properties, scores with "AI 推奨" badge, comparison highlight pills, expert status, view/save counts). The Feed (/feed) shows much simpler cards. Both should use the SAME component.
+
+## Requirements
+
+### 1. Find the existing card markup on Landing
+Search the Landing page component for "DISCOVER" or "新着比較レポート" or pattern like "#0142". You should find a card with this structure:
+- Report number + area + date eyebrow
+- Property A name + price | "vs" | Property B name + price
+- Comparison highlight pills ("B が 700 万円高い" etc.)
+- Score boxes (winner with dark bg + "AI 推奨" badge, loser with light bg)
+- Expert row (avatar + name + "コメントあり" OR empty avatar + "専門家コメント待ち")
+- Footer: view count, save count, share button
+
+### 2. Extract to component
+Create `src/components/ReportCard.tsx`:
+
+```tsx
+interface ReportCardProps {
+  report: {
+    id: string;
+    slug: string;
+    propA: { name: string; price: number; area: string };
+    propB: { name: string; price: number; area: string };
+    scoreA: number;
+    scoreB: number;
+    winner: 'A' | 'B' | 'draw';
+    highlights: string[];           // 比較亮點 pills
+    expert: {
+      id: string;
+      name: string;
+      avatar?: string;
+    } | null;                       // null = unclaimed
+    viewCount: number;
+    saveCount: number;
+    createdAt: string;              // ISO
+    areas: string[];                // ['渋谷区', '目黒区']
+  };
+  className?: string;
+  onClick?: () => void;
+}
+
+export function ReportCard({ report, className, onClick }: ReportCardProps) {
+  // Build the JSX as it currently appears on Landing
+  // Make all data come from props
+  // Handle: expert === null → show "専門家コメント待ち"
+  // Handle: saveCount === 0 → hide save count
+  // Format date as "X 日前" relative time
+}
+```
+
+### 3. Replace usage
+On Landing page: replace the inline card JSX with `<ReportCard report={report} />`.
+On Feed page: replace the simpler card JSX with `<ReportCard report={report} />`.
+
+### 4. Style
+The component should NOT have its own styled-component / CSS file with hardcoded styles. Use Tailwind classes (or whatever the project uses) so it inherits from design tokens.
+
+### 5. Empty states
+- No expert → "専門家コメント待ち" with empty avatar circle
+- 0 saves → don't show save count at all (not "0 保存")
+- Score tie → both cards same color, no "AI 推奨" badge on either
+
+## DO NOT
+- Create variants like "FeedCard" and "DiscoverCard" — they should be IDENTICAL
+- Hardcode property data
+- Forget to handle null expert
+- Skip the "X 日前" relative date formatting
+
+## Verification
+1. Both /feed and / should show identical-looking cards for the same report
+2. Component should render correctly with `expert: null`
+3. Component should render correctly with `saveCount: 0` (hide that meta)
+4. TypeScript should error if required props missing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 08: Hero bug ═══════ -->
+  <div class="task" id="t08">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 08</div>
+        <div class="task-title">Landing Hero 黑橢圓 bug</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 20 分鐘</span>
+          <span>📂 src/pages/index 或 Landing</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p2">P2</span></div>
+    </div>
+
+    <p class="task-summary">
+      Landing 首頁 Hero 區塊有一個非預期的全屏黑色橢圓覆蓋，遮住了標題「Compare homes, not brochures」和副標。需要排查並移除。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-08-hero-bug.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Fix Landing Hero black ellipse rendering bug
+
+## Context
+The Landing page Hero section has an unintended large black ellipse/oval covering the upper portion of the hero, partially obscuring the headline "Compare homes, not brochures." and subtitle "2 つの物件を入力するだけ。AI が数秒でフェアな比較レポートを作成します。"
+
+## Possible causes (investigate in order)
+1. A `<div>` with full-screen black `background-color` rendered above the text
+2. A `radial-gradient` or `linear-gradient` set incorrectly
+3. `mix-blend-mode` causing visual overlap
+4. SVG decoration that escaped its container
+5. CSS `mask-image` or `clip-path` misconfigured
+
+## Task
+1. Open the Landing page component (likely `pages/index.tsx` or `app/page.tsx`)
+2. Find the Hero section
+3. Inspect element in dev tools to identify the source of the black ellipse
+4. Remove the offending element/style
+5. Ensure hero text is fully visible against the cream/paper background
+
+## Expected result
+Hero should look like this:
+- Background: solid `--paper` (#f9f8f5)
+- Eyebrow text "日本の不動産を、正直に比べる" with line decorators
+- Large serif headline "Compare homes, not brochures." in DM Serif Display
+- Subtitle in Noto Sans JP
+- No background images, gradients, or overlays
+
+## DO NOT
+- Add a "fix" by putting another element on top
+- Increase z-index as a workaround — find and remove the actual cause
+- Change the existing intended hero design
+
+## Verification
+1. View source in browser dev tools — no element with full-screen dark background should exist in hero
+2. Hero text should be 100% readable without scrolling
+3. Test on both desktop and mobile</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 09: ! 票 ═══════ -->
+  <div class="task" id="t09">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 09</div>
+        <div class="task-title">「! 票」改成「N 人が保存」</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 10 分鐘</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p2">P2</span></div>
+    </div>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-09-vote-label.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Fix "票" label rendering as "!"
+
+## Context
+Feed cards show "! 票" instead of expected "0 票". The label "票" (vote) is also semantically unclear in real estate context. Replace with "人が保存" (saves).
+
+## Task
+1. Search codebase for "票" character or "vote" / "saveCount"
+2. Replace label "票" with "人が保存"
+3. If saveCount is 0, hide the entire element (don't show "0 人が保存")
+4. Investigate why "0" was rendering as "!" — likely:
+   - Broken emoji fallback (was meant to be ❤ or 💾?)
+   - i18n key missing returning fallback
+   - Character encoding issue
+5. Fix the underlying display issue
+
+## Expected behavior
+- 5 saves → "5 人が保存"
+- 0 saves → element hidden
+- Numbers display correctly (no "!" character)
+
+## DO NOT
+- Just hide the broken text — fix the root cause
+- Use generic "fav" or English label</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 10: Component Library ═══════ -->
+  <div class="task" id="t10">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 10</div>
+        <div class="task-title">建立 Component Library + Design Tokens</div>
+        <div class="task-meta">
+          <span>📍 Architecture</span>
+          <span>⏱ 3 小時</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p2">P2</span></div>
+    </div>
+
+    <p class="task-summary">
+      根本預防措施。<strong>Landing 90% vs About 20% 的巨大完成度差距</strong>，原因是不同頁面用了不同 template。建立 component library 讓未來不會再發生這種事。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-10-component-library.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Build component library + apply design tokens to Tailwind
+
+## Context
+Different pages currently use different visual languages (Landing vs About). Root cause: no shared component library, no enforced design tokens. Need to fix this systemically.
+
+## Reference
+Design tokens JSON file exists: `aisumai-figma-tokens.json` (provided by design team).
+
+## Requirements
+
+### 1. Apply design tokens to Tailwind config
+Edit `tailwind.config.ts` (or .js):
+
+```typescript
+import type { Config } from 'tailwindcss';
+
+export default {
+  theme: {
+    extend: {
+      colors: {
+        ink: {
+          DEFAULT: '#0a0a0a',
+          80: 'rgba(10,10,10,.82)',
+          60: 'rgba(10,10,10,.6)',
+          30: 'rgba(10,10,10,.3)',
+          10: 'rgba(10,10,10,.06)',
+        },
+        paper: {
+          DEFAULT: '#f9f8f5',
+          dark: '#f0ede6',
+        },
+      },
+      fontFamily: {
+        display: ['"DM Serif Display"', 'Georgia', 'serif'],
+        body: ['"Noto Sans JP"', 'sans-serif'],
+        mono: ['"DM Mono"', 'monospace'],
+      },
+      borderColor: {
+        DEFAULT: 'rgba(10,10,10,.12)',
+        rule: 'rgba(10,10,10,.12)',
+      },
+    },
+  },
+} satisfies Config;
+```
+
+### 2. Build core components
+Create these in `src/components/ui/`:
+
+**Topbar.tsx** — Used on EVERY page
+```tsx
+interface TopbarProps {
+  activeNav?: 'compare' | 'feed' | 'experts' | 'about';
+}
+export function Topbar({ activeNav }: TopbarProps) { /* ... */ }
+```
+
+**Footer.tsx** — Used on EVERY page
+```tsx
+export function Footer() { /* PLATFORM + COMPANY columns + bottom bar */ }
+```
+
+**Button.tsx** — All CTAs
+```tsx
+interface ButtonProps {
+  variant: 'primary' | 'outline' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  children: React.ReactNode;
+  // ...
+}
+```
+
+**Card.tsx** — Generic card frame
+
+**Section.tsx** — Page section with eyebrow + title + content
+
+**Eyebrow.tsx** — The mono-font small caps label
+
+**ReportCard.tsx** — (Already extracted in Task 07)
+
+### 3. Refactor existing pages
+Refactor these pages to use the new components:
+- Landing (/)
+- Feed (/feed)
+- About (/about) — already rebuilt in Task 04 using these
+- Compare result (/compare/[id])
+- Expert profile (/experts/[id])
+
+Each page should look like:
+```tsx
+import { Topbar, Footer } from '@/components/ui';
+
+export default function FeedPage() {
+  return (
+    <>
+      <Topbar activeNav="feed" />
+      {/* page-specific content using Section, Card, Button, etc. */}
+      <Footer />
+    </>
+  );
+}
+```
+
+### 4. Remove duplicate styles
+After refactor, search for and DELETE:
+- Page-specific Topbar implementations
+- Page-specific Footer implementations
+- Hardcoded colors like `#0a0a0a` (use Tailwind class `text-ink` instead)
+- Hardcoded font-family declarations
+
+## DO NOT
+- Skip the Tailwind tokens step — without that, components have inconsistent styling
+- Create variant components like "LandingTopbar" vs "FeedTopbar" — there's ONE Topbar
+- Allow inline styles for colors/fonts in page components
+- Forget to update About page (Task 04) to also use these new shared components
+
+## Verification
+1. All pages render with consistent Topbar and Footer
+2. `grep -r "#0a0a0a" src/` should only find tailwind config (not pages)
+3. `grep -r "DM Serif Display" src/` should only find tailwind config
+4. Visiting each page shows identical Topbar UI</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 11: ESLint emoji ═══════ -->
+  <div class="task" id="t11">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 11</div>
+        <div class="task-title">ESLint rule 阻擋未經審查的 emoji</div>
+        <div class="task-meta">
+          <span>📍 DevOps</span>
+          <span>⏱ 30 分鐘</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p2">P2</span></div>
+    </div>
+
+    <p class="task-summary">
+      根本預防措施。讓 emoji 在 commit 階段就被擋下，避免未來 AI builder 又把 emoji 塞進來。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-11-eslint-emoji-rule.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Add ESLint rule to block unreviewed emoji in JSX/TSX
+
+## Context
+We've had problems with emojis being inserted by AI builders (Lovable, Bolt, etc.) into our pages. Want to enforce "no emoji unless explicitly approved" via ESLint.
+
+## Requirements
+
+### 1. Install plugin
+```bash
+npm install --save-dev eslint-plugin-no-emoji
+# OR if using Bun
+bun add -d eslint-plugin-no-emoji
+```
+
+### 2. Configure ESLint
+Edit `.eslintrc.js` or `eslint.config.js`:
+
+```javascript
+module.exports = {
+  plugins: ['no-emoji'],
+  rules: {
+    'no-emoji/no-emoji': ['error', {
+      // Allow specific emojis that are part of brand (none for now)
+      allowList: [],
+    }],
+  },
+};
+```
+
+### 3. Custom rule for JSX text
+If the plugin doesn't catch JSX text content, add a custom rule. Create `eslint-rules/no-emoji-jsx.js`:
+
+```javascript
+// Detect emoji in JSX text content
+const EMOJI_REGEX = /[\\u{1F300}-\\u{1F9FF}]|[\\u{2600}-\\u{27BF}]|[\\u{1F100}-\\u{1F2FF}]/gu;
+
+module.exports = {
+  rules: {
+    'no-emoji-jsx': {
+      meta: { type: 'problem' },
+      create(context) {
+        return {
+          JSXText(node) {
+            if (EMOJI_REGEX.test(node.value)) {
+              context.report({
+                node,
+                message: 'Emoji not allowed in JSX. Use SVG icons from src/components/ui/icons instead.',
+              });
+            }
+          },
+          Literal(node) {
+            if (typeof node.value === 'string' && EMOJI_REGEX.test(node.value)) {
+              context.report({
+                node,
+                message: 'Emoji not allowed. Use SVG icons.',
+              });
+            }
+          },
+        };
+      },
+    },
+  },
+};
+```
+
+### 4. Add pre-commit hook
+Use Husky + lint-staged so emoji is caught before commit:
+
+```bash
+npm install --save-dev husky lint-staged
+npx husky install
+```
+
+`package.json`:
+```json
+{
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": ["eslint --max-warnings=0"]
+  },
+  "scripts": {
+    "prepare": "husky install"
+  }
+}
+```
+
+### 5. CI check
+Add to GitHub Actions / Vercel build:
+```yaml
+- name: ESLint check
+  run: npm run lint
+```
+
+### 6. Document allowed exceptions
+In `CONTRIBUTING.md` or `README.md`:
+
+```markdown
+## Icons & Visual Elements
+
+We use **SVG icons only** (no emoji). Available icon library:
+- Lucide React for line icons: `import { Check } from 'lucide-react'`
+- Custom SVGs in `src/components/ui/icons/`
+
+If you need a new icon, add an SVG to the icons folder.
+
+ESLint will block any emoji characters in source code.
+```
+
+## DO NOT
+- Add emoji to allowList without team approval
+- Disable the rule per-file with `// eslint-disable`
+- Skip the pre-commit hook setup
+
+## Verification
+1. Try writing `<div>Hello 🚀</div>` — ESLint should error
+2. Try committing a file with emoji — pre-commit hook should reject
+3. CI build should fail if emoji introduced</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIVIDER P3 -->
+  <div class="divider">
+    <div class="divider-label">P3 優化任務</div>
+    <div class="divider-title">可延後</div>
+  </div>
+
+  <!-- ═══════ TASK 12: Filter ═══════ -->
+  <div class="task" id="t12">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 12</div>
+        <div class="task-title">Feed Filter 補充：物件種別 / 戶型</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 1 小時</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p3">P3</span></div>
+    </div>
+
+    <p class="task-summary">
+      <strong>建議資料品質穩定後再做</strong>（任務 01-03 完成後）。Feed 目前只有 ステータス / エリア / 価格帯。可補充物件種別（中古マンション / 新築 / 一戸建て / 賃貸）和戶型（1K / 1LDK / 2LDK ...）。
+    </p>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-12-feed-filters.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Add property type and layout filters to Feed sidebar
+
+## Context
+The Feed page sidebar currently has 3 filters: ステータス, エリア, 価格帯. Add 2 more filters for richer browsing.
+
+## Requirements
+
+### 1. Add filter UI
+In Feed sidebar, after 価格帯 section, add:
+
+```jsx
+<div className="filter-section">
+  <h4>物件種別</h4>
+  <CheckboxList items={[
+    { value: 'used_mansion', label: '中古マンション' },
+    { value: 'new_mansion', label: '新築マンション' },
+    { value: 'used_house', label: '中古一戸建て' },
+    { value: 'new_house', label: '新築一戸建て' },
+    { value: 'rental', label: '賃貸' },
+    { value: 'land', label: '土地' },
+  ]} />
+</div>
+
+<div className="filter-section">
+  <h4>間取り</h4>
+  <CheckboxList items={[
+    { value: '1K', label: '1K' },
+    { value: '1DK', label: '1DK' },
+    { value: '1LDK', label: '1LDK' },
+    { value: '2DK', label: '2DK' },
+    { value: '2LDK', label: '2LDK' },
+    { value: '3LDK', label: '3LDK' },
+    { value: '4LDK+', label: '4LDK 以上' },
+  ]} />
+</div>
+```
+
+### 2. Backend filter support
+Update `/api/feed` to accept query params:
+- `propertyTypes[]` — array of types
+- `layouts[]` — array of layout codes
+
+Apply WHERE clauses based on these.
+
+### 3. URL state sync
+Filters should be reflected in URL for shareable links:
+`/feed?propertyTypes=used_mansion,new_mansion&layouts=2LDK,3LDK`
+
+### 4. Multi-select with counts
+Show count badges next to each filter option (how many results match):
+"中古マンション (47)"
+
+Update count when other filters change.
+
+## DO NOT
+- Add this before tasks 01-03 are complete (filtering broken data has no value)
+- Make filters required — all should be optional</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 13: Pagination ═══════ -->
+  <div class="task" id="t13">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 13</div>
+        <div class="task-title">Pagination + URL 帶 page 參數</div>
+        <div class="task-meta">
+          <span>📍 Full-stack</span>
+          <span>⏱ 45 分鐘</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p3">P3</span></div>
+    </div>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-13-pagination.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Add pagination to Feed with URL params
+
+## Context
+Feed currently shows all 140+ reports on one page. Need pagination for performance and SEO.
+
+## Requirements
+
+### 1. Backend
+GET /api/feed should accept:
+- `?page=N` (1-indexed, default 1)
+- `?limit=N` (default 20, max 50)
+
+Response shape:
+```json
+{
+  "reports": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 140,
+    "totalPages": 7,
+    "hasMore": true
+  }
+}
+```
+
+### 2. Frontend
+Show pagination at bottom of Feed:
+```
+[← 前へ]  1  2  3  4  5  ...  7  [次へ →]
+```
+
+URL pattern: `/feed?page=2`
+
+When page changes:
+- Update URL (use Next.js router.push with shallow: true)
+- Scroll to top of report list
+- Show loading state
+
+### 3. SEO
+Each paginated page should be SEO-indexable:
+- `<link rel="next" href="/feed?page=2">`
+- `<link rel="prev" href="/feed?page=1">`
+
+### 4. Empty page handling
+If user navigates to `?page=999` (out of range):
+- Backend returns 200 with empty reports array
+- Frontend shows empty state with link to page 1
+
+## DO NOT
+- Use infinite scroll instead (pagination is better for SEO)
+- Lose filter params when navigating pages</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ TASK 14: chip 邏輯 ═══════ -->
+  <div class="task" id="t14">
+    <div class="task-head">
+      <div class="task-head-text">
+        <div class="task-num">任務 14</div>
+        <div class="task-title">Landing chip 多選邏輯明確化</div>
+        <div class="task-meta">
+          <span>📍 Frontend</span>
+          <span>⏱ 30 分鐘</span>
+        </div>
+      </div>
+      <div class="task-tags"><span class="pri-tag p3">P3</span></div>
+    </div>
+
+    <div class="task-section">
+      <div class="task-section-label">複製此 Prompt 給 Claude Code</div>
+      <div class="code-wrapper">
+        <div class="code-head"><div class="code-head-label">prompt-14-chip-logic.md</div><button class="copy-btn" onclick="copyCode(this)">COPY</button></div>
+        <div class="code-body"># Task: Clarify Landing compare chip selection logic
+
+## Context
+Landing compare widget has chips: 価格 / 交通 / 築年数 / 間取り / 学区 / リスク. Currently "価格" is active by default and others are inactive. The selection logic is unclear.
+
+## Requirements
+
+### 1. Define behavior
+- Chips are MULTI-SELECT
+- Default state: ALL chips INACTIVE (no default selection — avoid bias)
+- Click to toggle on/off
+- Visual: inactive = light gray border, active = dark filled
+
+### 2. AI integration
+When user submits compare:
+- If 0 chips selected → AI uses ALL dimensions equally weighted
+- If N chips selected → AI weights selected dimensions higher
+
+Pass selected dimensions to AI prompt:
+```typescript
+const selectedDimensions = chips.filter(c => c.active).map(c => c.value);
+
+const aiPrompt = selectedDimensions.length > 0
+  ? `Focus your analysis on these dimensions: ${selectedDimensions.join(', ')}. Other dimensions should be mentioned but not prioritized.`
+  : `Provide a balanced analysis across all dimensions.`;
+```
+
+### 3. UI feedback
+Below chips, show helper text:
+- 0 selected: "全ての観点で比較します"
+- 1 selected: "「価格」を重視して比較します"
+- 2+ selected: "「価格・立地」を重視して比較します"
+
+### 4. State persistence (optional)
+Use sessionStorage to remember user's chip selections within session.
+
+## DO NOT
+- Default to any chip being active (creates bias)
+- Make it single-select (user might want to focus on multiple)
+- Hide other dimensions from AI analysis when chips selected (just weight them lower)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FOOTER ═══════ -->
+  <div class="foot">
+    <div class="foot-meta">AiSumai · Claude Code Prompt Pack · 14 Tasks · 2026/05/10</div>
+    <div class="foot-links">
+      <a href="aisumai-完整審查-v2.html">完整審查報告 v2</a>
+      <a href="aisumai-about-redesign.html">About 重做版 HTML</a>
+      <a href="aisumai-design-handoff.zip">設計交付包</a>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const codeBody = btn.closest('.code-wrapper').querySelector('.code-body');
+  const text = codeBody.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'COPY';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>
