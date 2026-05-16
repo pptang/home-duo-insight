@@ -1,7 +1,7 @@
 bead: home-duo-insight-si1
 summary: Add ink-80 token, nest ink/paper as objects, relocate ReportCard to components/ui
 branch: feat/home-duo-insight-si1-design-tokens
-sha: 90bb999031255484b382d0eb7321dcf606baaf5b
+sha: cecdde939b930cae48b8b04a60893a6ac5d2801b
 base_branch: feat/home-duo-insight-j2p-remove-stray-label
 
 files_changed:
