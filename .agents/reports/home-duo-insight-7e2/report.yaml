@@ -1,0 +1,49 @@
+bead: home-duo-insight-7e2
+summary: |
+  Replace the Japanese About page copy with the required Task 04 strings,
+  remove the listed English residue from JA locale content, add the missing
+  Features section heading, and localize the step chip label in About.tsx.
+branch: bead/home-duo-insight-7e2
+sha: pending
+base_branch: main
+
+files_changed:
+  - src/pages/About.tsx
+  - src/locales/ja/translation.json
+  - src/locales/en/translation.json
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 49  # pre-existing repo warnings in untouched files; this bead introduced no new lint errors
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-7e2/build.log
+  tsc: "npx tsc --noEmit -> exit 0"
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "No dedicated unit/integration test script exists for the About page; verification used exact-string grep checks plus lint, typecheck, and production build."
+
+ui_surface: true
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "Computer Use app enumeration timed out, so browser QA could not be completed in-session. Static verification covered the required copy and residue checks in both locales."
+  artifacts: []
+  scenarios:
+    - "Verified the Japanese locale contains the exact required hero, How It Works, Features, and CTA headings."
+    - "Verified the hardcoded 'Step {n}' label was replaced with t('about.howItWorks.stepLabel', { n })."
+    - "Verified the listed English residue strings no longer appear in src/pages/About.tsx or src/locales/ja/translation.json."
+
+deferred:
+  - item: "Interactive browser QA on /about in JA and EN."
+    reason: "The available Computer Use tooling timed out while listing local apps. Static verification plus successful build/typecheck was completed instead."
+
+escalations:
+  - "npm ci (approved) to install missing worktree dependencies after sandboxed npx/npm commands failed with ENOTFOUND against registry.npmjs.org."
