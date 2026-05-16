@@ -37,12 +37,17 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
-				paper: '#f9f8f5',
-				'paper-dark': '#f0ede6',
-				ink: '#0a0a0a',
-				'ink-60': 'rgba(10,10,10,0.6)',
-				'ink-30': 'rgba(10,10,10,0.3)',
-				'ink-10': 'rgba(10,10,10,0.08)',
+				paper: {
+					DEFAULT: '#f9f8f5',
+					dark: '#f0ede6',
+				},
+				ink: {
+					DEFAULT: '#0a0a0a',
+					80: 'rgba(10,10,10,0.82)',
+					60: 'rgba(10,10,10,0.6)',
+					30: 'rgba(10,10,10,0.3)',
+					10: 'rgba(10,10,10,0.08)',
+				},
 				rule: 'rgba(10,10,10,0.12)',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',

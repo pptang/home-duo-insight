@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, dateAgo } from "@/lib/format";
-import ReportCard, { type ReportCardHighlight } from "@/components/ReportCard";
+import ReportCard, { type ReportCardHighlight } from "@/components/ui/ReportCard";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";

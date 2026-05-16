@@ -1,0 +1,54 @@
+bead: home-duo-insight-si1
+summary: Add ink-80 token, nest ink/paper as objects, relocate ReportCard to components/ui
+branch: feat/home-duo-insight-si1-design-tokens
+sha: 90bb999031255484b382d0eb7321dcf606baaf5b
+base_branch: feat/home-duo-insight-j2p-remove-stray-label
+
+files_changed:
+  - tailwind.config.ts
+  - src/components/ui/ReportCard.tsx   # git mv from src/components/ReportCard.tsx + emoji->icon fix (see notes)
+  - src/pages/Index.tsx
+  - src/pages/Feed.tsx
+  - src/pages/Dashboard.tsx
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 47          # all pre-existing, unrelated to this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-si1/build.log
+  tsc_noemit_exit_code: 0
+
+tests:
+  ran: false
+  command: n/a
+  result: skipped
+  reason_if_skipped: "No test files exist for tailwind config or ReportCard; change verified via build + compiled-CSS inspection + browser QA"
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-si1/screenshots/index.png
+    - .agents/reports/home-duo-insight-si1/screenshots/feed.png
+    - .agents/reports/home-duo-insight-si1/screenshots/dashboard.png
+  scenarios:
+    - "Index page (/) renders: bg-paper background, dark bg-ink CTA button, text-ink headings all resolve correctly"
+    - "Feed page (/feed) renders ReportCard list (#0001-#0003) correctly after relocation to components/ui; bg-ink dark widget panels and text-ink/text-ink-60 text intact"
+    - "Dashboard (/dashboard) redirects to auth when unauthenticated (expected); dark bg-ink panel renders correctly"
+
+verification_notes:
+  - "Compiled CSS inspected post-build: all 13 in-use utilities (text-ink, text-ink-30/60, text-paper, bg-ink, bg-ink-10/30/60, bg-paper, bg-paper-dark, border-ink, border-ink-10, border-paper) resolve to identical colors as before the nesting change. ink alpha shades #0a0a0a14/4d/99 match prior rgba(10,10,10,.08/.3/.6); bg-paper-dark resolves from paper.dark."
+  - "ink-80 = rgba(10,10,10,.82) added (was absent)."
+  - "grep confirms no other importers of components/ReportCard; all 3 (Index, Feed, Dashboard) updated to @/components/ui/ReportCard. git mv preserves history."
+  - "Required emoji fix: moving ReportCard into src/components/ui/ caused lint-staged (which runs eslint with EMOJI_LINT=error on the relocated file) to flag a PRE-EXISTING Unicode emoji 👁 on line 190 as a blocking error. The local/no-emoji-jsx rule directs replacing it with a Lucide icon, so replaced 👁 with the Lucide <Eye> icon (h-2.5 w-2.5, aria-hidden). In-scope: necessary to land the relocation with a clean pre-commit hook. EMOJI_LINT=error eslint on the file now exits 0."
+
+deferred: []
+
+escalations:
+  - "NEEDS_ELEVATION-noop: base branch feat/home-duo-insight-j2p-remove-stray-label was checked out in a sibling worktree, so `git checkout` of it failed. Worked around by branching directly off the verified base SHA 6902134559d0f60a2df61a47af63a68c31b608ae (HEAD of that branch). Not a permission denial; no user action needed."
