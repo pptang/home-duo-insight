@@ -11,6 +11,7 @@ files_changed:
   - src/pages/About.tsx
   - src/locales/ja/translation.json
   - src/locales/en/translation.json
+  - .agents/reports/home-duo-insight-7e2/build.log
   - .agents/reports/home-duo-insight-7e2/report.yaml
   - .agents/reports/home-duo-insight-7e2/qa-notes.md
   - .agents/reports/home-duo-insight-7e2/about-ja-top.png
