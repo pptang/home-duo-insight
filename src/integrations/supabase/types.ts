@@ -105,6 +105,36 @@ export type Database = {
           },
         ]
       }
+      comparisons_archive_non_jp: {
+        Row: {
+          archived_at: string
+          comparison_row: Json
+          id: string
+          property_a_row: Json | null
+          property_b_row: Json | null
+          reason: string
+          recommendation_rows: Json | null
+        }
+        Insert: {
+          archived_at?: string
+          comparison_row: Json
+          id: string
+          property_a_row?: Json | null
+          property_b_row?: Json | null
+          reason?: string
+          recommendation_rows?: Json | null
+        }
+        Update: {
+          archived_at?: string
+          comparison_row?: Json
+          id?: string
+          property_a_row?: Json | null
+          property_b_row?: Json | null
+          reason?: string
+          recommendation_rows?: Json | null
+        }
+        Relationships: []
+      }
       expert_profiles: {
         Row: {
           average_rating: number | null
@@ -654,6 +684,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      comparison_status: ["processing", "failed", "published", "archived"],
       social_media_platform: ["twitter", "instagram", "line", "website"],
       user_role: ["user", "expert", "admin"],
     },
