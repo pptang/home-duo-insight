@@ -4,7 +4,7 @@ summary: |
   remove the listed English residue from JA locale content, add the missing
   Features section heading, and localize the step chip label in About.tsx.
 branch: bead/home-duo-insight-7e2
-sha: pending
+sha: d465a957acbe3ae39d13c9a3ce3536f47c227fed
 base_branch: main
 
 files_changed:
