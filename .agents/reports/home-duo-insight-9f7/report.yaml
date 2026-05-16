@@ -1,0 +1,68 @@
+bead: home-duo-insight-9f7
+summary: Add /dashboard page for logged-in users showing their own comparisons including failed/processing; add StatusReportCard with retry button; Topbar nav link; i18n strings. Code-review round 2 applied (shared format.ts helpers, DashboardSkeleton extraction, optional StatusReportCard retry props, trailing newlines).
+branch: feat/home-duo-insight-9f7-dashboard
+sha: <updated below after commit>
+
+base_branch: main
+
+files_changed:
+  - src/pages/Dashboard.tsx
+  - src/components/StatusReportCard.tsx
+  - src/lib/format.ts
+  - src/App.tsx
+  - src/components/ui/Topbar.tsx
+  - src/pages/Feed.tsx
+  - src/locales/ja/translation.json
+  - src/locales/en/translation.json
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 49  # all pre-existing (shadcn/ui, emoji in edge-functions, missing deps in admin pages)
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-9f7/build.log
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: no test file exists for Dashboard or StatusReportCard; no existing Vitest/Jest suite in this repo
+
+ui_surface: true
+
+ui_qa:
+  ran: false
+  reason_if_skipped: >
+    No local dev server is running in this worktree and no browser automation
+    harness (Playwright/Cypress) is configured for automated screenshot capture.
+    Manual verification of /dashboard route, StatusReportCard variants, and retry
+    flow should be performed in a running dev environment.
+  artifacts: []
+  scenarios:
+    - "Auth gate: unauthenticated visit to /dashboard redirects to /auth"
+    - "Auth gate: while auth resolves, loading skeleton shown"
+    - "Empty state: user with no comparisons sees empty state with create CTA"
+    - "Published card: published comparison renders ReportCard linking to /comparisons/:id"
+    - "Processing card: processing comparison shows pulse + processingLabel, no retry button"
+    - "Failed card: failed comparison shows 物件情報を取得できませんでした + mapped reason + 再試行 button"
+    - "Retry: clicking 再試行 calls analyzeProperties+generateRecommendation, archives old row, navigates to new comparison"
+    - "Retry disabled: failed card with missing urlA/urlB shows cannotRetry text instead of button"
+    - "Topbar: マイレポート nav item visible when logged in, hidden when logged out"
+
+code_review_round_2:
+  blocking_resolved:
+    - "Extracted formatPrice + dateAgo into src/lib/format.ts; Feed.tsx and Dashboard.tsx now import them, local copies removed (bodies unchanged, 本日/日前/ヶ月前 literals untouched)"
+  polish_resolved:
+    - "Restored trailing newline on ja/ and en/ translation.json"
+    - "Made StatusReportCard onRetry/isRetrying optional; dropped them from the processing call site in Dashboard.tsx"
+    - "Extracted DashboardSkeleton local component; used in both authLoading and isLoading states"
+
+deferred:
+  - { item: "QA screenshots not captured", reason: "no browser automation harness available in worktree; manual QA recommended" }
+  - { item: "Retry preserves original PersonalizationValues", reason: "accepted limitation per spec — failed comparisons do not persist PersonalizationValues; defaultLandingPreferences used instead with code comment" }
+
+escalations: []

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { formatPrice, dateAgo } from "@/lib/format";
 import ReportCard, { type ReportCardHighlight } from "@/components/ReportCard";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -164,20 +165,6 @@ const Feed = () => {
     if (next.has(id)) next.delete(id);
     else next.add(id);
     setter(next);
-  };
-
-  const formatPrice = (price: number | null): string => {
-    if (price === null) return "—";
-    if (price >= 100000000) return `¥${(price / 100000000).toFixed(2)}億`;
-    if (price >= 10000) return `¥${(price / 10000).toFixed(0)}万`;
-    return `¥${price.toLocaleString()}`;
-  };
-
-  const dateAgo = (iso: string): string => {
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
-    if (days < 1) return "本日";
-    if (days < 30) return `${days}日前`;
-    return `${Math.floor(days / 30)}ヶ月前`;
   };
 
   return (

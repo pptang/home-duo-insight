@@ -5,6 +5,7 @@ import { Plus, RefreshCw, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { formatPrice, dateAgo } from "@/lib/format";
 import {
   analyzeProperties,
   generateRecommendation,
@@ -37,19 +38,22 @@ interface DashboardComparison {
   propertyB: Property;
 }
 
-const formatPrice = (price: number | null): string => {
-  if (price === null) return "—";
-  if (price >= 100000000) return `¥${(price / 100000000).toFixed(2)}億`;
-  if (price >= 10000) return `¥${(price / 10000).toFixed(0)}万`;
-  return `¥${price.toLocaleString()}`;
-};
-
-const dateAgo = (iso: string): string => {
-  const days = Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
-  if (days < 1) return "本日";
-  if (days < 30) return `${days}日前`;
-  return `${Math.floor(days / 30)}ヶ月前`;
-};
+/** Loading skeleton shared by the auth-resolving and data-fetching states. */
+const DashboardSkeleton = () => (
+  <div className="space-y-3">
+    {[0, 1, 2].map((i) => (
+      <div key={i} className="border border-rule rounded-lg p-4 bg-white">
+        <div className="skel h-4 w-24 mb-3" />
+        <div className="skel h-5 w-3/4 mb-2" />
+        <div className="skel h-5 w-2/3 mb-3" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="skel h-16" />
+          <div className="skel h-16" />
+        </div>
+      </div>
+    ))}
+  </div>
+);
 
 const Dashboard = () => {
   const { t } = useTranslation();
@@ -178,19 +182,7 @@ const Dashboard = () => {
     return (
       <div className="bg-paper text-ink">
         <div className="max-w-[800px] mx-auto px-5 sm:px-8 py-8">
-          <div className="space-y-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="border border-rule rounded-lg p-4 bg-white">
-                <div className="skel h-4 w-24 mb-3" />
-                <div className="skel h-5 w-3/4 mb-2" />
-                <div className="skel h-5 w-2/3 mb-3" />
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="skel h-16" />
-                  <div className="skel h-16" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <DashboardSkeleton />
         </div>
       </div>
     );
@@ -229,21 +221,7 @@ const Dashboard = () => {
         </div>
 
         {/* Loading skeleton */}
-        {isLoading && (
-          <div className="space-y-3">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="border border-rule rounded-lg p-4 bg-white">
-                <div className="skel h-4 w-24 mb-3" />
-                <div className="skel h-5 w-3/4 mb-2" />
-                <div className="skel h-5 w-2/3 mb-3" />
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="skel h-16" />
-                  <div className="skel h-16" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {isLoading && <DashboardSkeleton />}
 
         {/* Error */}
         {error && !isLoading && (
@@ -330,8 +308,6 @@ const Dashboard = () => {
                     num={num}
                     date={date}
                     variant="processing"
-                    onRetry={() => handleRetry(c)}
-                    isRetrying={retryingId === c.id}
                   />
                 );
               }

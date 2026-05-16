@@ -22,8 +22,10 @@ export interface StatusReportCardProps {
   urlA?: string | null;
   /** Original URL for property B — needed to enable the retry button. */
   urlB?: string | null;
-  onRetry: (id: string) => void;
-  isRetrying: boolean;
+  /** Retry handler — only used by the "failed" variant. */
+  onRetry?: (id: string) => void;
+  /** Whether this card's retry is in flight — only used by the "failed" variant. */
+  isRetrying?: boolean;
 }
 
 const StatusReportCard = ({
@@ -98,7 +100,7 @@ const StatusReportCard = ({
           <Button
             variant="editorial"
             size="editorial-sm"
-            onClick={() => onRetry(comparisonId)}
+            onClick={() => onRetry?.(comparisonId)}
             disabled={isRetrying}
           >
             {isRetrying
