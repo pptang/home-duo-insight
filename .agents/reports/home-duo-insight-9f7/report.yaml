@@ -1,7 +1,7 @@
 bead: home-duo-insight-9f7
 summary: Add /dashboard page for logged-in users showing their own comparisons including failed/processing; add StatusReportCard with retry button; Topbar nav link; i18n strings. Code-review round 2 applied (shared format.ts helpers, DashboardSkeleton extraction, optional StatusReportCard retry props, trailing newlines).
 branch: feat/home-duo-insight-9f7-dashboard
-sha: <updated below after commit>
+sha: 3108afc1637a0425e776e746b952d799360028c3
 
 base_branch: main
 
