@@ -431,7 +431,7 @@
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
       "eyebrow": "AiSumai について",
-      "heading": "理想の住まいを、自信を持って選ぶ。",
+      "heading": "日本の不動産選びを、もっと、誠実に。",
       "lede": "AiSumai は、AI 分析・専門家の知見・コミュニティの声を組み合わせ、2 つの候補物件をフェアに比較するためのツールです。",
       "description": "日本で賃貸や住宅購入を検討している方が、自信を持って住まいを決定できるようサポートします",
       "descriptionAI": "AIによる分析",
@@ -441,8 +441,9 @@
       "ctaSecondary": "比較レポートを見る"
     },
     "howItWorks": {
-      "eyebrow": "How it works — 仕組み",
-      "title": "3 ステップで、納得の比較。",
+      "eyebrow": "仕組み",
+      "title": "3 ステップで、客観的な比較レポートを。",
+      "stepLabel": "ステップ {{n}}",
       "subtitle": "AI、専門家、コミュニティ。3 つの視点が重なるところに、あなたにとっての正解があります。",
       "aiTitle": "AI で客観的に分析",
       "aiDescription": "間取り、立地、価格、築年数、リスク要因まで。AI が客観的な基準とあなたの優先事項に基づき、両物件を多角的に評価します。",
@@ -458,23 +459,24 @@
       "communityOverlay": "コミュニティの経験"
     },
     "features": {
-      "eyebrow": "Why AiSumai — 特長",
-      "featureLabel": "Feature 0{{n}}",
-      "illustrationLabel": "Visual",
+      "eyebrow": "特長",
+      "title": "なぜ AiSumai を選ぶか。",
+      "featureLabel": "特長 0{{n}}",
+      "illustrationLabel": "イメージ",
       "fair": {
         "title": "営業トークではなく、データで比べる。",
         "description": "ポータルサイトの売り文句や写真の演出に左右されない、フェアで透明性のある比較レポートを生成します。良い点も、不安な点も、同じ尺度で並べます。",
-        "tag": "Bias-free"
+        "tag": "先入観に左右されない"
       },
       "fast": {
         "title": "数分で、最初の判断材料が手に入る。",
         "description": "URL を 2 つ貼るだけ。AI が即座に主要な差分・スコア・リスクを抽出し、あなたが判断に使える整理されたサマリを提示します。",
-        "tag": "Under 60s"
+        "tag": "すばやく把握"
       },
       "trusted": {
         "title": "AI と人、両方の目でダブルチェック。",
         "description": "AI のスコアに加え、検証済みの不動産専門家がコメントを追加。技術と現場知の両方から裏付けられた、信頼できる判断を支えます。",
-        "tag": "AI + Human"
+        "tag": "AI と専門家"
       }
     },
     "faq": {
@@ -508,9 +510,9 @@
       "member3Bio": "日本全国の不動産専門家のネットワークを調整。"
     },
     "cta": {
-      "eyebrow": "Get started",
+      "eyebrow": "今すぐ比較",
       "subtitle": "登録不要・無料で 3 件まで。まずは候補の物件を 2 つ並べてみてください。",
-      "heading": "AiSumaiでの旅を始める準備はできましたか？",
+      "heading": "迷っている 2 つの物件を、今すぐ比較してみませんか。",
       "description": "今すぐ候補の物件を比較して、",
       "descriptionHighlight": "完璧な住まい",
       "descriptionEnd": "を自信を持って選ぶためのパーソナライズされた洞察を得ましょう。",

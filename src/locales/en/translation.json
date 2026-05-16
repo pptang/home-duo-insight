@@ -443,6 +443,7 @@
     "howItWorks": {
       "eyebrow": "How it works",
       "title": "Three steps to a confident decision.",
+      "stepLabel": "Step {{n}}",
       "subtitle": "AI, experts, and community — three lenses that converge on the answer that's right for you.",
       "aiTitle": "AI does the objective analysis",
       "aiDescription": "Floor plan, location data, pricing, age, and risk factors. Our AI evaluates both properties on objective criteria weighted to your personal priorities.",
@@ -459,6 +460,7 @@
     },
     "features": {
       "eyebrow": "Why AiSumai",
+      "title": "Why choose AiSumai.",
       "featureLabel": "Feature 0{{n}}",
       "illustrationLabel": "Visual",
       "fair": {

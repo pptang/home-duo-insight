@@ -1,0 +1,65 @@
+bead: home-duo-insight-7e2
+summary: |
+  Replace the Japanese About page copy with the required Task 04 strings,
+  remove the listed English residue from JA locale content, add the missing
+  Features section heading, and localize the step chip label in About.tsx.
+branch: bead/home-duo-insight-7e2
+sha: d465a957acbe3ae39d13c9a3ce3536f47c227fed
+base_branch: main
+
+files_changed:
+  - src/pages/About.tsx
+  - src/locales/ja/translation.json
+  - src/locales/en/translation.json
+  - .agents/reports/home-duo-insight-7e2/build.log
+  - .agents/reports/home-duo-insight-7e2/report.yaml
+  - .agents/reports/home-duo-insight-7e2/qa-notes.md
+  - .agents/reports/home-duo-insight-7e2/about-ja-top.png
+  - .agents/reports/home-duo-insight-7e2/about-ja-full.png
+  - .agents/reports/home-duo-insight-7e2/about-ja-features.png
+  - .agents/reports/home-duo-insight-7e2/about-ja-cta.png
+  - .agents/reports/home-duo-insight-7e2/about-en-full.png
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 49  # pre-existing repo warnings in untouched files; this bead introduced no new lint errors
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-7e2/build.log
+  tsc: "npx tsc --noEmit -> exit 0"
+
+tests:
+  ran: false
+  command: "n/a"
+  result: skipped
+  reason_if_skipped: "No dedicated unit/integration test script exists for the About page; verification used exact-string grep checks plus lint, typecheck, and production build."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-7e2/about-ja-top.png
+    - .agents/reports/home-duo-insight-7e2/about-ja-full.png
+    - .agents/reports/home-duo-insight-7e2/about-ja-features.png
+    - .agents/reports/home-duo-insight-7e2/about-ja-cta.png
+    - .agents/reports/home-duo-insight-7e2/about-en-full.png
+    - .agents/reports/home-duo-insight-7e2/qa-notes.md
+  scenarios:
+    - "Japanese /about at http://127.0.0.1:8081/about: hero heading rendered exactly as '日本の不動産選びを、もっと、誠実に。'; top-of-page capture saved to about-ja-top.png and full-page capture saved to about-ja-full.png."
+    - "Japanese /about: How It Works title rendered exactly as '3 ステップで、客観的な比較レポートを。', step chips rendered visually as 'ステップ 01-03', and the targeted English residue strings were absent from the eyebrow, feature, tag, and CTA areas."
+    - "Japanese /about: Features heading rendered exactly as 'なぜ AiSumai を選ぶか。'; feature chips/tags rendered as '特長 01-03', '先入観に左右されない', 'すばやく把握', and 'AI と専門家'; evidence captured in about-ja-features.png."
+    - "Japanese /about: CTA heading rendered exactly as '迷っている 2 つの物件を、今すぐ比較してみませんか。'; evidence captured in about-ja-cta.png."
+    - "English /about sanity pass: the new Features heading rendered as 'Why choose AiSumai.', step chips and feature chips rendered as 'STEP 01-03' and 'FEATURE 01-03', and no raw translation keys, blank labels, 'undefined', or 'null' were visible in the new localized areas; evidence captured in about-en-full.png."
+
+deferred:
+  - item: "No additional follow-up."
+    reason: "QA evidence for the About-page copy pass is now captured in screenshots and qa-notes.md."
+
+escalations:
+  - "npm ci (approved) to install missing worktree dependencies after sandboxed npx/npm commands failed with ENOTFOUND against registry.npmjs.org."

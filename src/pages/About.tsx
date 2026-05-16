@@ -129,7 +129,7 @@ const About = () => {
               >
                 <div className="flex items-center justify-between">
                   <Eyebrow size="sm" tone="muted">
-                    Step {stepNumber}
+                    {t("about.howItWorks.stepLabel", { n: stepNumber })}
                   </Eyebrow>
                   <span className="w-9 h-9 border border-rule rounded-full flex items-center justify-center bg-paper-dark">
                     <Icon
@@ -156,6 +156,12 @@ const About = () => {
 
       {/* FEATURES — 3 alternating layout */}
       <Section width="wide" className="pt-16 pb-20">
+        <div className="text-center mb-12">
+          <h2 className="font-display text-[clamp(28px,4vw,40px)] leading-[1.15] tracking-[-0.5px] text-ink">
+            {t("about.features.title")}
+          </h2>
+        </div>
+
         <div className="flex flex-col gap-14 sm:gap-20">
           {features.map((feature, index) => {
             const Icon = feature.icon;
