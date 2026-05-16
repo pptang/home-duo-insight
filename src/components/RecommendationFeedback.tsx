@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, HeartHandshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/use-auth';
@@ -95,7 +95,7 @@ export const RecommendationFeedback = ({ recommendationId, className }: Recommen
     return (
       <div className={cn("text-center py-6", className)}>
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/30 rounded-full">
-          <span className="text-lg">🙏</span>
+          <HeartHandshake className="h-5 w-5 text-primary" aria-hidden />
           <span className="text-muted-foreground font-medium">
             {t('recommendation.feedback.thanks')}
           </span>

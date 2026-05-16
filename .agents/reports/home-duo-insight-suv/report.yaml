@@ -1,0 +1,58 @@
+bead: home-duo-insight-suv
+summary: Migrate all remaining Unicode emoji to Lucide React icons and flip the CI emoji guard to a hard block.
+branch: feat/home-duo-insight-suv-emoji-hardblock
+sha: 26131f4bccb225f476fc087834ff8edbc10b1d3c
+
+base_branch: feat/home-duo-insight-si1-design-tokens
+
+files_changed:
+  - .github/workflows/lint.yml
+  - CONTRIBUTING.md
+  - src/components/LanguageSwitcher.tsx
+  - src/components/MetadataReviewStage.tsx
+  - src/components/RecommendationFeedback.tsx
+  - src/components/admin/ExpertList.tsx
+  - src/components/admin/ExpertProfileDetail.tsx
+  - src/components/compare-result/AIAnalysisBlock.tsx
+  - src/components/compare-result/ExpertSectionPanel.tsx
+  - src/components/ui/EditableField.tsx
+  - src/components/ui/MarkdownRenderer.tsx
+  - src/pages/ExpertProfilePage.tsx
+  - supabase/functions/generate-recommendation/index.ts
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16          # all pre-existing react-refresh / exhaustive-deps; no emoji warnings remain
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-suv/build.log
+
+tests:
+  ran: true
+  command: "npm run lint:emoji  (EMOJI_LINT=error eslint .)"
+  result: pass
+  reason_if_skipped: "Acceptance gate: lint:emoji exits 0 tree-wide (0 errors). Also npx tsc --noEmit exit 0."
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-suv/screenshots/01-home.png
+    - .agents/reports/home-duo-insight-suv/screenshots/02-langswitcher.png
+    - .agents/reports/home-duo-insight-suv/screenshots/03-experts.png
+    - .agents/reports/home-duo-insight-suv/screenshots/04-markdown.png
+  scenarios:
+    - "Home page (/) renders; LanguageSwitcher trigger shows Globe icon."
+    - "LanguageSwitcher dropdown open: flag emoji replaced with EN / JA text labels, both items render."
+    - "Experts page (/experts) renders auth-gated sign-in card without regression."
+    - "MarkdownRenderer harness: all 14 custom shortcodes (:house: :round_pushpin: :white_check_mark: :moneybag: :chart_with_upwards_trend: :warning: :brain: :thinking: etc.) render as inline Lucide icons; standard shortcode :smile: still resolves via remark-emoji; plain text unchanged; no console errors."
+
+deferred: []
+
+escalations: []

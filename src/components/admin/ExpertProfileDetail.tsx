@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -299,7 +300,7 @@ export function ExpertProfileDetail({
                 variant="outline"
                 className="flex items-center gap-1 bg-white"
               >
-                <span className="text-yellow-500">★</span>
+                <Star className="text-yellow-500 h-3.5 w-3.5 fill-current" aria-hidden />
                 <span>{expert.average_rating.toFixed(1)}</span>
                 <span className="text-xs">({expert.rating_count})</span>
               </Badge>

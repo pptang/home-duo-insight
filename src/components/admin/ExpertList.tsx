@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Star } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -150,7 +151,7 @@ export function ExpertList() {
                 <TableCell>
                   {expert.rating_count > 0 ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-yellow-500">★</span>
+                      <Star className="text-yellow-500 h-4 w-4 fill-current" aria-hidden />
                       <span>{formatRating(expert.average_rating)}</span>
                       <span className="text-gray-400 text-xs">
                         ({expert.rating_count})

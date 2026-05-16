@@ -4,6 +4,7 @@ import { useMetadataEditing } from '@/contexts/MetadataEditingContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useTranslation } from 'react-i18next';
+import { House, Home } from 'lucide-react';
 
 export const MetadataReviewStage: React.FC = () => {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ export const MetadataReviewStage: React.FC = () => {
         <Card className="p-6">
           <div className="mb-4">
             <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              🏠 {t('metadataReview.propertyA')}
+              <House className="h-5 w-5" aria-hidden /> {t('metadataReview.propertyA')}
               {state.unsavedChanges.property_a.size > 0 && (
                 <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
                   {t('metadataReview.unsavedChanges', { count: state.unsavedChanges.property_a.size })}
@@ -50,7 +51,7 @@ export const MetadataReviewStage: React.FC = () => {
         <Card className="p-6">
           <div className="mb-4">
             <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              🏡 {t('metadataReview.propertyB')}
+              <Home className="h-5 w-5" aria-hidden /> {t('metadataReview.propertyB')}
               {state.unsavedChanges.property_b.size > 0 && (
                 <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
                   {t('metadataReview.unsavedChanges', { count: state.unsavedChanges.property_b.size })}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Check } from 'lucide-react';
 import { useMetadataEditing } from '@/contexts/MetadataEditingContext';
 import { useAutoSave } from '@/hooks/useAutoSave';
 import { useFieldValidation } from '@/hooks/useFieldValidation';
@@ -125,7 +126,7 @@ export const EditableField: React.FC<EditableFieldProps> = ({
             {displayValue}
           </span>
           {!isEmpty && (
-            <span className="text-green-600 text-sm ml-2">✓</span>
+            <Check className="text-green-600 h-4 w-4 ml-2 shrink-0" aria-hidden />
           )}
         </div>
       </div>

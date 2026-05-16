@@ -1,33 +1,101 @@
-import ReactMarkdown from 'react-markdown';
+import type { ComponentType } from 'react';
+import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkEmoji from 'remark-emoji';
 import remarkBreaks from 'remark-breaks';
 import remarkGfm from 'remark-gfm';
+import { visit } from 'unist-util-visit';
+import type { Root, Text } from 'mdast';
+import {
+  Scale,
+  MapPin,
+  Globe,
+  Compass,
+  CheckCircle,
+  AlertTriangle,
+  FileText,
+  House,
+  Wallet,
+  Sparkles,
+  Lightbulb,
+  TrendingUp,
+  HelpCircle,
+  Brain,
+  type LucideProps,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Map unsupported shortcodes to Unicode emojis
-const CUSTOM_EMOJI_MAP: Record<string, string> = {
-  ':scales:': '⚖️',
-  ':round_pushpin:': '📍',
-  ':earth_asia:': '🌏',
-  ':compass:': '🧭',
-  ':white_check_mark:': '✅',
-  ':warning:': '⚠️',
-  ':memo:': '📝',
-  ':house:': '🏠',
-  ':moneybag:': '💰',
-  ':sparkles:': '✨',
-  ':bulb:': '💡',
-  ':chart_with_upwards_trend:': '📈',
-  ':thinking:': '🤔',
-  ':brain:': '🧠',
+// Custom shortcodes that `remark-emoji` does not resolve. Each maps to a
+// Lucide React icon component so no Unicode emoji literals live in source.
+const CUSTOM_ICON_MAP: Record<string, ComponentType<LucideProps>> = {
+  ':scales:': Scale,
+  ':round_pushpin:': MapPin,
+  ':earth_asia:': Globe,
+  ':compass:': Compass,
+  ':white_check_mark:': CheckCircle,
+  ':warning:': AlertTriangle,
+  ':memo:': FileText,
+  ':house:': House,
+  ':moneybag:': Wallet,
+  ':sparkles:': Sparkles,
+  ':bulb:': Lightbulb,
+  ':chart_with_upwards_trend:': TrendingUp,
+  ':thinking:': HelpCircle,
+  ':brain:': Brain,
 };
 
-function preprocessEmojis(content: string): string {
-  let processed = content;
-  for (const [shortcode, emoji] of Object.entries(CUSTOM_EMOJI_MAP)) {
-    processed = processed.split(shortcode).join(emoji);
-  }
-  return processed;
+const SHORTCODE_RE = new RegExp(
+  `(${Object.keys(CUSTOM_ICON_MAP)
+    .map((code) => code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|')})`,
+  'g',
+);
+
+// mdast node carrying instructions for `mdast-util-to-hast` to emit a custom
+// `<icon name="...">` element, which the `components` map renders below.
+interface IconNode {
+  type: 'icon';
+  value: string;
+  data: { hName: 'icon'; hProperties: { name: string } };
+}
+
+/**
+ * Remark plugin: split text nodes on the custom shortcodes and replace each
+ * match with an icon node. Must run *before* `remarkEmoji` so it claims its
+ * shortcodes before they are resolved to Unicode emoji. Surrounding text is
+ * preserved exactly.
+ */
+function remarkCustomIcons() {
+  return (tree: Root) => {
+    visit(tree, 'text', (node: Text, index, parent) => {
+      if (!parent || index === undefined) return;
+      const value = node.value;
+      if (!value.includes(':')) return;
+      const parts = value.split(SHORTCODE_RE);
+      if (parts.length === 1) return;
+
+      const replacement = parts
+        .filter((part) => part !== '')
+        .map((part): Text | IconNode => {
+          if (part in CUSTOM_ICON_MAP) {
+            return {
+              type: 'icon',
+              value: part,
+              data: { hName: 'icon', hProperties: { name: part } },
+            };
+          }
+          return { type: 'text', value: part };
+        });
+
+      // IconNode is not a standard mdast child; the cast is required because
+      // it is a synthetic node consumed only by mdast-util-to-hast via hName.
+      parent.children.splice(
+        index,
+        1,
+        ...(replacement as unknown as typeof parent.children),
+      );
+      return index + replacement.length;
+    });
+  };
 }
 
 interface MarkdownRendererProps {
@@ -40,9 +108,24 @@ interface MarkdownRendererProps {
   invert?: boolean;
 }
 
-export function MarkdownRenderer({ content, className, invert = false }: MarkdownRendererProps) {
-  const processedContent = preprocessEmojis(content);
+// `icon` is a non-standard intrinsic element produced by remarkCustomIcons;
+// react-markdown's Components type only knows HTML tags, hence the extension.
+type IconComponentProps = { name?: string };
+type ExtendedComponents = Components & {
+  icon: ComponentType<IconComponentProps>;
+};
 
+const components: ExtendedComponents = {
+  icon: ({ name }: IconComponentProps) => {
+    const Icon = name ? CUSTOM_ICON_MAP[name] : undefined;
+    if (!Icon) return null;
+    return (
+      <Icon className="inline-block h-[1.1em] w-[1.1em] align-text-bottom" aria-hidden />
+    );
+  },
+};
+
+export function MarkdownRenderer({ content, className, invert = false }: MarkdownRendererProps) {
   return (
     <div className={cn(
       "prose prose-gray max-w-none",
@@ -75,8 +158,14 @@ export function MarkdownRenderer({ content, className, invert = false }: Markdow
       "[&>*:first-child]:mt-0",
       className
     )}>
-      <ReactMarkdown remarkPlugins={[remarkGfm, remarkEmoji, remarkBreaks]}>
-        {processedContent}
+      <ReactMarkdown
+        // remarkCustomIcons MUST run before remarkEmoji: it claims the
+        // shortcodes in CUSTOM_ICON_MAP and turns them into <icon> elements;
+        // remarkEmoji then resolves any remaining standard shortcodes.
+        remarkPlugins={[remarkGfm, remarkCustomIcons, remarkEmoji, remarkBreaks]}
+        components={components}
+      >
+        {content}
       </ReactMarkdown>
     </div>
   );
