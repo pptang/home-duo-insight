@@ -57,7 +57,7 @@ echo ""
 
 # Test data - Using athome.co.jp URLs to test with properties that have many images
 PROPERTY_URL_A="https://www.athome.co.jp/mansion/1025793782/?DOWN=2&BKLISTID=002LPC&SEARCHDIV=1&sref=list_simple"
-PROPERTY_URL_B="https://www.athome.co.jp/mansion/6984350048/?DOWN=2&BKLISTID=002LPC&SEARCHDIV=1&sref=list_simple"
+PROPERTY_URL_B="https://www.athome.co.jp/mansion/1131340608/?BKLISTID=036PPC&sref=lateral&RECOMMFLG=1"
 
 echo "Testing with properties:"
 echo "Property A: $PROPERTY_URL_A"
