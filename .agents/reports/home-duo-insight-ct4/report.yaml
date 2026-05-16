@@ -1,7 +1,7 @@
 bead: home-duo-insight-ct4
 summary: "Live SUUMO A/B test proved onlyMainContent:true yields identical extractImageUrls() output — flag flipped false->true to cut Gemini input cost."
 branch: bd/home-duo-insight-ct4-onlymaincontent
-sha: 485b3ee7f916b2b81d1684f4df36f79055695e5c
+sha: 129da396039cf1a7482693f53d42cef0c8c7dc21   # the code+evidence commit; this SHA line is fixed up by the immediately-following commit on the same branch
 
 base_branch: main
 
