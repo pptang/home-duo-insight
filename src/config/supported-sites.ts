@@ -22,6 +22,20 @@ export const SUPPORTED_SITE_HOSTS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * Human-readable labels for the supported sites, in display order. The frontend
+ * renders this list so users can see which sites are accepted before they paste
+ * a URL. Each `host` is one of the entries in `SUPPORTED_SITE_HOSTS` above —
+ * keep this list in sync with the whitelist whenever a site is added/removed.
+ */
+export const SUPPORTED_SITES: ReadonlyArray<{ label: string; host: string }> = [
+  { label: "SUUMO", host: "suumo.jp" },
+  { label: "HOME'S", host: "homes.co.jp" },
+  { label: "LIFULL", host: "lifull.com" },
+  { label: "AtHome", host: "athome.co.jp" },
+  { label: "マンションレビュー", host: "mansion-review.jp" },
+];
+
+/**
  * Registrable suffixes that any subdomain of is also accepted.
  * Used to allow e.g. `sumai.suumo.jp`, `chintai.homes.co.jp`, etc.
  */

@@ -1,6 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  isSupportedRealEstateUrl,
+  UNSUPPORTED_SITE_MESSAGE_JA,
+} from "../_shared/url-whitelist.ts";
 
 // Required for CORS
 const corsHeaders = {
@@ -107,6 +111,27 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Authoritative whitelist gate: reject any URL that is not on a supported
+    // Japanese real estate site. parse-properties performs the same check, but
+    // analyze-properties re-validates independently so the domain gate holds
+    // even if this function is invoked directly. See
+    // supabase/functions/_shared/url-whitelist.ts.
+    if (
+      !isSupportedRealEstateUrl(property_url_a) ||
+      !isSupportedRealEstateUrl(property_url_b)
+    ) {
+      return new Response(
+        JSON.stringify({
+          error: "unsupported_site",
+          message: UNSUPPORTED_SITE_MESSAGE_JA,
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     // Log the user_id we received

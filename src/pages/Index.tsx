@@ -16,6 +16,7 @@ import {
 import { trackComparisonCreated, trackRecommendationGenerated } from "@/lib/analytics";
 import {
   isSupportedRealEstateUrl,
+  SUPPORTED_SITES,
   UNSUPPORTED_SITE_MESSAGE_JA,
 } from "@/config/supported-sites";
 
@@ -304,7 +305,7 @@ const Index = () => {
             <div className="px-5 pt-2.5 pb-4 flex flex-wrap gap-4 justify-center border-t border-rule">
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
-                SUUMO / HOME'S / LIFULL 対応
+                {SUPPORTED_SITES.map((site) => site.label).join(" / ")} 対応
               </div>
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
