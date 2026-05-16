@@ -179,6 +179,9 @@ config/master.key
 
 # Local configuration files
 .localrc
+
+# Local agent instructions (not committed)
+CLAUDE.local.md
 .envrc
 .direnv/
 
@@ -204,3 +207,16 @@ screenshots/
 .planning/
 .mcp.json
 .claude/
+
+# Agent orchestration scratch / local state
+# Per-bead evidence (.agents/reports/<bead-id>/) is committed; batch run
+# dirs are throwaway orchestration scratch.
+.agents/batch/
+.agents/reports/batch-*/
+.agents/skills/
+
+# Codex CLI config (local MCP/DSN)
+.codex/
+
+# Design handoff docs (local working files)
+docs/aisumai-design-handoff/
