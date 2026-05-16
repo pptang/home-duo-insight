@@ -358,7 +358,16 @@ async function fetchWithFirecrawl(
       body: JSON.stringify({
         url: url,
         formats: ['html'],
-        onlyMainContent: false // Get full page content including images
+        // NOTE (home-duo-insight-ct4): flipped false -> true after a live
+        // SUUMO A/B test. For 3 SUUMO 中古マンション detail pages, the HTML
+        // returned with onlyMainContent:true vs :false produced a
+        // byte-for-byte identical extractImageUrls() result (20/20 images,
+        // same order, same w=/h= resize params) — SUUMO listing photos live
+        // in the main content region. true trims ~5% of HTML bytes per page,
+        // which is fed downstream to Gemini, cutting input token cost for no
+        // loss of image coverage. (athome serves a bot interstitial either
+        // way — see 6m3 — so it is unaffected by this flag.)
+        onlyMainContent: true
       })
     });
 

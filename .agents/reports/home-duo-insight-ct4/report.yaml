@@ -1,0 +1,116 @@
+bead: home-duo-insight-ct4
+summary: "Live SUUMO A/B test proved onlyMainContent:true yields identical extractImageUrls() output — flag flipped false->true to cut Gemini input cost."
+branch: bd/home-duo-insight-ct4-onlymaincontent
+sha: 485b3ee7f916b2b81d1684f4df36f79055695e5c
+
+base_branch: main
+
+files_changed:
+  - supabase/functions/parse-properties/index.ts
+  - .gitignore   # ignore .agents/reports/home-duo-insight-ct4/raw/ (large local-only HTML dumps)
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 49          # all pre-existing (emoji/exhaustive-deps); none in parse-properties
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-ct4/build.log
+  notes: >
+    npm run build (vite) exit 0; npx tsc --noEmit exit 0. parse-properties is a
+    Deno edge function not covered by either — its change is one literal
+    (onlyMainContent boolean) + comment, no type surface. Verified by the
+    experiment below rather than by the Vite/tsc gates.
+
+tests:
+  ran: true
+  command: "node .agents/reports/home-duo-insight-ct4/experiment.mjs (+ compare.mjs)"
+  result: pass
+  reason_if_skipped: ""
+
+# ui_surface false: edge-function/investigation task, no *.tsx/*.css/route change.
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "ui_surface=false — edge-function investigation, no browser-facing change"
+  artifacts: []
+  scenarios: []
+
+# ---------------------------------------------------------------------------
+# EXPERIMENT (substituted for browser QA)
+# ---------------------------------------------------------------------------
+experiment:
+  question: >
+    Does Firecrawl `onlyMainContent: true` still surface enough image URLs for
+    extractImageUrls() in parse-properties? If yes, flip the flag to shrink the
+    HTML payload fed downstream to Gemini.
+  method: >
+    For each SUUMO 中古マンション detail page, called POST
+    {FIRECRAWL_URL}/v1/scrape twice — once onlyMainContent:false, once true —
+    both formats:['html'], Authorization Bearer <key>, mirroring the request
+    shape in parse-properties/index.ts line 355-363. Ran the REAL
+    extractImageUrls() ported verbatim (lines 187-317) against each returned
+    HTML. compare.mjs additionally diffs the full 20-URL ordered sets.
+  firecrawl_endpoint: "https://api.firecrawl.dev/v1/scrape (hosted)"
+  url_sourcing: >
+    The AiSumai `properties` table (Supabase qditnqwrjioypsuxwagg) has no
+    source-url column — only seeded image_urls — and the MCP-accessible Supabase
+    projects belong to other apps. So 3 live SUUMO 中古マンション detail pages
+    were sourced directly from suumo.jp/ms/chuko/tokyo/sc_chuo/ and verified
+    HTTP 200 with no redirect before use.
+  artifacts:
+    script: .agents/reports/home-duo-insight-ct4/experiment.mjs
+    diff_script: .agents/reports/home-duo-insight-ct4/compare.mjs
+    measurements: .agents/reports/home-duo-insight-ct4/measurements.json
+    raw_html_dir: .agents/reports/home-duo-insight-ct4/raw/   # 6 files, false+true per URL
+
+  results:
+    # htmlBytes = Firecrawl-returned HTML length; images = extractImageUrls() count
+    # (capped at 20); resizeParams = count of extracted URLs carrying w= and h=.
+    - url: "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20807881/"
+      onlyMainContent_false: { htmlBytes: 251396, images: 20, resizeParams: 8 }
+      onlyMainContent_true:  { htmlBytes: 239343, images: 20, resizeParams: 8 }
+      extracted_set_identical_ordered: true
+    - url: "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20838470/"
+      onlyMainContent_false: { htmlBytes: 224353, images: 20, resizeParams: 18 }
+      onlyMainContent_true:  { htmlBytes: 212298, images: 20, resizeParams: 18 }
+      extracted_set_identical_ordered: true
+    - url: "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20817821/"
+      onlyMainContent_false: { htmlBytes: 239210, images: 20, resizeParams: 18 }
+      onlyMainContent_true:  { htmlBytes: 227185, images: 20, resizeParams: 18 }
+      extracted_set_identical_ordered: true
+
+  findings: >
+    Across all 3 SUUMO listings, onlyMainContent:true produced a BYTE-FOR-BYTE
+    IDENTICAL extractImageUrls() result — same 20 URLs, same priority order,
+    same count of w=/h= resize params (compare.mjs: onlyInFalse=0,
+    onlyInTrue=0 for every URL). SUUMO listing photos live inside the main
+    content region, so Firecrawl's main-content extraction does not drop them.
+    HTML payload shrank ~12 KB per page (~5%: 251->239, 224->212, 239->227 KB),
+    which directly reduces the html_property_a/b text fed to Gemini downstream.
+    (Side observation: true responses also returned far faster — ~0.8-1.0s vs
+    ~5.8-9.2s — likely cache warmth, not load-bearing for the decision.)
+
+  decision: FLIPPED
+  decision_reasoning: >
+    The bar ("comparable set of listing images, same order of magnitude") is
+    not just met but exceeded — the image sets are identical, not merely
+    comparable. With zero image-coverage loss and a measurable HTML/Gemini
+    input-cost reduction, flipping onlyMainContent false->true is strictly
+    beneficial. Per closed bead 6m3, athome.co.jp serves a bot-challenge
+    interstitial regardless of scrape options, so it is unaffected by this flag
+    and was correctly excluded from the test.
+
+change:
+  file: supabase/functions/parse-properties/index.ts
+  line: ~361
+  before: "onlyMainContent: false // Get full page content including images"
+  after: "onlyMainContent: true   (with a multi-line comment citing ct4 rationale)"
+
+deferred: []
+
+escalations: []

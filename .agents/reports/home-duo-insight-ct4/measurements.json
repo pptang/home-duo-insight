@@ -1,0 +1,90 @@
+{
+  "generatedAt": "2026-05-16T01:49:22.663Z",
+  "firecrawlUrl": "https://api.firecrawl.dev",
+  "results": [
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20807881/",
+      "slug": "20807881",
+      "onlyMainContent": false,
+      "htmlBytes": 251396,
+      "imageCount": 20,
+      "withResizeParams": 8,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/881/20807881/20807881_0013.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/881/20807881/20807881_0013.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/881/20807881/20807881_0016.jpg&w=84&h=84"
+      ],
+      "ms": 9162
+    },
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20807881/",
+      "slug": "20807881",
+      "onlyMainContent": true,
+      "htmlBytes": 239343,
+      "imageCount": 20,
+      "withResizeParams": 8,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/881/20807881/20807881_0013.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/881/20807881/20807881_0013.jpg&w=84&h=84",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/881/20807881/20807881_0016.jpg&w=84&h=84"
+      ],
+      "ms": 1018
+    },
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20838470/",
+      "slug": "20838470",
+      "onlyMainContent": false,
+      "htmlBytes": 224353,
+      "imageCount": 20,
+      "withResizeParams": 18,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/470/20838470/20838470_0001.jpg",
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/470/20838470/20838470_0002.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/470/20838470/20838470_0001.jpg&w=84&h=84"
+      ],
+      "ms": 5767
+    },
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20838470/",
+      "slug": "20838470",
+      "onlyMainContent": true,
+      "htmlBytes": 212298,
+      "imageCount": 20,
+      "withResizeParams": 18,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/470/20838470/20838470_0001.jpg",
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/470/20838470/20838470_0002.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/470/20838470/20838470_0001.jpg&w=84&h=84"
+      ],
+      "ms": 769
+    },
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20817821/",
+      "slug": "20817821",
+      "onlyMainContent": false,
+      "htmlBytes": 239210,
+      "imageCount": 20,
+      "withResizeParams": 18,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/821/20817821/20817821_0033.jpg",
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/821/20817821/20817821_0031.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/821/20817821/20817821_0033.jpg&w=84&h=84"
+      ],
+      "ms": 5833
+    },
+    {
+      "url": "https://suumo.jp/ms/chuko/tokyo/sc_chuo/nc_20817821/",
+      "slug": "20817821",
+      "onlyMainContent": true,
+      "htmlBytes": 227185,
+      "imageCount": 20,
+      "withResizeParams": 18,
+      "sample": [
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/821/20817821/20817821_0033.jpg",
+        "https://suumo.jp/front/gazo/bukken/030/N010000/img/821/20817821/20817821_0031.jpg",
+        "https://img01.suumo.com/jj/resizeImage?src=gazo/bukken/030/N010000/img/821/20817821/20817821_0033.jpg&w=84&h=84"
+      ],
+      "ms": 868
+    }
+  ]
+}
