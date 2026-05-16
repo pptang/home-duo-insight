@@ -409,7 +409,9 @@ const FeedCard = ({
   // Highlight pills: vote count plus the property type when available.
   const highlights: ReportCardHighlight[] = [];
   if (comparison.expertVotes !== undefined) {
-    highlights.push({ text: "", strong: `${comparison.expertVotes} 票` });
+    // Descriptive "専門家 N 票" label — the bare "票" glyph on its own reads as
+    // a notdef artifact without context (mirrors the ReportCard save-count fix).
+    highlights.push({ text: "専門家", strong: `${comparison.expertVotes} 票` });
   }
   if (comparison.propertyA.property_type) {
     highlights.push({ text: comparison.propertyA.property_type, strong: "" });

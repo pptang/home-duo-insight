@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bookmark } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -110,7 +111,10 @@ function UnclaimedBlock({ onClaim, areaLabel, viewCount, saveCount }: UnclaimedB
       {/* Footer row */}
       <div className="mt-4 pt-4 border-t border-rule flex items-center gap-4 flex-wrap">
         <span className="text-[12px] text-ink-60">👁 {formatCount(viewCount)} 閲覧</span>
-        <span className="text-[12px] text-ink-60">🔖 {formatCount(saveCount)} 人が保存</span>
+        <span className="text-[12px] text-ink-60 inline-flex items-center gap-1">
+          <Bookmark className="h-4 w-4" aria-hidden />
+          {formatCount(saveCount)} 人が保存
+        </span>
         <span className="text-[12px] text-ink-60">📍 {areaLabel}</span>
         <span className="ml-auto font-mono text-[9px] text-ink-30">
           認領した専門家には閲覧者から直接問い合わせが届きます
