@@ -1,7 +1,7 @@
 bead: home-duo-insight-suv
 summary: Migrate all remaining Unicode emoji to Lucide React icons and flip the CI emoji guard to a hard block.
 branch: feat/home-duo-insight-suv-emoji-hardblock
-sha: 26131f4bccb225f476fc087834ff8edbc10b1d3c
+sha: 0a0f04a18d329ceec4c20b9e3780b7373022c99f
 
 base_branch: feat/home-duo-insight-si1-design-tokens
 
