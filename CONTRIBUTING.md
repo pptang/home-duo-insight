@@ -22,21 +22,21 @@ It does **not** scan comments — a developer note mentioning an emoji is fine.
 | --- | --- | --- | --- |
 | `npm run lint` (local + CI) | `eslint .` | `warn` | Reports emoji; does not fail the build |
 | Pre-commit hook | `npx lint-staged` → `eslint --config eslint.emoji.config.js --max-warnings=0` | `error` | **Blocks the commit** if any *staged* `.ts`/`.tsx` file contains emoji |
-| CI emoji guard | `npm run lint:emoji` (`EMOJI_LINT=error eslint .`) | `error` | Whole-tree emoji check; `continue-on-error` until the cleanup list below is empty |
+| CI emoji guard | `npm run lint:emoji` (`EMOJI_LINT=error eslint .`) | `error` | Whole-tree emoji check; **hard-blocks CI** — the build fails on any Unicode emoji in source |
 
-Why the split severity: the repository carries pre-existing emoji (see the
-cleanup list) and unrelated lint debt. Making the rule a hard `error` in the
-shared `eslint.config.js` would turn `npm run lint` and `npm run build` red on
-day one. Instead:
+Why the split severity: keeping the rule at `warn` in the shared
+`eslint.config.js` avoids turning `npm run lint` and `npm run build` red on
+unrelated lint debt, while a dedicated emoji-only check still hard-blocks
+introductions. Concretely:
 
 - The shared config keeps the rule at `warn` so builds stay green.
 - The pre-commit hook uses a dedicated, emoji-only config
   (`eslint.emoji.config.js`) with `--max-warnings=0`, so it fails **only** on
   emoji in the files you actually touch — never on unrelated pre-existing
   warnings.
-- CI runs `npm run lint:emoji` as a non-blocking guard; flip its
-  `continue-on-error` to `false` (in `.github/workflows/lint.yml`) once the
-  cleanup list is empty.
+- CI runs `npm run lint:emoji` as a **blocking** guard
+  (`continue-on-error: false` in `.github/workflows/lint.yml`): any Unicode
+  emoji introduced anywhere in the tree fails the build.
 
 No per-file `eslint-disable` directives are permitted for this rule.
 
@@ -71,25 +71,7 @@ first; per-file disable directives remain forbidden.
 
 ### Cleanup list (pre-existing offenders)
 
-These files predate the rule and still contain emoji. They surface as
-`warn` in `npm run lint` and should be migrated to Lucide icons. Until then,
-`npm run lint:emoji` is non-blocking in CI.
-
-- `src/components/RecommendationFeedback.tsx` — 🙏
-- `src/components/MetadataReviewStage.tsx` — 🏠 🏡
-- `src/components/LanguageSwitcher.tsx` — 🇺🇸 🇯🇵
-- `src/components/ui/EditableField.tsx` — ✓
-- `src/components/ui/MarkdownRenderer.tsx` — emoji-shortcode substitution map
-  (⚖️ 📍 🌏 🧭 ✅ ⚠️ 📝 🏠 💰 ✨ 💡 📈 🤔 🧠); this one is a functional lookup
-  table — migrate by mapping shortcodes to Lucide icon components.
-- `src/components/admin/ExpertList.tsx` — ★
-- `src/components/admin/ExpertProfileDetail.tsx` — ★
-- `src/components/compare-result/AIAnalysisBlock.tsx` — ⚠ (caution glyph map)
-- `src/components/compare-result/ExpertSectionPanel.tsx` — 🏠 👁 🔖 📍 ✓
-- `src/pages/Index.tsx` — 👁 🔖
-- `src/pages/ExpertProfilePage.tsx` — ✓
-- `supabase/functions/generate-recommendation/index.ts` — emoji in a string
-  literal (edge function; not user-facing JSX but still flagged by the rule)
-
-Once this list is empty, set `continue-on-error: false` on the emoji guard
-step in `.github/workflows/lint.yml`.
+_Empty._ All pre-existing offenders have been migrated to Lucide React icons,
+and the CI emoji guard is now a hard block (`continue-on-error: false`). Any new
+Unicode emoji in source will fail the build — migrate it to a Lucide icon
+instead of adding it back here.

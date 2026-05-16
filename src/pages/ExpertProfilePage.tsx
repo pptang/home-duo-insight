@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/use-auth";
 import ExpertProfileEditForm from "@/components/ExpertProfileEditForm";
 import { ExpertRating } from "@/components/ExpertRating";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Edit, Globe, Instagram, Mail, Phone } from "lucide-react";
+import { Edit, Globe, Instagram, Mail, Phone, Check, Star } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
 interface ExpertActivity {
@@ -290,8 +290,9 @@ const ExpertProfilePage: React.FC = () => {
                   )}
 
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    <span className="font-mono text-[8px] uppercase tracking-[0.09em] px-2 py-0.5 rounded-sm bg-ink text-paper border border-ink">
-                      ✓ {t("expertProfile.expertBadge", "AiSumai 認証済み")}
+                    <span className="inline-flex items-center gap-1 font-mono text-[8px] uppercase tracking-[0.09em] px-2 py-0.5 rounded-sm bg-ink text-paper border border-ink">
+                      <Check className="h-2.5 w-2.5" aria-hidden />
+                      {t("expertProfile.expertBadge", "AiSumai 認証済み")}
                     </span>
                     {tags.slice(0, 8).map((tag) => (
                       <span
@@ -465,8 +466,9 @@ const ExpertProfilePage: React.FC = () => {
                       {t("expertProfile.activityTitle", "活動・レビュー")}
                     </div>
                     {ratingCount > 0 && (
-                      <span className="font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60">
-                        ★ {rating.toFixed(1)} / 5.0 · {ratingCount} レビュー
+                      <span className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.06em] text-ink-60">
+                        <Star className="h-2.5 w-2.5 fill-current" aria-hidden />
+                        {rating.toFixed(1)} / 5.0 · {ratingCount} レビュー
                       </span>
                     )}
                   </div>

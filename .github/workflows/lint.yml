@@ -24,12 +24,9 @@ jobs:
         run: npm run lint
 
       # Emoji guard. The `local/no-emoji-jsx` rule is `warn` in the shared
-      # eslint config so it never blocks builds on pre-existing emoji
-      # (see CONTRIBUTING.md cleanup list). This step escalates it to
-      # `error` and reports any emoji introduced in JSX/TSX. It is allowed
-      # to fail until the documented existing offenders are migrated to
-      # Lucide React icons; flip `continue-on-error` to false once the
-      # cleanup list in CONTRIBUTING.md is empty.
+      # eslint config so it never blocks local builds, but this step
+      # escalates it to `error` and hard-fails CI on any Unicode emoji in
+      # source. All pre-existing offenders have been migrated to Lucide
+      # React icons, so this step is now blocking.
       - name: Emoji guard (no emoji in JSX/TSX)
-        continue-on-error: true
         run: npm run lint:emoji

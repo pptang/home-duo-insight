@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 
 export type AIPointKind = 'pro-a' | 'pro-b' | 'caution';
@@ -36,11 +37,11 @@ const kindToLabel: Record<AIPointKind, string> = {
   caution: '留意点',
 };
 
-/** Mockup icons per kind: pro-b ◆, pro-a ◇, caution ⚠ */
-const kindToIcon: Record<AIPointKind, string> = {
+/** Mockup icons per kind: pro-b ◆, pro-a ◇, caution AlertTriangle */
+const kindToIcon: Record<AIPointKind, ReactNode> = {
   'pro-a': '◇',
   'pro-b': '◆',
-  caution: '⚠',
+  caution: <AlertTriangle className="inline-block h-3.5 w-3.5 align-text-bottom" aria-hidden />,
 };
 
 export const AIAnalysisBlock = ({

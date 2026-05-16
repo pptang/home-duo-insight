@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Eye } from "lucide-react";
 
 /**
  * Shared "report card" used by the Landing DISCOVER section and the Feed page.
@@ -186,8 +187,9 @@ const ReportCard = ({
           UI font lacks it — the root cause of the reported "! 票" artifact. */}
       {showMeta && (
         <div className="flex items-center gap-2.5 px-4 py-1.5 bg-paper-dark border-t border-rule">
-          <span className="font-mono text-[9px] uppercase text-ink-30">
-            👁 {meta!.views}
+          <span className="flex items-center gap-1 font-mono text-[9px] uppercase text-ink-30">
+            <Eye className="h-2.5 w-2.5" aria-hidden="true" />
+            {meta!.views}
           </span>
           <span className="font-mono text-[9px] uppercase text-ink-30">
             {meta!.saves} 人が保存

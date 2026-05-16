@@ -201,7 +201,7 @@ ${propertyBText}
 The final_recommendation field must contain ALL of the following sections in this exact order.
 Each section must use the emoji header shown. Total length: 300-450 words. Distribute detail selectively across sections.
 
-🏆 AI Recommendation
+[Recommended] AI Recommendation
 Start with the decision. Clearly state:
 - which property you recommend
 - the core reason in one sentence
@@ -209,12 +209,12 @@ Start with the decision. Clearly state:
 - one important trade-off
 3-4 sentences maximum.
 
-👤 Why This Fits You
+[Profile] Why This Fits You
 Translate the user's strongest priorities into natural lifestyle needs.
 Explain briefly how EACH property aligns or conflicts with those needs using concrete examples.
 Limit to 6-8 sentences total. Focus on decision clarity rather than description.
 
-🧭 City Persona Insight
+[Persona] City Persona Insight
 Infer the user's likely lifestyle archetype based on preferences.
 Choose one primary persona (optionally one secondary):
 - Urban Explorer
@@ -224,7 +224,7 @@ Choose one primary persona (optionally one secondary):
 Explain: what lifestyle this persona represents, why the user likely fits it, which property aligns better.
 4-5 sentences maximum.
 
-🏙️ Lifestyle & Location Snapshot
+[Location] Lifestyle & Location Snapshot
 Use BOTH property data and general open-world knowledge about the neighborhood.
 Incorporate understanding of: neighborhood character, walkability and daily convenience, typical resident lifestyle patterns, daytime vs nighttime atmosphere.
 Important: focus on everyday living experience. Do NOT list tourist attractions. Translate geographic facts into lived experience.
@@ -234,28 +234,28 @@ Property A:
 Property B:
 - 2-3 concise lifestyle insights
 
-🧩 Strategic Perspective
+[Strategy] Strategic Perspective
 Evaluate both properties using three lenses:
 1. Long-term desirability of location
 2. Rarity and resale resilience
 3. Adaptability to future life changes
 Explain briefly (5-6 sentences total).
 
-✅ Decision Confidence
+[Confidence] Decision Confidence
 Evaluate how confident the user can be in making a decision now.
 Consider: completeness of available data, alignment with priorities, unresolved risks.
 Output: Decision Confidence: High / Medium / Low
 Then explain briefly: why, whether the user can proceed confidently, or what should be verified next.
 3-4 sentences. Tone should be supportive, not absolute.
 
-🔮 Future Living Perspective
+[Future] Future Living Perspective
 Simulate realistic future friction for each property.
 Consider: lifestyle mismatch risk, perceived long-term value concerns, lifestyle identity mismatch.
 Describe one realistic concern per property.
 Then conclude which option is LESS likely to create long-term regret.
 5-6 sentences total.
 
-⚠️ Watch-outs
+[Watch-outs] Watch-outs
 Provide 3-5 concise bullet points.
 Mention uncertainties or items to verify during viewing.
 
@@ -343,7 +343,7 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
 - Maintain the SAME level of detail, nuance, and thoroughness as the English requirements above
 - Do NOT summarize or shorten the content - provide the same depth of analysis as you would in English
 - Write in a friendly, professional tone suitable for Japanese readers (です・ます調を使用)
-- Include all sections: 🏆 AIおすすめ、👤 あなたに合う理由、🧭 シティペルソナ、🏙️ ライフスタイル＆立地、🧩 戦略的視点、✅ 決断の確信度、🔮 将来の暮らし展望、⚠️ 注意点
+- Include all sections: [Recommended] AIおすすめ、[Profile] あなたに合う理由、[Persona] シティペルソナ、[Location] ライフスタイル＆立地、[Strategy] 戦略的視点、[Confidence] 決断の確信度、[Future] 将来の暮らし展望、[Watch-outs] 注意点
 - JSONスキーマ例（日本語の値で出力）:
   {
     "property_a_pros": ["長所1", "長所2", "長所3"],

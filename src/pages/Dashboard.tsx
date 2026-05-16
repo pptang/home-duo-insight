@@ -11,7 +11,7 @@ import {
   generateRecommendation,
   defaultLandingPreferences,
 } from "@/lib/comparisonFlow";
-import ReportCard, { type ReportCardHighlight } from "@/components/ReportCard";
+import ReportCard, { type ReportCardHighlight } from "@/components/ui/ReportCard";
 import StatusReportCard from "@/components/StatusReportCard";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";

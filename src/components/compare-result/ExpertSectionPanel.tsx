@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bookmark, House, Eye, MapPin, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -84,8 +85,8 @@ function UnclaimedBlock({ onClaim, areaLabel, viewCount, saveCount }: UnclaimedB
       <div className="flex items-start justify-between gap-6">
         <div className="flex items-start gap-4">
           {/* Icon */}
-          <div className="text-2xl w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 shrink-0">
-            🏠
+          <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-surface-2 shrink-0">
+            <House className="h-6 w-6 text-ink" aria-hidden />
           </div>
           {/* Text */}
           <div>
@@ -109,9 +110,18 @@ function UnclaimedBlock({ onClaim, areaLabel, viewCount, saveCount }: UnclaimedB
       </div>
       {/* Footer row */}
       <div className="mt-4 pt-4 border-t border-rule flex items-center gap-4 flex-wrap">
-        <span className="text-[12px] text-ink-60">👁 {formatCount(viewCount)} 閲覧</span>
-        <span className="text-[12px] text-ink-60">🔖 {formatCount(saveCount)} 人が保存</span>
-        <span className="text-[12px] text-ink-60">📍 {areaLabel}</span>
+        <span className="text-[12px] text-ink-60 inline-flex items-center gap-1">
+          <Eye className="h-4 w-4" aria-hidden />
+          {formatCount(viewCount)} 閲覧
+        </span>
+        <span className="text-[12px] text-ink-60 inline-flex items-center gap-1">
+          <Bookmark className="h-4 w-4" aria-hidden />
+          {formatCount(saveCount)} 人が保存
+        </span>
+        <span className="text-[12px] text-ink-60 inline-flex items-center gap-1">
+          <MapPin className="h-4 w-4" aria-hidden />
+          {areaLabel}
+        </span>
         <span className="ml-auto font-mono text-[9px] text-ink-30">
           認領した専門家には閲覧者から直接問い合わせが届きます
         </span>
@@ -151,8 +161,9 @@ function ClaimedBlock({ vote, isAuthenticated, onContact }: ClaimedBlockProps) {
           <div className="text-[15px] font-semibold text-ink">{expertName}</div>
           {role && <div className="text-[12px] text-ink-60 mt-0.5">{role}</div>}
           <div className="flex flex-wrap gap-1.5 mt-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-accent/10 text-accent">
-              ✓ 認証済み専門家
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-accent/10 text-accent">
+              <Check className="h-3 w-3" aria-hidden />
+              認証済み専門家
             </span>
             {areaSpecialization && (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-surface-2 text-ink-60">

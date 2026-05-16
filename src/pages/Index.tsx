@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import ReportCard, { type ReportCardProps } from "@/components/ReportCard";
+import ReportCard, { type ReportCardProps } from "@/components/ui/ReportCard";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section, SectionDivider } from "@/components/ui/Section";

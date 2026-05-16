@@ -24,11 +24,11 @@ export const LanguageSwitcher = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => changeLanguage("en")}>
-          <span className="mr-2">🇺🇸</span>
+          <span className="mr-2 text-xs font-semibold text-muted-foreground">EN</span>
           English
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => changeLanguage("ja")}>
-          <span className="mr-2">🇯🇵</span>
+          <span className="mr-2 text-xs font-semibold text-muted-foreground">JA</span>
           日本語
         </DropdownMenuItem>
       </DropdownMenuContent>
