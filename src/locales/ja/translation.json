@@ -12,7 +12,8 @@
     "compare": "比較",
     "feed": "フィード",
     "experts": "専門家",
-    "about": "私たちについて"
+    "about": "私たちについて",
+    "dashboard": "マイレポート"
   },
   "home": {
     "hero": {
@@ -700,5 +701,31 @@
     "startOver": "最初からやり直す",
     "saving": "保存中…",
     "continue": "比較画面へ進む →"
+  },
+  "dashboard": {
+    "title": "マイレポート",
+    "subtitle": "あなたが作成した比較レポート",
+    "refresh": "更新",
+    "empty": {
+      "title": "まだレポートがありません",
+      "subtitle": "最初の比較を作成しましょう。",
+      "button": "比較を作成"
+    },
+    "processingLabel": "レポートを生成中…",
+    "failedCard": {
+      "title": "物件情報を取得できませんでした",
+      "retry": "再試行",
+      "retrying": "再試行中…",
+      "cannotRetry": "URL情報がないため再試行できません"
+    },
+    "failureReasons": {
+      "placeholder_property_name": "物件名を取得できませんでした。URLが正しいかご確認ください。",
+      "zero_price_both_sides": "両方の物件で価格情報を取得できませんでした。",
+      "gemini_api_error": "AI分析サービスに接続できませんでした。時間をおいて再試行してください。",
+      "gemini_response_parse_error": "AIの分析結果を処理できませんでした。再試行してください。",
+      "recommendation_save_error": "レコメンデーションの保存に失敗しました。再試行してください。",
+      "recommendation_save_exception": "レコメンデーション保存中にエラーが発生しました。再試行してください。",
+      "unknown": "不明なエラーが発生しました。再試行してください。"
+    }
   }
 }

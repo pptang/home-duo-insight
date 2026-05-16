@@ -15,6 +15,7 @@ import AdminExpertPanel from "./pages/AdminExpertPanel";
 import AdminExpertReview from "./pages/AdminExpertReview";
 import ExpertProfilePage from "./pages/ExpertProfilePage";
 import ComparisonDetail from "./pages/ComparisonDetail";
+import Dashboard from '@/pages/Dashboard';
 import { usePageTracking } from '@/hooks/usePageTracking';
 import { initGA } from '@/lib/analytics';
 
@@ -45,6 +46,7 @@ function AppShell() {
           <Route path="/admin/expert-review" element={<AdminExpertReview />} />
           <Route path="/experts/:expertId" element={<ExpertProfilePage />} />
           <Route path="/comparisons/:id" element={<ComparisonDetail />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

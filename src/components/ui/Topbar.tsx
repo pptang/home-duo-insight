@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
 import { AuthButtons } from "@/components/AuthButtons";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useAuth } from "@/hooks/use-auth";
 
 /**
  * Shared global navigation bar. The single source of truth for the AiSumai
@@ -13,12 +14,14 @@ const Topbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation();
   const location = useLocation();
+  const { user } = useAuth();
 
   const navItems = [
     { to: "/#compare-widget", labelKey: "nav.compare" },
     { to: "/feed", labelKey: "nav.feed" },
     { to: "/experts", labelKey: "nav.experts" },
     { to: "/about", labelKey: "nav.about" },
+    ...(user ? [{ to: "/dashboard", labelKey: "nav.dashboard" }] : []),
   ];
 
   const isActive = (to: string) =>

@@ -78,7 +78,7 @@ const Feed = () => {
           `)
           // Only show fully-generated reports on the public Feed. Failed /
           // processing / archived rows are hidden here; they remain visible to
-          // the owner via the (future) user dashboard.
+          // the owner on their /dashboard.
           .eq("status", "published")
           .order("created_at", { ascending: false });
 

@@ -12,7 +12,8 @@
     "compare": "Compare",
     "feed": "Feed",
     "experts": "Experts",
-    "about": "About"
+    "about": "About",
+    "dashboard": "My Reports"
   },
   "home": {
     "hero": {
@@ -700,5 +701,31 @@
     "startOver": "Start Over",
     "saving": "Saving...",
     "continue": "Continue to Comparison →"
+  },
+  "dashboard": {
+    "title": "My Reports",
+    "subtitle": "Comparison reports you have created",
+    "refresh": "Refresh",
+    "empty": {
+      "title": "No reports yet",
+      "subtitle": "Create your first comparison.",
+      "button": "Create Comparison"
+    },
+    "processingLabel": "Generating report…",
+    "failedCard": {
+      "title": "Could not retrieve property information",
+      "retry": "Retry",
+      "retrying": "Retrying…",
+      "cannotRetry": "Cannot retry — URL information is missing"
+    },
+    "failureReasons": {
+      "placeholder_property_name": "Could not retrieve the property name. Please check that the URL is correct.",
+      "zero_price_both_sides": "Could not retrieve pricing information for either property.",
+      "gemini_api_error": "Could not connect to the AI analysis service. Please try again later.",
+      "gemini_response_parse_error": "Could not process the AI analysis result. Please retry.",
+      "recommendation_save_error": "Failed to save the recommendation. Please retry.",
+      "recommendation_save_exception": "An error occurred while saving the recommendation. Please retry.",
+      "unknown": "An unknown error occurred. Please retry."
+    }
   }
 }
