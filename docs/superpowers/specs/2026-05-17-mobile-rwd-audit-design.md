@@ -43,6 +43,16 @@ iOS Safari zooms the viewport when a focused input has font-size <16px.
 Only the trigger needs the 16px treatment (it is the focusable control);
 `SelectLabel`/`SelectItem` keep `text-sm`.
 
+**Addendum (found during browser smoke test):** the shadcn components above
+are not the only inputs. The Landing hero compare widget, the Auth signup/login
+form, and the ExpertProfilePage contact form use hand-rolled `<input>` /
+`<textarea>` elements (not the shadcn component) with an explicit `text-[14px]`
+class. Nine such controls exist across `src/pages/Index.tsx` (2),
+`src/pages/Auth.tsx` (3), and `src/pages/ExpertProfilePage.tsx` (4). Each
+`text-[14px]` becomes `text-[16px] md:text-[14px]`. This is the same iOS-zoom
+fix and the original audit note ("inputs text-[14px] cause iOS zoom") was
+pointing at exactly these.
+
 ## Gap 3 — Hamburger touch target below 44px
 
 `src/components/ui/Topbar.tsx:67` — the mobile menu button is `p-1.5` with an

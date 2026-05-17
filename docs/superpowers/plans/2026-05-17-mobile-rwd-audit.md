@@ -402,9 +402,43 @@ git commit -m "feat(oty): make Feed filters reachable on mobile via slide-in dra
 
 ---
 
+### Task 5: Hand-rolled input/textarea iOS zoom (Gap 2 addendum)
+
+Added after the browser smoke test revealed that the shadcn `input.tsx` /
+`textarea.tsx` components are not the inputs users actually focus on the
+Landing, Auth, and ExpertProfilePage screens — those pages use hand-rolled
+`<input>` / `<textarea>` elements with an explicit `text-[14px]` class.
+
+**Files:**
+- Modify: `src/pages/Index.tsx` (2 inputs — compare widget)
+- Modify: `src/pages/Auth.tsx` (3 inputs — signup/login form)
+- Modify: `src/pages/ExpertProfilePage.tsx` (3 inputs + 1 textarea — contact form)
+
+- [ ] **Step 1: Change `text-[14px]` to `text-[16px] md:text-[14px]`**
+
+On each of the 9 focusable form-control elements (identified by a className
+containing `w-full px-` AND `outline-none` AND `bg-paper`/`bg-white`), change
+the token `text-[14px]` to `text-[16px] md:text-[14px]`. Do NOT change
+`text-[14px]` on paragraphs, labels, divs, or buttons.
+
+- [ ] **Step 2: Verify**
+
+Run: `grep -rn 'text-\[16px\] md:text-\[14px\]' src/pages/Index.tsx src/pages/Auth.tsx src/pages/ExpertProfilePage.tsx` — expect exactly 9 lines.
+Run: `npm run build && npm run lint` — build green, no new errors.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add src/pages/Index.tsx src/pages/Auth.tsx src/pages/ExpertProfilePage.tsx
+git commit -m "fix(oty): raise hand-rolled input/textarea font to 16px on mobile to stop iOS zoom"
+```
+
+---
+
 ## Self-Review
 
-- **Spec coverage:** Gap 1 → Task 4; Gap 2 → Task 3; Gap 3 → Task 2; Gap 4 → Task 1. All four spec gaps covered.
+- **Spec coverage:** Gap 1 → Task 4; Gap 2 → Tasks 3 + 5; Gap 3 → Task 2; Gap 4 → Task 1. All four spec gaps covered.
 - **Out-of-scope items** (editorial micro-labels, already-done layout work) correctly excluded.
 - **Type consistency:** `FeedFiltersProps` defined in Task 4 Step 1 is used verbatim in Steps 4 and 5. Setter signatures `(s: Set<string>) => void` match the `useState<Set<string>>` setters in `Feed.tsx`.
 - **No placeholders:** every code step shows complete code.
+- **Task 5** added after browser verification surfaced the hand-rolled inputs the original spec missed.
