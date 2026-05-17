@@ -246,7 +246,7 @@ const Index = () => {
                   disabled={isSubmitting || activeTab !== "url"}
                   aria-invalid={showUnsupportedErrorA || undefined}
                   aria-describedby={showUnsupportedErrorA ? "compare-error-a" : undefined}
-                  className={`w-full px-4 py-3 text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
+                  className={`w-full px-4 py-3 text-[16px] md:text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
                     showUnsupportedErrorA
                       ? "border-red-500 focus:border-red-500"
                       : "border-rule focus:border-ink"
@@ -273,7 +273,7 @@ const Index = () => {
                   disabled={isSubmitting || activeTab !== "url"}
                   aria-invalid={showUnsupportedErrorB || undefined}
                   aria-describedby={showUnsupportedErrorB ? "compare-error-b" : undefined}
-                  className={`w-full px-4 py-3 text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
+                  className={`w-full px-4 py-3 text-[16px] md:text-[14px] bg-paper border rounded-md text-ink outline-none transition-colors focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] placeholder:text-ink-30 ${
                     showUnsupportedErrorB
                       ? "border-red-500 focus:border-red-500"
                       : "border-rule focus:border-ink"

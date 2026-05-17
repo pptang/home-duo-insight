@@ -588,7 +588,7 @@ const ExpertProfilePage: React.FC = () => {
                 value={contactForm.name}
                 onChange={(e) => setContactForm((p) => ({ ...p, name: e.target.value }))}
                 required
-                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
+                className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
@@ -604,7 +604,7 @@ const ExpertProfilePage: React.FC = () => {
                 value={contactForm.email}
                 onChange={(e) => setContactForm((p) => ({ ...p, email: e.target.value }))}
                 required
-                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
+                className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
@@ -619,7 +619,7 @@ const ExpertProfilePage: React.FC = () => {
                 value={contactForm.subject}
                 onChange={(e) => setContactForm((p) => ({ ...p, subject: e.target.value }))}
                 placeholder={t("expertProfile.contactForm.subjectPlaceholder")}
-                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
+                className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors"
               />
             </div>
             <div>
@@ -636,7 +636,7 @@ const ExpertProfilePage: React.FC = () => {
                 placeholder={t("expertProfile.contactForm.messagePlaceholder")}
                 rows={4}
                 required
-                className="w-full px-3.5 py-2.5 text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors resize-y"
+                className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-paper border border-rule rounded-md text-ink outline-none focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)] transition-colors resize-y"
               />
             </div>
             <div className="flex gap-2 pt-2">

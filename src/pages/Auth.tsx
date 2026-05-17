@@ -195,7 +195,7 @@ const Auth = () => {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
+                    className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
                   />
                 </div>
               )}
@@ -211,7 +211,7 @@ const Auth = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3.5 py-2.5 text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
+                  className="w-full px-3.5 py-2.5 text-[16px] md:text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
                 />
               </div>
 
@@ -227,7 +227,7 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-3.5 py-2.5 pr-10 text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
+                    className="w-full px-3.5 py-2.5 pr-10 text-[16px] md:text-[14px] bg-white border border-rule rounded-md text-ink outline-none transition-colors focus:border-ink focus:shadow-[0_0_0_3px_rgba(10,10,10,0.06)]"
                   />
                   <button
                     type="button"
