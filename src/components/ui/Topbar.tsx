@@ -64,7 +64,7 @@ const Topbar = () => {
         {/* Mobile button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-1.5 text-ink rounded hover:bg-ink/[0.06]"
+          className="md:hidden min-h-[44px] min-w-[44px] -mr-1 flex items-center justify-center text-ink rounded hover:bg-ink/[0.06]"
           aria-label="Toggle menu"
         >
           {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
