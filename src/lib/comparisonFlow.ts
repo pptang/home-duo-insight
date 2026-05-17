@@ -172,6 +172,12 @@ export const generateRecommendation = async (
   comparisonResult: ComparisonResult,
   preferences: PersonalizationValues,
   userId?: string | null,
+  /**
+   * Comparison-axis chip ids selected on the Landing compare widget
+   * (price / access / age / layout / school / risk). An empty array tells the
+   * AI to weigh every dimension equally. See bead home-duo-insight-98a.
+   */
+  comparisonFocus: string[] = [],
 ): Promise<AIRecommendation> => {
   const { data, error } = await supabase.functions.invoke("generate-recommendation", {
     body: {
@@ -179,6 +185,7 @@ export const generateRecommendation = async (
       property_a: comparisonResult.property_a,
       property_b: comparisonResult.property_b,
       user_profile: getCategorizedPreferences(preferences),
+      comparison_focus: comparisonFocus,
       user_id: userId || null,
       language: getNormalizedLanguage(),
     },

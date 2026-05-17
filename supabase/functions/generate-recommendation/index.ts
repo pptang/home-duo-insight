@@ -63,7 +63,53 @@ interface RequestData {
   property_b: PropertyData;
   user_profile: UserProfile;
   why_move: string;
+  /**
+   * Comparison-axis chip ids selected on the Landing compare widget
+   * (price / access / age / layout / school / risk). Empty or absent means
+   * the user wants all dimensions weighed equally. See bead
+   * home-duo-insight-98a.
+   */
+  comparison_focus?: string[];
   language?: 'en' | 'ja';
+}
+
+/**
+ * Maps Landing compare-chip ids to bilingual dimension descriptions used in
+ * the AI prompt. Keeps the human-readable copy server-side so the client only
+ * ever sends stable ids.
+ */
+const FOCUS_DIMENSIONS: Record<string, string> = {
+  price: "価格・コストパフォーマンス (price & overall value)",
+  access: "交通アクセス・通勤利便性 (transit access & commute convenience)",
+  age: "築年数・建物の新しさ (building age & newness)",
+  layout: "間取り・居住スペース (floor plan & living space)",
+  school: "学区・教育環境 (school district & education environment)",
+  risk: "リスク・注意点 (risks & watch-outs)",
+};
+
+/**
+ * Builds the prompt block that tells the model how to weight the comparison
+ * dimensions. Unknown ids are ignored defensively.
+ */
+function buildFocusText(comparisonFocus?: string[]): string {
+  const selected = (comparisonFocus ?? [])
+    .map((id) => FOCUS_DIMENSIONS[id])
+    .filter((label): label is string => Boolean(label));
+
+  if (selected.length === 0) {
+    return `## Comparison Focus
+The user has NOT prioritized any specific dimension. Weigh ALL comparison
+dimensions — price, transit access, building age, floor plan, school district,
+and risks — equally and fairly. Do not over-emphasize any single dimension.`;
+  }
+
+  const list = selected.map((label) => `- ${label}`).join("\n");
+  return `## Comparison Focus
+The user has explicitly prioritized the following comparison dimension(s):
+${list}
+Weight these dimension(s) more heavily in your analysis and final
+recommendation. Still address the remaining dimensions, but treat the
+prioritized one(s) as decisive when the properties differ.`;
 }
 
 interface AIRecommendation {
@@ -107,13 +153,15 @@ const RATE_WINDOW = 60 * 60 * 1000; // 1 hour in milliseconds
  * @param propertyAText - Formatted text for Property A
  * @param propertyBText - Formatted text for Property B
  * @param userProfileText - Formatted user profile JSON
+ * @param focusText - Comparison-focus weighting instructions
  * @returns The complete prompt in the specified language
  */
 function getPromptByLanguage(
   language: 'en' | 'ja',
   propertyAText: string,
   propertyBText: string,
-  userProfileText: string
+  userProfileText: string,
+  focusText: string
 ): string {
   const englishPrompt = `
 Role & Expertise
@@ -190,6 +238,8 @@ Hidden Internal Logic (do not reveal)
 
 The user profile is:
 ${userProfileText}
+
+${focusText}
 
 Here are the properties:
 ${propertyAText}
@@ -553,8 +603,11 @@ Property B: ${requestData.property_b.property_name || "N/A"}
 - Additional Notes: ${requestData.property_b.notes || "None"}
 `;
 
+    // Comparison-focus weighting block derived from the Landing compare chips.
+    const focusText = buildFocusText(requestData.comparison_focus);
+
     // Prepare prompt for Gemini using the language-specific function
-    const prompt = getPromptByLanguage(language, propertyAText, propertyBText, userProfileText);
+    const prompt = getPromptByLanguage(language, propertyAText, propertyBText, userProfileText, focusText);
 
 
     console.log("Prompt:", prompt);

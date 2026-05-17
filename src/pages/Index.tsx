@@ -29,6 +29,29 @@ const FILTER_CHIPS = [
   { id: "risk", label: "リスク" },
 ];
 
+const CHIP_IDS = new Set(FILTER_CHIPS.map((chip) => chip.id));
+
+// sessionStorage key for the compare-widget chip selection. Persists the user's
+// focus dimensions within the browser session (resets when the tab closes).
+// See bead home-duo-insight-98a.
+const COMPARE_CHIPS_STORAGE_KEY = "aisumai:compare-chips";
+
+// Reads the persisted chip selection, tolerating absent/corrupt/unavailable
+// storage by falling back to an empty selection.
+const readStoredChips = (): Set<string> => {
+  try {
+    const raw = sessionStorage.getItem(COMPARE_CHIPS_STORAGE_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(
+      parsed.filter((id): id is string => typeof id === "string" && CHIP_IDS.has(id)),
+    );
+  } catch {
+    return new Set();
+  }
+};
+
 // DISCOVER demo reports. Each entry maps directly onto <ReportCard> props
 // (plus an `id` for the React key and a `to` link target).
 type FeedItem = Omit<ReportCardProps, "style"> & { id: string };
@@ -88,7 +111,9 @@ const Index = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [activeChips, setActiveChips] = useState<Set<string>>(new Set(["price"]));
+  // Chips start all-inactive (no price bias); rehydrated from sessionStorage if
+  // the user selected dimensions earlier in the session.
+  const [activeChips, setActiveChips] = useState<Set<string>>(readStoredChips);
   const [activeTab, setActiveTab] = useState<"url" | "id" | "area">("url");
   const [propA, setPropA] = useState("");
   const [propB, setPropB] = useState("");
@@ -106,6 +131,19 @@ const Index = () => {
     });
     return () => window.cancelAnimationFrame(id);
   }, [location.hash, location.key]);
+
+  // Persist the chip selection so it survives in-session navigation. Failures
+  // (private mode, quota) are non-fatal — the selection just won't persist.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        COMPARE_CHIPS_STORAGE_KEY,
+        JSON.stringify(Array.from(activeChips)),
+      );
+    } catch {
+      // sessionStorage unavailable — ignore.
+    }
+  }, [activeChips]);
 
   const isValidUrl = (value: string) => {
     try {
@@ -142,6 +180,16 @@ const Index = () => {
     });
   };
 
+  // Helper text under the chip row. With nothing selected the AI weighs every
+  // dimension equally; otherwise it emphasizes the chosen ones. Labels follow
+  // FILTER_CHIPS order so the text stays stable regardless of click order.
+  const focusHelperText =
+    activeChips.size === 0
+      ? "全ての観点で比較します"
+      : `「${FILTER_CHIPS.filter((chip) => activeChips.has(chip.id))
+          .map((chip) => chip.label)
+          .join("・")}」を重視して比較します`;
+
   const handleCompare = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!canSubmit) return;
@@ -167,6 +215,7 @@ const Index = () => {
         comparisonResult,
         defaultLandingPreferences,
         user?.id,
+        Array.from(activeChips),
       );
       trackRecommendationGenerated(
         comparisonResult.comparison_id,
@@ -288,24 +337,30 @@ const Index = () => {
             </div>
 
             <div className="px-5 pb-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-2">
-                {FILTER_CHIPS.map((chip) => {
-                  const active = activeChips.has(chip.id);
-                  return (
-                    <button
-                      key={chip.id}
-                      type="button"
-                      onClick={() => toggleChip(chip.id)}
-                      className={`font-mono text-[10px] uppercase tracking-[0.06em] border rounded-full px-2.5 py-1 transition-colors ${
-                        active
-                          ? "bg-ink text-paper border-ink"
-                          : "bg-paper-dark text-ink-60 border-rule hover:bg-ink hover:text-paper hover:border-ink"
-                      }`}
-                    >
-                      {chip.label}
-                    </button>
-                  );
-                })}
+              <div className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap gap-2">
+                  {FILTER_CHIPS.map((chip) => {
+                    const active = activeChips.has(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => toggleChip(chip.id)}
+                        className={`font-mono text-[10px] uppercase tracking-[0.06em] border rounded-full px-2.5 py-1 transition-colors ${
+                          active
+                            ? "bg-ink text-paper border-ink"
+                            : "bg-paper-dark text-ink-60 border-rule hover:bg-ink hover:text-paper hover:border-ink"
+                        }`}
+                      >
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-[11px] text-ink-60 leading-snug pl-0.5" aria-live="polite">
+                  {focusHelperText}
+                </p>
               </div>
               <Button type="submit" disabled={!canSubmit} variant="editorial" size="editorial">
                 <ArrowRight className="w-3.5 h-3.5" />
