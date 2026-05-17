@@ -1,0 +1,38 @@
+bead: home-duo-insight-l6c
+summary: Add purely client-side pagination to Feed.tsx with ?page= URL param, 20 items/page, filter-reset, SEO link tags, and out-of-range empty state
+branch: feat/home-duo-insight-l6c-feed-pagination
+sha: TBD
+
+base_branch: main
+
+files_changed:
+  - src/pages/Feed.tsx
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16   # all pre-existing (other files), none in Feed.tsx
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-l6c/build.log
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "no test file exists for Feed.tsx in this project"
+
+ui_surface: true
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "QA dispatched by orchestrator after dev pass"
+  artifacts: []
+  scenarios: []
+
+deferred: []
+
+escalations: []

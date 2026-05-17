@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Plus, AlertTriangle, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,8 +36,36 @@ interface ComparisonPost {
   experts?: Expert[];
 }
 
+// Reports rendered per page. Pagination is purely client-side over the
+// already-fetched + filtered list — there is no /api/feed endpoint.
+const PAGE_SIZE = 20;
+
+// Parse the 1-indexed `?page=` param. Anything non-numeric or < 1 falls back
+// to 1; out-of-upper-range values are kept as-is so the empty-state can show.
+const parsePage = (raw: string | null): number => {
+  const n = Number.parseInt(raw ?? "", 10);
+  return Number.isFinite(n) && n >= 1 ? n : 1;
+};
+
+// Build the list of page tokens for the numbered control: always show first,
+// last, current and its neighbours; collapse the rest into "…" gaps.
+const buildPageList = (current: number, total: number): (number | "gap")[] => {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = new Set<number>([1, total, current, current - 1, current + 1]);
+  const sorted = [...pages].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const out: (number | "gap")[] = [];
+  let prev = 0;
+  for (const p of sorted) {
+    if (p - prev > 1) out.push("gap");
+    out.push(p);
+    prev = p;
+  }
+  return out;
+};
+
 const Feed = () => {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [comparisons, setComparisons] = useState<ComparisonPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +74,17 @@ const Feed = () => {
   const [activeAreas, setActiveAreas] = useState<Set<string>>(new Set());
   const [activePrices, setActivePrices] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<"newest" | "popular">("newest");
+
+  // Current page comes straight from the URL (1-indexed).
+  const currentPage = parsePage(searchParams.get("page"));
+
+  // Track the last filter signature we synced so the reset effect can tell a
+  // genuine user filter change from a mere mount / re-render. Seeded from the
+  // initial filter state (all empty), so the first run is a no-op and an
+  // incoming `?page=` deep-link survives. StrictMode-safe (a ref, not a bool).
+  const lastFilterSig = useRef(
+    `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`,
+  );
 
   useEffect(() => {
     const fetchComparisons = async () => {
@@ -141,6 +180,77 @@ const Feed = () => {
     }
     return list;
   }, [comparisons, statusFilter, sortBy]);
+
+  // Navigate to a page, preserving every other query param (filters etc.).
+  // Page 1 drops the `page` param entirely to keep canonical URLs clean.
+  const goToPage = useCallback(
+    (page: number) => {
+      const next = new URLSearchParams(searchParams);
+      if (page <= 1) next.delete("page");
+      else next.set("page", String(page));
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams],
+  );
+
+  // Pagination math, derived from the filtered list.
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  // A page beyond the last real page (but not page 1) is "out of range".
+  const isOutOfRange = filtered.length > 0 && currentPage > totalPages;
+  const pageItems = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage],
+  );
+  const pageList = useMemo(
+    () => buildPageList(currentPage, totalPages),
+    [currentPage, totalPages],
+  );
+
+  // Scroll to top whenever the page changes.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
+  // Reset to page 1 on filter/sort change. Guarded by a signature ref so it
+  // only fires on a genuine change, never on mount (preserving a `?page=` deep
+  // link). StrictMode-safe via ref (not a one-shot boolean).
+  useEffect(() => {
+    const sig = `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`;
+    if (sig === lastFilterSig.current) return;
+    lastFilterSig.current = sig;
+    if (searchParams.has("page")) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("page");
+      setSearchParams(next, { replace: true });
+    }
+    // Only react to the filter/sort controls. searchParams intentionally omitted
+    // to avoid an update loop (setSearchParams triggers a re-render with new
+    // searchParams, but the sig won't change so the guard short-circuits).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, sortBy, activeAreas, activePrices]);
+
+  // SEO: emit rel="prev" / rel="next" link tags for the current page so
+  // crawlers understand the paginated sequence. Cleaned up on unmount.
+  useEffect(() => {
+    const makeUrl = (page: number) => {
+      const params = new URLSearchParams(searchParams);
+      if (page <= 1) params.delete("page");
+      else params.set("page", String(page));
+      const qs = params.toString();
+      return `${window.location.origin}${window.location.pathname}${qs ? `?${qs}` : ""}`;
+    };
+    const links: HTMLLinkElement[] = [];
+    const addLink = (rel: "prev" | "next", page: number) => {
+      const el = document.createElement("link");
+      el.rel = rel;
+      el.href = makeUrl(page);
+      document.head.appendChild(el);
+      links.push(el);
+    };
+    if (currentPage > 1 && currentPage <= totalPages) addLink("prev", currentPage - 1);
+    if (currentPage < totalPages) addLink("next", currentPage + 1);
+    return () => links.forEach((el) => el.remove());
+  }, [currentPage, totalPages, searchParams]);
 
   return (
     <div className="bg-paper text-ink">
@@ -289,19 +399,53 @@ const Feed = () => {
             </SurfaceCard>
           )}
 
+          {/* Out-of-range page */}
+          {!isLoading && !error && isOutOfRange && (
+            <SurfaceCard pad="none" className="p-12 text-center">
+              <Eyebrow size="sm" tone="muted" className="mb-3">
+                Not found
+              </Eyebrow>
+              <h3 className="font-display text-[20px] tracking-[-0.3px] mb-2">
+                このページは存在しません
+              </h3>
+              <p className="text-[13px] text-ink-60 mb-5">
+                指定されたページ {currentPage} は範囲外です（全 {totalPages} ページ）。
+              </p>
+              <Button
+                variant="editorial"
+                className="text-[13px]"
+                onClick={() => goToPage(1)}
+              >
+                1ページ目に戻る
+              </Button>
+            </SurfaceCard>
+          )}
+
           {/* Cards */}
-          {!isLoading && !error && filtered.length > 0 && (
-            <div className="flex flex-col gap-px bg-rule border border-rule rounded-lg overflow-hidden">
-              {filtered.map((c, idx) => (
-                <FeedCard
-                  key={c.id}
-                  comparison={c}
-                  index={idx}
-                  formatPrice={formatPrice}
-                  dateAgo={dateAgo}
+          {!isLoading && !error && !isOutOfRange && filtered.length > 0 && (
+            <>
+              <div className="flex flex-col gap-px bg-rule border border-rule rounded-lg overflow-hidden">
+                {pageItems.map((c, idx) => (
+                  <FeedCard
+                    key={c.id}
+                    comparison={c}
+                    index={(currentPage - 1) * PAGE_SIZE + idx}
+                    animationIndex={idx}
+                    formatPrice={formatPrice}
+                    dateAgo={dateAgo}
+                  />
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <PaginationControl
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageList={pageList}
+                  onNavigate={goToPage}
                 />
-              ))}
-            </div>
+              )}
+            </>
           )}
         </main>
       </div>
@@ -312,11 +456,13 @@ const Feed = () => {
 const FeedCard = ({
   comparison,
   index,
+  animationIndex,
   formatPrice,
   dateAgo,
 }: {
   comparison: ComparisonPost;
   index: number;
+  animationIndex: number;
   formatPrice: (p: number | null) => string;
   dateAgo: (iso: string) => string;
 }) => {
@@ -358,8 +504,70 @@ const FeedCard = ({
       }}
       highlights={highlights}
       expert={expert ? { name: expert.name } : null}
-      style={{ animation: `fade-in-up 0.4s ease ${index * 0.06}s both` }}
+      style={{ animation: `fade-in-up 0.4s ease ${animationIndex * 0.06}s both` }}
     />
+  );
+};
+
+const PaginationControl = ({
+  currentPage,
+  totalPages,
+  pageList,
+  onNavigate,
+}: {
+  currentPage: number;
+  totalPages: number;
+  pageList: (number | "gap")[];
+  onNavigate: (page: number) => void;
+}) => {
+  const baseBtn =
+    "min-w-8 h-8 px-2 inline-flex items-center justify-center rounded-md border text-[12px] transition-colors";
+  return (
+    <nav
+      aria-label="ページネーション"
+      className="mt-6 flex items-center justify-center gap-1.5 flex-wrap"
+    >
+      <button
+        type="button"
+        onClick={() => onNavigate(currentPage - 1)}
+        disabled={currentPage <= 1}
+        className={`${baseBtn} border-rule text-ink-60 hover:text-ink hover:bg-ink/[0.04] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink-60`}
+      >
+        ← 前へ
+      </button>
+      {pageList.map((p, i) =>
+        p === "gap" ? (
+          <span
+            key={`gap-${i}`}
+            className="min-w-8 h-8 inline-flex items-center justify-center text-[12px] text-ink-60"
+          >
+            …
+          </span>
+        ) : (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onNavigate(p)}
+            aria-current={p === currentPage ? "page" : undefined}
+            className={`${baseBtn} tabular-nums ${
+              p === currentPage
+                ? "border-ink bg-ink text-paper"
+                : "border-rule text-ink-60 hover:text-ink hover:bg-ink/[0.04]"
+            }`}
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        type="button"
+        onClick={() => onNavigate(currentPage + 1)}
+        disabled={currentPage >= totalPages}
+        className={`${baseBtn} border-rule text-ink-60 hover:text-ink hover:bg-ink/[0.04] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-ink-60`}
+      >
+        次へ →
+      </button>
+    </nav>
   );
 };
 
