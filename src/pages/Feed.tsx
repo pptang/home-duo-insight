@@ -36,7 +36,6 @@ interface ComparisonPost {
   experts?: Expert[];
 }
 
-
 const Feed = () => {
   const { t } = useTranslation();
   const [comparisons, setComparisons] = useState<ComparisonPost[]>([]);

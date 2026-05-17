@@ -44,6 +44,7 @@ const FilterOption = ({
   radio?: boolean;
 }) => (
   <button
+    type="button"
     onClick={onClick}
     className={`flex items-center gap-2 text-left px-2 py-1.5 rounded text-[12px] transition-colors ${
       active ? "bg-ink text-paper" : "text-ink-60 hover:text-ink hover:bg-ink/[0.04]"
