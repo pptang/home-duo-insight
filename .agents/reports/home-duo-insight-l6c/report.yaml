@@ -1,7 +1,7 @@
 bead: home-duo-insight-l6c
 summary: Add purely client-side pagination to Feed.tsx with ?page= URL param, 20 items/page, filter-reset, SEO link tags, and out-of-range empty state
 branch: feat/home-duo-insight-l6c-feed-pagination
-sha: TBD
+sha: 63b5050
 
 base_branch: main
 
