@@ -30,11 +30,33 @@ tests:
 ui_surface: true
 
 ui_qa:
-  ran: false
-  reason_if_skipped: "QA runs separately per orchestrator instructions (ui_qa.ran=false)"
-  artifacts: []
-  scenarios: []
+  ran: true
+  reason_if_skipped: ""
+  artifacts:
+    - .agents/reports/home-duo-insight-hx5/01-initial-feed.png
+    - .agents/reports/home-duo-insight-hx5/02-before-click-filter.png
+    - .agents/reports/home-duo-insight-hx5/03-filter-selected-used-mansion.png
+    - .agents/reports/home-duo-insight-hx5/04-faceted-count-change.png
+    - .agents/reports/home-duo-insight-hx5/05-url-synced-both-filters.png
+    - .agents/reports/home-duo-insight-hx5/06-deep-link-preselected.png
+    - .agents/reports/home-duo-insight-hx5/07-deep-link-multi-layout.png
+    - .agents/reports/home-duo-insight-hx5/08-page-reset-after-filter.png
+    - .agents/reports/home-duo-insight-hx5/09-mobile-viewport.png
+    - .agents/reports/home-duo-insight-hx5/10-mobile-sheet-open.png
+    - .agents/reports/home-duo-insight-hx5/11-mobile-sheet-filter-active.png
+    - .agents/reports/home-duo-insight-hx5/12-multi-select-same-group.png
+  scenarios:
+    - "Both 物件種別 + 間取り groups render in desktop sidebar with count badges"
+    - "Toggling an option filters the list and updates the N 件 header count"
+    - "Faceted counts: selecting one group updates the other group's badges; same-group siblings do not collapse to 0"
+    - "URL syncs ?propertyTypes / ?layouts (comma-joined multi-select); clearing a group drops the param"
+    - "Deep link /feed?propertyTypes=used_mansion&layouts=2ldk,3ldk pre-checks options and pre-filters"
+    - "Filter change resets pagination to page 1 (drops ?page)"
+    - "Mobile 絞り込み Sheet shows and operates the new groups"
+    - "No console errors across all flows"
+  notes: "QA verified on commit 37c3a0d (all 8 criteria PASS). Subsequent commit cdaf5ad is a pure behavior-preserving refactor (layout matcher dedup, useCallback dep hygiene, trim consistency) — orchestrator confirmed equivalence; no QA re-run needed."
 
-deferred: []
+deferred:
+  - { item: "Bare マンション property_type values (no 中古/新築 prefix) match none of the 4 type buckets", reason: "Bead defines exactly 4 buckets (中古マンション/新築マンション/一戸建て/賃貸); unclassified values not fitting is expected, consistent with junk values like 土地/アパート" }
 
 escalations: []
