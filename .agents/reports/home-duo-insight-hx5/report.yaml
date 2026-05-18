@@ -1,0 +1,40 @@
+bead: home-duo-insight-hx5
+summary: Add 物件種別 + 間取り multi-select filter groups to Feed sidebar with faceted counts and URL state sync
+branch: feat/hx5-feed-filters
+sha: 244a476
+
+base_branch: main
+
+files_changed:
+  - src/lib/feedFilters.ts
+  - src/components/FeedFilters.tsx
+  - src/pages/Feed.tsx
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16  # all pre-existing, none from new code
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-hx5/build.log
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "no test runner configured; plan explicitly says no test files"
+
+ui_surface: true
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "QA runs separately per orchestrator instructions (ui_qa.ran=false)"
+  artifacts: []
+  scenarios: []
+
+deferred: []
+
+escalations: []
