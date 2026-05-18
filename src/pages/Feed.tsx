@@ -210,12 +210,16 @@ const Feed = () => {
   }, [refreshTrigger, t]);
 
   // Apply status filter. Extracted so the faceted count bases can reuse it
-  // without duplicating the statusFilter branching logic.
-  const applyStatusFilter = (list: ComparisonPost[]): ComparisonPost[] => {
-    if (statusFilter === "expert") return list.filter((c) => (c.experts?.length ?? 0) > 0);
-    if (statusFilter === "pending") return list.filter((c) => !c.experts || c.experts.length === 0);
-    return list;
-  };
+  // without duplicating the statusFilter branching logic. Memoized so it can be
+  // an honest dependency of the memos below.
+  const applyStatusFilter = useCallback(
+    (list: ComparisonPost[]): ComparisonPost[] => {
+      if (statusFilter === "expert") return list.filter((c) => (c.experts?.length ?? 0) > 0);
+      if (statusFilter === "pending") return list.filter((c) => !c.experts || c.experts.length === 0);
+      return list;
+    },
+    [statusFilter],
+  );
 
   const filtered = useMemo(() => {
     let list = applyStatusFilter(comparisons);
@@ -227,8 +231,7 @@ const Feed = () => {
       list = [...list].sort((a, b) => (b.expertVotes ?? 0) - (a.expertVotes ?? 0));
     }
     return list;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comparisons, statusFilter, sortBy, activePropertyTypes, activeLayouts]);
+  }, [comparisons, applyStatusFilter, sortBy, activePropertyTypes, activeLayouts]);
 
   // Faceted count bases: each base excludes the filter being counted so that
   // unchecked options still show how many results they would add.
@@ -236,16 +239,14 @@ const Feed = () => {
     let list = applyStatusFilter(comparisons);
     if (activeLayouts.size > 0) list = list.filter((c) => comparisonMatchesLayouts(c, activeLayouts));
     return list;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comparisons, statusFilter, activeLayouts]);
+  }, [comparisons, applyStatusFilter, activeLayouts]);
 
   const baseForLayoutCounts = useMemo(() => {
     let list = applyStatusFilter(comparisons);
     if (activePropertyTypes.size > 0)
       list = list.filter((c) => comparisonMatchesTypes(c, activePropertyTypes));
     return list;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [comparisons, statusFilter, activePropertyTypes]);
+  }, [comparisons, applyStatusFilter, activePropertyTypes]);
 
   const typeCounts = useMemo(() => {
     const counts: Record<string, number> = {};

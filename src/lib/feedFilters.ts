@@ -78,72 +78,57 @@ export function extractLayoutTokens(
   return results;
 }
 
+// A single layout token, as produced by extractLayoutTokens.
+export type LayoutToken = { digit: number; suffix: "LDK" | "DK" | "K" };
+
+// Each bucket carries a token-level predicate. The shared layoutBucketMatches
+// helper does the normalize + extract exactly once, so the per-bucket code is
+// just the predicate.
 export const LAYOUT_BUCKETS: {
   id: string;
   label: string;
-  match: (raw: string) => boolean;
+  test: (t: LayoutToken) => boolean;
 }[] = [
   {
     id: "1k",
     label: "1K",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.digit === 1 && t.suffix === "K",
-      );
-    },
+    test: (t) => t.digit === 1 && t.suffix === "K",
   },
   {
     id: "1dk",
     label: "1DK",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.digit === 1 && t.suffix === "DK",
-      );
-    },
+    test: (t) => t.digit === 1 && t.suffix === "DK",
   },
   {
     id: "1ldk",
     label: "1LDK",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.digit === 1 && t.suffix === "LDK",
-      );
-    },
+    test: (t) => t.digit === 1 && t.suffix === "LDK",
   },
   {
     id: "2ldk",
     label: "2LDK",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.digit === 2 && t.suffix === "LDK",
-      );
-    },
+    test: (t) => t.digit === 2 && t.suffix === "LDK",
   },
   {
     id: "3ldk",
     label: "3LDK",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.digit === 3 && t.suffix === "LDK",
-      );
-    },
+    test: (t) => t.digit === 3 && t.suffix === "LDK",
   },
   {
     id: "4ldk_plus",
     label: "4LDK以上",
-    match: (raw) => {
-      const normalized = normalizeFloorPlan(raw);
-      return extractLayoutTokens(normalized).some(
-        (t) => t.suffix === "LDK" && t.digit >= 4,
-      );
-    },
+    test: (t) => t.suffix === "LDK" && t.digit >= 4,
   },
 ];
+
+// Does a raw floor-plan string match a layout bucket? Normalizes and extracts
+// tokens once, then runs the bucket's token predicate over them.
+export function layoutBucketMatches(
+  bucket: { test: (t: LayoutToken) => boolean },
+  raw: string,
+): boolean {
+  return extractLayoutTokens(normalizeFloorPlan(raw)).some(bucket.test);
+}
 
 // ---------------------------------------------------------------------------
 // Valid ID sets (used for URL parsing / validation)
@@ -171,9 +156,9 @@ export function propertyMatchesLayouts(
   set: Set<string>,
 ): boolean {
   if (set.size === 0) return true;
-  const raw = p.floor_plan ?? "";
+  const raw = p.floor_plan?.trim() ?? "";
   if (!raw) return false;
-  return LAYOUT_BUCKETS.some((b) => set.has(b.id) && b.match(raw));
+  return LAYOUT_BUCKETS.some((b) => set.has(b.id) && layoutBucketMatches(b, raw));
 }
 
 export function comparisonMatchesTypes(
