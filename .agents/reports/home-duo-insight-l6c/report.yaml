@@ -1,7 +1,7 @@
 bead: home-duo-insight-l6c
 summary: Add purely client-side pagination to Feed.tsx with ?page= URL param, 20 items/page, filter-reset, SEO link tags, and out-of-range empty state
 branch: feat/home-duo-insight-l6c-feed-pagination
-sha: 63b5050
+sha: 1f563fc
 
 base_branch: main
 
@@ -28,10 +28,84 @@ tests:
 ui_surface: true
 
 ui_qa:
-  ran: false
-  reason_if_skipped: "QA dispatched by orchestrator after dev pass"
-  artifacts: []
-  scenarios: []
+  ran: true
+  artifacts:
+    - .agents/reports/home-duo-insight-l6c/screenshots/01-page1.png
+    - .agents/reports/home-duo-insight-l6c/screenshots/02-page2.png
+    - .agents/reports/home-duo-insight-l6c/screenshots/04-last-page.png
+    - .agents/reports/home-duo-insight-l6c/screenshots/06-filter-reset.png
+    - .agents/reports/home-duo-insight-l6c/screenshots/07-out-of-range.png
+  scenarios:
+    - id: 1
+      name: "Page 1 default"
+      result: pass
+      notes: >
+        Exactly 20 cards rendered. Pagination control visible with 5 page buttons
+        (95 total comparisons = 5 pages). Prev button disabled. Page 1 button has
+        aria-current="page".
+    - id: 2
+      name: "Navigate to page 2"
+      result: pass
+      notes: >
+        Clicking page 2 button or next button sets URL to /feed?page=2. First card
+        is #0021. Both prev and next enabled. Page 2 button has aria-current="page".
+        scroll-to-top fires on page change (smooth scroll via window.scrollTo effect).
+    - id: 3
+      name: "Page 1 canonical URL"
+      result: pass
+      notes: >
+        Clicking prev from page 2 sets URL to bare /feed (no ?page=1 param).
+    - id: 4
+      name: "Last page"
+      result: pass
+      notes: >
+        Page 5 (last) has 15 cards (partial; 95 total, 20x4+15). Next button
+        disabled. Prev button enabled.
+    - id: 5
+      name: "Ellipsis"
+      result: pass
+      notes: >
+        Only 5 pages exist (< 8 threshold), so all page numbers 1-5 display
+        without any ellipsis gaps. The buildPageList function correctly uses
+        the 7-page threshold for collapsing.
+    - id: 6
+      name: "Filter resets page"
+      result: pass
+      notes: >
+        From /feed?page=2, changing sort dropdown to 'popular' drops ?page= param
+        (URL becomes /feed). Likewise clicking status filter button
+        専門家コメント済み from page 2 also drops the param.
+    - id: 7
+      name: "Out-of-range page 999"
+      result: pass
+      notes: >
+        /feed?page=999 shows 'このページは存在しません' heading, no cards, no
+        pagination nav. Button '1ページ目に戻る' navigates to /feed.
+    - id: 8
+      name: "Invalid page (page=0, page=abc)"
+      result: pass
+      notes: >
+        Both /feed?page=0 and /feed?page=abc fall back to page-1 content: 20 cards,
+        pagination with page 1 active, prev disabled. No crash or error state.
+    - id: 9
+      name: "rel=prev/next link tags"
+      result: pass
+      notes: >
+        Page 1: only next -> /feed?page=2 (no prev).
+        Page 2: prev -> /feed (canonical, no ?page=1), next -> /feed?page=3.
+        Last page (5): only prev -> /feed?page=4 (no next).
+    - id: 10
+      name: "Console clean"
+      result: pass
+      notes: >
+        Zero non-benign console errors or warnings across page 1, page 2, and
+        out-of-range page 999.
+    - id: 11
+      name: "No infinite scroll"
+      result: pass
+      notes: >
+        Scrolling to bottom of page 1 keeps card count at 20. No auto-load of
+        additional cards triggered by scroll events.
 
 deferred: []
 
