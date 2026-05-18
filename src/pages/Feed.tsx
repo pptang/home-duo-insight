@@ -10,6 +10,14 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import FeedFilters from "@/components/FeedFilters";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  PROPERTY_TYPE_BUCKETS,
+  LAYOUT_BUCKETS,
+  VALID_TYPE_IDS,
+  VALID_LAYOUT_IDS,
+  comparisonMatchesTypes,
+  comparisonMatchesLayouts,
+} from "@/lib/feedFilters";
 
 interface Expert {
   id: string;
@@ -46,6 +54,16 @@ const parsePage = (raw: string | null): number => {
   const n = Number.parseInt(raw ?? "", 10);
   return Number.isFinite(n) && n >= 1 ? n : 1;
 };
+
+// Parse a comma-separated filter param into a Set, keeping only IDs present in
+// the `valid` set. Used for URL-seeded initial filter state.
+const parseIdSet = (raw: string | null, valid: Set<string>): Set<string> =>
+  new Set(
+    (raw ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => valid.has(s)),
+  );
 
 // Build the list of page tokens for the numbered control: always show first,
 // last, current and its neighbours; collapse the rest into "…" gaps.
@@ -84,21 +102,28 @@ const Feed = () => {
   const [activeAreas, setActiveAreas] = useState<Set<string>>(new Set());
   const [activePrices, setActivePrices] = useState<Set<string>>(new Set());
   const [sortBy, setSortBy] = useState<"newest" | "popular">("newest");
+  const [activePropertyTypes, setActivePropertyTypes] = useState<Set<string>>(
+    () => parseIdSet(searchParams.get("propertyTypes"), VALID_TYPE_IDS),
+  );
+  const [activeLayouts, setActiveLayouts] = useState<Set<string>>(
+    () => parseIdSet(searchParams.get("layouts"), VALID_LAYOUT_IDS),
+  );
 
   // Current page comes straight from the URL (1-indexed).
   const currentPage = parsePage(searchParams.get("page"));
 
   // Single serialization of the filter/sort state. Hoisted so the ref seed and
-  // the reset effect compare byte-identical strings — a drift between two
+  // the merged URL effect compare byte-identical strings — a drift between two
   // hand-written copies would silently break the change-detection guard.
   const filterSig = useMemo(
-    () => `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`,
-    [statusFilter, sortBy, activeAreas, activePrices],
+    () =>
+      `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}` +
+      `|${[...activePropertyTypes].sort().join(",")}|${[...activeLayouts].sort().join(",")}`,
+    [statusFilter, sortBy, activeAreas, activePrices, activePropertyTypes, activeLayouts],
   );
 
-  // Track the last filter signature we synced so the reset effect can tell a
-  // genuine user filter change from a mere mount / re-render. Seeded from the
-  // initial signature, so the first run is a no-op and an incoming `?page=`
+  // Track the last filter signature the merged URL effect committed. Seeded from
+  // the initial signature so the first run is a no-op and an incoming `?page=`
   // deep-link survives. StrictMode-safe (a ref, not a one-shot boolean).
   const lastFilterSig = useRef(filterSig);
 
@@ -184,18 +209,63 @@ const Feed = () => {
     fetchComparisons();
   }, [refreshTrigger, t]);
 
+  // Apply status filter. Extracted so the faceted count bases can reuse it
+  // without duplicating the statusFilter branching logic.
+  const applyStatusFilter = (list: ComparisonPost[]): ComparisonPost[] => {
+    if (statusFilter === "expert") return list.filter((c) => (c.experts?.length ?? 0) > 0);
+    if (statusFilter === "pending") return list.filter((c) => !c.experts || c.experts.length === 0);
+    return list;
+  };
+
   const filtered = useMemo(() => {
-    let list = comparisons;
-    if (statusFilter === "expert") {
-      list = list.filter((c) => (c.experts?.length ?? 0) > 0);
-    } else if (statusFilter === "pending") {
-      list = list.filter((c) => !c.experts || c.experts.length === 0);
-    }
+    let list = applyStatusFilter(comparisons);
+    if (activePropertyTypes.size > 0)
+      list = list.filter((c) => comparisonMatchesTypes(c, activePropertyTypes));
+    if (activeLayouts.size > 0)
+      list = list.filter((c) => comparisonMatchesLayouts(c, activeLayouts));
     if (sortBy === "popular") {
       list = [...list].sort((a, b) => (b.expertVotes ?? 0) - (a.expertVotes ?? 0));
     }
     return list;
-  }, [comparisons, statusFilter, sortBy]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comparisons, statusFilter, sortBy, activePropertyTypes, activeLayouts]);
+
+  // Faceted count bases: each base excludes the filter being counted so that
+  // unchecked options still show how many results they would add.
+  const baseForTypeCounts = useMemo(() => {
+    let list = applyStatusFilter(comparisons);
+    if (activeLayouts.size > 0) list = list.filter((c) => comparisonMatchesLayouts(c, activeLayouts));
+    return list;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comparisons, statusFilter, activeLayouts]);
+
+  const baseForLayoutCounts = useMemo(() => {
+    let list = applyStatusFilter(comparisons);
+    if (activePropertyTypes.size > 0)
+      list = list.filter((c) => comparisonMatchesTypes(c, activePropertyTypes));
+    return list;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comparisons, statusFilter, activePropertyTypes]);
+
+  const typeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const b of PROPERTY_TYPE_BUCKETS) {
+      counts[b.id] = baseForTypeCounts.filter((c) =>
+        comparisonMatchesTypes(c, new Set([b.id])),
+      ).length;
+    }
+    return counts;
+  }, [baseForTypeCounts]);
+
+  const layoutCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const b of LAYOUT_BUCKETS) {
+      counts[b.id] = baseForLayoutCounts.filter((c) =>
+        comparisonMatchesLayouts(c, new Set([b.id])),
+      ).length;
+    }
+    return counts;
+  }, [baseForLayoutCounts]);
 
   // Navigate to a page, preserving every other query param (filters etc.).
   const goToPage = useCallback(
@@ -221,21 +291,26 @@ const Feed = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
-  // Reset to page 1 on filter/sort change. Guarded by a signature ref so it
-  // only fires on a genuine change, never on mount (preserving a `?page=` deep
-  // link). StrictMode-safe via ref (not a one-shot boolean).
+  // Single source of truth for the filter query string. Syncs ?propertyTypes /
+  // ?layouts to the active Sets, and drops ?page on a genuine filter change
+  // (detected via the lastFilterSig ref) so a filter change resets to page 1.
+  // One URLSearchParams, one setSearchParams — no two-effect race. The
+  // idempotency guard makes it loop-safe and StrictMode-safe.
   useEffect(() => {
-    if (filterSig === lastFilterSig.current) return;
-    lastFilterSig.current = filterSig;
-    if (searchParams.has("page")) {
-      setSearchParams(pageParams(searchParams, 1), { replace: true });
+    const next = new URLSearchParams(searchParams);
+    const typeStr = [...activePropertyTypes].sort().join(",");
+    if (typeStr) next.set("propertyTypes", typeStr);
+    else next.delete("propertyTypes");
+    const layoutStr = [...activeLayouts].sort().join(",");
+    if (layoutStr) next.set("layouts", layoutStr);
+    else next.delete("layouts");
+    if (filterSig !== lastFilterSig.current) {
+      lastFilterSig.current = filterSig;
+      next.delete("page");
     }
-    // searchParams / setSearchParams intentionally omitted: the effect must
-    // react only to a genuine filter change. searchParams changes on every
-    // page nav, but filterSig stays put so the guard short-circuits — listing
-    // it would just re-run a guaranteed no-op.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterSig]);
+    if (next.toString() === searchParams.toString()) return;
+    setSearchParams(next, { replace: true });
+  }, [filterSig, activePropertyTypes, activeLayouts, searchParams, setSearchParams]);
 
   // SEO: emit rel="prev" / rel="next" link tags for the current page so
   // crawlers understand the paginated sequence. Cleaned up on unmount.
@@ -269,6 +344,12 @@ const Feed = () => {
             setActiveAreas={setActiveAreas}
             activePrices={activePrices}
             setActivePrices={setActivePrices}
+            activePropertyTypes={activePropertyTypes}
+            setActivePropertyTypes={setActivePropertyTypes}
+            activeLayouts={activeLayouts}
+            setActiveLayouts={setActiveLayouts}
+            typeCounts={typeCounts}
+            layoutCounts={layoutCounts}
           />
         </aside>
 
@@ -308,6 +389,12 @@ const Feed = () => {
                       setActiveAreas={setActiveAreas}
                       activePrices={activePrices}
                       setActivePrices={setActivePrices}
+                      activePropertyTypes={activePropertyTypes}
+                      setActivePropertyTypes={setActivePropertyTypes}
+                      activeLayouts={activeLayouts}
+                      setActiveLayouts={setActiveLayouts}
+                      typeCounts={typeCounts}
+                      layoutCounts={layoutCounts}
                     />
                   </div>
                 </SheetContent>

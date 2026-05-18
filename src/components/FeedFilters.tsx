@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { Button } from "@/components/ui/button";
+import { PROPERTY_TYPE_BUCKETS, LAYOUT_BUCKETS } from "@/lib/feedFilters";
 
 const STATUS_FILTERS = [
   { id: "all", label: "すべて" },
@@ -37,11 +38,13 @@ const FilterOption = ({
   active,
   onClick,
   radio = false,
+  count,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
   radio?: boolean;
+  count?: number;
 }) => (
   <button
     type="button"
@@ -59,7 +62,12 @@ const FilterOption = ({
         <span className={`block ${radio ? "w-1.5 h-1.5 rounded-full bg-ink" : "w-2 h-2 bg-ink"}`} />
       )}
     </span>
-    {label}
+    <span className="flex-1">{label}</span>
+    {count !== undefined && (
+      <span className={`font-mono text-[10px] tabular-nums ${active ? "text-paper/70" : "text-ink-40"}`}>
+        {count}
+      </span>
+    )}
   </button>
 );
 
@@ -70,6 +78,12 @@ export interface FeedFiltersProps {
   setActiveAreas: (s: Set<string>) => void;
   activePrices: Set<string>;
   setActivePrices: (s: Set<string>) => void;
+  activePropertyTypes: Set<string>;
+  setActivePropertyTypes: (s: Set<string>) => void;
+  activeLayouts: Set<string>;
+  setActiveLayouts: (s: Set<string>) => void;
+  typeCounts: Record<string, number>;
+  layoutCounts: Record<string, number>;
 }
 
 const FeedFilters = ({
@@ -79,6 +93,12 @@ const FeedFilters = ({
   setActiveAreas,
   activePrices,
   setActivePrices,
+  activePropertyTypes,
+  setActivePropertyTypes,
+  activeLayouts,
+  setActiveLayouts,
+  typeCounts,
+  layoutCounts,
 }: FeedFiltersProps) => {
   const toggleSet = (set: Set<string>, id: string, setter: (s: Set<string>) => void) => {
     const next = new Set(set);
@@ -119,6 +139,30 @@ const FeedFilters = ({
             label={p.label}
             active={activePrices.has(p.id)}
             onClick={() => toggleSet(activePrices, p.id, setActivePrices)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup title="物件種別">
+        {PROPERTY_TYPE_BUCKETS.map((b) => (
+          <FilterOption
+            key={b.id}
+            label={b.label}
+            active={activePropertyTypes.has(b.id)}
+            count={typeCounts[b.id]}
+            onClick={() => toggleSet(activePropertyTypes, b.id, setActivePropertyTypes)}
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup title="間取り">
+        {LAYOUT_BUCKETS.map((b) => (
+          <FilterOption
+            key={b.id}
+            label={b.label}
+            active={activeLayouts.has(b.id)}
+            count={layoutCounts[b.id]}
+            onClick={() => toggleSet(activeLayouts, b.id, setActiveLayouts)}
           />
         ))}
       </FilterGroup>
