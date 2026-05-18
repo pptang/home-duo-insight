@@ -1,7 +1,7 @@
 bead: home-duo-insight-hx5
 summary: Add 物件種別 + 間取り multi-select filter groups to Feed sidebar with faceted counts and URL state sync
 branch: feat/hx5-feed-filters
-sha: 244a476
+sha: cdaf5ad
 
 base_branch: main
 
