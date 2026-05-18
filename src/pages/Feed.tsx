@@ -63,6 +63,16 @@ const buildPageList = (current: number, total: number): (number | "gap")[] => {
   return out;
 };
 
+// Clone `base` and apply the canonical `?page=` rule: page 1 drops the param
+// entirely (clean canonical URL), any other page sets it. Single source of
+// truth for both navigation (goToPage) and SEO rel=prev/next href building.
+const pageParams = (base: URLSearchParams, page: number): URLSearchParams => {
+  const next = new URLSearchParams(base);
+  if (page <= 1) next.delete("page");
+  else next.set("page", String(page));
+  return next;
+};
+
 const Feed = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -78,13 +88,19 @@ const Feed = () => {
   // Current page comes straight from the URL (1-indexed).
   const currentPage = parsePage(searchParams.get("page"));
 
+  // Single serialization of the filter/sort state. Hoisted so the ref seed and
+  // the reset effect compare byte-identical strings — a drift between two
+  // hand-written copies would silently break the change-detection guard.
+  const filterSig = useMemo(
+    () => `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`,
+    [statusFilter, sortBy, activeAreas, activePrices],
+  );
+
   // Track the last filter signature we synced so the reset effect can tell a
   // genuine user filter change from a mere mount / re-render. Seeded from the
-  // initial filter state (all empty), so the first run is a no-op and an
-  // incoming `?page=` deep-link survives. StrictMode-safe (a ref, not a bool).
-  const lastFilterSig = useRef(
-    `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`,
-  );
+  // initial signature, so the first run is a no-op and an incoming `?page=`
+  // deep-link survives. StrictMode-safe (a ref, not a one-shot boolean).
+  const lastFilterSig = useRef(filterSig);
 
   useEffect(() => {
     const fetchComparisons = async () => {
@@ -182,18 +198,13 @@ const Feed = () => {
   }, [comparisons, statusFilter, sortBy]);
 
   // Navigate to a page, preserving every other query param (filters etc.).
-  // Page 1 drops the `page` param entirely to keep canonical URLs clean.
   const goToPage = useCallback(
     (page: number) => {
-      const next = new URLSearchParams(searchParams);
-      if (page <= 1) next.delete("page");
-      else next.set("page", String(page));
-      setSearchParams(next);
+      setSearchParams(pageParams(searchParams, page));
     },
     [searchParams, setSearchParams],
   );
 
-  // Pagination math, derived from the filtered list.
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   // A page beyond the last real page (but not page 1) is "out of range".
   const isOutOfRange = filtered.length > 0 && currentPage > totalPages;
@@ -206,7 +217,6 @@ const Feed = () => {
     [currentPage, totalPages],
   );
 
-  // Scroll to top whenever the page changes.
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
@@ -215,28 +225,23 @@ const Feed = () => {
   // only fires on a genuine change, never on mount (preserving a `?page=` deep
   // link). StrictMode-safe via ref (not a one-shot boolean).
   useEffect(() => {
-    const sig = `${statusFilter}|${sortBy}|${[...activeAreas].sort().join(",")}|${[...activePrices].sort().join(",")}`;
-    if (sig === lastFilterSig.current) return;
-    lastFilterSig.current = sig;
+    if (filterSig === lastFilterSig.current) return;
+    lastFilterSig.current = filterSig;
     if (searchParams.has("page")) {
-      const next = new URLSearchParams(searchParams);
-      next.delete("page");
-      setSearchParams(next, { replace: true });
+      setSearchParams(pageParams(searchParams, 1), { replace: true });
     }
-    // Only react to the filter/sort controls. searchParams intentionally omitted
-    // to avoid an update loop (setSearchParams triggers a re-render with new
-    // searchParams, but the sig won't change so the guard short-circuits).
+    // searchParams / setSearchParams intentionally omitted: the effect must
+    // react only to a genuine filter change. searchParams changes on every
+    // page nav, but filterSig stays put so the guard short-circuits — listing
+    // it would just re-run a guaranteed no-op.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [statusFilter, sortBy, activeAreas, activePrices]);
+  }, [filterSig]);
 
   // SEO: emit rel="prev" / rel="next" link tags for the current page so
   // crawlers understand the paginated sequence. Cleaned up on unmount.
   useEffect(() => {
     const makeUrl = (page: number) => {
-      const params = new URLSearchParams(searchParams);
-      if (page <= 1) params.delete("page");
-      else params.set("page", String(page));
-      const qs = params.toString();
+      const qs = pageParams(searchParams, page).toString();
       return `${window.location.origin}${window.location.pathname}${qs ? `?${qs}` : ""}`;
     };
     const links: HTMLLinkElement[] = [];
