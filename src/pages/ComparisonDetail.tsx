@@ -16,8 +16,10 @@ import {
   ExpertSectionPanel,
   SimilarProperties,
   ScoreCardsGrid,
+  LifestyleFitGrid,
 } from "@/components/compare-result";
 import type { ComparisonRow, AxisScores } from "@/components/compare-result";
+import type { LifestyleFitAspect } from "@/lib/lifestyleFitAspects";
 
 interface PropertyData {
   id: string;
@@ -64,6 +66,8 @@ interface AIRecommendation {
   // tv7.eod: score totals used for the sticky-bar verdict
   property_a_score_total?: number | null;
   property_b_score_total?: number | null;
+  // 2l8: lifestyle fit per-aspect comparison
+  lifestyle_fit_comparison?: LifestyleFitAspect[] | null;
 }
 
 interface ComparisonData {
@@ -198,7 +202,7 @@ const ComparisonDetail = () => {
           .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
+            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total, lifestyle_fit_comparison)`)
           .eq("id", id)
           .single();
 
@@ -497,6 +501,8 @@ const SummaryTab = ({
   comparison: ComparisonData;
   recommendation: AIRecommendation | null;
 }) => {
+  const { t } = useTranslation();
+
   if (!recommendation) {
     return (
       <div className="border border-dashed border-rule rounded-lg p-12 text-center bg-paper-dark/40">
@@ -560,6 +566,16 @@ const SummaryTab = ({
             rows={summaryRows}
             headerA={`A · ${comparison.property_a.property_name || '物件 A'}`}
             headerB={`B · ${comparison.property_b.property_name || '物件 B'}`}
+          />
+        </div>
+      )}
+      {recommendation.lifestyle_fit_comparison && recommendation.lifestyle_fit_comparison.length > 0 && (
+        <div>
+          <div className="text-label-sm text-ink-60 mb-3">{t('comparisonDetail.lifestyleFit.title')}</div>
+          <LifestyleFitGrid
+            aspects={recommendation.lifestyle_fit_comparison}
+            propertyAName={comparison.property_a.property_name || '物件 A'}
+            propertyBName={comparison.property_b.property_name || '物件 B'}
           />
         </div>
       )}

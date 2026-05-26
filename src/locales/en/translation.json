@@ -425,6 +425,17 @@
       "retryErrorDesc": "An unexpected error occurred while retrying.",
       "imagesLoaded": "Images loaded!",
       "imagesLoadedDesc": "Property images have been successfully extracted."
+    },
+    "lifestyleFit": {
+      "title": "Lifestyle Fit",
+      "aspects": {
+        "proximity_to_cafes": "Cafés nearby",
+        "access_to_gym": "Gym access",
+        "dog_walking_friendly": "Dog walking",
+        "quiet_at_night": "Quiet at night",
+        "morning_vs_afternoon_sunlight": "Sunlight (morning/afternoon)",
+        "laundromat_access": "Laundromat access"
+      }
     }
   },
   "about": {

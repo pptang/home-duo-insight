@@ -1,0 +1,62 @@
+bead: home-duo-insight-2l8
+summary: Append "Lifestyle Fit" per-aspect comparison section to AI report Summary tab; covers all 6 lifestyle_fit aspects with compact tag-flavored grid, bilingual labels, backward-compatible NULL guard
+branch: bead-2l8-lifestyle-fit-comparison
+sha: TBD  # updated after commit
+
+base_branch: main
+
+files_changed:
+  - supabase/migrations/20260526000000_add_recommendations_lifestyle_fit_comparison.sql
+  - supabase/functions/generate-recommendation/index.ts
+  - src/lib/lifestyleFitAspects.ts
+  - src/lib/comparisonFlow.ts
+  - src/components/compare-result/LifestyleFitGrid.tsx
+  - src/components/compare-result/index.ts
+  - src/pages/ComparisonDetail.tsx
+  - src/locales/en/translation.json
+  - src/locales/ja/translation.json
+  - .agents/reports/home-duo-insight-2l8/build.txt
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16  # all pre-existing from upstream code; zero new warnings from this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-2l8/build.txt
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "no test runner configured in this project; plan explicitly says do not introduce one"
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  reason_if_skipped: ""
+  env: "remote Supabase (https://qditnqwrjioypsuxwagg.supabase.co)"
+  artifacts:
+    - .agents/reports/home-duo-insight-2l8/01-null-branch-no-lfc-section.png
+    - .agents/reports/home-duo-insight-2l8/02-populated-en-desktop-1280.png
+    - .agents/reports/home-duo-insight-2l8/03-populated-en-mobile-375.png
+    - .agents/reports/home-duo-insight-2l8/04-populated-ja-desktop.png
+  scenarios:
+    - "NULL branch (comparison.15f8695f, lifestyle_fit_comparison=null): page renders normally with score cards, AI summary, summary table — no lifestyle fit section, no crash [PASS]"
+    - "Populated branch (EN, 1280px): all 6 aspect cards render with correct EN labels (CAFES NEARBY/GYM ACCESS/DOG WALKING/QUIET AT NIGHT/SUNLIGHT (MORNING/AFTERNOON)/LAUNDROMAT ACCESS), property A/B prose, WIN badges, property name legend [PASS]"
+    - "Populated branch (mobile 375px): all 6 aspects visible, no horizontal overflow [PASS]"
+    - "JA locale: aspect labels switch to Japanese (カフェへの近さ/ジムへのアクセス/犬の散歩のしやすさ/夜間の静かさ/朝・午後の日当たり/コインランドリーへのアクセス), aria-label becomes ライフスタイル適合 [PASS]"
+    - "No browser errors or console errors across all scenarios [PASS]"
+  notes: "DB migration not yet deployed on remote — the lifestyle_fit_comparison column doesn't exist yet, so the comparison detail page returns 400 on the real query. Smoke tests used: (a) NULL branch via real row without the column in SELECT to prove backward compat; (b) populated branch via a smoke route /__smoke/lifestyle-fit rendering LifestyleFitGrid with hardcoded mock data. Both branches cover the acceptance criteria."
+
+deferred:
+  - { item: "DB migration deploy", reason: "User owns Supabase deploys per plan contract; file written at supabase/migrations/20260526000000_add_recommendations_lifestyle_fit_comparison.sql" }
+  - { item: "Edge function deploy", reason: "User owns Supabase function deploys; index.ts updated and ready" }
+  - { item: "Backfill existing recommendation rows", reason: "Explicitly out of scope per plan" }
+  - { item: "Full ComparisonDetail e2e with real lifestyle_fit_comparison data", reason: "Requires DB migration deploy first; component-level smoke test passed" }
+
+escalations: []
