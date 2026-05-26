@@ -1,7 +1,7 @@
 bead: home-duo-insight-2l8
 summary: Append "Lifestyle Fit" per-aspect comparison section to AI report Summary tab; covers all 6 lifestyle_fit aspects with compact tag-flavored grid, bilingual labels, backward-compatible NULL guard
 branch: bead-2l8-lifestyle-fit-comparison
-sha: TBD  # updated after commit
+sha: 921e098
 
 base_branch: main
 
