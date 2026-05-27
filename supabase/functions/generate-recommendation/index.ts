@@ -82,12 +82,6 @@ interface AIRecommendation {
     kind: "pro-a" | "pro-b" | "caution";
     body: string;
   }[];
-  lifestyle_fit_comparison?: {
-    aspect: string;
-    property_a: string;
-    property_b: string;
-    winner?: "A" | "B" | "draw";
-  }[];
   final_recommendation: string;
   property_a_score_total?: number;
   property_b_score_total?: number;
@@ -277,25 +271,6 @@ Mention uncertainties or items to verify during viewing.
 
 ---
 
-## Lifestyle Fit Comparison
-Emit a "lifestyle_fit_comparison" array of EXACTLY these 6 aspects in this exact order, using the literal snake_case English keys (do NOT translate the aspect field):
-1. proximity_to_cafes
-2. access_to_gym
-3. dog_walking_friendly
-4. quiet_at_night
-5. morning_vs_afternoon_sunlight
-6. laundromat_access
-
-For each aspect:
-- "aspect": the exact snake_case key above (English, never translated)
-- "property_a": one concrete lived-experience sentence (<=80 chars EN). Use specific, vivid phrasing (e.g. "Two indie cafes within 5-minute walk" not "good cafe access"). No raw scores, no emojis.
-- "property_b": same format for Property B
-- "winner" (optional): "A", "B", or "draw" -- omit if truly unclear
-
-For "morning_vs_afternoon_sunlight": describe likely light exposure based on orientation/floor when inferable, regardless of the user_profile importance weight.
-
----
-
 ## Pros and Cons (separate JSON fields)
 In the property_a_pros, property_a_cons, property_b_pros, property_b_cons fields:
 - Provide at least 3 items each
@@ -336,15 +311,13 @@ Now return your response in the following **JSON format only** (with no extra ex
   "summary_table": [
     {"field": "Price", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
     {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "近"},
-    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
-  ],
-  "lifestyle_fit_comparison": [
-    { "aspect": "proximity_to_cafes", "property_a": "Two indie cafés within 5-minute walk on Nakameguro strip.", "property_b": "Nearest café is a 12-minute walk to the station area.", "winner": "A" },
-    { "aspect": "access_to_gym", "property_a": "ANYTIME FITNESS branch 7 min walk; 24-hour access.", "property_b": "No gym within walking distance; closest is 20 min by bike.", "winner": "A" },
-    { "aspect": "dog_walking_friendly", "property_a": "Meguro River path allows off-leash stretches on weekdays.", "property_b": "Wide residential streets but limited green space near building.", "winner": "A" },
-    { "aspect": "quiet_at_night", "property_a": "Faces inner courtyard; street noise minimal after 22:00.", "property_b": "Fronts a local road with occasional late-night traffic.", "winner": "A" },
-    { "aspect": "morning_vs_afternoon_sunlight", "property_a": "South-facing 8F unit gets strong morning and afternoon light.", "property_b": "East-facing 3F unit receives morning light only; shaded by noon.", "winner": "A" },
-    { "aspect": "laundromat_access", "property_a": "In-unit washer/dryer hookup; coin laundry 3 min walk.", "property_b": "In-unit washing machine only; nearest coin laundry 10 min walk.", "winner": "A" }
+    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"},
+    {"field": "Cafés nearby", "property_a": "Two indie cafés within 5-minute walk.", "property_b": "Nearest café is a 12-minute walk.", "winner": "A", "badge": "近"},
+    {"field": "Gym access", "property_a": "ANYTIME FITNESS 7 min walk; 24-hour.", "property_b": "Closest gym 20 min by bike.", "winner": "A", "badge": "近"},
+    {"field": "Dog walking", "property_a": "Riverside path; off-leash on weekdays.", "property_b": "Wide streets but little green space.", "winner": "A", "badge": "良"},
+    {"field": "Quiet at night", "property_a": "Faces inner courtyard; minimal noise.", "property_b": "Fronts a local road; late-night traffic.", "winner": "A", "badge": "静"},
+    {"field": "Sunlight", "property_a": "South-facing 8F; strong morning + afternoon light.", "property_b": "East-facing 3F; morning light only.", "winner": "A", "badge": "日"},
+    {"field": "Laundromat", "property_a": "In-unit hookup; coin laundry 3 min walk.", "property_b": "Washer space only; coin laundry 10 min walk.", "winner": "A", "badge": "近"}
   ],
   "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections.",
   "property_a_score_total": 72,
@@ -361,6 +334,15 @@ Rules for structured fields:
 - In each 'summary_table' row, include:
   - 'winner' (optional for schema compatibility): 'A', 'B', or 'draw'
   - 'badge' (optional for schema compatibility): 1-3 Japanese characters (examples: 安, 広, 近, 多, 新, 割安, 日当り, 可, 高)
+- The 'summary_table' MUST include 6 additional rows for lifestyle fit, appended after the standard property rows (price, commute, layout, area, building age, etc.). One row per aspect, in this exact order:
+  1. Cafés nearby (proximity to cafés)
+  2. Gym access
+  3. Dog walking (dog-friendly environment)
+  4. Quiet at night
+  5. Sunlight (morning vs afternoon exposure based on orientation/floor when inferable, regardless of the user_profile importance weight)
+  6. Laundromat access
+- For each lifestyle row, 'property_a' and 'property_b' must be one concrete lived-experience sentence (<=80 chars EN). Use specific, vivid phrasing (e.g. "Two indie cafés within 5-minute walk" not "good café access"). No raw scores, no emojis.
+- Localize the lifestyle 'field' label to the response language (use natural locale-appropriate names; do not emit English snake_case keys).
 `;
 
   // Add translation instruction for Japanese
@@ -388,18 +370,16 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
       {"kind": "pro-b", "body": "物件Bの優位点"},
       {"kind": "caution", "body": "内見前に確認すべき注意点"}
     ],
-    "lifestyle_fit_comparison": [
-      { "aspect": "proximity_to_cafes", "property_a": "徒歩5分以内に個性的なカフェが2軒あります。", "property_b": "最寄りカフェは駅前まで徒歩12分かかります。", "winner": "A" },
-      { "aspect": "access_to_gym", "property_a": "ANYTIME FITNESS徒歩7分、24時間利用可能です。", "property_b": "徒歩圏内にジムはなく、最寄りは自転車で20分です。", "winner": "A" },
-      { "aspect": "dog_walking_friendly", "property_a": "川沿いの遊歩道が近く、平日はリードなしで歩けます。", "property_b": "住宅街の広い道路があるが、近隣に緑地は少ないです。", "winner": "A" },
-      { "aspect": "quiet_at_night", "property_a": "中庭に面しており、22時以降の騒音はほぼありません。", "property_b": "生活道路に面しており、深夜に車の音が聞こえます。", "winner": "A" },
-      { "aspect": "morning_vs_afternoon_sunlight", "property_a": "南向き8階で朝から午後まで日差しが安定しています。", "property_b": "東向き3階のため朝のみ日光が入り、昼には陰ります。", "winner": "A" },
-      { "aspect": "laundromat_access", "property_a": "室内洗濯機設置可。徒歩3分にコインランドリーもあります。", "property_b": "洗濯機置き場のみ。最寄りコインランドリーは徒歩10分です。", "winner": "A" }
-    ],
     "summary_table": [
       {"field": "価格", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
       {"field": "通勤", "property_a": "X分", "property_b": "Y分", "winner": "B", "badge": "近"},
-      {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
+      {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"},
+      {"field": "カフェへの近さ", "property_a": "徒歩5分以内に個性的なカフェが2軒あります。", "property_b": "最寄りカフェは駅前まで徒歩12分かかります。", "winner": "A", "badge": "近"},
+      {"field": "ジムへのアクセス", "property_a": "ANYTIME FITNESS徒歩7分、24時間利用可。", "property_b": "徒歩圏内にジムはなく、自転車で20分です。", "winner": "A", "badge": "近"},
+      {"field": "犬の散歩のしやすさ", "property_a": "川沿いの遊歩道が近く平日はリードなしで歩けます。", "property_b": "広い住宅街ですが近隣の緑地は少なめです。", "winner": "A", "badge": "良"},
+      {"field": "夜間の静かさ", "property_a": "中庭に面し、22時以降の騒音はほぼありません。", "property_b": "生活道路に面し、深夜の車音が時折あります。", "winner": "A", "badge": "静"},
+      {"field": "日当たり", "property_a": "南向き8階で朝から午後まで日差しが安定。", "property_b": "東向き3階で朝のみ日光、昼には陰ります。", "winner": "A", "badge": "日"},
+      {"field": "コインランドリー", "property_a": "室内洗濯機設置可。徒歩3分にコインランドリー。", "property_b": "洗濯機置き場のみ。コインランドリー徒歩10分。", "winner": "A", "badge": "近"}
     ],
     "final_recommendation": "上記8セクションをすべて含む最終提案文",
     "property_a_score_total": 72,
@@ -413,7 +393,7 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
 - 'kind' は 'pro-a' / 'pro-b' / 'caution' のみ使用すること
 - 'summary_table' 各行に 'winner'（A/B/draw）と 'badge'（日本語1〜3文字、例: 安・広・近・多・新・割安・日当り・可・高）を含めること（後方互換のためoptional）
 - property_a_score_total / property_b_score_total / score_breakdown の各スコアは数値（0〜100の整数）のまま出力すること（翻訳不要）
-- lifestyle_fit_comparison の 'aspect' フィールドは必ず英語のsnake_caseキーをそのまま使用すること（日本語に翻訳しないこと）。property_a/property_b の説明文のみ日本語（≤50文字）で記述すること。6つのアスペクトを上記の順番通りに出力すること。
+- summary_table の末尾に、ライフスタイル適合の6行を上記の順番（カフェへの近さ／ジムへのアクセス／犬の散歩のしやすさ／夜間の静かさ／日当たり／コインランドリー）で必ず追加すること。各行の 'field' は日本語で記述し、'property_a' と 'property_b' は具体的な体験を1文（≤50文字）で記述すること（スコアや数値の羅列ではなく実生活の描写）。
 `;
   }
 
@@ -700,7 +680,6 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             property_a_score_total: aiRecommendation.property_a_score_total ?? null,
             property_b_score_total: aiRecommendation.property_b_score_total ?? null,
             score_breakdown: aiRecommendation.score_breakdown ?? null,
-            lifestyle_fit_comparison: aiRecommendation.lifestyle_fit_comparison ?? null,
             final_recommendation: aiRecommendation.final_recommendation,
             user_profile: requestData.user_profile,
           };

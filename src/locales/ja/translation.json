@@ -425,17 +425,6 @@
       "retryErrorDesc": "再試行中に予期しないエラーが発生しました。",
       "imagesLoaded": "画像が読み込まれました！",
       "imagesLoadedDesc": "物件の画像が正常に抽出されました。"
-    },
-    "lifestyleFit": {
-      "title": "ライフスタイル適合",
-      "aspects": {
-        "proximity_to_cafes": "カフェへの近さ",
-        "access_to_gym": "ジムへのアクセス",
-        "dog_walking_friendly": "犬の散歩のしやすさ",
-        "quiet_at_night": "夜間の静かさ",
-        "morning_vs_afternoon_sunlight": "朝・午後の日当たり",
-        "laundromat_access": "コインランドリーへのアクセス"
-      }
     }
   },
   "about": {

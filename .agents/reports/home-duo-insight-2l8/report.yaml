@@ -1,16 +1,13 @@
 bead: home-duo-insight-2l8
-summary: Append "Lifestyle Fit" per-aspect comparison section to AI report Summary tab; covers all 6 lifestyle_fit aspects with compact tag-flavored grid, bilingual labels, backward-compatible NULL guard
+summary: Restore lifestyle fit comparison by appending the 6 aspect rows (cafés, gym, dog walking, quiet at night, sunlight, laundromat) into the existing summary_table so they render in the same ComparisonTable as price/commute/building age. No new DB column, no new component — the AI emits localized field labels and one-sentence A/B descriptions per aspect, with the same winner/badge contract as other rows.
 branch: bead-2l8-lifestyle-fit-comparison
-sha: 921e098
+sha: pending
 
 base_branch: main
 
 files_changed:
-  - supabase/migrations/20260526000000_add_recommendations_lifestyle_fit_comparison.sql
   - supabase/functions/generate-recommendation/index.ts
-  - src/lib/lifestyleFitAspects.ts
   - src/lib/comparisonFlow.ts
-  - src/components/compare-result/LifestyleFitGrid.tsx
   - src/components/compare-result/index.ts
   - src/pages/ComparisonDetail.tsx
   - src/locales/en/translation.json
@@ -37,26 +34,15 @@ tests:
 ui_surface: true
 
 ui_qa:
-  ran: true
-  reason_if_skipped: ""
-  env: "remote Supabase (https://qditnqwrjioypsuxwagg.supabase.co)"
-  artifacts:
-    - .agents/reports/home-duo-insight-2l8/01-null-branch-no-lfc-section.png
-    - .agents/reports/home-duo-insight-2l8/02-populated-en-desktop-1280.png
-    - .agents/reports/home-duo-insight-2l8/03-populated-en-mobile-375.png
-    - .agents/reports/home-duo-insight-2l8/04-populated-ja-desktop.png
-  scenarios:
-    - "NULL branch (comparison.15f8695f, lifestyle_fit_comparison=null): page renders normally with score cards, AI summary, summary table — no lifestyle fit section, no crash [PASS]"
-    - "Populated branch (EN, 1280px): all 6 aspect cards render with correct EN labels (CAFES NEARBY/GYM ACCESS/DOG WALKING/QUIET AT NIGHT/SUNLIGHT (MORNING/AFTERNOON)/LAUNDROMAT ACCESS), property A/B prose, WIN badges, property name legend [PASS]"
-    - "Populated branch (mobile 375px): all 6 aspects visible, no horizontal overflow [PASS]"
-    - "JA locale: aspect labels switch to Japanese (カフェへの近さ/ジムへのアクセス/犬の散歩のしやすさ/夜間の静かさ/朝・午後の日当たり/コインランドリーへのアクセス), aria-label becomes ライフスタイル適合 [PASS]"
-    - "No browser errors or console errors across all scenarios [PASS]"
-  notes: "DB migration not yet deployed on remote — the lifestyle_fit_comparison column doesn't exist yet, so the comparison detail page returns 400 on the real query. Smoke tests used: (a) NULL branch via real row without the column in SELECT to prove backward compat; (b) populated branch via a smoke route /__smoke/lifestyle-fit rendering LifestyleFitGrid with hardcoded mock data. Both branches cover the acceptance criteria."
+  ran: false
+  reason_if_skipped: "pending user manual verification on the running local stack (vite :8080 + supabase :54321 in this worktree). Prior screenshots invalidated by Option C redesign — lifestyle aspects now appear as rows inside the existing summary ComparisonTable rather than a standalone grid section."
+  env: "local Supabase (project_id qditnqwrjioypsuxwagg, started in this worktree on standard ports)"
+  artifacts: []
+  scenarios: []
+  notes: "Redesign per follow-up review: collapsed data model. The dedicated lifestyle_fit_comparison JSON field, jsonb column, migration, LifestyleFitGrid component, lifestyleFitAspects shared types, and i18n lifestyleFit translation block are all removed. AI now emits 6 additional rows directly into summary_table with localized field labels. Awaiting user walkthrough at http://localhost:8080/ to capture fresh screenshots."
 
 deferred:
-  - { item: "DB migration deploy", reason: "User owns Supabase deploys per plan contract; file written at supabase/migrations/20260526000000_add_recommendations_lifestyle_fit_comparison.sql" }
   - { item: "Edge function deploy", reason: "User owns Supabase function deploys; index.ts updated and ready" }
-  - { item: "Backfill existing recommendation rows", reason: "Explicitly out of scope per plan" }
-  - { item: "Full ComparisonDetail e2e with real lifestyle_fit_comparison data", reason: "Requires DB migration deploy first; component-level smoke test passed" }
+  - { item: "Refreshed screenshots (EN desktop, EN mobile, JA desktop, NULL branch)", reason: "Pending user manual verification on local stack; old artifacts removed since they reflect the obsolete standalone-grid design" }
 
 escalations: []

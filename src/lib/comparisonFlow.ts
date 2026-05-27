@@ -1,6 +1,5 @@
 import i18n from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import type { LifestyleFitAspect } from "./lifestyleFitAspects";
 
 export interface PropertyData {
   id: string;
@@ -72,7 +71,6 @@ export interface AIRecommendation {
     property_b: string;
   }[];
   final_recommendation: string;
-  lifestyle_fit_comparison?: LifestyleFitAspect[] | null;
 }
 
 export const defaultLandingPreferences: PersonalizationValues = {
