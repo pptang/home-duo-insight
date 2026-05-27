@@ -1,0 +1,61 @@
+bead: home-duo-insight-che
+summary: Make the /compare landing-page filter chips functional and add 6 lifestyle chips so they all toggle whether their aspect appears as a row in the AI summary_table. Adds the 6 lifestyle chips after the existing 6 (12 total), enforces a minimum-one-chip submit guard with a Japanese hint, extends generateRecommendation to forward enabled_aspects, and adds a STRICT SUMMARY_TABLE OVERRIDE prompt block to the edge function that pins the AI to exactly the requested rows in the chip declaration order. Backward compatible — if enabled_aspects is missing/empty, the legacy "all rows" behavior is preserved.
+branch: bead-che-toggle-lifestyle-chips
+sha: b19c73e0f641a31680b16bd5db5133f9df812e0e
+
+base_branch: bead-2l8-lifestyle-fit-comparison
+
+files_changed:
+  - src/pages/Index.tsx
+  - src/lib/comparisonFlow.ts
+  - supabase/functions/generate-recommendation/index.ts
+  - .agents/reports/home-duo-insight-che/build.txt
+  - .agents/reports/home-duo-insight-che/che-01-default-12-chips.png
+  - .agents/reports/home-duo-insight-che/che-02-all-lifestyle-on.png
+  - .agents/reports/home-duo-insight-che/che-03-no-chips-hint.png
+  - .agents/reports/home-duo-insight-che/che-04-mobile-default.png
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16  # identical to upstream baseline; zero new warnings from this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-che/build.txt
+
+tests:
+  ran: true
+  command: "curl smoke against local generate-recommendation"
+  result: pass
+  scenarios:
+    - { aspects: ["price"], language: "en", expect_rows: 1, actual_rows: 1, actual_fields: ["Price"] }
+    - { aspects: ["price","cafe","gym","dog","quiet","sunlight","laundromat"], language: "en", expect_rows: 7, actual_rows: 7, actual_fields: ["Price","Cafés nearby","Gym access","Dog walking","Quiet at night","Sunlight","Laundromat"] }
+    - { aspects: null, language: "en", expect: "legacy behavior", actual_rows: 9, note: "backward-compat: prompt-driven 3 structural + 6 lifestyle rows" }
+    - { aspects: ["access","age","risk"], language: "ja", expect_rows: 3, actual_rows: 3, actual_fields: ["通勤","築年数","リスク"] }
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  env: "local Supabase (project_id qditnqwrjioypsuxwagg) + vite :8080 in this worktree; AGENT_BROWSER_SESSION=qa-che-3a52410"
+  artifacts:
+    - .agents/reports/home-duo-insight-che/che-01-default-12-chips.png
+    - .agents/reports/home-duo-insight-che/che-02-all-lifestyle-on.png
+    - .agents/reports/home-duo-insight-che/che-03-no-chips-hint.png
+    - .agents/reports/home-duo-insight-che/che-04-mobile-default.png
+  scenarios:
+    - "Default landing: 12 chips render in declared order (価格/交通/築年数/間取り/学区/リスク/カフェ/ジム/犬の散歩/静かさ/日当たり/ランドリー); only 価格 active (che-01)"
+    - "All 6 lifestyle chips toggled ON; aria-pressed updates correctly (che-02)"
+    - "All 12 chips OFF: 比較する button disabled and hint '少なくとも1つの項目を選択してください' renders (che-03)"
+    - "Mobile 375x812: chip strip wraps cleanly across rows (che-04)"
+  notes: "Screenshots captured by QA subagent (a43fb20de944d1db0). No console errors beyond the pre-existing benign GA warning."
+
+deferred:
+  - { item: "Edge function deploy", reason: "User owns Supabase function deploys; index.ts updated and ready for prod after 2l8 lands" }
+  - { item: "End-to-end UI walk through real /compare submit", reason: "Blocked upstream by bead home-duo-insight-a89 (analyze-properties ReferenceError); chips→payload path was verified via direct curl against generate-recommendation instead" }
+  - { item: "EN-locale Japanese field labels in legacy fallback", reason: "Pre-existing prompt bias tracked in bead home-duo-insight-0fm. The STRICT OVERRIDE path forces the configured language labels, but the legacy no-enabled_aspects path is unchanged" }
+
+escalations: []
