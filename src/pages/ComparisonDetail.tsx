@@ -218,7 +218,17 @@ const ComparisonDetail = () => {
         };
         setComparison(typed);
         if (typed.recommendations && typed.recommendations.length > 0) {
-          setRecommendation(typed.recommendations[0]);
+          // PostgREST doesn't order nested relations by default, and a single
+          // comparison can accumulate multiple recommendations whenever the
+          // user re-runs /compare with different chip selections (bead che) or
+          // hits a cached comparison (bead mc4). Pick the newest so the UI
+          // always reflects the most recent generate-recommendation call.
+          const latest = [...typed.recommendations].sort(
+            (a, b) =>
+              new Date(b.created_at ?? 0).getTime() -
+              new Date(a.created_at ?? 0).getTime(),
+          )[0];
+          setRecommendation(latest);
         }
 
         // dy7: fire-and-forget view counter bump
