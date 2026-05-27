@@ -172,6 +172,7 @@ export const generateRecommendation = async (
   comparisonResult: ComparisonResult,
   preferences: PersonalizationValues,
   userId?: string | null,
+  enabledAspects?: string[],
 ): Promise<AIRecommendation> => {
   const { data, error } = await supabase.functions.invoke("generate-recommendation", {
     body: {
@@ -181,6 +182,7 @@ export const generateRecommendation = async (
       user_profile: getCategorizedPreferences(preferences),
       user_id: userId || null,
       language: getNormalizedLanguage(),
+      enabled_aspects: enabledAspects && enabledAspects.length > 0 ? enabledAspects : undefined,
     },
   });
 

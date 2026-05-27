@@ -20,6 +20,9 @@ import {
   UNSUPPORTED_SITE_MESSAGE_JA,
 } from "@/config/supported-sites";
 
+// Each chip's `id` is also the protocol value forwarded to the recommendation
+// edge function as `enabled_aspects[*]`. The AI must emit exactly one
+// summary_table row per enabled aspect, in the order chips appear here.
 const FILTER_CHIPS = [
   { id: "price", label: "価格" },
   { id: "access", label: "交通" },
@@ -27,6 +30,12 @@ const FILTER_CHIPS = [
   { id: "layout", label: "間取り" },
   { id: "school", label: "学区" },
   { id: "risk", label: "リスク" },
+  { id: "cafe", label: "カフェ" },
+  { id: "gym", label: "ジム" },
+  { id: "dog", label: "犬の散歩" },
+  { id: "quiet", label: "静かさ" },
+  { id: "sunlight", label: "日当たり" },
+  { id: "laundromat", label: "ランドリー" },
 ];
 
 // DISCOVER demo reports. Each entry maps directly onto <ReportCard> props
@@ -131,7 +140,11 @@ const Index = () => {
     activeTab === "url" &&
     isAcceptableUrl(propA) &&
     isAcceptableUrl(propB) &&
+    activeChips.size > 0 &&
     !isSubmitting;
+
+  const showNoChipsHint =
+    activeTab === "url" && activeChips.size === 0;
 
   const toggleChip = (id: string) => {
     setActiveChips((prev) => {
@@ -163,10 +176,14 @@ const Index = () => {
         });
       }
 
+      const enabledAspects = FILTER_CHIPS
+        .map((chip) => chip.id)
+        .filter((id) => activeChips.has(id));
       const recommendation = await generateRecommendation(
         comparisonResult,
         defaultLandingPreferences,
         user?.id,
+        enabledAspects,
       );
       trackRecommendationGenerated(
         comparisonResult.comparison_id,
@@ -296,6 +313,7 @@ const Index = () => {
                       key={chip.id}
                       type="button"
                       onClick={() => toggleChip(chip.id)}
+                      aria-pressed={active}
                       className={`font-mono text-[10px] uppercase tracking-[0.06em] border rounded-full px-2.5 py-1 transition-colors ${
                         active
                           ? "bg-ink text-paper border-ink"
@@ -307,10 +325,17 @@ const Index = () => {
                   );
                 })}
               </div>
-              <Button type="submit" disabled={!canSubmit} variant="editorial" size="editorial">
-                <ArrowRight className="w-3.5 h-3.5" />
-                {isSubmitting ? "比較を作成中..." : "比較する"}
-              </Button>
+              <div className="flex flex-col items-stretch sm:items-end gap-1.5">
+                <Button type="submit" disabled={!canSubmit} variant="editorial" size="editorial">
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  {isSubmitting ? "比較を作成中..." : "比較する"}
+                </Button>
+                {showNoChipsHint && (
+                  <p className="text-[11px] text-ink-60 leading-snug pl-0.5 sm:text-right">
+                    少なくとも1つの項目を選択してください
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="px-5 pt-2.5 pb-4 flex flex-wrap gap-4 justify-center border-t border-rule">

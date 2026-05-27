@@ -64,6 +64,95 @@ interface RequestData {
   user_profile: UserProfile;
   why_move: string;
   language?: 'en' | 'ja';
+  // Subset of aspect ids the client wants in summary_table, in display order.
+  // When present and non-empty, summary_table must contain EXACTLY these rows
+  // in this exact order. When absent/empty, falls back to the legacy
+  // behavior (AI-chosen structural rows + 6 mandatory lifestyle rows).
+  enabled_aspects?: string[];
+}
+
+// Localized labels + hints for each chip id supported by the /compare form.
+// Keep aligned with FILTER_CHIPS in src/pages/Index.tsx — bead home-duo-insight-che.
+const ASPECT_LABELS_EN: Record<string, { label: string; hint: string }> = {
+  price:      { label: 'Price',           hint: 'price comparison (badge example: 安/割安)' },
+  access:     { label: 'Commute',         hint: 'station walk minutes / commute time (badge example: 近)' },
+  age:        { label: 'Building age',    hint: 'construction year or building age (badge example: 新)' },
+  layout:     { label: 'Layout',          hint: 'floor plan and floor area (badge example: 広/可)' },
+  school:     { label: 'School district', hint: 'school district quality and nearby schools' },
+  risk:       { label: 'Risk',            hint: 'hazard / flood / earthquake / area-risk factors' },
+  cafe:       { label: 'Cafés nearby',    hint: 'proximity to cafés (badge example: 近)' },
+  gym:        { label: 'Gym access',      hint: 'walking distance to gyms (badge example: 近)' },
+  dog:        { label: 'Dog walking',     hint: 'dog-friendly streets / green space (badge example: 良)' },
+  quiet:      { label: 'Quiet at night',  hint: 'nighttime noise / street type (badge example: 静)' },
+  sunlight:   { label: 'Sunlight',        hint: 'sunlight exposure based on orientation/floor (badge example: 日)' },
+  laundromat: { label: 'Laundromat',      hint: 'in-unit hookup + coin laundry access (badge example: 近)' },
+};
+
+const ASPECT_LABELS_JA: Record<string, { label: string; hint: string }> = {
+  price:      { label: '価格',                 hint: '価格比較。badge例: 安/割安' },
+  access:     { label: '通勤',                 hint: '駅徒歩分や通勤時間。badge例: 近' },
+  age:        { label: '築年数',               hint: '築年数または建築年。badge例: 新' },
+  layout:     { label: '間取り',               hint: '間取り・専有面積。badge例: 広/可' },
+  school:     { label: '学区',                 hint: '学区の質や近隣の学校' },
+  risk:       { label: 'リスク',               hint: 'ハザード/浸水/地震/エリアリスク' },
+  cafe:       { label: 'カフェへの近さ',       hint: 'カフェへの距離。badge例: 近' },
+  gym:        { label: 'ジムへのアクセス',     hint: 'ジムへの徒歩距離。badge例: 近' },
+  dog:        { label: '犬の散歩のしやすさ',   hint: '散歩しやすさ・緑地。badge例: 良' },
+  quiet:      { label: '夜間の静かさ',         hint: '夜間騒音・接道種別。badge例: 静' },
+  sunlight:   { label: '日当たり',             hint: '向き/階層に基づく日照。badge例: 日' },
+  laundromat: { label: 'コインランドリー',     hint: '室内洗濯機/コインランドリー。badge例: 近' },
+};
+
+function buildAspectOverride(
+  language: 'en' | 'ja',
+  enabledAspects: string[] | undefined,
+): string {
+  if (!enabledAspects || enabledAspects.length === 0) return '';
+
+  const labels = language === 'ja' ? ASPECT_LABELS_JA : ASPECT_LABELS_EN;
+  const rows = enabledAspects
+    .map((id, idx) => {
+      const entry = labels[id];
+      if (!entry) return null;
+      return `${idx + 1}. "${entry.label}" — ${entry.hint}`;
+    })
+    .filter((row): row is string => row !== null);
+
+  if (rows.length === 0) return '';
+
+  if (language === 'ja') {
+    return `
+
+---
+## STRICT SUMMARY_TABLE OVERRIDE（最優先ルール）
+summary_table は以下の${rows.length}行のみを、指定された順序で厳密に含めてください。他の行は絶対に追加しないでください。1行も省略しないでください。先述の「6行を必ず追加すること」のルールはこのオーバーライドに置き換えられます。
+
+${rows.join('\n')}
+
+各行で:
+- 'field' は上記の日本語ラベルをそのまま使用すること
+- 'property_a' と 'property_b' は各物件の具体的な体験を1文（≤50文字）で記述
+- 'winner' は 'A' / 'B' / 'draw'
+- 'badge' は日本語1〜3文字
+他のセクション（pros/cons、ai_points、final_recommendation など）のルールは変更しません。
+`;
+  }
+
+  return `
+
+---
+## STRICT SUMMARY_TABLE OVERRIDE (highest priority)
+The 'summary_table' MUST contain EXACTLY these ${rows.length} rows, in this exact order. Do not add other rows. Do not omit any of them. This override REPLACES the earlier "MUST include 6 additional rows" rule.
+
+${rows.join('\n')}
+
+For each row:
+- Use the exact label shown above as the 'field' value
+- 'property_a' and 'property_b' must each be one concrete lived-experience sentence comparing the two properties on that aspect (<=80 chars)
+- 'winner' is 'A', 'B', or 'draw'
+- 'badge' is 1-3 Japanese characters
+All other section rules (pros/cons, ai_points, final_recommendation, axis scores) remain unchanged.
+`;
 }
 
 interface AIRecommendation {
@@ -575,8 +664,12 @@ Property B: ${requestData.property_b.property_name || "N/A"}
 - Additional Notes: ${requestData.property_b.notes || "None"}
 `;
 
-    // Prepare prompt for Gemini using the language-specific function
-    const prompt = getPromptByLanguage(language, propertyAText, propertyBText, userProfileText);
+    // Prepare prompt for Gemini using the language-specific function, then
+    // append the strict aspect-override section if the client specified
+    // enabled_aspects. The override appears last so it takes precedence over
+    // the earlier "must include 6 lifestyle rows" rule in the base prompt.
+    const basePrompt = getPromptByLanguage(language, propertyAText, propertyBText, userProfileText);
+    const prompt = basePrompt + buildAspectOverride(language, requestData.enabled_aspects);
 
 
     console.log("Prompt:", prompt);
