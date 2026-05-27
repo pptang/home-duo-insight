@@ -1,7 +1,7 @@
 bead: home-duo-insight-che
 summary: Make the /compare landing-page filter chips functional and add 6 lifestyle chips so they all toggle whether their aspect appears as a row in the AI summary_table. Adds the 6 lifestyle chips after the existing 6 (12 total), enforces a minimum-one-chip submit guard with a Japanese hint, extends generateRecommendation to forward enabled_aspects, and adds a STRICT SUMMARY_TABLE OVERRIDE prompt block to the edge function that pins the AI to exactly the requested rows in the chip declaration order. Backward compatible — if enabled_aspects is missing/empty, the legacy "all rows" behavior is preserved.
 branch: bead-che-toggle-lifestyle-chips
-sha: pending
+sha: b19c73e0f641a31680b16bd5db5133f9df812e0e
 
 base_branch: bead-2l8-lifestyle-fit-comparison
 
