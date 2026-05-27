@@ -1,0 +1,58 @@
+bead: home-duo-insight-2l8
+summary: Restore lifestyle fit comparison by appending the 6 aspect rows (cafés, gym, dog walking, quiet at night, sunlight, laundromat) into the existing summary_table so they render in the same ComparisonTable as price/commute/building age. No new DB column, no new component — the AI emits localized field labels and one-sentence A/B descriptions per aspect, with the same winner/badge contract as other rows.
+branch: bead-2l8-lifestyle-fit-comparison
+sha: 1f7443c4139ebe7efd5aea53ee06241ce9d37f39
+
+base_branch: main
+
+files_changed:
+  - supabase/functions/generate-recommendation/index.ts
+  - src/lib/comparisonFlow.ts
+  - src/components/compare-result/index.ts
+  - src/pages/ComparisonDetail.tsx
+  - src/locales/en/translation.json
+  - src/locales/ja/translation.json
+  - .agents/reports/home-duo-insight-2l8/build.txt
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16  # all pre-existing from upstream code; zero new warnings from this bead
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-2l8/build.txt
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "no test runner configured in this project; plan explicitly says do not introduce one"
+
+ui_surface: true
+
+ui_qa:
+  ran: true
+  env: "local Supabase (project_id qditnqwrjioypsuxwagg, started in this worktree on standard ports)"
+  artifacts:
+    - .agents/reports/home-duo-insight-2l8/optC-01-home.png
+    - .agents/reports/home-duo-insight-2l8/optC-02-compare-form-filled.png
+    - .agents/reports/home-duo-insight-2l8/optC-03-summary-en.png
+    - .agents/reports/home-duo-insight-2l8/optC-04-table-zoom-en.png
+    - .agents/reports/home-duo-insight-2l8/optC-05-summary-ja.png
+    - .agents/reports/home-duo-insight-2l8/optC-06-summary-mobile.png
+  scenarios:
+    - "Landing /compare form renders (optC-01, optC-02)"
+    - "EN summary tab shows single 主要項目 ComparisonTable with 9 rows = 3 structural + 6 lifestyle, in declared order with WIN badges (optC-03, optC-04)"
+    - "JA locale produces same structure with Japanese labels (optC-05)"
+    - "Mobile width (375px) renders the merged table without layout breakage (optC-06)"
+  notes: "Redesign per follow-up review: collapsed data model. The dedicated lifestyle_fit_comparison JSON field, jsonb column, migration, LifestyleFitGrid component, lifestyleFitAspects shared types, and i18n lifestyleFit translation block are all removed. AI now emits 6 additional rows directly into summary_table with localized field labels. EN walk used existing comparison efe69d09 (analyze-properties is blocked upstream by a89 ReferenceError — does not affect generate-recommendation)."
+
+deferred:
+  - { item: "Edge function deploy", reason: "User owns Supabase function deploys; index.ts updated and ready" }
+  - { item: "EN-locale field labels still come back in Japanese", reason: "Pre-existing prompt bias; tracked separately as bead home-duo-insight-0fm (P2)" }
+  - { item: "analyze-properties ReferenceError blocks fresh /compare→summary walk", reason: "Tracked separately as bead home-duo-insight-a89 (P1); does not affect generate-recommendation contract or this bead's acceptance" }
+
+escalations: []

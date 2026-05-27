@@ -311,7 +311,13 @@ Now return your response in the following **JSON format only** (with no extra ex
   "summary_table": [
     {"field": "Price", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
     {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "近"},
-    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
+    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"},
+    {"field": "Cafés nearby", "property_a": "Two indie cafés within 5-minute walk.", "property_b": "Nearest café is a 12-minute walk.", "winner": "A", "badge": "近"},
+    {"field": "Gym access", "property_a": "ANYTIME FITNESS 7 min walk; 24-hour.", "property_b": "Closest gym 20 min by bike.", "winner": "A", "badge": "近"},
+    {"field": "Dog walking", "property_a": "Riverside path; off-leash on weekdays.", "property_b": "Wide streets but little green space.", "winner": "A", "badge": "良"},
+    {"field": "Quiet at night", "property_a": "Faces inner courtyard; minimal noise.", "property_b": "Fronts a local road; late-night traffic.", "winner": "A", "badge": "静"},
+    {"field": "Sunlight", "property_a": "South-facing 8F; strong morning + afternoon light.", "property_b": "East-facing 3F; morning light only.", "winner": "A", "badge": "日"},
+    {"field": "Laundromat", "property_a": "In-unit hookup; coin laundry 3 min walk.", "property_b": "Washer space only; coin laundry 10 min walk.", "winner": "A", "badge": "近"}
   ],
   "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections.",
   "property_a_score_total": 72,
@@ -328,6 +334,15 @@ Rules for structured fields:
 - In each 'summary_table' row, include:
   - 'winner' (optional for schema compatibility): 'A', 'B', or 'draw'
   - 'badge' (optional for schema compatibility): 1-3 Japanese characters (examples: 安, 広, 近, 多, 新, 割安, 日当り, 可, 高)
+- The 'summary_table' MUST include 6 additional rows for lifestyle fit, appended after the standard property rows (price, commute, layout, area, building age, etc.). One row per aspect, in this exact order:
+  1. Cafés nearby (proximity to cafés)
+  2. Gym access
+  3. Dog walking (dog-friendly environment)
+  4. Quiet at night
+  5. Sunlight (morning vs afternoon exposure based on orientation/floor when inferable, regardless of the user_profile importance weight)
+  6. Laundromat access
+- For each lifestyle row, 'property_a' and 'property_b' must be one concrete lived-experience sentence (<=80 chars EN). Use specific, vivid phrasing (e.g. "Two indie cafés within 5-minute walk" not "good café access"). No raw scores, no emojis.
+- Localize the lifestyle 'field' label to the response language (use natural locale-appropriate names; do not emit English snake_case keys).
 `;
 
   // Add translation instruction for Japanese
@@ -358,7 +373,13 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
     "summary_table": [
       {"field": "価格", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
       {"field": "通勤", "property_a": "X分", "property_b": "Y分", "winner": "B", "badge": "近"},
-      {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"}
+      {"field": "間取り", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"},
+      {"field": "カフェへの近さ", "property_a": "徒歩5分以内に個性的なカフェが2軒あります。", "property_b": "最寄りカフェは駅前まで徒歩12分かかります。", "winner": "A", "badge": "近"},
+      {"field": "ジムへのアクセス", "property_a": "ANYTIME FITNESS徒歩7分、24時間利用可。", "property_b": "徒歩圏内にジムはなく、自転車で20分です。", "winner": "A", "badge": "近"},
+      {"field": "犬の散歩のしやすさ", "property_a": "川沿いの遊歩道が近く平日はリードなしで歩けます。", "property_b": "広い住宅街ですが近隣の緑地は少なめです。", "winner": "A", "badge": "良"},
+      {"field": "夜間の静かさ", "property_a": "中庭に面し、22時以降の騒音はほぼありません。", "property_b": "生活道路に面し、深夜の車音が時折あります。", "winner": "A", "badge": "静"},
+      {"field": "日当たり", "property_a": "南向き8階で朝から午後まで日差しが安定。", "property_b": "東向き3階で朝のみ日光、昼には陰ります。", "winner": "A", "badge": "日"},
+      {"field": "コインランドリー", "property_a": "室内洗濯機設置可。徒歩3分にコインランドリー。", "property_b": "洗濯機置き場のみ。コインランドリー徒歩10分。", "winner": "A", "badge": "近"}
     ],
     "final_recommendation": "上記8セクションをすべて含む最終提案文",
     "property_a_score_total": 72,
@@ -372,6 +393,7 @@ CRITICAL LANGUAGE INSTRUCTION (これは非常に重要です):
 - 'kind' は 'pro-a' / 'pro-b' / 'caution' のみ使用すること
 - 'summary_table' 各行に 'winner'（A/B/draw）と 'badge'（日本語1〜3文字、例: 安・広・近・多・新・割安・日当り・可・高）を含めること（後方互換のためoptional）
 - property_a_score_total / property_b_score_total / score_breakdown の各スコアは数値（0〜100の整数）のまま出力すること（翻訳不要）
+- summary_table の末尾に、ライフスタイル適合の6行を上記の順番（カフェへの近さ／ジムへのアクセス／犬の散歩のしやすさ／夜間の静かさ／日当たり／コインランドリー）で必ず追加すること。各行の 'field' は日本語で記述し、'property_a' と 'property_b' は具体的な体験を1文（≤50文字）で記述すること（スコアや数値の羅列ではなく実生活の描写）。
 `;
   }
 
