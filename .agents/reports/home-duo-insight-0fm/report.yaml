@@ -1,0 +1,55 @@
+bead: home-duo-insight-0fm
+summary: Force EN field labels and English badges in generate-recommendation edge function prompt
+branch: bead-0fm-en-field-labels
+sha: 578d5454ec6cf9a6a3ba6f6caf5cb5ef91b65d0e   # fix commit; branch HEAD is one commit ahead (report commit)
+
+base_branch: main
+
+files_changed:
+  - supabase/functions/generate-recommendation/index.ts
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16   # all pre-existing, none in changed file
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-0fm/build.log
+
+tests:
+  ran: true
+  command: "static grep verification of prompt content"
+  result: pass
+  reason_if_skipped: ""
+
+  # Static checks performed:
+  # 1. grep confirmed CRITICAL LANGUAGE INSTRUCTION block present for EN (line 338) AND JA (line 356)
+  # 2. grep confirmed canonical EN field list present: "Price, Commute, Building age, Layout, School district, Risk, Cafés nearby, Gym access, Dog walking, Quiet at night, Sunlight, Laundromat"
+  # 3. grep confirmed EN JSON example badges changed to English: Cheap, Close, OK
+  # 4. grep confirmed JA JSON example badges unchanged: 割安, 近, 可
+  # 5. grep confirmed badge rule updated from '1-3 Japanese characters' to per-language guidance
+  # 6. grep confirmed buildAspectOverride() EN branch badge rule (line 153) updated to English
+  # 7. orchestrator rebased dev's branch from old base (926fba5) onto current main HEAD (39e100a)
+  #    and merged main's 6 lifestyle example rows with English badges (Close/Good/Quiet/Bright/Close)
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: ui_surface=false
+
+  artifacts: []
+  scenarios: []
+
+deferred: []
+
+escalations:
+  - item: "Live edge-function smoke test could not be executed"
+    reason: >
+      .env.local at repo root has GEMINI_API_KEY=test_gemini_key (placeholder, not a real key).
+      supabase local stack is running (port 54321) but a real Gemini API call requires a valid key.
+      Smoke test would fail with 400/403 from Gemini API — not related to the prompt fix.
+      Manual verification with a real GEMINI_API_KEY is recommended before merging.
