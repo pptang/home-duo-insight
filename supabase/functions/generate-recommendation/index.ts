@@ -148,9 +148,9 @@ ${rows.join('\n')}
 
 For each row:
 - Use the exact label shown above as the 'field' value
-- 'property_a' and 'property_b' must each be one concrete lived-experience sentence comparing the two properties on that aspect (<=80 chars)
+- 'property_a' and 'property_b' must each be one concrete lived-experience sentence comparing the two properties on that aspect (<=80 chars), written in English
 - 'winner' is 'A', 'B', or 'draw'
-- 'badge' is 1-3 Japanese characters
+- 'badge' is 1-12 English characters — short adjective or symbol (examples: Cheap, Close, New, Quiet, Bright, Spacious, Good, OK, Far, Old). Do NOT use Japanese characters.
 All other section rules (pros/cons, ai_points, final_recommendation, axis scores) remain unchanged.
 `;
 }
@@ -398,15 +398,15 @@ Now return your response in the following **JSON format only** (with no extra ex
     {"kind": "caution", "body": "A key watch-out to verify"}
   ],
   "summary_table": [
-    {"field": "Price", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "割安"},
-    {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "近"},
-    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "可"},
-    {"field": "Cafés nearby", "property_a": "Two indie cafés within 5-minute walk.", "property_b": "Nearest café is a 12-minute walk.", "winner": "A", "badge": "近"},
-    {"field": "Gym access", "property_a": "ANYTIME FITNESS 7 min walk; 24-hour.", "property_b": "Closest gym 20 min by bike.", "winner": "A", "badge": "近"},
-    {"field": "Dog walking", "property_a": "Riverside path; off-leash on weekdays.", "property_b": "Wide streets but little green space.", "winner": "A", "badge": "良"},
-    {"field": "Quiet at night", "property_a": "Faces inner courtyard; minimal noise.", "property_b": "Fronts a local road; late-night traffic.", "winner": "A", "badge": "静"},
-    {"field": "Sunlight", "property_a": "South-facing 8F; strong morning + afternoon light.", "property_b": "East-facing 3F; morning light only.", "winner": "A", "badge": "日"},
-    {"field": "Laundromat", "property_a": "In-unit hookup; coin laundry 3 min walk.", "property_b": "Washer space only; coin laundry 10 min walk.", "winner": "A", "badge": "近"}
+    {"field": "Price", "property_a": "¥X", "property_b": "¥Y", "winner": "A", "badge": "Cheap"},
+    {"field": "Commute", "property_a": "X min", "property_b": "Y min", "winner": "B", "badge": "Close"},
+    {"field": "Layout", "property_a": "2LDK", "property_b": "2SLDK", "winner": "draw", "badge": "OK"},
+    {"field": "Cafés nearby", "property_a": "Two indie cafés within 5-minute walk.", "property_b": "Nearest café is a 12-minute walk.", "winner": "A", "badge": "Close"},
+    {"field": "Gym access", "property_a": "ANYTIME FITNESS 7 min walk; 24-hour.", "property_b": "Closest gym 20 min by bike.", "winner": "A", "badge": "Close"},
+    {"field": "Dog walking", "property_a": "Riverside path; off-leash on weekdays.", "property_b": "Wide streets but little green space.", "winner": "A", "badge": "Good"},
+    {"field": "Quiet at night", "property_a": "Faces inner courtyard; minimal noise.", "property_b": "Fronts a local road; late-night traffic.", "winner": "A", "badge": "Quiet"},
+    {"field": "Sunlight", "property_a": "South-facing 8F; strong morning + afternoon light.", "property_b": "East-facing 3F; morning light only.", "winner": "A", "badge": "Bright"},
+    {"field": "Laundromat", "property_a": "In-unit hookup; coin laundry 3 min walk.", "property_b": "Washer space only; coin laundry 10 min walk.", "winner": "A", "badge": "Close"}
   ],
   "final_recommendation": "Your complete recommendation following the OUTPUT STRUCTURE above with all 8 sections.",
   "property_a_score_total": 72,
@@ -422,7 +422,7 @@ Rules for structured fields:
 - Allowed 'kind' values: 'pro-a', 'pro-b', 'caution'.
 - In each 'summary_table' row, include:
   - 'winner' (optional for schema compatibility): 'A', 'B', or 'draw'
-  - 'badge' (optional for schema compatibility): 1-3 Japanese characters (examples: 安, 広, 近, 多, 新, 割安, 日当り, 可, 高)
+  - 'badge' (optional for schema compatibility): a short adjective or symbol matching the response language. For 'ja' responses, 1-3 Japanese characters (examples: 安, 広, 近, 多, 新, 割安, 日当り, 可, 高). For 'en' responses, 1-12 English characters (examples: Cheap, Close, New, Quiet, Bright, Spacious, Good, OK, Far, Old). Never mix the two.
 - The 'summary_table' MUST include 6 additional rows for lifestyle fit, appended after the standard property rows (price, commute, layout, area, building age, etc.). One row per aspect, in this exact order:
   1. Cafés nearby (proximity to cafés)
   2. Gym access
@@ -434,7 +434,25 @@ Rules for structured fields:
 - Localize the lifestyle 'field' label to the response language (use natural locale-appropriate names; do not emit English snake_case keys).
 `;
 
-  // Add translation instruction for Japanese
+  // Add language-specific instruction blocks
+  if (language === 'en') {
+    return englishPrompt + `
+
+---
+CRITICAL LANGUAGE INSTRUCTION (this is extremely important):
+- You MUST write your ENTIRE response in natural, fluent English
+- ALL JSON field values must be in English — no Japanese characters anywhere in the output
+- ALL summary_table[].field values MUST be in English. Use ONLY these canonical English labels:
+  Price, Commute, Building age, Layout, School district, Risk, Cafés nearby, Gym access, Dog walking, Quiet at night, Sunlight, Laundromat
+- ALL summary_table[].badge values MUST be in English — short adjectives or symbols (1-12 characters). Examples: Cheap, Close, New, Quiet, Bright, Spacious, Good, OK, Far, Old, High, Low, Rare. Do NOT use Japanese characters (e.g. 安, 近, 可, 良, 静, 日, 割安 are forbidden).
+- ALL summary_table[].property_a and property_b cell values must be in English
+- ALL property_a_pros, property_a_cons, property_b_pros, property_b_cons items must be in English
+- ALL ai_points[].body values must be in English
+- The final_recommendation must be in English, following the 8-section OUTPUT STRUCTURE above
+- The response language is English. Do not infer a different response language from field labels, badge characters, or property data.
+`;
+  }
+
   if (language === 'ja') {
     return englishPrompt + `
 
