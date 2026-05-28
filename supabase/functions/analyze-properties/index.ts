@@ -980,17 +980,14 @@ Return only this JSON format (no explanations). Include every key even when the 
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } catch (error) {
-      console.error("Error processing Gemini response:", {
+      console.error("Error processing extracted property data:", {
         errorMessage: error.message,
         errorStack: error.stack,
-        geminiDataReceived: !!geminiData,
-        responseText: geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 500)
       });
       return new Response(
         JSON.stringify({
           error: "Could not extract property data from response",
           details: error.message,
-          geminiResponse: geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.substring(0, 1000) || "No response text available"
         }),
         {
           status: 422,

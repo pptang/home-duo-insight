@@ -1,0 +1,39 @@
+bead: home-duo-insight-a89
+summary: "fix: remove undeclared geminiData references from catch block at analyze-properties index.ts:982-1000"
+branch: bead-a89-geminidata-refsfix
+sha: 8e43e5153ac0d6a1e6e4c155b43045c2e3934e50
+base_branch: main
+
+files_changed:
+  - supabase/functions/analyze-properties/index.ts
+  - .agents/reports/home-duo-insight-a89/report.yaml
+  - .agents/reports/home-duo-insight-a89/build.log
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16  # all pre-existing; none in edge function file; no new warnings introduced
+
+build:
+  ran: true
+  command: "npm run build"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-a89/build.log
+
+tests:
+  ran: false
+  command: ""
+  result: skipped
+  reason_if_skipped: "edge function requires live Gemini API + SUUMO HTML for repro; no unit test scaffold exists for this file"
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: "ui_surface=false"
+  artifacts: []
+  scenarios: []
+
+deferred: []
+
+escalations: []
