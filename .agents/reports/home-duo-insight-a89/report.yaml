@@ -1,7 +1,7 @@
 bead: home-duo-insight-a89
 summary: "fix: remove undeclared geminiData references from catch block at analyze-properties index.ts:982-1000"
 branch: bead-a89-geminidata-refsfix
-sha: TBD  # filled after commit
+sha: 8e43e5153ac0d6a1e6e4c155b43045c2e3934e50
 base_branch: main
 
 files_changed:
