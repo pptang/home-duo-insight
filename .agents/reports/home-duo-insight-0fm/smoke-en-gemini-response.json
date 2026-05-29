@@ -1,0 +1,116 @@
+{
+  "property_a_pros": [
+    "The south-facing orientation and high floor offer excellent natural light and open views.",
+    "Being in a well-regarded building with an internal courtyard provides a sense of privacy and tranquility.",
+    "The proximity to cafes, gyms, and a laundromat makes daily life incredibly convenient."
+  ],
+  "property_a_cons": [
+    "The price is higher, which might stretch your budget.",
+    "While the location is convenient, it's not directly on a main street, which could mean less immediate access to some services.",
+    "The 2LDK layout might feel slightly limiting if you anticipate significant family growth."
+  ],
+  "property_b_pros": [
+    "The lower price point offers better value and potentially more financial flexibility.",
+    "The 2SLDK layout provides more flexible living space, suitable for various needs.",
+    "The location, while slightly further from the station, still offers good access to amenities."
+  ],
+  "property_b_cons": [
+    "The east-facing orientation means less afternoon sunlight.",
+    "Being on a lower floor and facing a road could mean more noise and less privacy.",
+    "The commute time is slightly longer, adding to daily travel time."
+  ],
+  "ai_points": [
+    {
+      "kind": "pro-a",
+      "body": "Property A aligns well with your preference for a quiet, light-filled home with easy access to cafes and amenities."
+    },
+    {
+      "kind": "pro-b",
+      "body": "Property B offers a more affordable option with a flexible layout, potentially suiting future needs."
+    },
+    {
+      "kind": "caution",
+      "body": "Carefully consider the impact of the east-facing orientation and lower floor on your daily living experience in Property B."
+    }
+  ],
+  "summary_table": [
+    {
+      "field": "Price",
+      "property_a": "¥89,000,000",
+      "property_b": "¥76,000,000",
+      "winner": "B",
+      "badge": "Cheap"
+    },
+    {
+      "field": "Commute",
+      "property_a": "18 min",
+      "property_b": "22 min",
+      "winner": "A",
+      "badge": "Close"
+    },
+    {
+      "field": "Layout",
+      "property_a": "2LDK",
+      "property_b": "2SLDK",
+      "winner": "draw",
+      "badge": "OK"
+    },
+    {
+      "field": "Cafés nearby",
+      "property_a": "Two indie cafés within 5-minute walk.",
+      "property_b": "Nearest café is a 12-minute walk.",
+      "winner": "A",
+      "badge": "Close"
+    },
+    {
+      "field": "Gym access",
+      "property_a": "ANYTIME FITNESS 7 min walk; 24-hour.",
+      "property_b": "Closest gym 20 min by bike.",
+      "winner": "A",
+      "badge": "Close"
+    },
+    {
+      "field": "Dog walking",
+      "property_a": "Riverside path; off-leash on weekdays.",
+      "property_b": "Wide streets but little green space.",
+      "winner": "A",
+      "badge": "Good"
+    },
+    {
+      "field": "Quiet at night",
+      "property_a": "Faces inner courtyard; minimal noise.",
+      "property_b": "Fronts a local road; late-night traffic.",
+      "winner": "A",
+      "badge": "Quiet"
+    },
+    {
+      "field": "Sunlight",
+      "property_a": "South-facing 8F; strong morning + afternoon light.",
+      "property_b": "East-facing 3F; morning light only.",
+      "winner": "A",
+      "badge": "Bright"
+    },
+    {
+      "field": "Laundromat",
+      "property_a": "In-unit hookup; coin laundry 3 min walk.",
+      "property_b": "Washer space only; coin laundry 10 min walk.",
+      "winner": "A",
+      "badge": "Close"
+    }
+  ],
+  "final_recommendation": "## [Recommended] AI Recommendation\nI recommend Property A, 中目黒ザ・パークハウス. This choice best suits your desire for a comfortable, convenient lifestyle with easy access to cafes, gyms, and a quiet environment. The main trade-off is the higher price compared to Property B.\n\n## [Profile] Why This Fits You\nYou highly value a home that feels like a sanctuary, with access to cafes and a quiet atmosphere. Property A aligns perfectly with these needs, offering a south-facing unit with an internal courtyard, minimizing noise and maximizing natural light. While Property B offers more space, it lacks the same level of tranquility and convenience. You also prioritize work-from-home support, and Property A's proximity to cafes provides a flexible workspace option. Property B's location is less ideal for your daily needs.\n\n## [Persona] City Persona Insight\nYou likely fit the \"Balanced Professional\" archetype. This persona values a blend of work-life balance, seeking a home that offers both convenience and a peaceful retreat. Property A, with its proximity to cafes, gym, and quiet environment, caters perfectly to this lifestyle. It allows you to easily integrate work, leisure, and relaxation into your daily routine. Property B, while offering more space, doesn't provide the same level of lifestyle integration.\n\n## [Location] Lifestyle & Location Snapshot\nProperty A:\n- Offers a vibrant, yet peaceful, living experience with easy access to cafes and a riverside path.\n- Provides a sense of privacy and tranquility due to its orientation and building design.\n- The area is known for its upscale residential feel and convenient access to public transport.\nProperty B:\n- Situated in a more local, less bustling area with a focus on residential living.\n- Offers a more practical, less curated lifestyle, with a focus on essential amenities.\n- The area is well-connected but lacks the same level of walkability and immediate access to lifestyle amenities.\n\n## [Strategy] Strategic Perspective\nProperty A's location in a desirable area and its building quality contribute to its long-term desirability. The south-facing orientation and high floor enhance its resale potential. While Property B offers more space, Property A's location and amenities make it more adaptable to future life changes. Property A's location is more likely to maintain its value over time, while Property B's value may be more susceptible to market fluctuations.\n\n## [Confidence] Decision Confidence\nDecision Confidence: High. The data strongly aligns with your preferences, particularly regarding daily convenience, quietness, and natural light. You can proceed confidently, knowing that Property A offers a lifestyle that closely matches your priorities. However, it's always wise to verify the actual noise levels during a viewing.\n\n## [Future] Future Living Perspective\nProperty B's east-facing orientation and lower floor could lead to dissatisfaction with the amount of sunlight and potential noise from the road. Property A, with its south-facing orientation and internal courtyard, is less likely to create long-term regret. The superior light and quiet environment of Property A will likely provide a more enjoyable living experience over time.\n\n## [Watch-outs] Watch-outs\n- Verify the actual noise levels in Property B during peak traffic hours.\n- Assess the condition of the building's common areas in both properties.\n- Consider the potential for future development near both properties.\n- Check the monthly fees and confirm what they cover.",
+  "property_a_score_total": 72,
+  "property_b_score_total": 68,
+  "score_breakdown": {
+    "a": {
+      "price": 75,
+      "location": 70,
+      "building": 68
+    },
+    "b": {
+      "price": 65,
+      "location": 72,
+      "building": 65
+    }
+  }
+}
