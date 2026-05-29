@@ -1,0 +1,60 @@
+bead: home-duo-insight-0fm
+summary: Force EN field labels and English badges in generate-recommendation edge function prompt
+branch: bead-0fm-en-field-labels
+sha: 578d5454ec6cf9a6a3ba6f6caf5cb5ef91b65d0e   # fix commit; branch HEAD is one commit ahead (report commit)
+
+base_branch: main
+
+files_changed:
+  - supabase/functions/generate-recommendation/index.ts
+
+lint:
+  ran: true
+  errors: 0
+  warnings: 16   # all pre-existing, none in changed file
+
+build:
+  ran: true
+  command: "npm run build && npx tsc --noEmit"
+  exit_code: 0
+  log_path: .agents/reports/home-duo-insight-0fm/build.log
+
+tests:
+  ran: true
+  command: "live edge-function smoke (EN + JA) against Gemini 2.0 Flash-Lite via supabase functions serve + GEMINI_API_KEY loaded from supabase/functions/.env.development"
+  result: pass
+  reason_if_skipped: ""
+
+  # EN: edge function correctly emitted the new CRITICAL LANGUAGE INSTRUCTION block
+  # (logged prompt: smoke-en-prompt-sent.txt). Called Gemini directly with that exact
+  # prompt — all 9 summary_table[].field values ASCII (Price, Commute, Layout,
+  # Cafés nearby, Gym access, Dog walking, Quiet at night, Sunlight, Laundromat) and
+  # all 9 badges ASCII (Cheap, Close, OK, Close, Close, Good, Quiet, Bright, Close).
+  # Evidence: smoke-en-gemini-response.json (full Gemini response).
+  #
+  # JA: round-trip through live edge function returned all-Japanese fields and badges
+  # (価格/通勤/間取り/カフェへの近さ/ジムへのアクセス/犬の散歩のしやすさ/夜間の静かさ/日当たり/
+  # コインランドリー with badges 割安/近/可/近/近/良/静/日/近). No regression.
+  # Evidence: smoke-ja-edge-response.json.
+  #
+  # Note: a second EN round-trip *through* the local edge runtime hit flaky DNS in the
+  # supabase edge-runtime Docker container (intermittent "Name or service not known" on
+  # generativelanguage.googleapis.com). This is a local-env issue with the supabase
+  # CLI 2.84.2 edge runtime — not a code regression. The Gemini-direct test with the
+  # exact prompt logged from the edge function is the authoritative validation.
+
+ui_surface: false
+
+ui_qa:
+  ran: false
+  reason_if_skipped: ui_surface=false
+
+  artifacts: []
+  scenarios: []
+
+deferred: []
+
+escalations: []
+  # Earlier escalation about missing GEMINI_API_KEY resolved: the user pointed to
+  # supabase/functions/.env.development which has a real key. Live smoke test ran
+  # successfully (see tests block).
