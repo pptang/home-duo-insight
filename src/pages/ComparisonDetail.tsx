@@ -57,6 +57,9 @@ interface AIRecommendation {
   }[];
   final_recommendation: string;
   created_at: string;
+  // bead home-duo-insight-elg: authored language of this report ('en' | 'ja'),
+  // fixed at generation time. NULL for pre-migration rows (treated as unknown).
+  language?: string | null;
   // tv7.10
   ai_points?: { kind: "pro-a" | "pro-b" | "caution"; body: string }[] | null;
   // tv7.2: per-axis scores emitted by generate-recommendation
@@ -109,7 +112,7 @@ type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
 const ComparisonDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const [comparison, setComparison] = useState<ComparisonData | null>(null);
   const [recommendation, setRecommendation] = useState<AIRecommendation | null>(null);
@@ -198,7 +201,7 @@ const ComparisonDetail = () => {
           .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
             property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
             property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total)`)
+            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total, language)`)
           .eq("id", id)
           .single();
 
@@ -314,6 +317,18 @@ const ComparisonDetail = () => {
     );
   }
 
+  // bead home-duo-insight-elg: the report is authored once in the author's locale
+  // and reused for every viewer (never regenerated). When the viewer's current
+  // locale differs from the authored language, surface a notice. NULL/unknown
+  // authored language => no notice.
+  const reportLanguage =
+    recommendation?.language === "en" || recommendation?.language === "ja"
+      ? recommendation.language
+      : null;
+  const viewerLanguage = (i18n.language || "en").startsWith("ja") ? "ja" : "en";
+  const showLanguageNotice =
+    reportLanguage !== null && reportLanguage !== viewerLanguage;
+
   // tv7.eod: prefer score totals, fall back to price heuristic for pre-redeploy rows
   const aScoreTotal = recommendation?.property_a_score_total ?? null;
   const bScoreTotal = recommendation?.property_b_score_total ?? null;
@@ -414,7 +429,19 @@ const ComparisonDetail = () => {
         onChange={setActiveTab}
       >
         {activeTab === 'summary' && (
-          <SummaryTab comparison={comparison} recommendation={recommendation} />
+          <>
+            {showLanguageNotice && reportLanguage && (
+              <div
+                role="note"
+                className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+              >
+                {t("comparisonDetail.languageNotice", {
+                  language: t(`comparisonDetail.languageNames.${reportLanguage}`),
+                })}
+              </div>
+            )}
+            <SummaryTab comparison={comparison} recommendation={recommendation} />
+          </>
         )}
         {activeTab === 'details' && (
           <DetailsTab comparison={comparison} formatPrice={formatPrice} />

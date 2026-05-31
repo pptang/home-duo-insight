@@ -377,6 +377,11 @@
     }
   },
   "comparisonDetail": {
+    "languageNotice": "This report was written in {{language}}. Reports are generated once in the author's language and aren't re-translated per viewer.",
+    "languageNames": {
+      "en": "English",
+      "ja": "Japanese"
+    },
     "title": "{{propertyA}} vs {{propertyB}}",
     "created": "Created {{date}}",
     "shareButton": "Share",

@@ -139,6 +139,15 @@ const getCategorizedPreferences = (values: PersonalizationValues) => ({
   },
 });
 
+/**
+ * Resolve the report language from the author's current UI locale at generation
+ * time. This language is FIXED for the report: comparisons are deduped per
+ * (URL pair, UTC date) and the recommendation is persisted + reused, so the
+ * report is authored once and never regenerated per viewer (bead
+ * home-duo-insight-elg). The authored value is persisted on
+ * recommendations.language; ComparisonDetail surfaces a notice when a viewer's
+ * locale differs from it.
+ */
 const getNormalizedLanguage = (): "en" | "ja" => {
   const detectedLanguage = i18n.language || "en";
   return detectedLanguage.startsWith("ja") ? "ja" : "en";
