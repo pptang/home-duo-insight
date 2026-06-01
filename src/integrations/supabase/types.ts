@@ -416,6 +416,7 @@ export type Database = {
           created_at: string
           final_recommendation: string
           id: string
+          language: string | null
           property_a_cons: string[]
           property_a_pros: string[]
           property_a_score_total: number | null
@@ -434,6 +435,7 @@ export type Database = {
           created_at?: string
           final_recommendation: string
           id?: string
+          language?: string | null
           property_a_cons?: string[]
           property_a_pros?: string[]
           property_a_score_total?: number | null
@@ -452,6 +454,7 @@ export type Database = {
           created_at?: string
           final_recommendation?: string
           id?: string
+          language?: string | null
           property_a_cons?: string[]
           property_a_pros?: string[]
           property_a_score_total?: number | null

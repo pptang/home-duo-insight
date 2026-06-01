@@ -377,6 +377,11 @@
     }
   },
   "comparisonDetail": {
+    "languageNotice": "このレポートは{{language}}で作成されています。レポートは作成者の言語で一度だけ生成され、閲覧者ごとに再翻訳されることはありません。",
+    "languageNames": {
+      "en": "英語",
+      "ja": "日本語"
+    },
     "title": "{{propertyA}} vs {{propertyB}}",
     "created": "作成日: {{date}}",
     "shareButton": "共有",

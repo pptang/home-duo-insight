@@ -793,6 +793,10 @@ Property B: ${requestData.property_b.property_name || "N/A"}
             score_breakdown: aiRecommendation.score_breakdown ?? null,
             final_recommendation: aiRecommendation.final_recommendation,
             user_profile: requestData.user_profile,
+            // bead home-duo-insight-elg: persist the authored language so the
+            // viewer UI can flag a locale mismatch. Fixed at authoring; the
+            // report is never regenerated per viewer.
+            language,
           };
 
           console.log(
