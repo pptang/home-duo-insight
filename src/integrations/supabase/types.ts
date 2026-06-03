@@ -557,6 +557,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      comparisons_build_pair_key: {
+        Args: { url_a: string; url_b: string }
+        Returns: string
+      }
+      comparisons_normalize_listing_url: {
+        Args: { input: string }
+        Returns: string
+      }
       increment_comparison_view: {
         Args: { p_comparison_id: string }
         Returns: undefined
