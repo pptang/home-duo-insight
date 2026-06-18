@@ -15,10 +15,10 @@ AiSumai (愛住) is a React-based web application that helps renters and home bu
 
 **Frontend Stack:**
 - React + TypeScript + Vite
+- React Router v7 in **framework mode with SSR** (server-rendered, hydrated on the client; configured in `react-router.config.ts`). Document shell + providers live in `src/root.tsx`; routes in `src/routes.ts`.
 - Tailwind CSS + shadcn/ui components
-- React Router for navigation
-- React Query for data fetching
-- Zustand or Context API for state management
+- React Query for data fetching (still client-side; route loaders are a planned follow-up)
+- Context API for state management
 
 **Backend:**
 - Supabase for database, authentication, and edge functions
@@ -45,10 +45,10 @@ npm run dev:remote       # Start frontend against remote Supabase
 
 **Build & Quality:**
 ```bash
-npm run build            # Production build
-npm run build:dev        # Development build
+npm run build            # Production build (react-router build -> build/client + build/server SSR bundle)
+npm run build:dev        # Development-mode build
+npm run start            # Serve the production SSR build locally (react-router-serve)
 npm run lint             # Run ESLint
-npm run preview          # Preview production build
 ```
 
 **Supabase Local Development:**
@@ -81,6 +81,18 @@ The Supabase CLI always reads `supabase/functions/.env`. Two mode files are kept
 - `dev:local` runs `functions:env:local` automatically
 
 Restart Supabase after switching - env is injected at container creation.
+
+## Deployment (Vercel — SSR)
+
+The app is a **React Router v7 framework-mode SSR** application (not a static SPA). It deploys to **Vercel**, which auto-detects the React Router framework via `react-router.config.ts` (`ssr: true` + `vercelPreset()`). There is **no `vercel.json`** and no `dist/` static output: `npm run build` (`react-router build`) emits `build/client/` (static assets) and `build/server/.../index.js` (the SSR server bundle Vercel wraps in a Node serverless function).
+
+**Deploy:**
+- Vercel CLI: `vercel deploy` (preview) / `vercel deploy --prod` (production), or connect the repo for git-based deploys.
+- Vercel runs `npm run build`; a green local `npm run build` is the authoritative deploy gate. Validate the production server locally with `npm run start` (`react-router-serve`).
+
+**Environment variables (set in Vercel project settings):** `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for each environment (Production/Preview). Vite inlines `VITE_`-prefixed vars at build time. `src/integrations/supabase/client.ts` falls back to the public remote project if they are unset, so the build won't break without them — but set them explicitly.
+
+**SSR dependency gotcha — `ssr.noExternal` (read before adding an SSR-rendered dependency):** Vercel's serverless Node loader does **not** apply ESM syntax-detection. A dependency whose `"import"` export condition points to an ambiguous `.js` file (ESM syntax) inside a package with no `"type":"module"` and no nested `dist/esm/package.json` is treated as CommonJS at runtime, fails to expose its named exports, and **500s every SSR route** (e.g. `SyntaxError: ... does not provide an export named 'Helmet'`). It works locally (`npm run start` / bare node apply syntax-detection), so this only surfaces on Vercel. Fix: add the package to `ssr.noExternal` in `vite.config.ts` so Vite bundles it at build time. Currently listed: `react-helmet-async`, `lucide-react`. Diagnose with streamed `vercel logs <deployment-url>` (the dashboard log table truncates the stack).
 
 **Firecrawl Configuration:**
 ```bash
