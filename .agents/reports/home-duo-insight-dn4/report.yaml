@@ -45,6 +45,16 @@ curl_results: |
 # SSR confirmed: view-source shows full HTML with Topbar/Footer/route markup, not empty <div id="root">
 ssr_confirmed: true
 
+# Round-2 fix: JA hydration mismatch (blocking QA issue)
+hydration_fix: |
+  Both server and client i18n.init() now set lng:"en" explicitly.
+  LanguageDetector still registered on client for localStorage caching,
+  but cannot override initial language when lng is set explicitly.
+  Post-hydration language upgrade added in root.tsx useEffect:
+  reads localStorage(i18nextLng) -> navigator.language -> normalizes to ja/en
+  -> calls i18n.changeLanguage(detected) only if different from current "en".
+  SSR HTML (en) matches client first render (en); upgrades to ja post-hydration.
+
 # Files changed
 new_files:
   - react-router.config.ts
