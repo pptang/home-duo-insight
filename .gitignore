@@ -223,3 +223,5 @@ docs/aisumai-design-handoff/
 
 # ct4: raw Firecrawl HTML dumps — kept locally as artifacts, not tracked (large)
 .agents/reports/home-duo-insight-ct4/raw/
+.vercel
+.react-router
