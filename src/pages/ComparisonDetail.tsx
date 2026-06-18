@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -347,8 +348,38 @@ const ComparisonDetail = () => {
       ? comparison.property_a.property_name || "物件 A"
       : comparison.property_b.property_name || "物件 B";
 
+  // Per-page SEO: build a unique title + description from the two properties so
+  // each comparison URL has distinct metadata for crawlers (bead: seo dup-meta).
+  const aName = comparison.property_a.property_name || "物件 A";
+  const bName = comparison.property_b.property_name || "物件 B";
+  const aPlan = comparison.property_a.floor_plan ? ` ${comparison.property_a.floor_plan}` : "";
+  const bPlan = comparison.property_b.floor_plan ? ` ${comparison.property_b.floor_plan}` : "";
+  const aPriceStr = formatPrice(comparison.property_a.price_yen);
+  const bPriceStr = formatPrice(comparison.property_b.price_yen);
+  const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+  const pageTitle = truncate(
+    `${aName}${aPlan} vs ${bName}${bPlan} — Property Comparison | AiSumai`,
+    60,
+  );
+  const pageDescription = truncate(
+    `AI analysis of ${aName} (${aPriceStr}) vs ${bName} (${bPriceStr}). Compare price, commute, and resale outlook on AiSumai.`,
+    160,
+  );
+  const pageUrl = `https://home-duo-insight.lovable.app/comparisons/${comparison.id}`;
+
   return (
     <div className="bg-paper text-ink pb-24">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={pageUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:type" content="article" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+      </Helmet>
       {/* Breadcrumb — hidden in print (tv7.17) */}
       <div className="no-print max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
         <Link to="/" className="hover:text-ink no-underline">Home</Link>
