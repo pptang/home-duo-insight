@@ -8,6 +8,7 @@ import {
   useLocation,
 } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Topbar from "@/components/ui/Topbar";
@@ -58,7 +59,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@lovable_dev" />
         <meta
           name="twitter:image"
           content="https://qditnqwrjioypsuxwagg.supabase.co/storage/v1/object/public/public-image/og-image.jpeg"
@@ -138,18 +138,20 @@ export default function Root() {
   }, []);
 
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <PageTracker />
-        <div className="min-h-screen bg-paper text-ink flex flex-col">
-          {!isFullLayout && <Topbar />}
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          {!isFullLayout && <Footer />}
-        </div>
-        <Toaster />
-      </QueryClientProvider>
-    </AuthProvider>
+    <HelmetProvider>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <PageTracker />
+          <div className="min-h-screen bg-paper text-ink flex flex-col">
+            {!isFullLayout && <Topbar />}
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            {!isFullLayout && <Footer />}
+          </div>
+          <Toaster />
+        </QueryClientProvider>
+      </AuthProvider>
+    </HelmetProvider>
   );
 }
