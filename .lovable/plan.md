@@ -1,111 +1,39 @@
+# SEO 修正計畫：比較頁個別化 Meta + 移除 Lovable 標記
 
+## 目標
 
-## Recommendation Feedback Feature (Thumbs Up/Down)
+1. `/comparisons/:id` 每頁產生獨立 `<title>` / `<meta description>` / `og:*` / canonical
+2. 移除 `index.html` 的 `twitter:site="@lovable_dev"`
 
-### Overview
-Add a user feedback system that allows users to rate AI recommendations as helpful or not helpful using thumbs-up/thumbs-down buttons. This feedback will be stored in the database for analysis of recommendation quality.
+## 實作步驟
 
-### Implementation Details
+### 1. 安裝並掛載 `react-helmet-async`
+- `bun add react-helmet-async`
+- `src/main.tsx`：用 `<HelmetProvider>` 包住 `<App />`
 
-#### 1. Database Changes
-Create a new table `recommendation_feedback` to store user feedback:
+### 2. `ComparisonDetail.tsx` 注入動態 head
+- 在已抓到 `comparison.property_a` / `property_b` 之後渲染 `<Helmet>`
+- 標題格式（中英混合，跟使用者範例對齊）：
+  - `{A.address區/property_name} {A.floor_plan} vs {B.address區/property_name} {B.floor_plan} — Property Comparison | AiSumai`
+- 描述格式（< 160 字元，價格用 `formatPrice`）：
+  - `AI analysis of {A 簡稱} ({價格}) vs {B 簡稱} ({價格}). Compare price, commute, resale outlook on AiSumai.`
+- 同步加上：`og:title` / `og:description` / `og:url` / `<link rel="canonical">`，URL = `https://home-duo-insight.lovable.app/comparisons/{id}`
+- 載入中 / 找不到資料時退回通用標題
 
-```text
-Table: recommendation_feedback
-- id (uuid, primary key)
-- recommendation_id (uuid, foreign key to recommendations.id)
-- user_id (uuid, nullable - for logged-in users)
-- session_id (text - for anonymous users tracking)
-- feedback (text - 'positive' or 'negative')
-- created_at (timestamp)
-```
+### 3. `index.html` 清理
+- 刪除 `<meta name="twitter:site" content="@lovable_dev" />`
+- 移除目前的 `<link rel="canonical">`（之後每頁各自管自己；首頁可在 `Index.tsx` 加一個指向 `/` 的 Helmet）
+- 給首頁 `Index.tsx` 加一組基本 Helmet（canonical = `/`，title/description 維持站台預設），確保 helmet 接管後首頁仍正確
 
-Row-Level Security (RLS) policies:
-- Anyone can INSERT feedback (to allow anonymous feedback)
-- Anyone can SELECT feedback (for display purposes)
-- Users can UPDATE their own feedback (to change their vote)
+### 4. 標記 SEO findings
+- 跑完後用 `seo_chat--update_findings` 把對應的 duplicate-title / duplicate-description / twitter-site 項目標 fixed
 
-#### 2. New Component
-Create `RecommendationFeedback.tsx` component that:
-- Displays two buttons (thumbs-up and thumbs-down)
-- Shows a "thank you" message after feedback is submitted
-- Tracks feedback via session ID for anonymous users
-- Prevents duplicate submissions using localStorage
+## 需要先讓你知道的 Concerns
 
-#### 3. UI Integration
-Add the feedback component in two locations:
-- **Compare.tsx**: Below the Final Recommendation card (after line 1113)
-- **ComparisonDetail.tsx**: Below the Final Recommendation card (after line 644)
-
-#### 4. Localization
-Add new translation keys for English and Japanese:
-
-```text
-recommendation.feedback.title: "Was this helpful?"
-recommendation.feedback.thanks: "Thank you for your feedback!"
-recommendation.feedback.thumbs_up: "Yes, helpful"
-recommendation.feedback.thumbs_down: "Not helpful"
-```
-
----
-
-### Technical Approach
-
-**Session Tracking for Anonymous Users:**
-- Generate a unique session ID stored in localStorage
-- This allows tracking feedback even from non-logged-in users
-- Prevents the same user from submitting multiple feedbacks
-
-**State Management:**
-- Use local state to track if feedback was submitted
-- Check localStorage on component mount to restore previous feedback state
-- Store both the feedback type and recommendation ID
-
-**Database Query Example:**
-```sql
-INSERT INTO recommendation_feedback (recommendation_id, user_id, session_id, feedback)
-VALUES ($1, $2, $3, $4);
-```
-
----
-
-### Files to Create/Modify
-
-| File | Action |
-|------|--------|
-| `src/components/RecommendationFeedback.tsx` | Create new component |
-| `src/pages/Compare.tsx` | Add feedback component after recommendation |
-| `src/pages/ComparisonDetail.tsx` | Add feedback component after recommendation |
-| `src/locales/en/translation.json` | Add feedback translation keys |
-| `src/locales/ja/translation.json` | Add feedback translation keys |
-| Database migration | Create `recommendation_feedback` table with RLS |
-
----
-
-### Visual Design
-The feedback UI will appear as a subtle, centered section below the recommendation:
-
-```text
-+--------------------------------------------------+
-|              Was this helpful?                    |
-|                                                  |
-|     [ 👍 Yes, helpful ]    [ 👎 Not helpful ]     |
-|                                                  |
-+--------------------------------------------------+
-```
-
-After submission:
-```text
-+--------------------------------------------------+
-|         Thank you for your feedback! 🙏          |
-+--------------------------------------------------+
-```
-
----
-
-### Analytics Potential
-Once implemented, you can query the feedback data to analyze:
-- Overall satisfaction rate (% positive feedback)
-- Trends over time
-- Correlation with specific property types or price ranges
-
+1. **社群預覽抓不到動態值**：`react-helmet-async` 是在瀏覽器執行後才改 `<head>`。Googlebot 會執行 JS 所以 SEO 標題沒問題；但 LinkedIn / Slack / Facebook / X 的預覽爬蟲**不執行 JS**，看到的還是 `index.html` 裡的站台預設 OG。要讓社群分享也顯示個別物件，需要 SSR / 預先產生 HTML，不在這次範圍。會在 `index.html` 留一組合理的站台預設當 fallback。
+2. **預覽快取**：即使之後做了 SSR，X/Facebook/LinkedIn 都會快取上次抓到的預覽，要等他們重抓或在各家 debugger 強制刷新才會更新。
+3. **資料相依**：title 在 fetch 完成前無法決定；初始 HTML 仍是預設標題，毫秒級內被 Helmet 覆蓋（對 Googlebot OK）。
+4. **隱私/草稿頁**：如果未來會有「私人比較」，這些頁面不該被索引；現階段先全部開放，但之後可能要按 `is_public` 加 `noindex`。
+5. **物件名稱可能很長 / 含日文**：title 會做長度截斷（< 60 字元），description < 160 字元，超過就用 `…`。
+6. **`twitter:site` 移除後**不會自動換成你們的帳號；如果之後有官方 X 帳號可以再加回來。
+7. **不動商業邏輯**：本次只改 head / 安裝套件，比較流程、edge function、DB 都不碰。
