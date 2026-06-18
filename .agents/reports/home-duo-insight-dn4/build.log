@@ -1,0 +1,60 @@
+build/client/assets/sparkles-BzE6GWkI.js             1.06 kB │ gzip:   0.50 kB
+build/client/assets/NotFound-DA1p20CG.js             1.14 kB │ gzip:   0.62 kB
+build/client/assets/Section-CGGisrGl.js              1.15 kB │ gzip:   0.66 kB
+build/client/assets/AuthContext-BXJuVpW-.js          1.22 kB │ gzip:   0.65 kB
+build/client/assets/use-toast-BZlNUH3k.js            1.23 kB │ gzip:   0.62 kB
+build/client/assets/index-D_7iPNY9.js                1.34 kB │ gzip:   0.68 kB
+build/client/assets/createLucideIcon-CuQS05M1.js     1.58 kB │ gzip:   0.67 kB
+build/client/assets/input-CYl9Rjdy.js                1.78 kB │ gzip:   0.96 kB
+build/client/assets/index-Ds-veN9t.js                1.89 kB │ gzip:   0.97 kB
+build/client/assets/sheet-BD8CqvQ4.js                2.28 kB │ gzip:   0.91 kB
+build/client/assets/comparisonFlow-BTbfS0dJ.js       2.49 kB │ gzip:   0.95 kB
+build/client/assets/dialog-COXS1xxQ.js               2.51 kB │ gzip:   0.96 kB
+build/client/assets/avatar-CsRKxBwq.js               2.61 kB │ gzip:   1.19 kB
+build/client/assets/index-B0m4rtQq.js                3.60 kB │ gzip:   1.64 kB
+build/client/assets/ReportCard-CPp-RGGu.js           4.06 kB │ gzip:   1.23 kB
+build/client/assets/index-B6XCjrRb.js                4.32 kB │ gzip:   1.60 kB
+build/client/assets/useTranslation-CLLWYL7F.js       5.16 kB │ gzip:   2.43 kB
+build/client/assets/entry.client-DxVvxnSu.js         6.10 kB │ gzip:   2.45 kB
+build/client/assets/Dashboard-Dye6KR6d.js            7.80 kB │ gzip:   2.71 kB
+build/client/assets/About-CZ7DFnIo.js                9.00 kB │ gzip:   2.65 kB
+build/client/assets/Auth-CAS1WC6A.js                 9.17 kB │ gzip:   3.36 kB
+build/client/assets/Index-DDomUXN5.js                9.25 kB │ gzip:   4.00 kB
+build/client/assets/Feed-CxvktSTj.js                16.36 kB │ gzip:   6.18 kB
+build/client/assets/button-C3k9W2AJ.js              25.16 kB │ gzip:   8.73 kB
+build/client/assets/index-DsZkuJE7.js               25.49 kB │ gzip:   9.20 kB
+build/client/assets/ExpertProfilePage-D7MWyKPd.js   26.18 kB │ gzip:   6.95 kB
+build/client/assets/index-9h-GuBZW.js               28.36 kB │ gzip:  10.88 kB
+build/client/assets/AdminExpertReview-pmoYUZNN.js   30.09 kB │ gzip:   8.42 kB
+build/client/assets/index.esm-Bs1_BnTn.js           30.79 kB │ gzip:  11.18 kB
+build/client/assets/Experts-RE-xx8TK.js             33.93 kB │ gzip:  11.02 kB
+build/client/assets/root-Bnj7Z0Vw.js                75.12 kB │ gzip:  22.10 kB
+build/client/assets/AdminExpertPanel-CtH6fWyt.js    77.44 kB │ gzip:  18.82 kB
+build/client/assets/i18n-D9PaRHHX.js                87.95 kB │ gzip:  33.31 kB
+build/client/assets/chunk-4ZMWKKQ3-JClM9iMm.js     130.64 kB │ gzip:  43.83 kB
+build/client/assets/index-BFE0akf1.js              133.94 kB │ gzip:  43.13 kB
+build/client/assets/client-DVkYLxgL.js             213.09 kB │ gzip:  55.25 kB
+build/client/assets/ComparisonDetail-moF4YY2A.js   430.24 kB │ gzip: 112.32 kB
+✓ built in 3.88s
+  ⚠️  Future Flag Warning: Route middleware support is changing in React Router v8.
+     You can use the `future.v8_middleware` flag to opt in early.
+     -> https://reactrouter.com/v7/upgrading/future#futurev8_middleware
+  ⚠️  Future Flag Warning: Route module splitting behavior is changing in React Router v8.
+     You can use the `future.v8_splitRouteModules` flag to opt in early.
+     -> https://reactrouter.com/v7/upgrading/future#futurev8_splitroutemodules
+  ⚠️  Future Flag Warning: Vite Environment API usage is changing in React Router v8.
+     You can use the `future.v8_viteEnvironmentApi` flag to opt in early.
+     -> https://reactrouter.com/v7/upgrading/future#futurev8_viteenvironmentapi
+  ⚠️  Future Flag Warning: Request handling behavior is changing in React Router v8.
+     You can use the `future.v8_passThroughRequests` flag to opt in early.
+     -> https://reactrouter.com/v7/upgrading/future#futurev8_passthroughrequests
+  ⚠️  Future Flag Warning: Data request URL formats are changing in React Router v8.
+     You can use the `future.v8_trailingSlashAwareDataRequests` flag to opt in early.
+     -> https://reactrouter.com/v7/upgrading/future#futurev8_trailingslashawaredatarequests
+vite v5.4.21 building SSR bundle for production...
+transforming...
+✓ 75 modules transformed.
+rendering chunks...
+build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/.vite/manifest.json    0.17 kB
+build/server/nodejs_eyJydW50aW1lIjoibm9kZWpzIn0/index.js             408.51 kB
+✓ built in 291ms
