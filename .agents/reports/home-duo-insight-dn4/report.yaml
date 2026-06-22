@@ -1,0 +1,76 @@
+bead_id: home-duo-insight-dn4
+branch: worktree-bead-home-duo-insight-dn4
+ui_surface: true
+
+# B1 Gate — single deduped react-router v7 tree, no v6
+b1_npm_ls: |
+  vite_react_shadcn_ts@0.0.0 /Users/neo/Projects/dowell/home-duo-insight/.claude/worktrees/bead-home-duo-insight-dn4
+  ├─┬ @react-router/dev@7.18.0
+  │ └── react-router@7.18.0 deduped
+  ├─┬ @react-router/node@7.18.0
+  │ └── react-router@7.18.0 deduped
+  ├─┬ @react-router/serve@7.18.0
+  │ ├─┬ @react-router/express@7.18.0
+  │ │ └── react-router@7.18.0 deduped
+  │ └── react-router@7.18.0 deduped
+  ├─┬ react-router-dom@7.18.0
+  │ └── react-router@7.18.0 deduped
+  └── react-router@7.18.0
+b1_status: PASS — single v7 tree, no v6
+
+# B2 Gate — only package-lock.json remains (bun.lockb + bun.lock removed)
+b2_lockfile: package-lock.json only (bun.lockb and bun.lock deleted)
+b2_status: PASS
+
+# Build
+build_status: PASS — exit 0
+tsc_status: PASS — exit 0 (no output)
+lint_status: PASS — 0 errors, 17 warnings (pre-existing)
+
+# Route verification (npm run start, react-router-serve :3000)
+curl_results: |
+  HTTP 200 | 2 markup_hits | /
+  HTTP 200 | 2 markup_hits | /compare
+  HTTP 200 | 28750 bytes    | /feed  (full SSR: Topbar+route content confirmed by manual curl)
+  HTTP 200 | 2 markup_hits | /experts
+  HTTP 200 | 2 markup_hits | /experts/test-id
+  HTTP 200 | 2 markup_hits | /about
+  HTTP 200 | 2 markup_hits | /auth
+  HTTP 200 | 2 markup_hits | /admin/experts
+  HTTP 200 | 2 markup_hits | /admin/expert-review
+  HTTP 200 | 2 markup_hits | /comparisons/test-id
+  HTTP 200 | 2 markup_hits | /dashboard
+  HTTP 200 | 2 markup_hits | /this-is-a-404-path
+
+# SSR confirmed: view-source shows full HTML with Topbar/Footer/route markup, not empty <div id="root">
+ssr_confirmed: true
+
+# Round-2 fix: JA hydration mismatch (blocking QA issue)
+hydration_fix: |
+  Both server and client i18n.init() now set lng:"en" explicitly.
+  LanguageDetector still registered on client for localStorage caching,
+  but cannot override initial language when lng is set explicitly.
+  Post-hydration language upgrade added in root.tsx useEffect:
+  reads localStorage(i18nextLng) -> navigator.language -> normalizes to ja/en
+  -> calls i18n.changeLanguage(detected) only if different from current "en".
+  SSR HTML (en) matches client first render (en); upgrades to ja post-hydration.
+
+# Files changed
+new_files:
+  - react-router.config.ts
+  - src/routes.ts
+  - src/root.tsx
+  - src/entry.client.tsx
+  - src/routes/compare-redirect.tsx
+modified_files:
+  - vite.config.ts
+  - package.json
+  - package-lock.json
+  - src/i18n.ts
+deleted_files:
+  - index.html
+  - src/main.tsx
+  - src/App.tsx
+  - vercel.json
+  - bun.lockb
+  - bun.lock

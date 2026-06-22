@@ -57,6 +57,7 @@ This project is built with:
 - Vite
 - TypeScript
 - React
+- React Router v7 (framework mode, server-side rendering)
 - shadcn-ui
 - Tailwind CSS
 - Supabase (for backend and database)
@@ -212,12 +213,15 @@ For Firecrawl API documentation and testing, refer to the [Firecrawl documentati
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/ed838ef5-d833-47f9-bbf1-e9cb44adc945) and click on Share -> Publish.
+This is a **React Router v7 framework-mode SSR** app (not a static site) and deploys to **Vercel**. Vercel auto-detects the React Router framework from `react-router.config.ts` (`ssr: true` + `vercelPreset()`) — there is no `vercel.json` and no static `dist/` output.
 
-## Can I connect a custom domain to my Lovable project?
+- **Build:** `npm run build` (`react-router build`) emits `build/client/` (assets) and `build/server/.../index.js` (the SSR server bundle Vercel runs as a Node serverless function).
+- **Deploy:** with the [Vercel CLI](https://vercel.com/docs/cli), run `vercel deploy` for a preview or `vercel deploy --prod` for production — or connect the repo to Vercel for git-based deploys.
+- **Environment variables:** set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project settings (Production/Preview). They're inlined at build time; the Supabase client falls back to the public remote project if unset.
+- **Verify locally first:** `npm run build` must be green (Vercel runs the same command), and `npm run start` (`react-router-serve`) boots the production server for a local prod-parity check.
 
-Yes, you can!!!
+See `AGENTS.md` → **Deployment (Vercel — SSR)** for the full process, including the `ssr.noExternal` dependency gotcha.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Can I connect a custom domain?
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Yes. Add the domain in the Vercel project under **Settings → Domains** and follow the DNS instructions. See [Vercel custom domains](https://vercel.com/docs/projects/domains).
