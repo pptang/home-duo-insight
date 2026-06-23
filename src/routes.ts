@@ -12,5 +12,6 @@ export default [
   route("admin/expert-review", "pages/AdminExpertReview.tsx"),
   route("comparisons/:id", "pages/ComparisonDetail.tsx"),
   route("dashboard", "pages/Dashboard.tsx"),
+  route("sitemap.xml", "routes/sitemap.tsx"),
   route("*", "pages/NotFound.tsx"),
 ] satisfies RouteConfig;
