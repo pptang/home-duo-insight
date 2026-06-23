@@ -209,10 +209,9 @@ screenshots/
 .claude/
 
 # Agent orchestration scratch / local state
-# Per-bead evidence (.agents/reports/<bead-id>/) is committed; batch run
-# dirs are throwaway orchestration scratch.
+# Per-bead evidence (.agents/reports/) is kept locally only, never committed.
 .agents/batch/
-.agents/reports/batch-*/
+.agents/reports/
 .agents/skills/
 
 # Codex CLI config (local MCP/DSN)
