@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLoaderData, data, useRouteError, isRouteErrorResponse } from "react-router";
+import type { LoaderFunctionArgs, MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
-import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
@@ -112,17 +112,180 @@ const PROPERTY_FIELDS_EXTENDED = [
 
 type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
+// Lifted to module scope so both loader and component share them.
+const formatPrice = (price: number | null): string => {
+  if (price === null) return "—";
+  if (price >= 100000000) return `¥${(price / 100000000).toFixed(2)}億`;
+  if (price >= 10000) return `¥${(price / 10000).toFixed(0)}万`;
+  return `¥${price.toLocaleString()}`;
+};
+
+const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+// --- SSR loader ---
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const id = params.id;
+  if (!id) {
+    throw data("Comparison not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const { data: row, error } = await supabase
+    .from("comparisons")
+    .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
+      property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+      property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
+      recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total, language)`)
+    .eq("id", id)
+    .single();
+
+  if (error || !row) {
+    throw data("Comparison not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const comparison: ComparisonData = {
+    id: row.id,
+    created_at: row.created_at,
+    user_id: row.user_id,
+    property_a: row.property_a as PropertyData,
+    property_b: row.property_b as PropertyData,
+    recommendations: row.recommendations as AIRecommendation[],
+    image_extraction_status: (row as { image_extraction_status?: ComparisonData["image_extraction_status"] }).image_extraction_status,
+    view_count: (row as { view_count?: number }).view_count,
+    save_count: (row as { save_count?: number }).save_count,
+  };
+
+  // Pick the newest recommendation server-side (same logic as the old client sort).
+  const recommendation: AIRecommendation | null =
+    comparison.recommendations && comparison.recommendations.length > 0
+      ? [...comparison.recommendations].sort(
+          (a, b) =>
+            new Date(b.created_at ?? 0).getTime() -
+            new Date(a.created_at ?? 0).getTime(),
+        )[0]
+      : null;
+
+  // Build per-pair SEO strings server-side.
+  const aName = comparison.property_a.property_name || "物件 A";
+  const bName = comparison.property_b.property_name || "物件 B";
+  const aPlan = comparison.property_a.floor_plan ? ` ${comparison.property_a.floor_plan}` : "";
+  const bPlan = comparison.property_b.floor_plan ? ` ${comparison.property_b.floor_plan}` : "";
+  const aPriceStr = formatPrice(comparison.property_a.price_yen);
+  const bPriceStr = formatPrice(comparison.property_b.price_yen);
+  const seoTitle = truncate(
+    `${aName}${aPlan} vs ${bName}${bPlan} — Property Comparison | AiSumai`,
+    60,
+  );
+  const seoDescription = truncate(
+    `AI analysis of ${aName} (${aPriceStr}) vs ${bName} (${bPriceStr}). Compare price, commute, and resale outlook on AiSumai.`,
+    160,
+  );
+  const seoUrl = `${SITE_URL}/comparisons/${comparison.id}`;
+
+  return {
+    comparison,
+    recommendation,
+    seo: { title: seoTitle, description: seoDescription, url: seoUrl },
+  };
+}
+
+// --- per-pair meta ---
+
+export function meta({ data: loaderData }: MetaArgs) {
+  // Guard: meta runs even on 404 (loader throws); return fallback if no data.
+  if (!loaderData) {
+    return [
+      { title: "AiSumai (愛住) - Compare Homes in Japan with AI & Experts" },
+    ];
+  }
+  const { seo } = loaderData as Awaited<ReturnType<typeof loader>>;
+  return [
+    { title: seo.title },
+    { name: "description", content: seo.description },
+    { tagName: "link", rel: "canonical", href: seo.url },
+    { property: "og:title", content: seo.title },
+    { property: "og:description", content: seo.description },
+    { property: "og:url", content: seo.url },
+    { property: "og:type", content: "article" },
+    { property: "og:image", content: OG_IMAGE_URL },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: OG_IMAGE_URL },
+    { name: "twitter:title", content: seo.title },
+    { name: "twitter:description", content: seo.description },
+  ];
+}
+
+// --- cache headers ---
+
+export function headers({ errorHeaders, loaderHeaders }: HeadersArgs) {
+  // Propagate no-store from the 404 throw; long cache for successful loads.
+  if (errorHeaders?.has("Cache-Control")) return errorHeaders;
+  // loaderHeaders carries whatever the loader returned; apply long cache for 200.
+  return { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+}
+
+// --- ErrorBoundary (404 / unexpected errors) ---
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const { t } = useTranslation();
+
+  const message = isRouteErrorResponse(error)
+    ? error.data
+    : (error as Error)?.message || "An unexpected error occurred";
+
+  return (
+    <div className="max-w-[860px] mx-auto px-6 py-24 text-center">
+      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 mb-3">
+        404 · Not Found
+      </div>
+      <h1 className="font-display text-[36px] tracking-[-0.5px] mb-4">
+        {t("comparisonDetail.notFound.title")}
+      </h1>
+      <p className="text-[14px] text-ink-60 mb-8">
+        {typeof message === "string" ? message : t("comparisonDetail.notFound.description")}
+      </p>
+      <Link
+        to="/feed"
+        className="inline-flex items-center gap-2 bg-ink text-paper px-4 py-2.5 text-[13px] no-underline rounded-md hover:opacity-85"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        {t("comparisonDetail.backToFeed")}
+      </Link>
+    </div>
+  );
+}
+
+// --- Main component ---
+
 const ComparisonDetail = () => {
-  const { id } = useParams<{ id: string }>();
+  const loaderData = useLoaderData<typeof loader>();
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
-  const [comparison, setComparison] = useState<ComparisonData | null>(null);
-  const [recommendation, setRecommendation] = useState<AIRecommendation | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  // Seed local state from loader; reseed on navigation (loaderData identity changes
+  // when React Router reuses the component instance across same-route navigations).
+  const [comparison, setComparison] = useState<ComparisonData>(() => loaderData.comparison);
+  const [recommendation, setRecommendation] = useState<AIRecommendation | null>(
+    () => loaderData.recommendation,
+  );
+
+  // MANDATORY reseed — fixes A→B navigation where the lazy initializer won't re-run.
+  useEffect(() => {
+    setComparison(loaderData.comparison);
+    setRecommendation(loaderData.recommendation);
+  }, [loaderData]);
+
   const [activeTab, setActiveTab] = useState<Tab>("summary");
   // tv7.17: PDF print state
   const [isPrinting, setIsPrinting] = useState(false);
+
+  const id = comparison.id;
+
+  // dy7: fire-and-forget view counter bump — client-only, never in the loader.
+  useEffect(() => {
+    if (id) void supabase.rpc('increment_comparison_view', { p_comparison_id: id });
+  }, [id]);
 
   // tv7.17: inject print CSS on mount, clean up on unmount
   useEffect(() => {
@@ -188,72 +351,6 @@ const ComparisonDetail = () => {
     }, 500);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!id) {
-        setError("No comparison ID provided");
-        setIsLoading(false);
-        return;
-      }
-      try {
-        setIsLoading(true);
-
-        const { data, error: err } = await supabase
-          .from("comparisons")
-          .select(`id, created_at, user_id, image_extraction_status, view_count, save_count,
-            property_a:properties!comparisons_property_a_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            property_b:properties!comparisons_property_b_id_fkey(${PROPERTY_FIELDS_EXTENDED}),
-            recommendations(id, summary_table, final_recommendation, created_at, ai_points, score_breakdown, property_a_score_total, property_b_score_total, language)`)
-          .eq("id", id)
-          .single();
-
-        if (err || !data) {
-          setError("Comparison not found");
-          return;
-        }
-        const typed: ComparisonData = {
-          id: data.id,
-          created_at: data.created_at,
-          user_id: data.user_id,
-          property_a: data.property_a as PropertyData,
-          property_b: data.property_b as PropertyData,
-          recommendations: data.recommendations as AIRecommendation[],
-          view_count: (data as { view_count?: number }).view_count,
-          save_count: (data as { save_count?: number }).save_count,
-        };
-        setComparison(typed);
-        if (typed.recommendations && typed.recommendations.length > 0) {
-          // PostgREST doesn't order nested relations by default, and a single
-          // comparison can accumulate multiple recommendations whenever the
-          // user re-runs /compare with different chip selections (bead che) or
-          // hits a cached comparison (bead mc4). Pick the newest so the UI
-          // always reflects the most recent generate-recommendation call.
-          const latest = [...typed.recommendations].sort(
-            (a, b) =>
-              new Date(b.created_at ?? 0).getTime() -
-              new Date(a.created_at ?? 0).getTime(),
-          )[0];
-          setRecommendation(latest);
-        }
-
-        // dy7: fire-and-forget view counter bump
-        void supabase.rpc('increment_comparison_view', { p_comparison_id: id });
-      } catch {
-        setError("Failed to load comparison data");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [id]);
-
-  const formatPrice = (price: number | null): string => {
-    if (price === null) return "—";
-    if (price >= 100000000) return `¥${(price / 100000000).toFixed(2)}億`;
-    if (price >= 10000) return `¥${(price / 10000).toFixed(0)}万`;
-    return `¥${price.toLocaleString()}`;
-  };
-
   const sharePage = async () => {
     const url = window.location.href;
     if (navigator.share) {
@@ -271,53 +368,6 @@ const ComparisonDetail = () => {
       }
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="max-w-[1040px] mx-auto px-6 py-12">
-        <div className="skel h-4 w-48 mb-6" />
-        <div className="skel h-10 w-2/3 mb-8" />
-        <div className="grid grid-cols-2 gap-px bg-rule border border-rule rounded-lg overflow-hidden mb-8">
-          <div className="bg-paper-dark p-8">
-            <div className="skel h-3 w-16 mb-3" />
-            <div className="skel h-16 w-full" />
-          </div>
-          <div className="bg-paper-dark p-8">
-            <div className="skel h-3 w-16 mb-3" />
-            <div className="skel h-16 w-full" />
-          </div>
-        </div>
-        <div className="space-y-3">
-          <div className="skel h-6 w-full" />
-          <div className="skel h-6 w-full" />
-          <div className="skel h-6 w-3/4" />
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !comparison) {
-    return (
-      <div className="max-w-[860px] mx-auto px-6 py-24 text-center">
-        <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-30 mb-3">
-          404 · Not Found
-        </div>
-        <h1 className="font-display text-[36px] tracking-[-0.5px] mb-4">
-          {t("comparisonDetail.notFound.title")}
-        </h1>
-        <p className="text-[14px] text-ink-60 mb-8">
-          {error || t("comparisonDetail.notFound.description")}
-        </p>
-        <Link
-          to="/feed"
-          className="inline-flex items-center gap-2 bg-ink text-paper px-4 py-2.5 text-[13px] no-underline rounded-md hover:opacity-85"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {t("comparisonDetail.backToFeed")}
-        </Link>
-      </div>
-    );
-  }
 
   // bead home-duo-insight-elg: the report is authored once in the author's locale
   // and reused for every viewer (never regenerated). When the viewer's current
@@ -349,38 +399,8 @@ const ComparisonDetail = () => {
       ? comparison.property_a.property_name || "物件 A"
       : comparison.property_b.property_name || "物件 B";
 
-  // Per-page SEO: build a unique title + description from the two properties so
-  // each comparison URL has distinct metadata for crawlers (bead: seo dup-meta).
-  const aName = comparison.property_a.property_name || "物件 A";
-  const bName = comparison.property_b.property_name || "物件 B";
-  const aPlan = comparison.property_a.floor_plan ? ` ${comparison.property_a.floor_plan}` : "";
-  const bPlan = comparison.property_b.floor_plan ? ` ${comparison.property_b.floor_plan}` : "";
-  const aPriceStr = formatPrice(comparison.property_a.price_yen);
-  const bPriceStr = formatPrice(comparison.property_b.price_yen);
-  const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
-  const pageTitle = truncate(
-    `${aName}${aPlan} vs ${bName}${bPlan} — Property Comparison | AiSumai`,
-    60,
-  );
-  const pageDescription = truncate(
-    `AI analysis of ${aName} (${aPriceStr}) vs ${bName} (${bPriceStr}). Compare price, commute, and resale outlook on AiSumai.`,
-    160,
-  );
-  const pageUrl = `${SITE_URL}/comparisons/${comparison.id}`;
-
   return (
     <div className="bg-paper text-ink pb-24">
-      <Helmet>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
-        <link rel="canonical" href={pageUrl} />
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
-        <meta property="og:url" content={pageUrl} />
-        <meta property="og:type" content="article" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-      </Helmet>
       {/* Breadcrumb — hidden in print (tv7.17) */}
       <div className="no-print max-w-[1040px] mx-auto px-6 pt-6 pb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60">
         <Link to="/" className="hover:text-ink no-underline">Home</Link>
