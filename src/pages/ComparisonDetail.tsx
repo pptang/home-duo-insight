@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { formatPrice } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
@@ -112,14 +113,7 @@ const PROPERTY_FIELDS_EXTENDED = [
 
 type Tab = "summary" | "details" | "photos" | "map" | "risk";
 
-// Lifted to module scope so both loader and component share them.
-const formatPrice = (price: number | null): string => {
-  if (price === null) return "—";
-  if (price >= 100000000) return `¥${(price / 100000000).toFixed(2)}億`;
-  if (price >= 10000) return `¥${(price / 10000).toFixed(0)}万`;
-  return `¥${price.toLocaleString()}`;
-};
-
+// formatPrice is imported from @/lib/format (shared with Feed.tsx / Dashboard.tsx).
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
 // --- SSR loader ---
