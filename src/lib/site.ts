@@ -1,0 +1,3 @@
+// Canonical public origin for absolute URLs (sitemap, canonical links, OG tags).
+// Override per-environment with VITE_SITE_URL; defaults to the production host.
+export const SITE_URL = import.meta.env.VITE_SITE_URL || "https://www.aisum.ai";

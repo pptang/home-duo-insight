@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL } from "@/lib/site";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
 import { PropertyImageDisplay } from "@/components/PropertyImageDisplay";
@@ -365,7 +366,7 @@ const ComparisonDetail = () => {
     `AI analysis of ${aName} (${aPriceStr}) vs ${bName} (${bPriceStr}). Compare price, commute, and resale outlook on AiSumai.`,
     160,
   );
-  const pageUrl = `https://home-duo-insight.lovable.app/comparisons/${comparison.id}`;
+  const pageUrl = `${SITE_URL}/comparisons/${comparison.id}`;
 
   return (
     <div className="bg-paper text-ink pb-24">
