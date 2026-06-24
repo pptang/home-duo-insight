@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import type { MetaArgs } from "react-router";
 import { useTranslation } from "react-i18next";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import ReportCard, { type ReportCardProps } from "@/components/ui/ReportCard";
@@ -96,24 +97,12 @@ const FEED_ITEMS: FeedItem[] = [
 // --- per-route meta (no loader — static landing page) ---
 
 export function meta(_args: MetaArgs) {
-  const title = "AiSumai (愛住) — Compare Homes in Japan with AI & Experts";
-  const description =
-    "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.";
-  const url = `${SITE_URL}/`;
-  return [
-    { title },
-    { name: "description", content: description },
-    { tagName: "link", rel: "canonical", href: url },
-    { property: "og:title", content: title },
-    { property: "og:description", content: description },
-    { property: "og:url", content: url },
-    { property: "og:type", content: "website" },
-    { property: "og:image", content: OG_IMAGE_URL },
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:image", content: OG_IMAGE_URL },
-    { name: "twitter:title", content: title },
-    { name: "twitter:description", content: description },
-  ];
+  return buildMeta({
+    title: "AiSumai (愛住) — Compare Homes in Japan with AI & Experts",
+    description:
+      "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.",
+    url: `${SITE_URL}/`,
+  });
 }
 
 const Index = () => {

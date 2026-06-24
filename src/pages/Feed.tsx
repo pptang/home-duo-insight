@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams, useLoaderData } from "react-router";
 import type { MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { Plus, AlertTriangle, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, dateAgo } from "@/lib/format";
@@ -162,24 +163,12 @@ export async function loader() {
 // --- static meta for /feed (filter state not encoded in meta) ---
 
 export function meta(_args: MetaArgs) {
-  const title = "Comparison Feed — Browse AI Home Comparisons | AiSumai (愛住)";
-  const description =
-    "Browse side-by-side AI home comparisons reviewed by real estate experts and the AiSumai community.";
-  const url = `${SITE_URL}/feed`;
-  return [
-    { title },
-    { name: "description", content: description },
-    { tagName: "link", rel: "canonical", href: url },
-    { property: "og:title", content: title },
-    { property: "og:description", content: description },
-    { property: "og:url", content: url },
-    { property: "og:type", content: "website" },
-    { property: "og:image", content: OG_IMAGE_URL },
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:image", content: OG_IMAGE_URL },
-    { name: "twitter:title", content: title },
-    { name: "twitter:description", content: description },
-  ];
+  return buildMeta({
+    title: "Comparison Feed — Browse AI Home Comparisons | AiSumai (愛住)",
+    description:
+      "Browse side-by-side AI home comparisons reviewed by real estate experts and the AiSumai community.",
+    url: `${SITE_URL}/feed`,
+  });
 }
 
 // --- cache headers ---

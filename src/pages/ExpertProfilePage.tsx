@@ -3,7 +3,9 @@ import { useParams, Link, useLoaderData, data, useRouteError, isRouteErrorRespon
 import type { LoaderFunctionArgs, MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
+import { truncate } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import ExpertProfileEditForm from "@/components/ExpertProfileEditForm";
@@ -26,8 +28,6 @@ const getInitials = (name: string) =>
     .join("")
     .substring(0, 2)
     .toUpperCase();
-
-const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
 // --- SSR loader ---
 
@@ -71,24 +71,12 @@ export async function loader({ params }: LoaderFunctionArgs) {
 // --- per-expert meta ---
 
 export function meta({ data: loaderData }: MetaArgs) {
+  // Guard: meta runs even on 404 (loader throws); return fallback if no data.
   if (!loaderData) {
     return [{ title: "Expert not found | AiSumai (愛住)" }];
   }
   const { seo } = loaderData as Awaited<ReturnType<typeof loader>>;
-  return [
-    { title: seo.title },
-    { name: "description", content: seo.description },
-    { tagName: "link", rel: "canonical", href: seo.url },
-    { property: "og:title", content: seo.title },
-    { property: "og:description", content: seo.description },
-    { property: "og:url", content: seo.url },
-    { property: "og:type", content: "profile" },
-    { property: "og:image", content: OG_IMAGE_URL },
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:image", content: OG_IMAGE_URL },
-    { name: "twitter:title", content: seo.title },
-    { name: "twitter:description", content: seo.description },
-  ];
+  return buildMeta({ title: seo.title, description: seo.description, url: seo.url, ogType: "profile" });
 }
 
 // --- cache headers ---

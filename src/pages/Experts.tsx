@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import type { MetaArgs } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,24 +32,12 @@ const SPECIALIZATION_TAGS = [
 // --- per-route meta (no loader — auth-gated application funnel, not a public directory) ---
 
 export function meta(_args: MetaArgs) {
-  const title = "Become a Verified Real Estate Expert | AiSumai (愛住)";
-  const description =
-    "Apply to join AiSumai as a verified real estate expert. Sign in to submit your application, review home comparisons, and connect with home buyers in Japan.";
-  const url = `${SITE_URL}/experts`;
-  return [
-    { title },
-    { name: "description", content: description },
-    { tagName: "link", rel: "canonical", href: url },
-    { property: "og:title", content: title },
-    { property: "og:description", content: description },
-    { property: "og:url", content: url },
-    { property: "og:type", content: "website" },
-    { property: "og:image", content: OG_IMAGE_URL },
-    { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:image", content: OG_IMAGE_URL },
-    { name: "twitter:title", content: title },
-    { name: "twitter:description", content: description },
-  ];
+  return buildMeta({
+    title: "Become a Verified Real Estate Expert | AiSumai (愛住)",
+    description:
+      "Apply to join AiSumai as a verified real estate expert. Sign in to submit your application, review home comparisons, and connect with home buyers in Japan.",
+    url: `${SITE_URL}/experts`,
+  });
 }
 
 const Experts = () => {
