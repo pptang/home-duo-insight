@@ -9,3 +9,8 @@ export const OG_IMAGE_URL =
 // Site-wide default <title> — used by the root meta() and as the comparison
 // page's 404 fallback. Single source of truth so the two can't drift.
 export const SITE_TITLE = "AiSumai (愛住) - Compare Homes in Japan with AI & Experts";
+
+// Site-wide default meta description — used by the root meta() and the landing
+// page (Index) meta(). Single source of truth so the two can't drift.
+export const SITE_DESC =
+  "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.";
