@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL, OG_IMAGE_URL, SITE_TITLE } from "@/lib/site";
+import { SITE_URL, SITE_TITLE } from "@/lib/site";
 import { formatPrice } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
@@ -121,7 +121,7 @@ const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "
 type LoaderData = {
   comparison: ComparisonData;
   recommendation: AIRecommendation | null;
-  seo: { title: string; description: string; url: string };
+  seo: { title: string; description: string; url: string; ogImage: string };
 };
 
 // --- SSR loader ---
@@ -193,6 +193,10 @@ export async function loader({ params }: LoaderFunctionArgs) {
     160,
   );
   const seoUrl = `${SITE_URL}/comparisons/${comparison.id}`;
+  // Per-pair dynamic OG card (bead home-duo-insight-mug) — rendered by the
+  // comparison-og resource route. Absolute URL built from SITE_URL so the
+  // Twitter/X + Facebook crawlers can resolve it.
+  const seoOgImage = `${SITE_URL}/comparisons/${comparison.id}/og.png`;
 
   // Only long-cache fully-rendered comparisons. A freshly-created comparison
   // still generating its recommendation, or with image extraction in flight,
@@ -209,7 +213,7 @@ export async function loader({ params }: LoaderFunctionArgs) {
     {
       comparison,
       recommendation,
-      seo: { title: seoTitle, description: seoDescription, url: seoUrl },
+      seo: { title: seoTitle, description: seoDescription, url: seoUrl, ogImage: seoOgImage },
     },
     { headers: { "Cache-Control": cacheControl } },
   );
@@ -231,9 +235,9 @@ export function meta({ data: loaderData }: MetaArgs) {
     { property: "og:description", content: seo.description },
     { property: "og:url", content: seo.url },
     { property: "og:type", content: "article" },
-    { property: "og:image", content: OG_IMAGE_URL },
+    { property: "og:image", content: seo.ogImage },
     { name: "twitter:card", content: "summary_large_image" },
-    { name: "twitter:image", content: OG_IMAGE_URL },
+    { name: "twitter:image", content: seo.ogImage },
     { name: "twitter:title", content: seo.title },
     { name: "twitter:description", content: seo.description },
   ];

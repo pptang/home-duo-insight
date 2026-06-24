@@ -11,6 +11,9 @@ export default [
   route("admin/experts", "pages/AdminExpertPanel.tsx"),
   route("admin/expert-review", "pages/AdminExpertReview.tsx"),
   route("comparisons/:id", "pages/ComparisonDetail.tsx"),
+  // Dynamic per-comparison OG card (bead home-duo-insight-mug) — resource route,
+  // loader only. ComparisonDetail.meta() points og:image here.
+  route("comparisons/:id/og.png", "routes/comparison-og.tsx"),
   route("dashboard", "pages/Dashboard.tsx"),
   route("sitemap.xml", "routes/sitemap.tsx"),
   route("*", "pages/NotFound.tsx"),
