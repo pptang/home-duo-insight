@@ -1,5 +1,6 @@
 import { ImageIcon, Loader2, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { buildImageSrc, buildImageSrcSet } from "@/lib/image";
 import { Button } from "@/components/ui/button";
 
 interface PropertyImageDisplayProps {
@@ -79,16 +80,29 @@ export const PropertyImageDisplay = ({
     );
   }
 
-  // Show image if available
+  // Show image if available.
+  // Served through Vercel's image optimizer (/_vercel/image) in production for
+  // responsive AVIF/WebP; in dev buildImageSrc/SrcSet pass the raw URL through.
   if (hasImages) {
+    const rawSrc = imageUrls[0];
     return (
       <div className={baseClasses}>
         <img
-          src={imageUrls[0]}
+          src={buildImageSrc(rawSrc) ?? rawSrc}
+          srcSet={buildImageSrcSet(rawSrc)}
+          // One photo per property; full-width on mobile, ~half-width in the
+          // 2-column comparison grid (md breakpoint = 768px).
+          sizes="(min-width: 768px) 50vw, 100vw"
           alt={propertyName}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover rounded-lg"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = "/placeholder.svg";
+            const img = e.target as HTMLImageElement;
+            // Drop the optimized srcset so the browser doesn't re-resolve to a
+            // broken /_vercel/image variant, then fall back to the placeholder.
+            img.srcset = "";
+            img.src = "/placeholder.svg";
           }}
         />
       </div>
