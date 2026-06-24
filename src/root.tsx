@@ -8,7 +8,7 @@ import {
   useLocation,
 } from "react-router";
 import type { MetaDescriptor } from "react-router";
-import { OG_IMAGE_URL, SITE_TITLE } from "@/lib/site";
+import { OG_IMAGE_URL, SITE_TITLE, SITE_DESC } from "@/lib/site";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
@@ -25,8 +25,6 @@ const FULL_LAYOUT_ROUTES = ["/auth"];
 // Site-wide default meta — per-route meta() overrides these descriptors.
 // Scripts and the data-URI favicon cannot be emitted here; keep them literal in Layout.
 export function meta(): MetaDescriptor[] {
-  const SITE_DESC =
-    "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.";
   return [
     { title: SITE_TITLE },
     { name: "description", content: SITE_DESC },

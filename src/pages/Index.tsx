@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import type { MetaArgs } from "react-router";
 import { useTranslation } from "react-i18next";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, SITE_DESC } from "@/lib/site";
 import { buildMeta } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
@@ -99,8 +99,7 @@ const FEED_ITEMS: FeedItem[] = [
 export function meta(_args: MetaArgs) {
   return buildMeta({
     title: "AiSumai (愛住) — Compare Homes in Japan with AI & Experts",
-    description:
-      "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.",
+    description: SITE_DESC,
     url: `${SITE_URL}/`,
   });
 }

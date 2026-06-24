@@ -145,6 +145,14 @@ export async function loader({ params }: LoaderFunctionArgs) {
     throw data("Comparison not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   }
 
+  // Narrow the columns PostgREST returns as loosely-typed once, up front, rather
+  // than casting each field inline at the assignment site.
+  const meta = row as {
+    image_extraction_status?: ComparisonData["image_extraction_status"];
+    view_count?: number;
+    save_count?: number;
+  };
+
   const comparison: ComparisonData = {
     id: row.id,
     created_at: row.created_at,
@@ -152,19 +160,21 @@ export async function loader({ params }: LoaderFunctionArgs) {
     property_a: row.property_a as PropertyData,
     property_b: row.property_b as PropertyData,
     recommendations: row.recommendations as AIRecommendation[],
-    image_extraction_status: (row as { image_extraction_status?: ComparisonData["image_extraction_status"] }).image_extraction_status,
-    view_count: (row as { view_count?: number }).view_count,
-    save_count: (row as { save_count?: number }).save_count,
+    image_extraction_status: meta.image_extraction_status,
+    view_count: meta.view_count,
+    save_count: meta.save_count,
   };
 
-  // Pick the newest recommendation server-side (same logic as the old client sort).
+  // Pick the newest recommendation server-side (same logic as the old client
+  // sort) via a linear max-pick — avoids the spread allocation of [...].sort()[0].
   const recommendation: AIRecommendation | null =
     comparison.recommendations && comparison.recommendations.length > 0
-      ? [...comparison.recommendations].sort(
-          (a, b) =>
-            new Date(b.created_at ?? 0).getTime() -
-            new Date(a.created_at ?? 0).getTime(),
-        )[0]
+      ? comparison.recommendations.reduce((newest, candidate) =>
+          new Date(candidate.created_at ?? 0).getTime() >
+          new Date(newest.created_at ?? 0).getTime()
+            ? candidate
+            : newest,
+        )
       : null;
 
   // Build per-pair SEO strings server-side.
@@ -245,8 +255,11 @@ export function ErrorBoundary() {
   const error = useRouteError();
   const { t } = useTranslation();
 
-  const message = isRouteErrorResponse(error)
-    ? error.data
+  // Both ternary branches yield a string, so `message` is always a string —
+  // no `typeof message === "string"` guard needed at the render site below.
+  // (Localizing this message is tracked separately in bead home-duo-insight-d45.)
+  const message: string = isRouteErrorResponse(error)
+    ? String(error.data)
     : (error as Error)?.message || "An unexpected error occurred";
 
   return (
@@ -258,7 +271,7 @@ export function ErrorBoundary() {
         {t("comparisonDetail.notFound.title")}
       </h1>
       <p className="text-[14px] text-ink-60 mb-8">
-        {typeof message === "string" ? message : t("comparisonDetail.notFound.description")}
+        {message}
       </p>
       <Link
         to="/feed"
