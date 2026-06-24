@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
+import type { MetaArgs } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,6 +28,17 @@ const SPECIALIZATION_TAGS = [
   "新築", "中古", "賃貸", "売買", "投資物件", "一戸建て", "マンション", "土地", 
   "商業物件", "リノベーション", "住宅ローン", "査定", "相続", "税務"
 ];
+
+// --- per-route meta (no loader — auth-gated application funnel, not a public directory) ---
+
+export function meta(_args: MetaArgs) {
+  return buildMeta({
+    title: "Become a Verified Real Estate Expert | AiSumai (愛住)",
+    description:
+      "Apply to join AiSumai as a verified real estate expert. Sign in to submit your application, review home comparisons, and connect with home buyers in Japan.",
+    url: `${SITE_URL}/experts`,
+  });
+}
 
 const Experts = () => {
   const { t } = useTranslation();

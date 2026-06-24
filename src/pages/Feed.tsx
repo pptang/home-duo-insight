@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useLoaderData } from "react-router";
+import type { MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { Plus, AlertTriangle, SlidersHorizontal } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPrice, dateAgo } from "@/lib/format";
@@ -91,11 +94,101 @@ const pageParams = (base: URLSearchParams, page: number): URLSearchParams => {
   return next;
 };
 
+// Shape of a votes row joined with its expert profile — shared by the SSR
+// loader and the client-side refresh effect (both transform the same query).
+type VoteRow = {
+  expert_user_id: string;
+  expert_profiles?: { name?: string | null; profile_image_url?: string | null } | null;
+};
+
+// --- SSR loader: seed initial comparison list server-side ---
+
+export async function loader() {
+  const { data: comparisonsData, error: comparisonsError } = await supabase
+    .from("comparisons")
+    .select(`
+      *,
+      propertyA:property_a_id(id, property_name, price_yen, floor_plan, image_urls, property_type),
+      propertyB:property_b_id(id, property_name, price_yen, floor_plan, image_urls, property_type)
+    `)
+    // Only show fully-generated reports on the public Feed.
+    .eq("status", "published")
+    .order("created_at", { ascending: false });
+
+  if (comparisonsError || !comparisonsData || comparisonsData.length === 0) {
+    return { comparisons: [] as ComparisonPost[] };
+  }
+
+  const transformed: ComparisonPost[] = comparisonsData
+    .map((c) => {
+      if (!c.propertyA || !c.propertyB || typeof c.propertyA === "string" || typeof c.propertyB === "string") {
+        return null;
+      }
+      return {
+        id: c.id,
+        created_at: c.created_at,
+        user_id: c.user_id,
+        propertyA: c.propertyA as Property,
+        propertyB: c.propertyB as Property,
+        expertVotes: 0,
+        experts: [] as Expert[],
+      };
+    })
+    .filter(Boolean) as ComparisonPost[];
+
+  await Promise.all(
+    transformed.map(async (comparison) => {
+      const { data: votesData } = await supabase
+        .from("votes")
+        .select(`id, expert_user_id, voted_for, expert_profiles!inner(id, name, profile_image_url)`)
+        .eq("comparison_id", comparison.id);
+
+      if (votesData) {
+        comparison.expertVotes = votesData.length;
+        const unique: Record<string, Expert> = {};
+        (votesData as VoteRow[]).forEach((v) => {
+          if (v.expert_profiles) {
+            unique[v.expert_user_id] = {
+              id: v.expert_user_id,
+              name: v.expert_profiles.name || "Expert",
+              profile_image_url: v.expert_profiles.profile_image_url ?? null,
+            };
+          }
+        });
+        comparison.experts = Object.values(unique);
+      }
+    })
+  );
+
+  return { comparisons: transformed };
+}
+
+// --- static meta for /feed (filter state not encoded in meta) ---
+
+export function meta(_args: MetaArgs) {
+  return buildMeta({
+    title: "Comparison Feed — Browse AI Home Comparisons | AiSumai (愛住)",
+    description:
+      "Browse side-by-side AI home comparisons reviewed by real estate experts and the AiSumai community.",
+    url: `${SITE_URL}/feed`,
+  });
+}
+
+// --- cache headers ---
+
+export function headers({ loaderHeaders }: HeadersArgs) {
+  void loaderHeaders;
+  return { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+}
+
 const Feed = () => {
+  const loaderData = useLoaderData<typeof loader>();
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [comparisons, setComparisons] = useState<ComparisonPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // SSR seeds the initial list; reseed on navigation (loaderData identity changes).
+  const [comparisons, setComparisons] = useState<ComparisonPost[]>(() => loaderData.comparisons);
+  // SSR-seeded; start as false so the loading skeleton is skipped on initial render.
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -127,7 +220,19 @@ const Feed = () => {
   // deep-link survives. StrictMode-safe (a ref, not a one-shot boolean).
   const lastFilterSig = useRef(filterSig);
 
+  // MANDATORY reseed — when React Router reuses this component instance across
+  // same-route navigations, loaderData identity changes but useState lazy
+  // initialisers won't re-run.
   useEffect(() => {
+    setComparisons(loaderData.comparisons);
+  }, [loaderData]);
+
+  useEffect(() => {
+    // SSR seeds the list on the initial render (refreshTrigger === 0); a post-
+    // hydration language change (t dep) re-runs with refreshTrigger still 0 and
+    // must also be skipped so SSR data is not overwritten. Only explicit retries
+    // or realtime bumps set refreshTrigger > 0 and need a client fetch.
+    if (refreshTrigger === 0) return;
     const fetchComparisons = async () => {
       setIsLoading(true);
       setError(null);
@@ -181,10 +286,6 @@ const Feed = () => {
             if (votesData) {
               comparison.expertVotes = votesData.length;
               const unique: Record<string, Expert> = {};
-              type VoteRow = {
-                expert_user_id: string;
-                expert_profiles?: { name?: string | null; profile_image_url?: string | null } | null;
-              };
               (votesData as VoteRow[]).forEach((v) => {
                 if (v.expert_profiles) {
                   unique[v.expert_user_id] = {
@@ -584,7 +685,7 @@ const FeedCard = ({
       to={`/comparisons/${comparison.id}`}
       num={num}
       area={comparison.propertyA.floor_plan || "—"}
-      date={dateAgo(comparison.created_at)}
+      date={dateAgo(comparison.created_at)} // relative-time may differ ~1 unit between SSR and client near a 24h boundary (pre-existing, acceptable)
       propertyA={{
         name: comparison.propertyA.property_name || "物件 A",
         price: formatPrice(comparison.propertyA.price_yen),

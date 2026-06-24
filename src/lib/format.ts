@@ -20,3 +20,7 @@ export const dateAgo = (iso: string): string => {
   if (days < 30) return `${days}日前`;
   return `${Math.floor(days / 30)}ヶ月前`;
 };
+
+/** Truncate a string to at most n characters, appending "…" if clipped. */
+export const truncate = (s: string, n: number): string =>
+  s.length > n ? s.slice(0, n - 1) + "…" : s;

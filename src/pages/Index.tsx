@@ -1,5 +1,8 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router";
+import type { MetaArgs } from "react-router";
 import { useTranslation } from "react-i18next";
+import { SITE_URL } from "@/lib/site";
+import { buildMeta } from "@/lib/seo";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import ReportCard, { type ReportCardProps } from "@/components/ui/ReportCard";
@@ -90,6 +93,17 @@ const FEED_ITEMS: FeedItem[] = [
     meta: { views: 198, saves: 9 },
   },
 ];
+
+// --- per-route meta (no loader — static landing page) ---
+
+export function meta(_args: MetaArgs) {
+  return buildMeta({
+    title: "AiSumai (愛住) — Compare Homes in Japan with AI & Experts",
+    description:
+      "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.",
+    url: `${SITE_URL}/`,
+  });
+}
 
 const Index = () => {
   const { t } = useTranslation();
