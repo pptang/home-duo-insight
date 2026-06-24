@@ -37,20 +37,23 @@ export async function loader({ params }: LoaderFunctionArgs) {
     throw data("Expert not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("expert_profiles")
-    .select("*")
-    .eq("id", expertId)
-    .single();
+  // Profile fetch and vote count are independent — run them concurrently to
+  // save a round-trip on every SSR render. The 404 check still gates on the
+  // profile result after both resolve.
+  const [
+    { data: profile, error: profileError },
+    { count },
+  ] = await Promise.all([
+    supabase.from("expert_profiles").select("*").eq("id", expertId).single(),
+    supabase
+      .from("votes")
+      .select("*", { count: "exact", head: true })
+      .eq("expert_user_id", expertId),
+  ]);
 
   if (profileError || !profile) {
     throw data("Expert not found", { status: 404, headers: { "Cache-Control": "no-store" } });
   }
-
-  const { count } = await supabase
-    .from("votes")
-    .select("*", { count: "exact", head: true })
-    .eq("expert_user_id", expertId);
 
   const seoTitle = truncate(
     `${profile.name} — Real Estate Expert in Japan | AiSumai (愛住)`,

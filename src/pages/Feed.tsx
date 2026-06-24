@@ -94,6 +94,13 @@ const pageParams = (base: URLSearchParams, page: number): URLSearchParams => {
   return next;
 };
 
+// Shape of a votes row joined with its expert profile — shared by the SSR
+// loader and the client-side refresh effect (both transform the same query).
+type VoteRow = {
+  expert_user_id: string;
+  expert_profiles?: { name?: string | null; profile_image_url?: string | null } | null;
+};
+
 // --- SSR loader: seed initial comparison list server-side ---
 
 export async function loader() {
@@ -139,10 +146,6 @@ export async function loader() {
       if (votesData) {
         comparison.expertVotes = votesData.length;
         const unique: Record<string, Expert> = {};
-        type VoteRow = {
-          expert_user_id: string;
-          expert_profiles?: { name?: string | null; profile_image_url?: string | null } | null;
-        };
         (votesData as VoteRow[]).forEach((v) => {
           if (v.expert_profiles) {
             unique[v.expert_user_id] = {
@@ -283,10 +286,6 @@ const Feed = () => {
             if (votesData) {
               comparison.expertVotes = votesData.length;
               const unique: Record<string, Expert> = {};
-              type VoteRow = {
-                expert_user_id: string;
-                expert_profiles?: { name?: string | null; profile_image_url?: string | null } | null;
-              };
               (votesData as VoteRow[]).forEach((v) => {
                 if (v.expert_profiles) {
                   unique[v.expert_user_id] = {
