@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
+import type { MetaArgs } from "react-router";
 import { useTranslation } from "react-i18next";
+import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
 import {
   ArrowRight,
   Search,
@@ -13,6 +15,29 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section, SectionDivider } from "@/components/ui/Section";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
+
+// --- per-route meta (no loader — static content) ---
+
+export function meta(_args: MetaArgs) {
+  const title = "About AiSumai (愛住) — How AI + Expert Home Comparison Works";
+  const description =
+    "Learn how AiSumai compares two homes in Japan side by side with AI analysis, verified expert insight, and community wisdom.";
+  const url = `${SITE_URL}/about`;
+  return [
+    { title },
+    { name: "description", content: description },
+    { tagName: "link", rel: "canonical", href: url },
+    { property: "og:title", content: title },
+    { property: "og:description", content: description },
+    { property: "og:url", content: url },
+    { property: "og:type", content: "website" },
+    { property: "og:image", content: OG_IMAGE_URL },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: OG_IMAGE_URL },
+    { name: "twitter:title", content: title },
+    { name: "twitter:description", content: description },
+  ];
+}
 
 const About = () => {
   const { t } = useTranslation();

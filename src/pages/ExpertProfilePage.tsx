@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLoaderData, data, useRouteError, isRouteErrorResponse } from "react-router";
+import type { LoaderFunctionArgs, MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
+import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import ExpertProfileEditForm from "@/components/ExpertProfileEditForm";
@@ -25,12 +27,120 @@ const getInitials = (name: string) =>
     .substring(0, 2)
     .toUpperCase();
 
+const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+// --- SSR loader ---
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const expertId = params.expertId;
+  if (!expertId) {
+    throw data("Expert not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("expert_profiles")
+    .select("*")
+    .eq("id", expertId)
+    .single();
+
+  if (profileError || !profile) {
+    throw data("Expert not found", { status: 404, headers: { "Cache-Control": "no-store" } });
+  }
+
+  const { count } = await supabase
+    .from("votes")
+    .select("*", { count: "exact", head: true })
+    .eq("expert_user_id", expertId);
+
+  const seoTitle = truncate(
+    `${profile.name} — Real Estate Expert in Japan | AiSumai (愛住)`,
+    70,
+  );
+  const seoDescription = profile.bio
+    ? truncate(profile.bio, 160)
+    : `${profile.name} is a verified real estate expert on AiSumai. Get a second opinion on your home comparison.`;
+  const seoUrl = `${SITE_URL}/experts/${expertId}`;
+
+  return {
+    expertProfile: profile,
+    activity: { totalVotes: count ?? 0 },
+    seo: { title: seoTitle, description: seoDescription, url: seoUrl },
+  };
+}
+
+// --- per-expert meta ---
+
+export function meta({ data: loaderData }: MetaArgs) {
+  if (!loaderData) {
+    return [{ title: "Expert not found | AiSumai (愛住)" }];
+  }
+  const { seo } = loaderData as Awaited<ReturnType<typeof loader>>;
+  return [
+    { title: seo.title },
+    { name: "description", content: seo.description },
+    { tagName: "link", rel: "canonical", href: seo.url },
+    { property: "og:title", content: seo.title },
+    { property: "og:description", content: seo.description },
+    { property: "og:url", content: seo.url },
+    { property: "og:type", content: "profile" },
+    { property: "og:image", content: OG_IMAGE_URL },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: OG_IMAGE_URL },
+    { name: "twitter:title", content: seo.title },
+    { name: "twitter:description", content: seo.description },
+  ];
+}
+
+// --- cache headers ---
+
+export function headers({ errorHeaders, loaderHeaders }: HeadersArgs) {
+  void loaderHeaders;
+  if (errorHeaders?.has("Cache-Control")) return errorHeaders;
+  return { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
+}
+
+// --- ErrorBoundary (404 / unexpected errors) ---
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const { t } = useTranslation();
+
+  const message = isRouteErrorResponse(error)
+    ? error.data
+    : (error as Error)?.message || "An unexpected error occurred";
+
+  return (
+    <div className="bg-paper text-ink min-h-screen">
+      <div className="max-w-[1040px] mx-auto px-6 py-16 text-center">
+        <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
+          404
+        </p>
+        <h1 className="font-display text-[28px] tracking-[-0.3px] mb-2">
+          {typeof message === "string" && message !== "Expert not found"
+            ? message
+            : t("expertProfile.notFound")}
+        </h1>
+        <Link
+          to="/experts"
+          className="inline-block mt-4 text-[13px] text-ink underline underline-offset-4"
+        >
+          {"←"} 専門家一覧に戻る
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 const ExpertProfilePage: React.FC = () => {
+  const loaderData = useLoaderData<typeof loader>();
   const { expertId } = useParams<{ expertId: string }>();
   const { t } = useTranslation();
-  const [expertProfile, setExpertProfile] = useState<ExpertProfileType | null>(null);
-  const [activity, setActivity] = useState<ExpertActivity | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Seed local state from loader; reseed on navigation (loaderData identity changes
+  // when React Router reuses the component instance across same-route navigations).
+  const [expertProfile, setExpertProfile] = useState<ExpertProfileType>(
+    () => loaderData.expertProfile,
+  );
+  const [activity, setActivity] = useState<ExpertActivity>(() => loaderData.activity);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
@@ -43,44 +153,14 @@ const ExpertProfilePage: React.FC = () => {
   const { toast } = useToast();
   const { user } = useAuth();
 
+  // isOwnProfile is derived from useAuth() (NOT loader — loader has no session).
   const isOwnProfile = user && expertProfile ? user.id === expertProfile.id : false;
 
+  // MANDATORY reseed — fixes /experts/A → /experts/B navigation.
   useEffect(() => {
-    const fetchExpertData = async () => {
-      if (!expertId) return;
-      setIsLoading(true);
-      try {
-        const { data: profileData, error: profileError } = await supabase
-          .from("expert_profiles")
-          .select("*")
-          .eq("id", expertId)
-          .single();
-
-        if (profileError) {
-          console.error("Error fetching expert profile:", profileError);
-          return;
-        }
-        setExpertProfile(profileData);
-
-        const { count, error: voteError } = await supabase
-          .from("votes")
-          .select("*", { count: "exact", head: true })
-          .eq("expert_user_id", expertId);
-
-        if (voteError) {
-          console.error("Error fetching expert activity:", voteError);
-          return;
-        }
-        setActivity({ totalVotes: count || 0 });
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchExpertData();
-  }, [expertId]);
+    setExpertProfile(loaderData.expertProfile);
+    setActivity(loaderData.activity);
+  }, [loaderData]);
 
   const fetchExpertProfile = async () => {
     if (!expertId) return;
@@ -150,75 +230,8 @@ const ExpertProfilePage: React.FC = () => {
     }
   };
 
-  if (!expertId) {
-    return (
-      <div className="bg-paper text-ink min-h-screen">
-        <div className="max-w-[1040px] mx-auto px-6 py-16 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-            404
-          </p>
-          <h1 className="font-display text-[28px] tracking-[-0.3px] mb-2">
-            {t("expertProfile.errors.noId")}
-          </h1>
-          <Link
-            to="/experts"
-            className="inline-block mt-4 text-[13px] text-ink underline underline-offset-4"
-          >
-            ← 専門家一覧に戻る
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="bg-paper text-ink min-h-screen">
-        <div className="max-w-[1040px] mx-auto px-6 pt-6">
-          <div className="h-3 w-48 skel mb-6" />
-          <div className="border-b border-rule pb-8 mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-6">
-              <div className="w-20 h-20 rounded-full skel" />
-              <div className="space-y-3">
-                <div className="h-7 w-64 skel" />
-                <div className="h-4 w-80 skel" />
-                <div className="h-3 w-full max-w-[480px] skel" />
-              </div>
-              <div className="h-24 w-[240px] skel" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-6">
-            <div className="space-y-3">
-              <div className="h-32 w-full skel" />
-              <div className="h-32 w-full skel" />
-            </div>
-            <div className="h-64 w-full skel" />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!expertProfile) {
-    return (
-      <div className="bg-paper text-ink min-h-screen">
-        <div className="max-w-[1040px] mx-auto px-6 py-16 text-center">
-          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-60 mb-3">
-            404
-          </p>
-          <h1 className="font-display text-[28px] tracking-[-0.3px] mb-2">
-            {t("expertProfile.notFound")}
-          </h1>
-          <Link
-            to="/experts"
-            className="inline-block mt-4 text-[13px] text-ink underline underline-offset-4"
-          >
-            ← 専門家一覧に戻る
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // No-id / not-found / loading guards removed: the loader throws 404 for missing
+  // experts and React Router renders ErrorBoundary instead of this component.
 
   const initials = getInitials(expertProfile.name);
   const rating = expertProfile.average_rating ?? 0;
