@@ -7,6 +7,8 @@ import {
   ScrollRestoration,
   useLocation,
 } from "react-router";
+import type { MetaDescriptor } from "react-router";
+import { OG_IMAGE_URL, SITE_TITLE } from "@/lib/site";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,6 +21,24 @@ import i18n from "@/i18n";
 
 // Routes that own their full layout (no global header/footer)
 const FULL_LAYOUT_ROUTES = ["/auth"];
+
+// Site-wide default meta — per-route meta() overrides these descriptors.
+// Scripts and the data-URI favicon cannot be emitted here; keep them literal in Layout.
+export function meta(): MetaDescriptor[] {
+  const SITE_DESC =
+    "AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom.";
+  return [
+    { title: SITE_TITLE },
+    { name: "description", content: SITE_DESC },
+    { name: "author", content: "AiSumai (愛住)" },
+    { property: "og:title", content: SITE_TITLE },
+    { property: "og:description", content: SITE_DESC },
+    { property: "og:type", content: "website" },
+    { property: "og:image", content: OG_IMAGE_URL },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: OG_IMAGE_URL },
+  ];
+}
 
 // Favicon: emoji SVG data URI — constructed programmatically so the emoji
 // character does not appear as a raw string literal in source (per CONTRIBUTING.md).
@@ -37,32 +57,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>AiSumai (愛住) - Compare Homes in Japan with AI & Experts</title>
-        <meta
-          name="description"
-          content="AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom."
-        />
-        <meta name="author" content="AiSumai (愛住)" />
-
-        <meta
-          property="og:title"
-          content="AiSumai (愛住) - Compare Homes in Japan with AI & Experts"
-        />
-        <meta
-          property="og:description"
-          content="AiSumai (愛住) helps renters and home buyers in Japan compare two homes side by side with AI analysis, expert insights, and community wisdom."
-        />
-        <meta property="og:type" content="website" />
-        <meta
-          property="og:image"
-          content="https://qditnqwrjioypsuxwagg.supabase.co/storage/v1/object/public/public-image/og-image.jpeg"
-        />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:image"
-          content="https://qditnqwrjioypsuxwagg.supabase.co/storage/v1/object/public/public-image/og-image.jpeg"
-        />
 
         {/* emoji-SVG favicon — href constructed programmatically (see FAVICON_HREF above) */}
         <link rel="icon" href={FAVICON_HREF} />
