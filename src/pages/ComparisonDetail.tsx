@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs, MetaArgs, HeadersArgs } from "react-router";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Share, Calendar, MapPin, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
+import { SITE_URL, OG_IMAGE_URL, SITE_TITLE } from "@/lib/site";
 import { formatPrice } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useComparisonSubscription } from "@/hooks/use-comparison-subscription";
@@ -116,6 +116,14 @@ type Tab = "summary" | "details" | "photos" | "map" | "risk";
 // formatPrice is imported from @/lib/format (shared with Feed.tsx / Dashboard.tsx).
 const truncate = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 
+// Loader payload shape — the loader wraps this in data() to attach Cache-Control,
+// so meta() casts to this rather than Awaited<ReturnType<typeof loader>>.
+type LoaderData = {
+  comparison: ComparisonData;
+  recommendation: AIRecommendation | null;
+  seo: { title: string; description: string; url: string };
+};
+
 // --- SSR loader ---
 
 export async function loader({ params }: LoaderFunctionArgs) {
@@ -176,11 +184,25 @@ export async function loader({ params }: LoaderFunctionArgs) {
   );
   const seoUrl = `${SITE_URL}/comparisons/${comparison.id}`;
 
-  return {
-    comparison,
-    recommendation,
-    seo: { title: seoTitle, description: seoDescription, url: seoUrl },
-  };
+  // Only long-cache fully-rendered comparisons. A freshly-created comparison
+  // still generating its recommendation, or with image extraction in flight,
+  // would otherwise be pinned in the CDN as an incomplete page for up to an
+  // hour (and served stale for up to a day under stale-while-revalidate).
+  const status = comparison.image_extraction_status;
+  const isProcessing =
+    recommendation === null || status === "pending" || status === "in_progress";
+  const cacheControl = isProcessing
+    ? "no-store"
+    : "public, s-maxage=3600, stale-while-revalidate=86400";
+
+  return data(
+    {
+      comparison,
+      recommendation,
+      seo: { title: seoTitle, description: seoDescription, url: seoUrl },
+    },
+    { headers: { "Cache-Control": cacheControl } },
+  );
 }
 
 // --- per-pair meta ---
@@ -188,11 +210,9 @@ export async function loader({ params }: LoaderFunctionArgs) {
 export function meta({ data: loaderData }: MetaArgs) {
   // Guard: meta runs even on 404 (loader throws); return fallback if no data.
   if (!loaderData) {
-    return [
-      { title: "AiSumai (愛住) - Compare Homes in Japan with AI & Experts" },
-    ];
+    return [{ title: SITE_TITLE }];
   }
-  const { seo } = loaderData as Awaited<ReturnType<typeof loader>>;
+  const { seo } = loaderData as LoaderData;
   return [
     { title: seo.title },
     { name: "description", content: seo.description },
@@ -212,9 +232,10 @@ export function meta({ data: loaderData }: MetaArgs) {
 // --- cache headers ---
 
 export function headers({ errorHeaders, loaderHeaders }: HeadersArgs) {
-  // Propagate no-store from the 404 throw; long cache for successful loads.
+  // 404 throws carry no-store via errorHeaders; the loader sets Cache-Control on
+  // success (long cache when complete, no-store while still processing).
   if (errorHeaders?.has("Cache-Control")) return errorHeaders;
-  // loaderHeaders carries whatever the loader returned; apply long cache for 200.
+  if (loaderHeaders.has("Cache-Control")) return loaderHeaders;
   return { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400" };
 }
 
