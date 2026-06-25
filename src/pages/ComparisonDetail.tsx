@@ -122,7 +122,32 @@ type LoaderData = {
   comparison: ComparisonData;
   recommendation: AIRecommendation | null;
   seo: { title: string; description: string; url: string; ogImage: string };
+  // Authored content language ('en' | 'ja'), surfaced to root so <html lang>
+  // matches the rendered report (bead home-duo-insight-24c).
+  lang: "en" | "ja";
 };
+
+// Hiragana (U+3040-309F) + Katakana (U+30A0-30FF) are unique to Japanese (no
+// overlap with Latin script), so any kana in the authored report is a
+// high-confidence "this report is Japanese" signal. Used as a fallback for the
+// <html lang> language (bead home-duo-insight-24c) when recommendation.language
+// is unset. Escapes (not raw kana) keep the source ASCII-only.
+const KANA_RE = /[\u3040-\u30ff]/;
+
+// Resolve the authored content language for <html lang>. Prefer the explicit
+// authored language (recommendation.language, bead home-duo-insight-elg) once the
+// generation pipeline sets it; that column is NULL on all current rows, so fall
+// back to sniffing kana in the report body (final_recommendation + ai_points).
+// Unknown => 'en'.
+function detectReportLanguage(rec: AIRecommendation | null): "en" | "ja" {
+  if (rec?.language === "en" || rec?.language === "ja") return rec.language;
+  if (!rec) return "en";
+  const sample = [
+    rec.final_recommendation ?? "",
+    ...(rec.ai_points?.map((p) => p?.body ?? "") ?? []),
+  ].join(" ");
+  return KANA_RE.test(sample) ? "ja" : "en";
+}
 
 // --- SSR loader ---
 
@@ -209,11 +234,17 @@ export async function loader({ params }: LoaderFunctionArgs) {
     ? "no-store"
     : "public, s-maxage=3600, stale-while-revalidate=86400";
 
+  // Authored content language for <html lang> (bead home-duo-insight-24c). The
+  // report is written once in the author's locale and reused for every viewer,
+  // so the document lang follows the content — not the viewer.
+  const lang = detectReportLanguage(recommendation);
+
   return data(
     {
       comparison,
       recommendation,
       seo: { title: seoTitle, description: seoDescription, url: seoUrl, ogImage: seoOgImage },
+      lang,
     },
     { headers: { "Cache-Control": cacheControl } },
   );
