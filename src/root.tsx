@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
   useLocation,
+  useMatches,
 } from "react-router";
 import type { MetaDescriptor } from "react-router";
 import { OG_IMAGE_URL, SITE_TITLE, SITE_DESC } from "@/lib/site";
@@ -49,9 +50,25 @@ function PageTracker() {
   return null;
 }
 
+// Derive <html lang> from the rendered route's authored content language
+// (bead home-duo-insight-24c). Indexable SSR routes (e.g. /comparisons/:id)
+// surface a `lang` on their loader data; pick the deepest match that provides
+// one so a Japanese report is served with lang="ja". Chrome-only pages and the
+// 404/error path expose no lang and fall back to "en". Same value server-side
+// and after hydration (loader data is identical), so no hydration mismatch.
+function useDocumentLang(): "en" | "ja" {
+  const matches = useMatches();
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const lang = (matches[i].data as { lang?: unknown } | undefined)?.lang;
+    if (lang === "en" || lang === "ja") return lang;
+  }
+  return "en";
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
+  const lang = useDocumentLang();
   return (
-    <html lang="en">
+    <html lang={lang}>
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
