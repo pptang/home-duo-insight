@@ -70,47 +70,47 @@ const GuideFukuokaOsaka = () => {
 
         {/* KEY VISUAL */}
         <svg
-          viewBox="0 0 900 360"
+          viewBox="0 0 900 506"
           width="100%"
           className="block rounded-xl mt-2"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
             <clipPath id="cl">
-              <polygon points="0,0 486,0 432,360 0,360" />
+              <polygon points="0,0 518,0 391,506 0,506" />
             </clipPath>
             <clipPath id="cr">
-              <polygon points="498,0 900,0 900,360 444,360" />
+              <polygon points="518,0 900,0 900,506 391,506" />
             </clipPath>
           </defs>
-          <polygon points="0,0 486,0 432,360 0,360" fill="#FDEBD0" />
-          <polygon points="498,0 900,0 900,360 444,360" fill="#D6EAF8" />
+          <polygon points="0,0 518,0 391,506 0,506" fill="#FDEBD0" />
+          <polygon points="518,0 900,0 900,506 391,506" fill="#D6EAF8" />
+          <line x1="518" y1="0" x2="391" y2="506" stroke="white" strokeWidth="6" />
           <g clipPath="url(#cl)">
-            <image href={`${IMG_BASE}/img-fukuoka-mentaiko.png`} x="30" y="30" width="180" height="150" />
-            <image href={`${IMG_BASE}/img-fukuoka-strawberry.png`} x="220" y="40" width="150" height="130" />
-            <image href={`${IMG_BASE}/img-fukuoka-comedian.png`} x="120" y="190" width="170" height="150" />
+            <image href={`${IMG_BASE}/img-fukuoka-strawberry.png`} x="47" y="48" width="265" height="279" />
+            <image href={`${IMG_BASE}/img-fukuoka-mentaiko.png`} x="180" y="240" width="208" height="119" />
           </g>
           <g clipPath="url(#cr)">
-            <image href={`${IMG_BASE}/img-osaka-takoyaki.png`} x="560" y="40" width="180" height="140" />
-            <image href={`${IMG_BASE}/img-osaka-tsutenkaku.png`} x="680" y="150" width="150" height="180" />
+            <image href={`${IMG_BASE}/img-osaka-tsutenkaku.png`} x="537" y="135" width="102" height="243" />
+            <image href={`${IMG_BASE}/img-osaka-takoyaki.png`} x="585" y="0" width="307" height="270" />
           </g>
-          <circle cx="450" cy="180" r="30" fill="white" stroke="#0D0D0D" strokeWidth="3" />
+          <circle cx="450" cy="294" r="47" fill="white" stroke="#0D0D0D" strokeWidth="3" />
           <text
             x="450"
-            y="186"
+            y="301"
             textAnchor="middle"
             fontFamily="'DM Sans',sans-serif"
-            fontSize="15"
+            fontSize="24"
             fontWeight="700"
             fill="#0D0D0D"
           >
-            VS
+            V.S
           </text>
           <text
-            x="20"
-            y="316"
+            x="87"
+            y="450"
             fontFamily="'Noto Serif JP',Georgia,serif"
-            fontSize="62"
+            fontSize="63"
             fontWeight="900"
             fill="#0D0D0D"
             letterSpacing="-2"
@@ -118,10 +118,10 @@ const GuideFukuokaOsaka = () => {
             福岡
           </text>
           <text
-            x="24"
-            y="344"
+            x="87"
+            y="480"
             fontFamily="'DM Sans',sans-serif"
-            fontSize="10"
+            fontSize="15"
             fontWeight="700"
             fill="#666"
             letterSpacing="5"
@@ -129,11 +129,11 @@ const GuideFukuokaOsaka = () => {
             FUKUOKA
           </text>
           <text
-            x="880"
-            y="316"
+            x="831"
+            y="450"
             textAnchor="end"
             fontFamily="'Noto Serif JP',Georgia,serif"
-            fontSize="62"
+            fontSize="63"
             fontWeight="900"
             fill="#0D0D0D"
             letterSpacing="-2"
@@ -141,11 +141,11 @@ const GuideFukuokaOsaka = () => {
             大阪
           </text>
           <text
-            x="876"
-            y="344"
+            x="831"
+            y="480"
             textAnchor="end"
             fontFamily="'DM Sans',sans-serif"
-            fontSize="10"
+            fontSize="15"
             fontWeight="700"
             fill="#666"
             letterSpacing="5"
