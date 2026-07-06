@@ -7,10 +7,14 @@ const IMG_BASE = "/images/compare/fukuoka-vs-osaka";
  * cropped raster cover image.
  *
  * Each illustration gets its own rect clipPath + preserveAspectRatio="...
- * slice" so it crops to fill its box exactly (matching the reference
- * design's tight, overlapping layout) instead of the SVG default
+ * slice" so it crops to fill its box exactly instead of the SVG default
  * letterbox-and-center behavior, which shrank images whose native aspect
- * ratio didn't match their box (most visibly the tsutenkaku tower).
+ * ratio didn't match their box (most visibly the tsutenkaku tower). Boxes
+ * are laid out with a deliberate gap between neighbors — slice-cropping
+ * fills a box edge-to-edge with opaque artwork, so any box overlap (as in
+ * the original reference's bounding boxes) would have one illustration
+ * paint over the other (this clipped the tower's crown under the takoyaki
+ * tray, and the strawberries under the mentaiko, before this was fixed).
  */
 export function FukuokaOsakaKeyVisual({ className }: { className?: string }) {
   return (
@@ -31,13 +35,13 @@ export function FukuokaOsakaKeyVisual({ className }: { className?: string }) {
           <rect x="47" y="48" width="265" height="279" />
         </clipPath>
         <clipPath id="fo-clip-mentaiko">
-          <rect x="180" y="240" width="208" height="119" />
+          <rect x="230" y="345" width="180" height="100" />
         </clipPath>
         <clipPath id="fo-clip-tsutenkaku">
           <rect x="537" y="135" width="102" height="243" />
         </clipPath>
         <clipPath id="fo-clip-takoyaki">
-          <rect x="585" y="0" width="307" height="270" />
+          <rect x="645" y="0" width="255" height="230" />
         </clipPath>
       </defs>
       <polygon points="0,0 518,0 391,506 0,506" fill="#FDEBD0" />
@@ -55,10 +59,10 @@ export function FukuokaOsakaKeyVisual({ className }: { className?: string }) {
         />
         <image
           href={`${IMG_BASE}/img-fukuoka-mentaiko.png`}
-          x="180"
-          y="240"
-          width="208"
-          height="119"
+          x="230"
+          y="345"
+          width="180"
+          height="100"
           preserveAspectRatio="xMidYMid slice"
           clipPath="url(#fo-clip-mentaiko)"
         />
@@ -75,10 +79,10 @@ export function FukuokaOsakaKeyVisual({ className }: { className?: string }) {
         />
         <image
           href={`${IMG_BASE}/img-osaka-takoyaki.png`}
-          x="585"
+          x="645"
           y="0"
-          width="307"
-          height="270"
+          width="255"
+          height="230"
           preserveAspectRatio="xMidYMid slice"
           clipPath="url(#fo-clip-takoyaki)"
         />
