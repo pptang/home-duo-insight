@@ -26,6 +26,7 @@ export async function loader() {
     { path: "/feed", lastmod: null },
     { path: "/experts", lastmod: null },
     { path: "/about", lastmod: null },
+    { path: "/compare/fukuoka-vs-osaka", lastmod: null },
   ];
 
   const comparisonEntries: UrlEntry[] = [];
