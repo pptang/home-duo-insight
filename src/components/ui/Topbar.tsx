@@ -19,7 +19,7 @@ const Topbar = () => {
 
   const navItems = [
     { to: "/#compare-widget", labelKey: "nav.compare" },
-    { to: "/compare/fukuoka-vs-osaka", labelKey: "nav.fukuokaOsaka" },
+    { to: "/guides", labelKey: "nav.guides" },
     { to: "/feed", labelKey: "nav.feed" },
     { to: "/experts", labelKey: "nav.experts" },
     { to: "/about", labelKey: "nav.about" },

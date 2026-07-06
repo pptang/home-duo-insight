@@ -3,7 +3,8 @@ import { type RouteConfig, route, index } from "@react-router/dev/routes";
 export default [
   index("pages/Index.tsx"),
   route("compare", "routes/compare-redirect.tsx"),
-  route("compare/fukuoka-vs-osaka", "pages/CompareFukuokaOsaka.tsx"),
+  route("guides", "pages/Guides.tsx"),
+  route("guides/fukuoka-vs-osaka", "pages/GuideFukuokaOsaka.tsx"),
   route("feed", "pages/Feed.tsx"),
   route("experts", "pages/Experts.tsx"),
   route("experts/:expertId", "pages/ExpertProfilePage.tsx"),

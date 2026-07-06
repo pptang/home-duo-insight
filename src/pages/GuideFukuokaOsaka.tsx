@@ -1,13 +1,14 @@
 import { Link } from "react-router";
 import type { MetaArgs } from "react-router";
-import { ArrowUp, TriangleAlert, ArrowRight } from "lucide-react";
+import { ArrowUp, TriangleAlert, ArrowRight, ArrowLeft } from "lucide-react";
 import { SITE_URL, OG_IMAGE_URL } from "@/lib/site";
 import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section } from "@/components/ui/Section";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 
-// Static editorial content page (bead: compare/fukuoka-vs-osaka regional analysis).
+// Static editorial content page — first entry in the /guides series
+// (bead: compare/fukuoka-vs-osaka regional analysis).
 // No loader — the article body is fixed research content, not DB-backed.
 
 const IMG_BASE = "/images/compare/fukuoka-vs-osaka";
@@ -19,7 +20,7 @@ export function meta(_args: MetaArgs) {
   const ogTitle = "Fukuoka vs Osaka — Where Is the Next Move Not Yet Priced In?";
   const ogDescription =
     "For investors entering in 2026, the question is not who grew faster — it's where the next catalyst hasn't been priced in yet.";
-  const url = `${SITE_URL}/compare/fukuoka-vs-osaka`;
+  const url = `${SITE_URL}/guides/fukuoka-vs-osaka`;
 
   return [
     { title },
@@ -55,10 +56,18 @@ function ScoreCell({
   return <div className={`p-3 text-[12px] leading-[1.4] ${toneClass}`}>{children}</div>;
 }
 
-const CompareFukuokaOsaka = () => {
+const GuideFukuokaOsaka = () => {
   return (
     <>
       <Section width="narrow" className="pt-6">
+        <Link
+          to="/guides"
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium text-ink-60 no-underline hover:text-ink mb-4"
+        >
+          <ArrowLeft className="w-3 h-3" aria-hidden="true" />
+          All Guides
+        </Link>
+
         {/* KEY VISUAL */}
         <svg
           viewBox="0 0 900 360"
@@ -549,4 +558,4 @@ const CompareFukuokaOsaka = () => {
   );
 };
 
-export default CompareFukuokaOsaka;
+export default GuideFukuokaOsaka;
