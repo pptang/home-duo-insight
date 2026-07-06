@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Section } from "@/components/ui/Section";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
+import { FukuokaOsakaKeyVisual } from "@/components/guides/FukuokaOsakaKeyVisual";
 
 // Static editorial content page — first entry in the /guides series
 // (bead: compare/fukuoka-vs-osaka regional analysis).
 // No loader — the article body is fixed research content, not DB-backed.
-
-const IMG_BASE = "/images/compare/fukuoka-vs-osaka";
 
 export function meta(_args: MetaArgs) {
   const title = "福岡市 vs 大阪市 — 2026年投資分析 | AiSumai 愛住";
@@ -69,90 +68,7 @@ const GuideFukuokaOsaka = () => {
         </Link>
 
         {/* KEY VISUAL */}
-        <svg
-          viewBox="0 0 900 506"
-          width="100%"
-          className="block rounded-xl mt-2"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <defs>
-            <clipPath id="cl">
-              <polygon points="0,0 518,0 391,506 0,506" />
-            </clipPath>
-            <clipPath id="cr">
-              <polygon points="518,0 900,0 900,506 391,506" />
-            </clipPath>
-          </defs>
-          <polygon points="0,0 518,0 391,506 0,506" fill="#FDEBD0" />
-          <polygon points="518,0 900,0 900,506 391,506" fill="#D6EAF8" />
-          <line x1="518" y1="0" x2="391" y2="506" stroke="white" strokeWidth="6" />
-          <g clipPath="url(#cl)">
-            <image href={`${IMG_BASE}/img-fukuoka-strawberry.png`} x="47" y="48" width="265" height="279" />
-            <image href={`${IMG_BASE}/img-fukuoka-mentaiko.png`} x="180" y="240" width="208" height="119" />
-          </g>
-          <g clipPath="url(#cr)">
-            <image href={`${IMG_BASE}/img-osaka-tsutenkaku.png`} x="537" y="135" width="102" height="243" />
-            <image href={`${IMG_BASE}/img-osaka-takoyaki.png`} x="585" y="0" width="307" height="270" />
-          </g>
-          <circle cx="450" cy="294" r="47" fill="white" stroke="#0D0D0D" strokeWidth="3" />
-          <text
-            x="450"
-            y="301"
-            textAnchor="middle"
-            fontFamily="'DM Sans',sans-serif"
-            fontSize="24"
-            fontWeight="700"
-            fill="#0D0D0D"
-          >
-            V.S
-          </text>
-          <text
-            x="87"
-            y="450"
-            fontFamily="'Noto Serif JP',Georgia,serif"
-            fontSize="63"
-            fontWeight="900"
-            fill="#0D0D0D"
-            letterSpacing="-2"
-          >
-            福岡
-          </text>
-          <text
-            x="87"
-            y="480"
-            fontFamily="'DM Sans',sans-serif"
-            fontSize="15"
-            fontWeight="700"
-            fill="#666"
-            letterSpacing="5"
-          >
-            FUKUOKA
-          </text>
-          <text
-            x="831"
-            y="450"
-            textAnchor="end"
-            fontFamily="'Noto Serif JP',Georgia,serif"
-            fontSize="63"
-            fontWeight="900"
-            fill="#0D0D0D"
-            letterSpacing="-2"
-          >
-            大阪
-          </text>
-          <text
-            x="831"
-            y="480"
-            textAnchor="end"
-            fontFamily="'DM Sans',sans-serif"
-            fontSize="15"
-            fontWeight="700"
-            fill="#666"
-            letterSpacing="5"
-          >
-            OSAKA
-          </text>
-        </svg>
+        <FukuokaOsakaKeyVisual className="block rounded-xl mt-2" />
 
         {/* ARTICLE HEADER */}
         <header className="pt-9 pb-8 border-b border-rule">

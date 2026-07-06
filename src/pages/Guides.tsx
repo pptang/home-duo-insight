@@ -45,11 +45,15 @@ const Guides = () => {
               className="h-full flex flex-col overflow-hidden transition-transform duration-200 group-hover:-translate-y-0.5"
             >
               <div className="aspect-[16/10] overflow-hidden bg-paper-dark">
-                <img
-                  src={guide.coverImage}
-                  alt=""
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                />
+                {guide.coverComponent ? (
+                  <guide.coverComponent className="w-full h-full transition-transform duration-300 group-hover:scale-[1.03]" />
+                ) : (
+                  <img
+                    src={guide.coverImage}
+                    alt=""
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  />
+                )}
               </div>
               <div className="p-5 flex flex-col gap-3 flex-1">
                 <Eyebrow size="sm" tone="muted">
