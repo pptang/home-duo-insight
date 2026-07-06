@@ -1,3 +1,6 @@
+import type { ComponentType } from "react";
+import { FukuokaOsakaKeyVisual } from "@/components/guides/FukuokaOsakaKeyVisual";
+
 // Registry of static editorial "Guides" articles (city comparisons, renting
 // tips, neighborhood explainers, etc.). Each entry is metadata for the
 // /guides index listing; the article body lives in its own page component
@@ -10,7 +13,14 @@ export interface GuideEntry {
   excerpt: string;
   category: string;
   date: string;
-  coverImage: string;
+  /** Plain raster cover image. Ignored when coverComponent is set. */
+  coverImage?: string;
+  /**
+   * Vector cover graphic, for guides (like a city-vs-city comparison) whose
+   * cover is a composed illustration rather than a single photo/icon — a raw
+   * image cropped with object-cover would crop out one side of the graphic.
+   */
+  coverComponent?: ComponentType<{ className?: string }>;
 }
 
 export const GUIDES: readonly GuideEntry[] = [
@@ -21,7 +31,7 @@ export const GUIDES: readonly GuideEntry[] = [
       "Most investors compare +58% vs +32% and call it done. That's the wrong question. For anyone entering in 2026, what matters is which market still has a catalyst the price hasn't caught up with.",
     category: "Investment Analysis",
     date: "July 2026",
-    coverImage: "/images/compare/fukuoka-vs-osaka/img-osaka-tsutenkaku.png",
+    coverComponent: FukuokaOsakaKeyVisual,
   },
 ];
 
