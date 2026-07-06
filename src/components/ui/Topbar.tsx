@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Menu, X } from "lucide-react";
@@ -18,6 +19,7 @@ const Topbar = () => {
 
   const navItems = [
     { to: "/#compare-widget", labelKey: "nav.compare" },
+    { to: "/compare/fukuoka-vs-osaka", labelKey: "nav.fukuokaOsaka" },
     { to: "/feed", labelKey: "nav.feed" },
     { to: "/experts", labelKey: "nav.experts" },
     { to: "/about", labelKey: "nav.about" },
@@ -71,25 +73,30 @@ const Topbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <div className="md:hidden fixed inset-0 top-[52px] bg-paper/98 z-40 flex flex-col items-center justify-center gap-6 animate-in">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="font-display text-[26px] text-ink no-underline"
-              onClick={() => setIsOpen(false)}
-            >
-              {t(item.labelKey)}
-            </Link>
-          ))}
-          <div className="flex flex-col gap-2.5 w-[260px] mt-4">
-            <LanguageSwitcher />
-            <AuthButtons />
-          </div>
-        </div>
-      )}
+      {/* Mobile Menu Overlay — rendered via portal into document.body so the
+          header's backdrop-blur (which establishes a containing block for
+          fixed-position descendants per spec) doesn't clip this to the
+          header's own height. */}
+      {isOpen &&
+        createPortal(
+          <div className="md:hidden fixed inset-0 top-[52px] bg-paper/95 z-40 flex flex-col items-center justify-center gap-6 animate-in">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="font-display text-[26px] text-ink no-underline"
+                onClick={() => setIsOpen(false)}
+              >
+                {t(item.labelKey)}
+              </Link>
+            ))}
+            <div className="flex flex-col gap-2.5 w-[260px] mt-4">
+              <LanguageSwitcher />
+              <AuthButtons />
+            </div>
+          </div>,
+          document.body,
+        )}
     </header>
   );
 };
