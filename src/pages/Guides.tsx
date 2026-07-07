@@ -24,21 +24,22 @@ const Guides = () => {
         <Eyebrow rules className="mb-5">
           AiSumai Editorial
         </Eyebrow>
-        <h1 className="font-display text-[clamp(32px,4.5vw,48px)] leading-[1.1] tracking-[-1px] text-ink mb-4">
+        <h1 className="font-display text-[clamp(32px,4.5vw,48px)] leading-[1.1] tracking-[-1px] text-ink">
           Guides
         </h1>
-        <p className="text-[15px] text-ink-60 max-w-[560px] mx-auto leading-relaxed">
-          Long-form analysis on Japan&apos;s housing market — city comparisons,
-          neighborhood guides, and what&apos;s actually worth knowing before you buy or rent.
-        </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* flex-wrap + justify-center (not grid): each row — including a
+          partial last row — centers independently. A grid's auto-fit
+          columns are shared across every row, so a trailing partial row
+          would fill left-to-right under the row above instead of centering
+          on its own; flexbox doesn't have that limitation. */}
+      <div className="flex flex-wrap justify-center gap-6">
         {GUIDES.map((guide) => (
           <Link
             key={guide.slug}
             to={`/guides/${guide.slug}`}
-            className="no-underline text-inherit group"
+            className="basis-[320px] grow-0 shrink max-w-full no-underline text-inherit group"
           >
             <SurfaceCard
               pad="none"
