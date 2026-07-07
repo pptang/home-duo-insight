@@ -29,16 +29,17 @@ const Guides = () => {
         </h1>
       </div>
 
-      {/* auto-fit (not a fixed grid-cols-3) + justify-center: cards size
-          themselves and the row centers instead of stretching/left-pinning
-          when there are only one or two guides — a fixed 3-column grid left
-          2/3 of the row empty with a single card. */}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,320px))] justify-center gap-6">
+      {/* flex-wrap + justify-center (not grid): each row — including a
+          partial last row — centers independently. A grid's auto-fit
+          columns are shared across every row, so a trailing partial row
+          would fill left-to-right under the row above instead of centering
+          on its own; flexbox doesn't have that limitation. */}
+      <div className="flex flex-wrap justify-center gap-6">
         {GUIDES.map((guide) => (
           <Link
             key={guide.slug}
             to={`/guides/${guide.slug}`}
-            className="no-underline text-inherit group"
+            className="basis-[320px] grow-0 shrink max-w-full no-underline text-inherit group"
           >
             <SurfaceCard
               pad="none"
