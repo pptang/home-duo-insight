@@ -26,7 +26,7 @@
     "widget": {
       "tabUrl": "物件URL",
       "tabId": "物件番号",
-      "tabArea": "エリア名で検索",
+      "tabArea": "エリア名",
       "propertyALabel": "物件 A",
       "propertyBLabel": "物件 B",
       "propertyAPlaceholder": "例：SUUMO の URL または 物件名",
@@ -36,7 +36,7 @@
       "submit": "比較する",
       "noChipsHint": "少なくとも1つの項目を選択してください",
       "supportedSitesSuffix": "対応",
-      "freeTier": "無料で3比較/月",
+      "freeTier": "月3件まで無料",
       "doubleCheck": "AI + 専門家のダブルチェック"
     },
     "discover": {
@@ -54,7 +54,7 @@
       "cafe": "カフェ",
       "gym": "ジム",
       "dog": "犬の散歩",
-      "quiet": "静かさ",
+      "quiet": "静けさ",
       "sunlight": "日当たり",
       "laundromat": "ランドリー"
     }
@@ -113,10 +113,10 @@
       "very_important": "とても重要",
       "no_preference": "こだわりなし",
       "lifestyle_fit": {
-        "title": "🌿 ライフスタイルフィット（日常生活）",
+        "title": "🌿 暮らしとの相性（日常生活）",
         "proximity_to_cafes": "☕ 地元のカフェへの近さ",
         "access_to_gym": "🏋️ ジムやウェルネススタジオへのアクセス",
-        "dog_walking_friendly": "🦶 犬の散歩に適した地域",
+        "dog_walking_friendly": "🐾 犬の散歩に適した地域",
         "quiet_at_night": "🎧 夜間の静けさ / 騒音への敏感さ",
         "morning_vs_afternoon_sunlight": "🌅 朝日 vs 午後の日光",
         "laundromat_access": "🧺 施設内または近くのコインランドリー",
@@ -125,9 +125,9 @@
         "no_preference": "こだわりなし"
       },
       "emotional_desires": {
-        "title": "✨ 感情的な欲求 / 美的好み",
+        "title": "✨ 心地よさ・好みの美意識",
         "open_view": "🪟 開放的な景色 / 遮る建物がない",
-        "feels_like_home": "🏡 「家のように感じる」/ 温かさ",
+        "feels_like_home": "🏡 居心地の良さ・わが家のような温かさ",
         "creative_friendly": "🎨 創造性をサポート",
         "reading_corner_space": "📚 読書コーナーのスペース",
         "natural_surroundings": "🌳 自然な環境 / 緑"
@@ -136,13 +136,13 @@
         "title": "🔮 人生設計 / 将来の目標",
         "future_family_growth": "👨‍👩‍👧‍👦 将来の家族の成長の余地",
         "work_from_home_support": "💻 在宅勤務のサポート",
-        "resale_potential": "💼 将来の転売の可能性",
+        "resale_potential": "💼 将来の売却のしやすさ",
         "renovation_willingness": "🔨 リノベーションへの意欲",
-        "storage_capacity": "📦 収納容量のニーズ"
+        "storage_capacity": "📦 収納スペースの充実度"
       },
       "sensory_comfort": {
-        "title": "🧘 感覚的または快適さのニーズ",
-        "natural_ventilation": "❄️ 自然換気 / 風通し",
+        "title": "🧘 五感・快適さへのこだわり",
+        "natural_ventilation": "🌬️ 自然換気 / 風通し",
         "light_sensitivity": "☀️ 光への敏感さ",
         "minimalist_vs_maximalist": "🧘‍♀️ ミニマリスト vs マキシマリスト",
         "privacy_from_neighbors": "🚪 隣人からのプライバシー",
@@ -150,12 +150,12 @@
         "maximalist": "マキシマリスト"
       },
       "cultural_routine": {
-        "title": "🧭 文化的 / ルーチンベースのニーズ",
+        "title": "🧭 生活習慣・文化的なニーズ",
         "grocery_chain_access": "🍱 お気に入りのスーパーマーケットの近く",
         "international_schools": "🏫 インターナショナルスクールへのアクセス",
         "weekend_market_access": "🛍️ 週末の市場 / ショッピングへのアクセス",
-        "safe_for_biking": "🚴 自転車に安全",
-        "spiritual_space_access": "🛕 近くの寺院/神社またはスピリチュアルな空間"
+        "safe_for_biking": "🚴 自転車移動がしやすい",
+        "spiritual_space_access": "⛩️ 近くの寺院/神社またはスピリチュアルな空間"
       },
       "select_preference": "好みを選択"
     },
@@ -213,10 +213,10 @@
     "card": {
       "comparing": "比較中",
       "vs": "vs",
-      "expert_votes": "{{count}}人の専門家が投票しました",
-      "expert_votes_plural": "{{count}}人の専門家が投票しました",
-      "community_vote": "{{count}}票のコミュニティ投票",
-      "community_votes": "{{count}}票のコミュニティ投票",
+      "expert_votes": "専門家投票 {{count}}人",
+      "expert_votes_plural": "専門家投票 {{count}}人",
+      "community_vote": "コミュニティ投票 {{count}}票",
+      "community_votes": "コミュニティ投票 {{count}}票",
       "comment": "{{count}}件のコメント",
       "comments": "{{count}}件のコメント",
       "view_full": "完全な比較を見る",
@@ -233,7 +233,7 @@
     "pending": "あなたの申請は審査中です。",
     "hero": {
       "title": "専門家ネットワーク",
-      "subtitle": "不動産専門家のコミュニティに参加し、日本全国の人々がより良い住宅決定をするのを支援しましょう。"
+      "subtitle": "不動産専門家のコミュニティに参加し、日本全国の人々がより良い住まい選びができるよう支援しましょう。"
     },
     "stats": {
       "reviews": "専門家レビュー",

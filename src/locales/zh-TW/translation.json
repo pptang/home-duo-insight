@@ -116,7 +116,7 @@
         "title": "🌿 生活型態契合度（日常生活）",
         "proximity_to_cafes": "☕ 鄰近咖啡廳",
         "access_to_gym": "🏋️ 鄰近健身房或運動中心",
-        "dog_walking_friendly": "🦶 適合遛狗的社區環境",
+        "dog_walking_friendly": "🐾 適合遛狗的社區環境",
         "quiet_at_night": "🎧 夜間安靜 / 對噪音敏感",
         "morning_vs_afternoon_sunlight": "🌅 早晨與午後採光",
         "laundromat_access": "🧺 附近或內建洗衣設施",
@@ -142,7 +142,7 @@
       },
       "sensory_comfort": {
         "title": "🧘 感官與舒適度需求",
-        "natural_ventilation": "❄️ 自然通風 / 空氣流通",
+        "natural_ventilation": "🌬️ 自然通風 / 空氣流通",
         "light_sensitivity": "☀️ 對光線敏感",
         "minimalist_vs_maximalist": "🧘‍♀️ 極簡風 vs 極繁風",
         "privacy_from_neighbors": "🚪 與鄰居保有隱私",
@@ -155,7 +155,7 @@
         "international_schools": "🏫 鄰近國際學校",
         "weekend_market_access": "🛍️ 鄰近週末市集 / 購物",
         "safe_for_biking": "🚴 適合安全騎自行車",
-        "spiritual_space_access": "🛕 鄰近寺廟神社或宗教場所"
+        "spiritual_space_access": "⛩️ 鄰近寺廟神社或宗教場所"
       },
       "select_preference": "選擇偏好"
     },

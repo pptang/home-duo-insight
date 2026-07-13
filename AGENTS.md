@@ -145,6 +145,12 @@ The application uses the following main tables:
 - Rate limiting implemented in edge functions
 - All database operations in edge functions use the service role for reliability
 - TypeScript types auto-generated from Supabase schema in `src/integrations/supabase/types.ts`
+- **`home.*` in `src/locales/en/translation.json` is intentionally Japanese.** The
+  landing page hero/compare-widget/discover copy is a deliberate bilingual
+  editorial design (Japanese labels, English headline) — those `home.*` values
+  in the English locale file are byte-identical to the Japanese file on purpose,
+  to preserve that design. Don't "fix" them into English; if the design changes,
+  update both files together.
 
 ## Recent Fixes & Technical Notes
 
