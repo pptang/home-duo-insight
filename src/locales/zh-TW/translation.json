@@ -10,18 +10,18 @@
   "nav": {
     "home": "首頁",
     "compare": "比較",
-    "guides": "指南",
-    "feed": "比較動態",
+    "guides": "買房解析",
+    "feed": "大家在比較",
     "experts": "專家",
     "about": "關於我們",
     "dashboard": "我的報告"
   },
   "home": {
     "hero": {
-      "eyebrow": "公正地比較日本房產",
-      "titleLine1": "比較的是房子，",
-      "titleLine2": "不是廣告文案。",
-      "subtitle": "只要輸入兩個物件，AI 幾秒內就能生成一份公正的比較報告。"
+      "eyebrow": "日本置產，看得更深",
+      "titleLine1": "你要住的，",
+      "titleLine2": "不是廣告詞。",
+      "subtitle": "輸入兩個候選物件，幾秒內看懂哪一個更貼近你想要的生活。"
     },
     "widget": {
       "tabUrl": "物件網址",
@@ -36,7 +36,7 @@
       "submit": "開始比較",
       "noChipsHint": "請至少選擇一個比較項目",
       "supportedSitesSuffix": "皆支援",
-      "freeTier": "每月免費比較 3 次",
+      "freeTier": "",
       "doubleCheck": "AI + 專家雙重把關"
     },
     "discover": {
@@ -268,7 +268,7 @@
     "company": "公司",
     "links": {
       "compare": "比較物件",
-      "feed": "比較動態",
+      "feed": "大家在比較",
       "experts": "尋找專家",
       "about": "關於我們",
       "privacy": "隱私權政策",
@@ -295,7 +295,7 @@
       "brandMeaning": "AI × 住まい（家）× 愛",
       "eyebrow": "關於 AiSumai",
       "heading": "有信心地選擇你的家。",
-      "lede": "AiSumai 結合 AI 分析、專家見解與社群智慧，讓你能公正地並排比較兩個候選物件。",
+      "lede": "買房或租屋，是少數幾次會改變人生軌跡的決定。AiSumai 集結 AI 分析、認證專家與同路人的真實經驗，讓你在做這個決定時，不再只靠自己一個人判斷。",
       "description": "透過以下方式，幫助在日本租屋、購屋的你做出有信心的最終決定：",
       "descriptionAI": "AI 驅動的分析",
       "descriptionExpert": "專家見解",
@@ -322,14 +322,13 @@
       "communityOverlay": "社群經驗分享"
     },
     "features": {
-      "eyebrow": "為什麼選 AiSumai",
-      "title": "為什麼選擇 AiSumai。",
+      "eyebrow": "AiSumai 的特色",
+      "title": "三種聲音，一個決定。",
       "featureLabel": "特色 0{{n}}",
-      "illustrationLabel": "示意圖",
       "fair": {
-        "title": "比較依據數據，而非行銷文案。",
-        "description": "房產平台為了點擊率而優化內容。AiSumai 產出公正、透明的報告，用同一套標準並列呈現優點與疑慮。",
-        "tag": "無偏見"
+        "title": "不只是照片，是真實的生活細節。",
+        "description": "格局採光、周邊環境、通勤動線——AiSumai 幫你看穿物件簡介背後，真正影響日常生活的細節。",
+        "tag": "深度解析"
       },
       "fast": {
         "title": "一分鐘內看懂第一手分析。",
@@ -402,7 +401,7 @@
     "title": "{{propertyA}} vs {{propertyB}}",
     "created": "建立於 {{date}}",
     "shareButton": "分享",
-    "backToFeed": "返回比較動態",
+    "backToFeed": "返回列表",
     "notFound": {
       "title": "找不到此比較",
       "description": "你要找的比較不存在。"

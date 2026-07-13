@@ -176,58 +176,31 @@ const About = () => {
           </h2>
         </div>
 
-        <div className="flex flex-col gap-14 sm:gap-20">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-10">
           {features.map((feature, index) => {
             const Icon = feature.icon;
-            const reversed = index % 2 === 1;
             return (
-              <article
-                key={feature.key}
-                className={`grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 items-center ${
-                  reversed ? "md:[&>*:first-child]:order-2" : ""
-                }`}
-              >
-                <div className="flex flex-col gap-4">
-                  <Eyebrow size="sm" tone="muted">
-                    {t("about.features.featureLabel", { n: index + 1 })}
-                  </Eyebrow>
-                  <h3 className="font-display text-[clamp(24px,3vw,32px)] leading-[1.15] tracking-[-0.5px] text-ink">
-                    {t(feature.titleKey)}
-                  </h3>
-                  <p className="text-[14px] text-ink-60 leading-relaxed">
-                    {t(feature.descriptionKey)}
-                  </p>
-                  <div className="inline-flex items-center gap-1.5 self-start font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60 border border-rule rounded-full px-2.5 py-1 bg-paper-dark">
-                    <span className="w-1 h-1 rounded-full bg-ink/40" />
-                    {t(feature.tagKey)}
-                  </div>
-                </div>
-
-                <SurfaceCard
-                  tone="paper-dark"
-                  pad="none"
-                  className="aspect-[4/3] relative overflow-hidden flex items-center justify-center"
-                >
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      backgroundImage:
-                        "radial-gradient(circle at 30% 30%, rgba(10,10,10,0.05) 0%, transparent 60%)",
-                    }}
+              <article key={feature.key} className="flex flex-col gap-4">
+                <span className="w-12 h-12 border border-rule rounded-full flex items-center justify-center bg-paper-dark">
+                  <Icon
+                    className="w-5 h-5 text-ink"
+                    strokeWidth={1.25}
+                    aria-hidden="true"
                   />
-                  <div className="relative z-10 flex flex-col items-center gap-3 text-ink-60">
-                    <span className="w-16 h-16 border border-rule rounded-full flex items-center justify-center bg-paper">
-                      <Icon
-                        className="w-7 h-7 text-ink"
-                        strokeWidth={1.25}
-                        aria-hidden="true"
-                      />
-                    </span>
-                    <Eyebrow size="sm" tone="muted">
-                      {t("about.features.illustrationLabel")}
-                    </Eyebrow>
-                  </div>
-                </SurfaceCard>
+                </span>
+                <Eyebrow size="sm" tone="muted">
+                  {t("about.features.featureLabel", { n: index + 1 })}
+                </Eyebrow>
+                <h3 className="font-display text-[clamp(20px,2.4vw,24px)] leading-[1.2] tracking-[-0.3px] text-ink">
+                  {t(feature.titleKey)}
+                </h3>
+                <p className="text-[14px] text-ink-60 leading-relaxed">
+                  {t(feature.descriptionKey)}
+                </p>
+                <div className="inline-flex items-center gap-1.5 self-start font-mono text-[10px] uppercase tracking-[0.08em] text-ink-60 border border-rule rounded-full px-2.5 py-1 bg-paper-dark">
+                  <span className="w-1 h-1 rounded-full bg-ink/40" />
+                  {t(feature.tagKey)}
+                </div>
               </article>
             );
           })}

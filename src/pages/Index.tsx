@@ -362,10 +362,12 @@ const Index = () => {
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
                 {SUPPORTED_SITES.map((site) => site.label).join(" / ")} {t("home.widget.supportedSitesSuffix")}
               </div>
-              <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
-                <span className="w-1 h-1 rounded-full bg-ink/30" />
-                {t("home.widget.freeTier")}
-              </div>
+              {t("home.widget.freeTier") && (
+                <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
+                  <span className="w-1 h-1 rounded-full bg-ink/30" />
+                  {t("home.widget.freeTier")}
+                </div>
+              )}
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
                 {t("home.widget.doubleCheck")}
