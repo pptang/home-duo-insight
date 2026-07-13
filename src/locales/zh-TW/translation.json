@@ -59,6 +59,207 @@
       "laundromat": "洗衣店"
     }
   },
+  "compare": {
+    "hero": {
+      "title": "比較物件",
+      "subtitle": "透過 AiSumai (愛住)，取得 AI 分析、專家意見，做出有信心的決定",
+      "step1": "解析網址",
+      "step2": "確認詳情",
+      "step3": "取得分析"
+    },
+    "url_input": {
+      "title": "開始你的找房旅程",
+      "subtitle": "貼上物件網址，讓 AI 協助你做決定",
+      "property_a_label": "物件 A 網址",
+      "property_b_label": "物件 B 網址",
+      "placeholder_a": "https://suumo.jp/property/...",
+      "placeholder_b": "https://athome.co.jp/property/...",
+      "analyze_button": "🚀 分析物件",
+      "analyzing": "正在分析物件…",
+      "loading_stage": "正在擷取物件網頁…"
+    },
+    "property_details": {
+      "address": "地址",
+      "floor_plan": "格局",
+      "private_area": "專有面積",
+      "commute_time": "通勤時間",
+      "building_age": "屋齡",
+      "construction": "建造年份",
+      "property_type": "物件類型",
+      "notes": "備註",
+      "minutes": "分鐘",
+      "years_old": "年",
+      "built_in": "建於",
+      "na": "無資料"
+    },
+    "recommendation": {
+      "pros_cons": "優缺點",
+      "pros": "優點",
+      "cons": "缺點",
+      "title": "AiSumai 建議",
+      "get_recommendation": "取得我的建議",
+      "generating": "載入中…",
+      "compare_different": "比較其他物件",
+      "summary_title": "物件比較摘要",
+      "summary_feature": "項目",
+      "summary_property_a": "物件 A",
+      "summary_property_b": "物件 B"
+    },
+    "personalization": {
+      "title": "告訴我們你的偏好",
+      "subtitle": "回答幾個問題，協助我們提供個人化的物件建議。",
+      "submit": "產生建議",
+      "not_important": "不重要",
+      "very_important": "非常重要",
+      "no_preference": "沒有偏好",
+      "lifestyle_fit": {
+        "title": "🌿 生活型態契合度（日常生活）",
+        "proximity_to_cafes": "☕ 鄰近咖啡廳",
+        "access_to_gym": "🏋️ 鄰近健身房或運動中心",
+        "dog_walking_friendly": "🦶 適合遛狗的社區環境",
+        "quiet_at_night": "🎧 夜間安靜 / 對噪音敏感",
+        "morning_vs_afternoon_sunlight": "🌅 早晨與午後採光",
+        "laundromat_access": "🧺 附近或內建洗衣設施",
+        "morning_sunlight": "早晨採光",
+        "afternoon_sunlight": "午後採光",
+        "no_preference": "沒有偏好"
+      },
+      "emotional_desires": {
+        "title": "✨ 情感需求 / 美感偏好",
+        "open_view": "🪟 視野開闊 / 無遮擋建築",
+        "feels_like_home": "🏡 有「家的感覺」/ 溫馨感",
+        "creative_friendly": "🎨 有利於創作發想",
+        "reading_corner_space": "📚 有閱讀角落的空間",
+        "natural_surroundings": "🌳 自然環境 / 綠意"
+      },
+      "life_planning": {
+        "title": "🔮 生活規劃 / 未來目標",
+        "future_family_growth": "👨‍👩‍👧‍👦 預留未來家庭成長空間",
+        "work_from_home_support": "💻 適合在家工作",
+        "resale_potential": "💼 未來轉售潛力",
+        "renovation_willingness": "🔨 願意裝修",
+        "storage_capacity": "📦 收納空間需求"
+      },
+      "sensory_comfort": {
+        "title": "🧘 感官與舒適度需求",
+        "natural_ventilation": "❄️ 自然通風 / 空氣流通",
+        "light_sensitivity": "☀️ 對光線敏感",
+        "minimalist_vs_maximalist": "🧘‍♀️ 極簡風 vs 豐富風",
+        "privacy_from_neighbors": "🚪 與鄰居保有隱私",
+        "minimalist": "極簡風",
+        "maximalist": "豐富風"
+      },
+      "cultural_routine": {
+        "title": "🧭 生活習慣 / 文化需求",
+        "grocery_chain_access": "🍱 鄰近常去的超市",
+        "international_schools": "🏫 鄰近國際學校",
+        "weekend_market_access": "🛍️ 鄰近週末市集 / 購物",
+        "safe_for_biking": "🚴 適合騎自行車",
+        "spiritual_space_access": "🛕 鄰近寺廟神社或宗教場所"
+      },
+      "select_preference": "選擇偏好"
+    },
+    "messages": {
+      "success_analyze": "物件分析完成！請確認詳細內容。",
+      "success_recommendation": "建議已成功產生！",
+      "success_images": "物件圖片已成功擷取。",
+      "retry_started": "已重新開始擷取圖片，請稍候…",
+      "error_extract": "無法擷取資料，請確認網址或試試其他物件。",
+      "error_recommendation": "無法產生建議，請再試一次。",
+      "error_unexpected": "發生未預期的錯誤，請再試一次。",
+      "error_retry": "無法重新擷取圖片，請稍後再試。",
+      "error_title": "錯誤",
+      "success_title": "成功",
+      "retry_title": "重試失敗",
+      "images_loaded": "圖片已載入！",
+      "cached_title": "顯示既有報告",
+      "cached_description": "這組比較在過去 24 小時內已建立過，因此顯示既有報告。"
+    }
+  },
+  "feed": {
+    "title": "社群動態",
+    "subtitle": "看看其他人如何透過 AiSumai (愛住) 選擇他們的家",
+    "create_comparison": "建立比較",
+    "search_placeholder": "🔍 搜尋比較、地點或物件類型…",
+    "filters": "篩選",
+    "filter": {
+      "property_type": "物件類型",
+      "all_types": "所有類型",
+      "apartment": "公寓",
+      "house": "獨棟住宅",
+      "condo": "大樓住宅",
+      "price_range": "價格範圍",
+      "any_price": "不限價格",
+      "rental_low": "租金：10萬日圓以下",
+      "rental_mid": "租金：10萬–20萬日圓",
+      "rental_high": "租金：20萬日圓以上",
+      "purchase_low": "購入：5000萬日圓以下",
+      "purchase_mid": "購入：5000萬–1億日圓",
+      "purchase_high": "購入：1億日圓以上",
+      "sort_by": "排序方式",
+      "most_recent": "最新",
+      "most_popular": "最熱門",
+      "most_expert_votes": "最多專家投票",
+      "most_comments": "最多留言"
+    },
+    "empty": {
+      "title": "還沒有比較紀錄",
+      "subtitle": "成為第一個分享物件比較過程的人！",
+      "button": "建立第一筆比較"
+    },
+    "error": {
+      "retry": "重試"
+    },
+    "card": {
+      "comparing": "比較中",
+      "vs": "vs",
+      "expert_votes": "{{count}} 位專家投票",
+      "expert_votes_plural": "{{count}} 位專家投票",
+      "community_vote": "{{count}} 則社群投票",
+      "community_votes": "{{count}} 則社群投票",
+      "comment": "{{count}} 則留言",
+      "comments": "{{count}} 則留言",
+      "view_full": "查看完整比較",
+      "price_unavailable": "價格未提供",
+      "ai_recommendation": "AI 建議",
+      "expert_voting": "專家投票"
+    }
+  },
+  "auth": {
+    "tabs": {
+      "signin": "登入",
+      "signup": "註冊"
+    },
+    "signin": {
+      "title": "登入",
+      "description": "輸入你的帳戶資訊以登入",
+      "button": "登入",
+      "loading": "登入中…"
+    },
+    "signup": {
+      "title": "註冊",
+      "description": "建立帳戶，開始使用 AiSumai (愛住) 更聰明地比較日本房產。",
+      "button": "註冊",
+      "loading": "註冊中…"
+    },
+    "fields": {
+      "email": "電子郵件",
+      "password": "密碼",
+      "fullName": "姓名",
+      "email_placeholder": "your@email.com",
+      "password_placeholder": "********",
+      "name_placeholder": "王小明"
+    },
+    "toast": {
+      "signup_failed": "註冊失敗",
+      "signup_success": "註冊成功",
+      "signup_success_desc": "請至你的電子郵件收取確認連結。",
+      "signin_failed": "登入失敗",
+      "signin_success": "登入成功",
+      "signin_success_desc": "歡迎回來！",
+      "unexpected_error": "發生未預期的錯誤，請再試一次。"
+    }
+  },
   "footer": {
     "brand": "AiSumai",
     "brand_suffix": "(愛住)",
@@ -191,5 +392,226 @@
     "heading": "找不到頁面",
     "description": "我們找不到你要找的頁面。難道你想比較的是不存在的房子嗎？",
     "backToHome": "回到首頁"
+  },
+  "comparisonDetail": {
+    "languageNotice": "此報告以{{language}}撰寫。報告僅在建立時以作者當下使用的語言生成一次，不會依瀏覽者重新翻譯。",
+    "languageNames": {
+      "en": "英文",
+      "ja": "日文"
+    },
+    "title": "{{propertyA}} vs {{propertyB}}",
+    "created": "建立於 {{date}}",
+    "shareButton": "分享",
+    "backToFeed": "返回動態",
+    "notFound": {
+      "title": "找不到此比較",
+      "description": "你要找的比較不存在。"
+    },
+    "property": {
+      "address": "地址：",
+      "floorPlan": "格局：",
+      "commuteTime": "通勤時間：",
+      "propertyType": "物件類型：",
+      "notes": "備註：",
+      "minutes": "分鐘",
+      "propertyA": "物件 A",
+      "propertyB": "物件 B"
+    },
+    "summary": {
+      "title": "物件比較摘要",
+      "feature": "項目",
+      "propertyA": "物件 A",
+      "propertyB": "物件 B"
+    },
+    "prosAndCons": "優缺點",
+    "pros": "優點",
+    "cons": "缺點",
+    "recommendation": {
+      "title": "AiSumai 建議",
+      "notAvailable": "此比較尚無 AI 建議。",
+      "createNew": "透過 AI 分析建立新比較"
+    },
+    "actions": {
+      "compareDifferent": "比較其他物件"
+    },
+    "toast": {
+      "linkCopied": "連結已複製！",
+      "linkCopiedDesc": "比較連結已複製到剪貼簿",
+      "linkCopyFailed": "複製連結失敗",
+      "linkCopyFailedDesc": "請手動複製網址",
+      "retryFailed": "重試失敗",
+      "retryFailedDesc": "無法重新擷取圖片，請稍後再試。",
+      "retryStarted": "已開始重試",
+      "retryStartedDesc": "已重新開始擷取圖片，請稍候…",
+      "retryError": "錯誤",
+      "retryErrorDesc": "重試時發生未預期的錯誤。",
+      "imagesLoaded": "圖片已載入！",
+      "imagesLoadedDesc": "物件圖片已成功擷取。"
+    }
+  },
+  "expertProfile": {
+    "title": "專家檔案",
+    "description": "AiSumai (愛住) 認證房產專家",
+    "editButton": "編輯檔案",
+    "editTitle": "編輯你的檔案",
+    "editDescription": "更新你的資訊與大頭貼",
+    "expertiseTitle": "專長與專業領域",
+    "aboutHeading": "關於",
+    "activityTitle": "活動摘要",
+    "activityDescription": "此專家在 AiSumai (愛住) 上的貢獻",
+    "totalVotes": "已評估的物件比較總數",
+    "contactButton": "聯絡專家",
+    "contactTitle": "聯絡 {{name}}",
+    "expertBadge": "專家",
+    "ratings": "則評價",
+    "notFound": "找不到此專家檔案",
+    "companyWebsite": "公司網站",
+    "twitter": "𝕏 Twitter",
+    "instagram": "Instagram",
+    "line": "LINE",
+    "contactForm": {
+      "yourName": "你的姓名 *",
+      "yourEmail": "你的電子郵件 *",
+      "subject": "主旨",
+      "message": "訊息 *",
+      "subjectPlaceholder": "物件諮詢",
+      "messagePlaceholder": "請說明你想諮詢的物件相關細節…",
+      "cancel": "取消",
+      "send": "傳送訊息",
+      "sending": "傳送中…"
+    },
+    "errors": {
+      "noId": "缺少專家 ID",
+      "fillFields": "請填寫所有必填欄位。"
+    },
+    "toast": {
+      "messageSent": "訊息傳送成功",
+      "messageSentDesc": "你的訊息已傳送給該專家。",
+      "sendFailed": "訊息傳送失敗，請再試一次。"
+    },
+    "error": "錯誤",
+    "errorDesc": "載入專家檔案失敗",
+    "unexpectedError": "發生未預期的錯誤"
+  },
+  "feedExpertInsights": {
+    "loading": "正在載入專家見解…",
+    "noVotes": "目前尚無專家投票",
+    "title": "專家見解"
+  },
+  "expertSection": {
+    "title": "專家意見"
+  },
+  "expertRating": {
+    "loginRequired": "需要登入",
+    "loginRequiredDesc": "你必須登入才能為專家評分",
+    "ratingSubmitted": "評分已送出",
+    "ratingSubmittedDesc": "感謝你的回饋！",
+    "error": "錯誤",
+    "errorDesc": "送出評分失敗",
+    "yourRating": "你的評分：",
+    "rateThisExpert": "為此專家評分："
+  },
+  "expertInsights": {
+    "title": "專家見解",
+    "loading": "正在載入專家意見…",
+    "description": "來自房產專家的專業意見",
+    "noOpinions": "此比較尚無專家意見",
+    "noVotes": "尚無專家為此比較投票",
+    "expertVotes": "專家投票：",
+    "votes": "票",
+    "property": "物件"
+  },
+  "expertAvatarGroup": {
+    "moreExperts": "還有 {{count}} 位專家",
+    "moreExpertsPlural": "還有 {{count}} 位專家",
+    "viewProfile": "查看 {{name}} 的檔案"
+  },
+  "fields": {
+    "address": {
+      "label": "📍 地址",
+      "placeholder": "輸入物件地址…"
+    },
+    "floorPlan": {
+      "label": "🏠 格局",
+      "placeholder": "例：1LDK、2DK…"
+    },
+    "price": {
+      "label": "💰 價格",
+      "placeholder": "輸入日圓價格…",
+      "suffix": "日圓"
+    },
+    "area": {
+      "label": "📐 專有面積",
+      "placeholder": "輸入面積…",
+      "suffix": "㎡"
+    },
+    "commuteTime": {
+      "label": "🚇 通勤時間",
+      "placeholder": "輸入通勤時間…",
+      "suffix": "分鐘"
+    },
+    "constructionYear": {
+      "label": "🏗️ 建造年份",
+      "placeholder": "例：2020"
+    },
+    "constructionMonth": {
+      "label": "📅 建造月份",
+      "placeholder": "例：3（3月）",
+      "suffix": "1–12"
+    }
+  },
+  "metadataReview": {
+    "title": "確認物件詳細資訊",
+    "description": "請確認並編輯下方擷取到的物件資訊，所有欄位皆為選填。",
+    "propertyA": "物件 A",
+    "propertyB": "物件 B",
+    "unsavedChanges": "{{count}} 項未儲存的變更",
+    "startOver": "重新開始",
+    "saving": "儲存中…",
+    "continue": "繼續進行比較 →"
+  },
+  "dashboard": {
+    "title": "我的報告",
+    "subtitle": "你建立過的比較報告",
+    "refresh": "重新整理",
+    "empty": {
+      "title": "還沒有任何報告",
+      "subtitle": "建立你的第一筆比較。",
+      "button": "建立比較"
+    },
+    "processingLabel": "正在產生報告…",
+    "failedCard": {
+      "title": "無法取得物件資訊",
+      "retry": "重試",
+      "retrying": "重試中…",
+      "cannotRetry": "無法重試——缺少網址資訊"
+    },
+    "failureReasons": {
+      "placeholder_property_name": "無法取得物件名稱，請確認網址是否正確。",
+      "zero_price_both_sides": "無法取得任一物件的價格資訊。",
+      "gemini_api_error": "無法連線至 AI 分析服務，請稍後再試。",
+      "gemini_response_parse_error": "無法處理 AI 分析結果，請重試。",
+      "recommendation_save_error": "儲存建議失敗，請重試。",
+      "recommendation_save_exception": "儲存建議時發生錯誤，請重試。",
+      "unknown": "發生未知錯誤，請重試。"
+    }
+  },
+  "experts": {
+    "specialization_tags": {
+      "新築": "新成屋",
+      "中古": "中古屋",
+      "賃貸": "租屋",
+      "売買": "買賣",
+      "投資物件": "投資型物件",
+      "一戸建て": "獨棟住宅",
+      "マンション": "大樓住宅",
+      "土地": "土地",
+      "商業物件": "商用不動產",
+      "リノベーション": "翻修",
+      "住宅ローン": "房屋貸款",
+      "査定": "物件估價",
+      "相続": "繼承",
+      "税務": "稅務"
+    }
   }
 }
