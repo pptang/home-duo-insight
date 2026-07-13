@@ -23,23 +23,25 @@ import {
   UNSUPPORTED_SITE_MESSAGE_JA,
 } from "@/config/supported-sites";
 
-// Each chip's `id` is also the protocol value forwarded to the recommendation
-// edge function as `enabled_aspects[*]`. The AI must emit exactly one
+// Each id is also the protocol value forwarded to the recommendation edge
+// function as `enabled_aspects[*]`. The AI must emit exactly one
 // summary_table row per enabled aspect, in the order chips appear here.
-const FILTER_CHIPS = [
-  { id: "price", label: "価格" },
-  { id: "access", label: "交通" },
-  { id: "age", label: "築年数" },
-  { id: "layout", label: "間取り" },
-  { id: "school", label: "学区" },
-  { id: "risk", label: "リスク" },
-  { id: "cafe", label: "カフェ" },
-  { id: "gym", label: "ジム" },
-  { id: "dog", label: "犬の散歩" },
-  { id: "quiet", label: "静かさ" },
-  { id: "sunlight", label: "日当たり" },
-  { id: "laundromat", label: "ランドリー" },
-];
+// Labels come from home.filterChips.<id> (translated per locale) — see the
+// FILTER_CHIPS derivation inside the component, below.
+const FILTER_CHIP_IDS = [
+  "price",
+  "access",
+  "age",
+  "layout",
+  "school",
+  "risk",
+  "cafe",
+  "gym",
+  "dog",
+  "quiet",
+  "sunlight",
+  "laundromat",
+] as const;
 
 // DISCOVER demo reports. Each entry maps directly onto <ReportCard> props
 // (plus an `id` for the React key and a `to` link target).
@@ -110,6 +112,10 @@ const Index = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
+  const FILTER_CHIPS = FILTER_CHIP_IDS.map((id) => ({
+    id,
+    label: t(`home.filterChips.${id}`),
+  }));
   const [activeChips, setActiveChips] = useState<Set<string>>(new Set(["price"]));
   const [activeTab, setActiveTab] = useState<"url" | "id" | "area">("url");
   const [propA, setPropA] = useState("");
@@ -225,15 +231,15 @@ const Index = () => {
       <section className="min-h-[calc(100vh-52px)] flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 bg-paper">
         <div className="w-full max-w-[860px] mx-auto">
           <Eyebrow rules className="mb-5">
-            日本の不動産を、正直に比べる
+            {t("home.hero.eyebrow")}
           </Eyebrow>
 
           <h1 className="font-display text-[clamp(40px,6vw,72px)] leading-[1.1] tracking-[-1px] text-ink mb-3">
-            Compare homes,<br />
-            <em className="italic text-ink-60">not brochures.</em>
+            {t("home.hero.titleLine1")}<br />
+            <em className="italic text-ink-60">{t("home.hero.titleLine2")}</em>
           </h1>
           <p className="text-[15px] text-ink-60 mb-12 font-light">
-            2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。
+            {t("home.hero.subtitle")}
           </p>
 
           {/* COMPARE WIDGET */}
@@ -244,9 +250,9 @@ const Index = () => {
           >
             <div className="flex border-b border-rule bg-paper-dark px-5 gap-0.5">
               {([
-                { id: "url", label: "物件URL" },
-                { id: "id", label: "物件番号" },
-                { id: "area", label: "エリア名で検索" },
+                { id: "url", label: t("home.widget.tabUrl") },
+                { id: "id", label: t("home.widget.tabId") },
+                { id: "area", label: t("home.widget.tabArea") },
               ] as const).map((tab) => (
                 <button
                   key={tab.id}
@@ -266,13 +272,13 @@ const Index = () => {
             <div className="p-5 grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-end">
               <div className="flex flex-col gap-2">
                 <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 pl-0.5">
-                  物件 A
+                  {t("home.widget.propertyALabel")}
                 </label>
                 <input
                   type="text"
                   value={propA}
                   onChange={(e) => setPropA(e.target.value)}
-                  placeholder="例：SUUMO の URL または 物件名"
+                  placeholder={t("home.widget.propertyAPlaceholder")}
                   disabled={isSubmitting || activeTab !== "url"}
                   aria-invalid={showUnsupportedErrorA || undefined}
                   aria-describedby={showUnsupportedErrorA ? "compare-error-a" : undefined}
@@ -289,17 +295,17 @@ const Index = () => {
                 )}
               </div>
               <div className="hidden md:flex w-9 h-9 items-center justify-center border border-rule rounded-full font-mono text-[11px] text-ink-60 bg-paper-dark mb-1">
-                vs
+                {t("home.widget.vsLabel")}
               </div>
               <div className="flex flex-col gap-2">
                 <label className="font-mono text-[10px] uppercase tracking-[0.1em] text-ink-60 pl-0.5">
-                  物件 B
+                  {t("home.widget.propertyBLabel")}
                 </label>
                 <input
                   type="text"
                   value={propB}
                   onChange={(e) => setPropB(e.target.value)}
-                  placeholder="例：HOME'S の URL または 物件名"
+                  placeholder={t("home.widget.propertyBPlaceholder")}
                   disabled={isSubmitting || activeTab !== "url"}
                   aria-invalid={showUnsupportedErrorB || undefined}
                   aria-describedby={showUnsupportedErrorB ? "compare-error-b" : undefined}
@@ -341,11 +347,11 @@ const Index = () => {
               <div className="flex flex-col items-stretch sm:items-end gap-1.5">
                 <Button type="submit" disabled={!canSubmit} variant="editorial" size="editorial">
                   <ArrowRight className="w-3.5 h-3.5" />
-                  {isSubmitting ? "比較を作成中..." : "比較する"}
+                  {isSubmitting ? t("home.widget.submitting") : t("home.widget.submit")}
                 </Button>
                 {showNoChipsHint && (
                   <p className="text-[11px] text-ink-60 leading-snug pl-0.5 sm:text-right">
-                    少なくとも1つの項目を選択してください
+                    {t("home.widget.noChipsHint")}
                   </p>
                 )}
               </div>
@@ -354,15 +360,15 @@ const Index = () => {
             <div className="px-5 pt-2.5 pb-4 flex flex-wrap gap-4 justify-center border-t border-rule">
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
-                {SUPPORTED_SITES.map((site) => site.label).join(" / ")} 対応
+                {SUPPORTED_SITES.map((site) => site.label).join(" / ")} {t("home.widget.supportedSitesSuffix")}
               </div>
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
-                無料で3比較/月
+                {t("home.widget.freeTier")}
               </div>
               <div className="flex items-center gap-1.5 text-[12px] text-ink-60">
                 <span className="w-1 h-1 rounded-full bg-ink/30" />
-                AI + 専門家のダブルチェック
+                {t("home.widget.doubleCheck")}
               </div>
             </div>
           </form>
@@ -370,17 +376,17 @@ const Index = () => {
       </section>
 
       {/* DIVIDER */}
-      <SectionDivider label="Discover — 最新比較レポート" />
+      <SectionDivider label={t("home.discover.dividerLabel")} />
 
       {/* FEED PREVIEW */}
       <Section className="mt-10 pb-24">
         <div className="flex items-center justify-between mb-5">
-          <Eyebrow>新着比較レポート</Eyebrow>
+          <Eyebrow>{t("home.discover.eyebrow")}</Eyebrow>
           <Link
             to="/feed"
             className="font-mono text-[10px] uppercase tracking-[0.06em] text-ink-60 hover:text-ink no-underline border border-transparent hover:border-rule rounded-full px-2.5 py-1"
           >
-            すべて見る →
+            {t("home.discover.viewAll")}
           </Link>
         </div>
 

@@ -31,6 +31,10 @@ export const LanguageSwitcher = () => {
           <span className="mr-2 text-xs font-semibold text-muted-foreground">JA</span>
           日本語
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => changeLanguage("zh-TW")}>
+          <span className="mr-2 text-xs font-semibold text-muted-foreground">TW</span>
+          繁體中文
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

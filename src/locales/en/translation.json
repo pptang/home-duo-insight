@@ -18,45 +18,45 @@
   },
   "home": {
     "hero": {
-      "title": "Two homes. One perfect choice. 🏡",
-      "subtitle": "Make confident housing decisions in Japan with AI analysis, expert insights, and community wisdom — all in one beautiful comparison.",
-      "cta_primary": "Start Comparing",
-      "cta_secondary": "Browse Stories"
+      "eyebrow": "日本の不動産を、正直に比べる",
+      "titleLine1": "Compare homes,",
+      "titleLine2": "not brochures.",
+      "subtitle": "2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。"
     },
-    "features": {
-      "title": "How the magic works ✨",
-      "subtitle": "Three powerful layers of intelligence working together to guide your decision",
-      "ai": {
-        "title": "🤖 AI Analysis",
-        "description": "Our AI examines every detail — from commute times to neighborhood vibes — creating personalized insights tailored to your lifestyle.",
-        "cta": "See AI in action"
-      },
-      "expert": {
-        "title": "👥 Expert Insights",
-        "description": "Real estate professionals vote and share insider knowledge — from hidden costs to future development plans.",
-        "cta": "Meet the experts"
-      },
-      "community": {
-        "title": "🏠 Community Stories",
-        "description": "Learn from others who faced similar decisions — real experiences from real people in your exact situation.",
-        "cta": "Read their stories"
-      }
+    "widget": {
+      "tabUrl": "物件URL",
+      "tabId": "物件番号",
+      "tabArea": "エリア名",
+      "propertyALabel": "物件 A",
+      "propertyBLabel": "物件 B",
+      "propertyAPlaceholder": "例：SUUMO の URL または 物件名",
+      "propertyBPlaceholder": "例：HOME'S の URL または 物件名",
+      "vsLabel": "vs",
+      "submitting": "比較を作成中...",
+      "submit": "比較する",
+      "noChipsHint": "少なくとも1つの項目を選択してください",
+      "supportedSitesSuffix": "対応",
+      "freeTier": "月3件まで無料",
+      "doubleCheck": "AI + 専門家のダブルチェック"
     },
-    "sample": {
-      "title": "See it in action 🎯",
-      "subtitle": "Hover over each property to discover the differences that matter",
-      "click_to_compare": "Click to compare!",
-      "layout": "Layout",
-      "station": "Station",
-      "building": "Building",
-      "ai_recommendation": "AI Recommendation",
-      "recommendation_text": "For a young professional prioritizing nightlife and convenience, Shibuya Dream offers exceptional value with unmatched access to entertainment and dining, despite being slightly older. The 7-minute walk keeps you in the heart of Tokyo's energy! ⚡",
-      "create_comparison": "Create Your Comparison"
+    "discover": {
+      "dividerLabel": "Discover — 最新比較レポート",
+      "eyebrow": "新着比較レポート",
+      "viewAll": "すべて見る →"
     },
-    "cta": {
-      "title": "Your perfect home awaits 🌟",
-      "subtitle": "Stop overthinking. Start comparing. Make the decision that changes everything.",
-      "button": "Start Your Journey"
+    "filterChips": {
+      "price": "価格",
+      "access": "交通",
+      "age": "築年数",
+      "layout": "間取り",
+      "school": "学区",
+      "risk": "リスク",
+      "cafe": "カフェ",
+      "gym": "ジム",
+      "dog": "犬の散歩",
+      "quiet": "静けさ",
+      "sunlight": "日当たり",
+      "laundromat": "ランドリー"
     }
   },
   "compare": {
@@ -116,7 +116,7 @@
         "title": "🌿 Lifestyle Fit (Day-to-Day Life)",
         "proximity_to_cafes": "☕ Proximity to local cafés",
         "access_to_gym": "🏋️ Access to gym or wellness studios",
-        "dog_walking_friendly": "🦶 Dog-walking friendly neighborhood",
+        "dog_walking_friendly": "🐾 Dog-walking friendly neighborhood",
         "quiet_at_night": "🎧 Quiet at night / noise sensitivity",
         "morning_vs_afternoon_sunlight": "🌅 Morning vs. afternoon sunlight",
         "laundromat_access": "🧺 Onsite or nearby laundromat",
@@ -142,7 +142,7 @@
       },
       "sensory_comfort": {
         "title": "🧘 Sensory or Comfort Needs",
-        "natural_ventilation": "❄️ Natural ventilation / airiness",
+        "natural_ventilation": "🌬️ Natural ventilation / airiness",
         "light_sensitivity": "☀️ Light sensitivity",
         "minimalist_vs_maximalist": "🧘‍♀️ Minimalist vs. maximalist",
         "privacy_from_neighbors": "🚪 Privacy from neighbors",
@@ -155,7 +155,7 @@
         "international_schools": "🏫 Access to international schools",
         "weekend_market_access": "🛍️ Weekend market / shopping access",
         "safe_for_biking": "🚴 Safe for biking",
-        "spiritual_space_access": "🛕 Nearby temples/shrines or spiritual space"
+        "spiritual_space_access": "⛩️ Nearby temples/shrines or spiritual space"
       },
       "select_preference": "Select preference"
     },
@@ -213,8 +213,8 @@
     "card": {
       "comparing": "Comparing",
       "vs": "vs",
-      "expert_votes": "{{count}} expert voted",
-      "expert_votes_plural": "{{count}} experts voted",
+      "expert_votes": "{{count}} expert vote",
+      "expert_votes_plural": "{{count}} expert votes",
       "community_vote": "{{count}} community vote",
       "community_votes": "{{count}} community votes",
       "comment": "{{count}} comment",
@@ -238,7 +238,7 @@
     "stats": {
       "reviews": "Expert Reviews",
       "active": "Active Experts",
-      "decisions": "Helped Decisions"
+      "decisions": "Decisions Helped"
     },
     "benefits": {
       "title": "What you'll do as an expert:",
@@ -435,13 +435,13 @@
   },
   "about": {
     "title": "Our Origin",
-    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"Aisum\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner.",
+    "mission": "“Why is so much time and anxiety necessary before finding your ideal home?” This simple question is the starting point of “AiSumai.” Our founders lived through the conventional home search themselves—overloaded with information, yet hard to see what truly matters. Our mission began with a simple desire: to replace that opacity and inefficiency with technology and human warmth, so everyone can find a home they're truly happy with and start building a life that's genuinely their own. The AI draws the optimal map, and the experts become a reliable compass. We want to be a partner you can count on.",
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
       "eyebrow": "About AiSumai",
       "heading": "Choose your home with confidence.",
-      "lede": "AiSumai brings AI analysis, expert insight, and community signal together so you can compare two shortlisted homes side by side, fairly.",
+      "lede": "AiSumai brings AI analysis, expert insight, and community wisdom together so you can compare two shortlisted homes side by side, fairly.",
       "description": "Helping renters and home buyers in Japan make confident final housing decisions through",
       "descriptionAI": "AI-powered analysis",
       "descriptionExpert": "expert insights",
@@ -462,7 +462,7 @@
       "expertDescription": "Licensed local agents add the context data alone can't provide — flagging things to watch out for and adding practical, experience-backed advice.",
       "expertFeature": "Verified local market expertise",
       "expertOverlay": "Real expert opinions",
-      "communityTitle": "Community shows you precedent",
+      "communityTitle": "Community shows you what others chose",
       "communityDescription": "Browse comparisons made by people in similar situations. Seeing what others chose, and why, sharpens your own judgment.",
       "communityFeature": "Real stories from real decisions",
       "communityOverlay": "Community experiences"
@@ -497,7 +497,7 @@
       "q2": "How much does it cost to use AiSumai (愛住)?",
       "a2": "Basic home comparisons on AiSumai (愛住) are free. In the future, premium features such as deeper AI analysis and one-on-one expert consultations may be offered through paid plans.",
       "q3": "Which real estate websites are supported for URL importing?",
-      "a3": "In the future, we plan to support automatic data importing from major Japanese real estate platforms including Suumo, at home, LIFULL HOME'S, and others. Currently, you can enter property information manually.",
+      "a3": "In the future, we plan to support automatic data importing from major Japanese real estate platforms including SUUMO, at home, and LIFULL HOME'S, among others. Currently, you can enter property information manually.",
       "q4": "How accurate is the AI recommendation?",
       "a4": "Our AI provides recommendations based on the data available and your stated preferences. It's designed to offer an objective analysis, but we always recommend considering the expert insights alongside the AI recommendation for a complete picture.",
       "q5": "Who are the experts providing insights?",
@@ -520,10 +520,10 @@
     },
     "cta": {
       "eyebrow": "Get started",
-      "subtitle": "No signup required, free for 3 comparisons. Drop in two listings to get started.",
+      "subtitle": "No signup required, free for 3 comparisons. Drop in two properties to get started.",
       "heading": "Ready to start with AiSumai?",
-      "description": "Compare your shortlisted properties now and get personalized insights to help you choose the",
-      "descriptionHighlight": "perfect home",
+      "description": "Compare your shortlisted properties now and get personalized insights to help you choose",
+      "descriptionHighlight": "the right home",
       "descriptionEnd": "with confidence.",
       "button": "Start your comparison",
       "freeToUse": "Free to use",
@@ -575,7 +575,7 @@
     },
     "error": "Error",
     "errorDesc": "Failed to load expert profile",
-    "unexpectedError": "An unexpected error occurred"
+    "unexpectedError": "An unexpected error occurred. Please try again."
   },
   "notFound": {
     "title": "404",
@@ -586,11 +586,12 @@
   "authButtons": {
     "loading": "Loading...",
     "signIn": "Sign In",
+    "signUp": "Get Started",
     "expertBadge": "Expert",
     "adminBadge": "Admin",
     "myAccount": "My Account",
     "myProfile": "My Public Profile",
-    "signOut": "Sign out"
+    "signOut": "Sign Out"
   },
   "feedExpertVoting": {
     "alreadyVoted": "You've already voted on this comparison.",
@@ -705,7 +706,8 @@
     "description": "Please review and edit the extracted property information below. All fields are optional.",
     "propertyA": "Property A",
     "propertyB": "Property B",
-    "unsavedChanges": "{{count}} unsaved changes",
+    "unsavedChanges_one": "{{count}} unsaved change",
+    "unsavedChanges_other": "{{count}} unsaved changes",
     "startOver": "Start Over",
     "saving": "Saving...",
     "continue": "Continue to Comparison →"
@@ -730,10 +732,10 @@
       "placeholder_property_name": "Could not retrieve the property name. Please check that the URL is correct.",
       "zero_price_both_sides": "Could not retrieve pricing information for either property.",
       "gemini_api_error": "Could not connect to the AI analysis service. Please try again later.",
-      "gemini_response_parse_error": "Could not process the AI analysis result. Please retry.",
-      "recommendation_save_error": "Failed to save the recommendation. Please retry.",
-      "recommendation_save_exception": "An error occurred while saving the recommendation. Please retry.",
-      "unknown": "An unknown error occurred. Please retry."
+      "gemini_response_parse_error": "Could not process the AI analysis result. Please try again.",
+      "recommendation_save_error": "Failed to save the recommendation. Please try again.",
+      "recommendation_save_exception": "An error occurred while saving the recommendation. Please try again.",
+      "unknown": "An unknown error occurred. Please try again."
     }
   }
 }

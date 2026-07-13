@@ -3,8 +3,21 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import enTranslation from "./locales/en/translation.json";
 import jaTranslation from "./locales/ja/translation.json";
+import zhTWTranslation from "./locales/zh-TW/translation.json";
 
 const isServer = typeof window === "undefined";
+
+// Captured BEFORE i18next.init() runs below. Client init forces lng:"en" (see
+// comment on baseConfig.lng); i18next fires a languageChanged event as part
+// of init even when lng is forced rather than detected, and LanguageDetector
+// (registered for its localStorage caching side-effect) caches whatever the
+// current language is on every languageChanged event — so by the time
+// anything reads localStorage after init, "en" has already overwritten the
+// user's real saved preference. root.tsx's post-hydration upgrade effect
+// reads this captured snapshot instead of re-querying localStorage, so a
+// saved "ja"/"zh-TW" preference survives full page loads and direct
+// navigation, not just same-tab SPA transitions.
+export const storedLngAtLoad = isServer ? null : localStorage.getItem("i18nextLng");
 
 // Shared base config — keeps server and client in sync; avoids drift.
 const baseConfig = {
@@ -14,11 +27,12 @@ const baseConfig = {
   // for JA browsers, causing a text-node mismatch against the SSR "en" HTML.
   lng: "en",
   fallbackLng: "en",
-  supportedLngs: ["en", "ja"],
+  supportedLngs: ["en", "ja", "zh-TW"],
   interpolation: { escapeValue: false },
   resources: {
     en: { translation: enTranslation },
     ja: { translation: jaTranslation },
+    "zh-TW": { translation: zhTWTranslation },
   },
 };
 

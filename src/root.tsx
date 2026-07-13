@@ -18,7 +18,7 @@ import Topbar from "@/components/ui/Topbar";
 import Footer from "@/components/ui/Footer";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { initGA } from "@/lib/analytics";
-import i18n from "@/i18n";
+import i18n, { storedLngAtLoad } from "@/i18n";
 
 // Routes that own their full layout (no global header/footer)
 const FULL_LAYOUT_ROUTES = ["/auth"];
@@ -138,9 +138,12 @@ export default function Root() {
   // (localStorage → navigator), normalizes to a supported lang, and upgrades if
   // the detected locale differs from the server-default "en".
   useEffect(() => {
-    const stored = localStorage.getItem("i18nextLng");
-    const preferred = stored || navigator.language || "";
-    const detected = preferred.startsWith("ja") ? "ja" : "en";
+    const preferred = storedLngAtLoad || navigator.language || "";
+    const detected = preferred.startsWith("ja")
+      ? "ja"
+      : preferred.startsWith("zh")
+        ? "zh-TW"
+        : "en";
     if (detected !== i18n.language) {
       i18n.changeLanguage(detected);
     }

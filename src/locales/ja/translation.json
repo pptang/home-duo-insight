@@ -18,45 +18,45 @@
   },
   "home": {
     "hero": {
-      "title": "2つの住まい。ひとつの完璧な選択。🏡",
-      "subtitle": "AI分析、専門家の見識、そしてコミュニティの知恵を一つの美しい比較にまとめ、日本で自信を持って住まいを決めましょう。",
-      "cta_primary": "比較を始める",
-      "cta_secondary": "ストーリーを見る"
+      "eyebrow": "日本の不動産を、正直に比べる",
+      "titleLine1": "Compare homes,",
+      "titleLine2": "not brochures.",
+      "subtitle": "2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。"
     },
-    "features": {
-      "title": "魔法の仕組み ✨",
-      "subtitle": "あなたの決断を導く、3つの強力なインテリジェンスの層",
-      "ai": {
-        "title": "🤖 AI分析",
-        "description": "通勤時間から地域の雰囲気まで、あらゆる詳細をAIが検証。あなたのライフスタイルに合わせたパーソナライズされた洞察を提供します。",
-        "cta": "AIの動きを見る"
-      },
-      "expert": {
-        "title": "👥 専門家の見識",
-        "description": "不動産のプロフェッショナルが投票し、隠れたコストから将来の開発計画まで、インサイダー知識を共有します。",
-        "cta": "専門家に会う"
-      },
-      "community": {
-        "title": "🏠 コミュニティストーリー",
-        "description": "同じような決断に直面した人々から学びましょう。あなたと同じ状況にいる実在の人々からの実体験です。",
-        "cta": "ストーリーを読む"
-      }
+    "widget": {
+      "tabUrl": "物件URL",
+      "tabId": "物件番号",
+      "tabArea": "エリア名",
+      "propertyALabel": "物件 A",
+      "propertyBLabel": "物件 B",
+      "propertyAPlaceholder": "例：SUUMO の URL または 物件名",
+      "propertyBPlaceholder": "例：HOME'S の URL または 物件名",
+      "vsLabel": "vs",
+      "submitting": "比較を作成中...",
+      "submit": "比較する",
+      "noChipsHint": "少なくとも1つの項目を選択してください",
+      "supportedSitesSuffix": "対応",
+      "freeTier": "月3件まで無料",
+      "doubleCheck": "AI + 専門家のダブルチェック"
     },
-    "sample": {
-      "title": "実際に見てみよう 🎯",
-      "subtitle": "各物件にマウスを合わせて、重要な違いを発見しましょう",
-      "click_to_compare": "クリックして比較！",
+    "discover": {
+      "dividerLabel": "Discover — 最新比較レポート",
+      "eyebrow": "新着比較レポート",
+      "viewAll": "すべて見る →"
+    },
+    "filterChips": {
+      "price": "価格",
+      "access": "交通",
+      "age": "築年数",
       "layout": "間取り",
-      "station": "駅",
-      "building": "築年数",
-      "ai_recommendation": "AIのおすすめ",
-      "recommendation_text": "ナイトライフと利便性を優先する若手プロフェッショナルにとって、渋谷ドリームは、やや築年数が古いものの、エンターテイメントやダイニングへの比類ないアクセスで卓越した価値を提供します。徒歩7分で、東京のエネルギーの中心にいることができます！⚡",
-      "create_comparison": "比較を作成する"
-    },
-    "cta": {
-      "title": "あなたの完璧な住まいが待っています 🌟",
-      "subtitle": "考えすぎるのはやめて、比較を始めましょう。すべてを変える決断をしましょう。",
-      "button": "旅を始める"
+      "school": "学区",
+      "risk": "リスク",
+      "cafe": "カフェ",
+      "gym": "ジム",
+      "dog": "犬の散歩",
+      "quiet": "静けさ",
+      "sunlight": "日当たり",
+      "laundromat": "ランドリー"
     }
   },
   "compare": {
@@ -113,10 +113,10 @@
       "very_important": "とても重要",
       "no_preference": "こだわりなし",
       "lifestyle_fit": {
-        "title": "🌿 ライフスタイルフィット（日常生活）",
+        "title": "🌿 暮らしとの相性（日常生活）",
         "proximity_to_cafes": "☕ 地元のカフェへの近さ",
         "access_to_gym": "🏋️ ジムやウェルネススタジオへのアクセス",
-        "dog_walking_friendly": "🦶 犬の散歩に適した地域",
+        "dog_walking_friendly": "🐾 犬の散歩に適した地域",
         "quiet_at_night": "🎧 夜間の静けさ / 騒音への敏感さ",
         "morning_vs_afternoon_sunlight": "🌅 朝日 vs 午後の日光",
         "laundromat_access": "🧺 施設内または近くのコインランドリー",
@@ -125,9 +125,9 @@
         "no_preference": "こだわりなし"
       },
       "emotional_desires": {
-        "title": "✨ 感情的な欲求 / 美的好み",
+        "title": "✨ 心地よさ・好みの美意識",
         "open_view": "🪟 開放的な景色 / 遮る建物がない",
-        "feels_like_home": "🏡 「家のように感じる」/ 温かさ",
+        "feels_like_home": "🏡 居心地の良さ・わが家のような温かさ",
         "creative_friendly": "🎨 創造性をサポート",
         "reading_corner_space": "📚 読書コーナーのスペース",
         "natural_surroundings": "🌳 自然な環境 / 緑"
@@ -136,13 +136,13 @@
         "title": "🔮 人生設計 / 将来の目標",
         "future_family_growth": "👨‍👩‍👧‍👦 将来の家族の成長の余地",
         "work_from_home_support": "💻 在宅勤務のサポート",
-        "resale_potential": "💼 将来の転売の可能性",
+        "resale_potential": "💼 将来の売却のしやすさ",
         "renovation_willingness": "🔨 リノベーションへの意欲",
-        "storage_capacity": "📦 収納容量のニーズ"
+        "storage_capacity": "📦 収納スペースの充実度"
       },
       "sensory_comfort": {
-        "title": "🧘 感覚的または快適さのニーズ",
-        "natural_ventilation": "❄️ 自然換気 / 風通し",
+        "title": "🧘 五感・快適さへのこだわり",
+        "natural_ventilation": "🌬️ 自然換気 / 風通し",
         "light_sensitivity": "☀️ 光への敏感さ",
         "minimalist_vs_maximalist": "🧘‍♀️ ミニマリスト vs マキシマリスト",
         "privacy_from_neighbors": "🚪 隣人からのプライバシー",
@@ -150,12 +150,12 @@
         "maximalist": "マキシマリスト"
       },
       "cultural_routine": {
-        "title": "🧭 文化的 / ルーチンベースのニーズ",
+        "title": "🧭 生活習慣・文化的なニーズ",
         "grocery_chain_access": "🍱 お気に入りのスーパーマーケットの近く",
         "international_schools": "🏫 インターナショナルスクールへのアクセス",
         "weekend_market_access": "🛍️ 週末の市場 / ショッピングへのアクセス",
-        "safe_for_biking": "🚴 自転車に安全",
-        "spiritual_space_access": "🛕 近くの寺院/神社またはスピリチュアルな空間"
+        "safe_for_biking": "🚴 自転車移動がしやすい",
+        "spiritual_space_access": "⛩️ 近くの寺院/神社またはスピリチュアルな空間"
       },
       "select_preference": "好みを選択"
     },
@@ -190,12 +190,12 @@
       "condo": "マンション",
       "price_range": "価格帯",
       "any_price": "すべての価格",
-      "rental_low": "賃貸：¥100,000以下",
-      "rental_mid": "賃貸：¥100,000 - ¥200,000",
-      "rental_high": "賃貸：¥200,000以上",
-      "purchase_low": "購入：¥50M以下",
-      "purchase_mid": "購入：¥50M - ¥100M",
-      "purchase_high": "購入：¥100M以上",
+      "rental_low": "賃貸：10万円以下",
+      "rental_mid": "賃貸：10万〜20万円",
+      "rental_high": "賃貸：20万円以上",
+      "purchase_low": "購入：5,000万円以下",
+      "purchase_mid": "購入：5,000万円〜1億円",
+      "purchase_high": "購入：1億円以上",
       "sort_by": "並び替え",
       "most_recent": "最新",
       "most_popular": "人気",
@@ -213,10 +213,10 @@
     "card": {
       "comparing": "比較中",
       "vs": "vs",
-      "expert_votes": "{{count}}人の専門家が投票しました",
-      "expert_votes_plural": "{{count}}人の専門家が投票しました",
-      "community_vote": "{{count}}票のコミュニティ投票",
-      "community_votes": "{{count}}票のコミュニティ投票",
+      "expert_votes": "専門家投票 {{count}}人",
+      "expert_votes_plural": "専門家投票 {{count}}人",
+      "community_vote": "コミュニティ投票 {{count}}票",
+      "community_votes": "コミュニティ投票 {{count}}票",
       "comment": "{{count}}件のコメント",
       "comments": "{{count}}件のコメント",
       "view_full": "完全な比較を見る",
@@ -233,7 +233,7 @@
     "pending": "あなたの申請は審査中です。",
     "hero": {
       "title": "専門家ネットワーク",
-      "subtitle": "不動産専門家のコミュニティに参加し、日本全国の人々がより良い住宅決定をするのを支援しましょう。"
+      "subtitle": "不動産専門家のコミュニティに参加し、日本全国の人々がより良い住まい選びができるよう支援しましょう。"
     },
     "stats": {
       "reviews": "専門家レビュー",
@@ -435,7 +435,7 @@
   },
   "about": {
     "title": "私たちの原点",
-    "mission": "「理想の住まいと出会うまでに、なぜこれほど多くの時間と不安が必要なのだろう？」このシンプルな問いが、私たち「愛すまい」の出発点です。創業者自身が経験した、情報過多でありながら本質が見えにくい従来の住まい探し。その不透明性と非効率性を、テクノロジーと人の温もりで解消したい。その想いから、私たちの挑戦は始まりました。私たちの使命は、誰もが心から納得できる住まいと出会い、自分らしい豊かな人生を歩み出す、その最初の一歩を支えること。AIは最適な地図を描き、専門家は信頼できるコンパスとなる。私たちは、あなたの最高のパートナーでありたいと願っています。",
+    "mission": "「理想の住まいと出会うまでに、なぜこれほど多くの時間と不安が必要なのだろう？」このシンプルな問いが、私たち「AiSumai（愛住）」の出発点です。創業者自身が経験した、情報過多でありながら本質が見えにくい従来の住まい探し。その不透明性と非効率性を、テクノロジーと人の温もりで解消したい。その想いから、私たちの挑戦は始まりました。私たちの使命は、誰もが心から納得できる住まいと出会い、自分らしい豊かな人生を歩み出す、その最初の一歩を支えること。AIは最適な地図を描き、専門家は信頼できるコンパスとなる。私たちは、あなたの最高のパートナーでありたいと願っています。",
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
@@ -586,6 +586,7 @@
   "authButtons": {
     "loading": "読み込み中...",
     "signIn": "ログイン",
+    "signUp": "無料で始める",
     "expertBadge": "専門家",
     "adminBadge": "管理者",
     "myAccount": "マイアカウント",
