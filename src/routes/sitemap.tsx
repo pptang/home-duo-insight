@@ -28,6 +28,7 @@ export async function loader() {
     { path: "/about", lastmod: null },
     { path: "/guides", lastmod: null },
     { path: "/guides/fukuoka-vs-osaka", lastmod: null },
+    { path: "/guides/minato-vs-chuo", lastmod: null },
   ];
 
   const comparisonEntries: UrlEntry[] = [];

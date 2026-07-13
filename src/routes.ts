@@ -5,6 +5,7 @@ export default [
   route("compare", "routes/compare-redirect.tsx"),
   route("guides", "pages/Guides.tsx"),
   route("guides/fukuoka-vs-osaka", "pages/GuideFukuokaOsaka.tsx"),
+  route("guides/minato-vs-chuo", "pages/GuideMinatoChuo.tsx"),
   route("feed", "pages/Feed.tsx"),
   route("experts", "pages/Experts.tsx"),
   route("experts/:expertId", "pages/ExpertProfilePage.tsx"),
