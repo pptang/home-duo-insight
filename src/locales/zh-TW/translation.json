@@ -9,7 +9,7 @@
   },
   "nav": {
     "home": "首頁",
-    "compare": "開始比較",
+    "compare": "比較",
     "guides": "指南",
     "feed": "比較動態",
     "experts": "專家",
@@ -144,17 +144,17 @@
         "title": "🧘 感官與舒適度需求",
         "natural_ventilation": "❄️ 自然通風 / 空氣流通",
         "light_sensitivity": "☀️ 對光線敏感",
-        "minimalist_vs_maximalist": "🧘‍♀️ 極簡風 vs 豐富風",
+        "minimalist_vs_maximalist": "🧘‍♀️ 極簡風 vs 極繁風",
         "privacy_from_neighbors": "🚪 與鄰居保有隱私",
         "minimalist": "極簡風",
-        "maximalist": "豐富風"
+        "maximalist": "極繁風"
       },
       "cultural_routine": {
         "title": "🧭 生活習慣 / 文化需求",
         "grocery_chain_access": "🍱 鄰近常去的超市",
         "international_schools": "🏫 鄰近國際學校",
         "weekend_market_access": "🛍️ 鄰近週末市集 / 購物",
-        "safe_for_biking": "🚴 適合騎自行車",
+        "safe_for_biking": "🚴 適合安全騎自行車",
         "spiritual_space_access": "🛕 鄰近寺廟神社或宗教場所"
       },
       "select_preference": "選擇偏好"
@@ -215,8 +215,8 @@
       "vs": "vs",
       "expert_votes": "{{count}} 位專家投票",
       "expert_votes_plural": "{{count}} 位專家投票",
-      "community_vote": "{{count}} 則社群投票",
-      "community_votes": "{{count}} 則社群投票",
+      "community_vote": "{{count}} 次社群投票",
+      "community_votes": "{{count}} 次社群投票",
       "comment": "{{count}} 則留言",
       "comments": "{{count}} 則留言",
       "view_full": "查看完整比較",
@@ -253,7 +253,7 @@
     "toast": {
       "signup_failed": "註冊失敗",
       "signup_success": "註冊成功",
-      "signup_success_desc": "請至你的電子郵件收取確認連結。",
+      "signup_success_desc": "請至信箱查收確認連結。",
       "signin_failed": "登入失敗",
       "signin_success": "登入成功",
       "signin_success_desc": "歡迎回來！",
@@ -289,13 +289,13 @@
   },
   "about": {
     "title": "我們的起點",
-    "mission": "「為什麼找到理想的家，需要耗費這麼多時間與焦慮？」這個簡單的問題，正是「愛住」的起點。我們的創辦人親身經歷過傳統的找房過程——資訊多到爆炸，卻始終看不清真正重要的事。我們的挑戰，就從想用科技與人的溫度，解決這種不透明與沒效率開始。我們的使命，是陪伴每個人踏出最重要的第一步——找到真正滿意的家，展開屬於自己、獨一無二的精彩人生。AI 描繪出最佳路徑，專家則成為值得信賴的羅盤。我們希望成為你最堅實的夥伴。",
+    "mission": "「為什麼找到理想的家，要花這麼多時間，承受這麼多焦慮？」這個簡單的問題，正是「愛住」的起點。我們的創辦人親身經歷過傳統的找房過程——資訊多到爆炸，卻始終看不清真正重要的事。我們的挑戰，就是想用科技與人的溫度，解決找房過程中的不透明與缺乏效率。我們的使命，是陪伴每個人踏出最重要的第一步——找到真正滿意的家，展開屬於自己、獨一無二的精彩人生。AI 繪製出最佳地圖，專家則成為你值得信賴的羅盤。我們希望成為你最堅實的夥伴。",
     "hero": {
       "brandName": "AiSumai",
-      "brandMeaning": "AI × 住まい（家）× 愛（愛）",
+      "brandMeaning": "AI × 住まい（家）× 愛",
       "eyebrow": "關於 AiSumai",
       "heading": "有信心地選擇你的家。",
-      "lede": "AiSumai 結合 AI 分析、專家見解與社群智慧，讓你能公正地並排比較兩間候選住宅。",
+      "lede": "AiSumai 結合 AI 分析、專家見解與社群智慧，讓你能公正地並排比較兩個候選物件。",
       "description": "透過以下方式，幫助在日本租屋、購屋的你做出有信心的最終決定：",
       "descriptionAI": "AI 驅動的分析",
       "descriptionExpert": "專家見解",
@@ -357,7 +357,7 @@
       "q5": "提供意見的專家是誰？",
       "a5": "我們的專家包括持照房仲、物業管理人員及其他日本房產業界的專業人士。每位專家都有經過驗證的公開檔案，顯示其資格、經驗與專長領域。",
       "q6": "我的比較內容會公開嗎？",
-      "a6": "你的物件比較預設為私人狀態。你可以選擇將其公開，貢獻給社群知識庫，但這完全是自由選擇，非強制。"
+      "a6": "你的物件比較預設為不公開。你可以選擇公開分享至社群知識庫，但這完全由你決定。"
     },
     "team": {
       "title": "我們的團隊",
@@ -365,7 +365,7 @@
       "member1Name": "田中浩",
       "member1Role": "創辦人 & CEO",
       "member1Bio": "曾任房產顧問，擁有 15 年以上東京市場經驗。",
-      "member2Name": "高橋惠瑪",
+      "member2Name": "高橋艾瑪",
       "member2Role": "資料科學主管",
       "member2Bio": "專精房產估價與推薦系統的 AI 專家。",
       "member3Name": "山本健",
@@ -402,7 +402,7 @@
     "title": "{{propertyA}} vs {{propertyB}}",
     "created": "建立於 {{date}}",
     "shareButton": "分享",
-    "backToFeed": "返回動態",
+    "backToFeed": "返回比較動態",
     "notFound": {
       "title": "找不到此比較",
       "description": "你要找的比較不存在。"
@@ -463,7 +463,7 @@
     "contactButton": "聯絡專家",
     "contactTitle": "聯絡 {{name}}",
     "expertBadge": "專家",
-    "ratings": "則評價",
+    "ratings": "則評分",
     "notFound": "找不到此專家檔案",
     "companyWebsite": "公司網站",
     "twitter": "𝕏 Twitter",
@@ -607,7 +607,7 @@
       "マンション": "大樓住宅",
       "土地": "土地",
       "商業物件": "商用不動產",
-      "リノベーション": "翻修",
+      "リノベーション": "裝修",
       "住宅ローン": "房屋貸款",
       "査定": "物件估價",
       "相続": "繼承",

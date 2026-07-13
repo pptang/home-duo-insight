@@ -435,7 +435,7 @@
   },
   "about": {
     "title": "Our Origin",
-    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"Aisum\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner.",
+    "mission": "\"Why is so much time and anxiety necessary before finding your ideal home?\" This simple question is the starting point of \"AiSumai\". Our founders themselves experienced the conventional home search—overloaded with information, yet difficult to see what truly matters. Our challenge began from the desire to resolve this lack of transparency and inefficiency with technology and human warmth. Our mission is to support the very first step—where everyone can find a home they are truly satisfied with and begin to walk their own unique, rich life path. The AI draws the optimal map, and the experts become a reliable compass. We aspire to be your greatest partner.",
     "hero": {
       "brandName": "AiSumai",
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
@@ -706,7 +706,8 @@
     "description": "Please review and edit the extracted property information below. All fields are optional.",
     "propertyA": "Property A",
     "propertyB": "Property B",
-    "unsavedChanges": "{{count}} unsaved changes",
+    "unsavedChanges_one": "{{count}} unsaved change",
+    "unsavedChanges_other": "{{count}} unsaved changes",
     "startOver": "Start Over",
     "saving": "Saving...",
     "continue": "Continue to Comparison →"
