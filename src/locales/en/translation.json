@@ -18,45 +18,45 @@
   },
   "home": {
     "hero": {
-      "title": "Two homes. One perfect choice. 🏡",
-      "subtitle": "Make confident housing decisions in Japan with AI analysis, expert insights, and community wisdom — all in one beautiful comparison.",
-      "cta_primary": "Start Comparing",
-      "cta_secondary": "Browse Stories"
+      "eyebrow": "日本の不動産を、正直に比べる",
+      "titleLine1": "Compare homes,",
+      "titleLine2": "not brochures.",
+      "subtitle": "2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。"
     },
-    "features": {
-      "title": "How the magic works ✨",
-      "subtitle": "Three powerful layers of intelligence working together to guide your decision",
-      "ai": {
-        "title": "🤖 AI Analysis",
-        "description": "Our AI examines every detail — from commute times to neighborhood vibes — creating personalized insights tailored to your lifestyle.",
-        "cta": "See AI in action"
-      },
-      "expert": {
-        "title": "👥 Expert Insights",
-        "description": "Real estate professionals vote and share insider knowledge — from hidden costs to future development plans.",
-        "cta": "Meet the experts"
-      },
-      "community": {
-        "title": "🏠 Community Stories",
-        "description": "Learn from others who faced similar decisions — real experiences from real people in your exact situation.",
-        "cta": "Read their stories"
-      }
+    "widget": {
+      "tabUrl": "物件URL",
+      "tabId": "物件番号",
+      "tabArea": "エリア名で検索",
+      "propertyALabel": "物件 A",
+      "propertyBLabel": "物件 B",
+      "propertyAPlaceholder": "例：SUUMO の URL または 物件名",
+      "propertyBPlaceholder": "例：HOME'S の URL または 物件名",
+      "vsLabel": "vs",
+      "submitting": "比較を作成中...",
+      "submit": "比較する",
+      "noChipsHint": "少なくとも1つの項目を選択してください",
+      "supportedSitesSuffix": "対応",
+      "freeTier": "無料で3比較/月",
+      "doubleCheck": "AI + 専門家のダブルチェック"
     },
-    "sample": {
-      "title": "See it in action 🎯",
-      "subtitle": "Hover over each property to discover the differences that matter",
-      "click_to_compare": "Click to compare!",
-      "layout": "Layout",
-      "station": "Station",
-      "building": "Building",
-      "ai_recommendation": "AI Recommendation",
-      "recommendation_text": "For a young professional prioritizing nightlife and convenience, Shibuya Dream offers exceptional value with unmatched access to entertainment and dining, despite being slightly older. The 7-minute walk keeps you in the heart of Tokyo's energy! ⚡",
-      "create_comparison": "Create Your Comparison"
+    "discover": {
+      "dividerLabel": "Discover — 最新比較レポート",
+      "eyebrow": "新着比較レポート",
+      "viewAll": "すべて見る →"
     },
-    "cta": {
-      "title": "Your perfect home awaits 🌟",
-      "subtitle": "Stop overthinking. Start comparing. Make the decision that changes everything.",
-      "button": "Start Your Journey"
+    "filterChips": {
+      "price": "価格",
+      "access": "交通",
+      "age": "築年数",
+      "layout": "間取り",
+      "school": "学区",
+      "risk": "リスク",
+      "cafe": "カフェ",
+      "gym": "ジム",
+      "dog": "犬の散歩",
+      "quiet": "静かさ",
+      "sunlight": "日当たり",
+      "laundromat": "ランドリー"
     }
   },
   "compare": {
@@ -586,6 +586,7 @@
   "authButtons": {
     "loading": "Loading...",
     "signIn": "Sign In",
+    "signUp": "Get Started Free",
     "expertBadge": "Expert",
     "adminBadge": "Admin",
     "myAccount": "My Account",
