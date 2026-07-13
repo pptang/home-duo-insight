@@ -18,10 +18,10 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "日本の不動産を、正直に比べる",
+      "eyebrow": "住まいは、暮らし方で選ぶ。",
       "titleLine1": "Compare homes,",
-      "titleLine2": "not brochures.",
-      "subtitle": "2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。"
+      "titleLine2": "not features.",
+      "subtitle": "2つの物件を入力するだけで、AIと専門家、先に住んだ人たちの声が、あなたに合う一軒を見つけ出す。"
     },
     "widget": {
       "tabUrl": "物件URL",
@@ -441,7 +441,7 @@
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
       "eyebrow": "AiSumai について",
       "heading": "日本の不動産選びを、もっと、誠実に。",
-      "lede": "AiSumai は、AI 分析・専門家の知見・コミュニティの声を組み合わせ、2 つの候補物件をフェアに比較するためのツールです。",
+      "lede": "AiSumaiは、AIの分析、認定専門家の視点、同じ選択をしてきた人たちの声を重ね、住まいという人生の選択に、自信を持って向き合うための場所です。",
       "description": "日本で賃貸や住宅購入を検討している方が、自信を持って住まいを決定できるようサポートします",
       "descriptionAI": "AIによる分析",
       "descriptionExpert": "専門家の見識",
@@ -469,13 +469,12 @@
     },
     "features": {
       "eyebrow": "特長",
-      "title": "なぜ AiSumai を選ぶか。",
+      "title": "住まい選びを支える、3つの視点。",
       "featureLabel": "特長 0{{n}}",
-      "illustrationLabel": "イメージ",
       "fair": {
-        "title": "営業トークではなく、データで比べる。",
-        "description": "ポータルサイトの売り文句や写真の演出に左右されない、フェアで透明性のある比較レポートを生成します。良い点も、不安な点も、同じ尺度で並べます。",
-        "tag": "先入観に左右されない"
+        "title": "写真や謳い文句の、その先へ。",
+        "description": "AIが物件情報を読み解き、日当たりや周辺環境、価格の妥当性まで、暮らしに関わる実質を言葉と数値で示します。",
+        "tag": "AIによる深掘り分析"
       },
       "fast": {
         "title": "数分で、最初の判断材料が手に入る。",

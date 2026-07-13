@@ -18,10 +18,10 @@
   },
   "home": {
     "hero": {
-      "eyebrow": "日本の不動産を、正直に比べる",
+      "eyebrow": "A clearer look at Japan real estate.",
       "titleLine1": "Compare homes,",
-      "titleLine2": "not brochures.",
-      "subtitle": "2つの物件を入力するだけ。AIが数秒でフェアな比較レポートを作成します。"
+      "titleLine2": "not features.",
+      "subtitle": "Enter two listings. See how each one actually fits the life you're trying to build."
     },
     "widget": {
       "tabUrl": "物件URL",
@@ -441,7 +441,7 @@
       "brandMeaning": "AI × 住まい (home) × 愛 (love)",
       "eyebrow": "About AiSumai",
       "heading": "Choose your home with confidence.",
-      "lede": "AiSumai brings AI analysis, expert insight, and community wisdom together so you can compare two shortlisted homes side by side, fairly.",
+      "lede": "Choosing a home is choosing how you'll live for years. AiSumai brings together AI analysis, verified expert insight, and the experience of people who've made the same choice — so you can decide with real confidence, not guesswork.",
       "description": "Helping renters and home buyers in Japan make confident final housing decisions through",
       "descriptionAI": "AI-powered analysis",
       "descriptionExpert": "expert insights",
@@ -468,14 +468,13 @@
       "communityOverlay": "Community experiences"
     },
     "features": {
-      "eyebrow": "Why AiSumai",
-      "title": "Why choose AiSumai.",
+      "eyebrow": "How AiSumai helps",
+      "title": "Three ways to see clearer.",
       "featureLabel": "Feature 0{{n}}",
-      "illustrationLabel": "Visual",
       "fair": {
-        "title": "Compared on data, not on marketing copy.",
-        "description": "Listing portals optimize for clicks. AiSumai produces a fair, transparent report that lays out the good and the worrying side by side, on the same scale.",
-        "tag": "Bias-free"
+        "title": "Beyond the listing photos.",
+        "description": "AiSumai reads between the lines — layout, light, noise, commute — so you see what daily life there would actually feel like.",
+        "tag": "Deep read"
       },
       "fast": {
         "title": "First read in under a minute.",
